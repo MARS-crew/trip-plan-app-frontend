@@ -1,13 +1,13 @@
-import create from 'zustand';
+import { create } from 'zustand';
 
-// 예시 상태 타입
+// example of state types
 interface AppState {
   count: number;
   increase: () => void;
   decrease: () => void;
 }
 
-// zustand 스토어 생성
+// create zustand store
 export const useAppStore = create<AppState>(set => ({
   count: 0,
   increase: () => set(state => ({ count: state.count + 1 })),
