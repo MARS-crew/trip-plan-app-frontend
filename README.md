@@ -39,12 +39,13 @@ src/
   services/           # API 호출 및 비즈니스 로직
   assets/             # 이미지, 폰트 등 정적 리소스
 ```
+그 외 Android, iOS 네이티브 코드와 설정 파일이 각각 `android/`와 `ios/` 폴더에 위치합니다.
+
 
 ### 📄 코드컨벤션 참고
 
 https://www.notion.so/3175c24e663e801ab445fb5bbbe127d1?source=copy_link
 
-그 외 Android, iOS 네이티브 코드와 설정 파일이 각각 `android/`와 `ios/` 폴더에 위치합니다.
 
 ### 💡 추가 팁
 
