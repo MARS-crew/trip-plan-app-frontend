@@ -1,18 +1,42 @@
 import { create } from 'zustand';
+import { DEFAULT_SEARCH_RADIUS_METER } from '../constants';
+import type { LatLng, PlaceDetail, PlaceSummary } from '../types';
 
-// example of state types
-interface AppState {
-  count: number;
-  increase: () => void;
-  decrease: () => void;
+interface PlaceSearchState {
+  center: LatLng;
+  radiusMeter: number;
+  places: PlaceSummary[];
+  selectedPlaceDetail: PlaceDetail | null;
+  isSearching: boolean;
+  isLoadingDetail: boolean;
+  error: string | null;
+  setCenter: (center: LatLng) => void;
+  setRadiusMeter: (radiusMeter: number) => void;
+  setPlaces: (places: PlaceSummary[]) => void;
+  setSelectedPlaceDetail: (placeDetail: PlaceDetail | null) => void;
+  setIsSearching: (isSearching: boolean) => void;
+  setIsLoadingDetail: (isLoadingDetail: boolean) => void;
+  setError: (error: string | null) => void;
 }
 
-// create zustand store
-export const useAppStore = create<AppState>(set => ({
-  count: 0,
-  increase: () => set(state => ({ count: state.count + 1 })),
-  decrease: () => set(state => ({ count: state.count - 1 })),
-}));
+const DEFAULT_CENTER: LatLng = {
+  latitude: 37.5665,
+  longitude: 126.978,
+};
 
-// 추가적으로 여러 스토어를 만들고 싶을 때는
-// 여기에서 export 해서 사용한다.
+export const usePlaceSearchStore = create<PlaceSearchState>(set => ({
+  center: DEFAULT_CENTER,
+  radiusMeter: DEFAULT_SEARCH_RADIUS_METER,
+  places: [],
+  selectedPlaceDetail: null,
+  isSearching: false,
+  isLoadingDetail: false,
+  error: null,
+  setCenter: center => set({ center }),
+  setRadiusMeter: radiusMeter => set({ radiusMeter }),
+  setPlaces: places => set({ places }),
+  setSelectedPlaceDetail: selectedPlaceDetail => set({ selectedPlaceDetail }),
+  setIsSearching: isSearching => set({ isSearching }),
+  setIsLoadingDetail: isLoadingDetail => set({ isLoadingDetail }),
+  setError: error => set({ error }),
+}));

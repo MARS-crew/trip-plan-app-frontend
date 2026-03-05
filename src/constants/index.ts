@@ -4,11 +4,29 @@
 // `process`는 Node 환경에서 제공되며, React Native에서는
 // Babel 플러그인 또는 환경변수 라이브러리로 정의해야 합니다.
 //간단히 타입 오류를 제거하기 위해 아래와 같이 선언합니다.
-declare const process: { env: { REACT_APP_API_BASE_URL?: string } };
+declare const process: {
+  env: {
+    REACT_APP_GOOGLE_PLACES_API_KEY?: string;
+    REACT_APP_API_BASE_URL?: string;
+  };
+};
 
 export const API_BASE_URL =
   (typeof process !== 'undefined' && process.env.REACT_APP_API_BASE_URL) ||
   'http://localhost:3000';
+
+export const GOOGLE_PLACES_API_KEY =
+  (typeof process !== 'undefined' && process.env.REACT_APP_GOOGLE_PLACES_API_KEY) ||
+  'AIzaSyBbrk_vQIakKhs0ZoKpY_kI_xhqDHYTAVQ';
+
+export const DEFAULT_SEARCH_RADIUS_METER = 3000;
+export const DEFAULT_TOUR_PLACE_TYPES = [
+  'tourist_attraction',
+  'museum',
+  'park',
+  'art_gallery',
+  'amusement_park',
+];
 
 // App configuration
 export const APP_NAME = 'Trip Plan';

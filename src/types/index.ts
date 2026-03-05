@@ -1,18 +1,30 @@
-// Type definitions for the application
-
-// Example types
-export interface User {
-  id: string;
-  name: string;
-  email: string;
+export interface LatLng {
+  latitude: number;
+  longitude: number;
 }
 
-export interface Trip {
+export interface PlaceSummary {
   id: string;
-  title: string;
-  description?: string;
-  startDate: Date;
-  endDate: Date;
+  displayName: string;
+  formattedAddress?: string;
+  location: LatLng;
+  rating?: number;
+  userRatingCount?: number;
 }
 
-// Add other types as needed
+export interface PlaceReview {
+  name?: string;
+  relativePublishTimeDescription?: string;
+  rating?: number;
+  text?: string;
+}
+
+export interface PlaceDetail {
+  id: string;
+  displayName: string;
+  formattedAddress?: string;
+  editorialSummary?: string;
+  rating?: number;
+  userRatingCount?: number;
+  reviews: PlaceReview[];
+}
