@@ -1,11 +1,5 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+// screens barrel file
+// 각 스크린 컴포넌트는 PascalCase + Screen 접미사를 사용한다.
+// 예: HomeScreen.tsx, TripDetailScreen.tsx
 
-// Placeholder screen component
-const ScreensPlaceholder: React.FC = () => (
-  <View>
-    <Text>Screens folder placeholder</Text>
-  </View>
-);
-
-export default ScreensPlaceholder;
+// export { default as HomeScreen } from './HomeScreen';
