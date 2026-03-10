@@ -5,3 +5,8 @@ export type RootTabParamList = {
   Bookmark: undefined;
   MyPage: undefined;
 };
+
+export type RootStackParamList = {
+  MainTabs: { screen?: keyof RootTabParamList } | undefined;
+  DestinationDetail: { destinationId: string };
+};

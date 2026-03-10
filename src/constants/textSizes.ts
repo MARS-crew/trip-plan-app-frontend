@@ -20,7 +20,7 @@ export const TEXT_SIZES: Record<string, TextSizeConfig> = {
   h2: {
     fontSize: 16,
     lineHeight: 1.2,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   h3: {
     fontSize: 14,
