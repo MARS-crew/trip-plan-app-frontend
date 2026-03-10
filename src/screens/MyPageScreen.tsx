@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const MyPageScreen: React.FC = () => {
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <View className="flex-1 items-center justify-center">
         <Text className="text-h1 font-bold text-black">마이페이지</Text>
       </View>
@@ -12,4 +12,7 @@ const MyPageScreen: React.FC = () => {
   );
 };
 
+MyPageScreen.displayName = 'MyPageScreen';
+
 export default MyPageScreen;
+export { MyPageScreen };

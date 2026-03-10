@@ -9,12 +9,15 @@ export const COLORS = {
   background: '#E8E6E5',
   white: '#FFFFFF',
   borderGray: '#E5E0DC',
+  chip: '#F4F0EC',
+  screenBackground: '#FDFBF9',
+  contentBackground: '#FCF0E8',
 } as const;
 
 // 네비게이션바 전용 색상 상수
 export const COLOR_VALUES = {
   main: COLORS.main,
   gray: COLORS.gray,
-  border: COLORS.borderGray,
+  borderGray: COLORS.borderGray,
 } as const;
 

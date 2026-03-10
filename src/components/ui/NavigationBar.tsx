@@ -36,7 +36,7 @@ const ICON_SIZE = 24;
 // ============ Component ============
 export const NavigationBar = React.memo<NavigationBarProps>(
   ({ activeTab, onTabChange }) => {
-    // 1. Hooks
+    // Hooks
     const handleTabPress = useCallback(
       (tabId: string): void => {
         onTabChange(tabId);
@@ -44,9 +44,9 @@ export const NavigationBar = React.memo<NavigationBarProps>(
       [onTabChange],
     );
 
-    // 2. 렌더링
+    // 렌더링
     return (
-      <View className="relative flex-row items-center justify-around w-full h-[58px] bg-white border-t border-navborder">
+      <View className="relative flex-row items-center justify-around w-full h-[58px] bg-white border-t border-borderGray">
         {/* 네비게이션 아이템 */}
         {NAV_ITEMS.map((item) => {
           const isActive = activeTab === item.id;
