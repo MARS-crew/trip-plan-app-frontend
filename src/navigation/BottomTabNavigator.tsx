@@ -8,11 +8,11 @@ import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 
 import {
   HomeScreen,
-  SearchScreen,
   MapScreen,
   BookmarkScreen,
   MyPageScreen,
 } from '@/screens';
+import SearchStackNavigator from './SearchStackNavigator';
 import { HomeIcon, SearchIcon, MapIcon, BookmarkIcon, MyPageIcon } from '@/assets/icons';
 import { COLORS } from '@/constants';
 
@@ -48,21 +48,21 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
-      className="flex-1 items-center justify-center">
-      {/* 상단 인디케이터 */}
+      className="flex-1 items-center justify-center relative">
+      {/* 상단 인디케이터 - 탭바 최상단 테두리 위치 */}
       <View
-        className={`w-6 h-[2px] rounded-[1.5px] mt-1 mb-2 self-center ${
+        className={`absolute top-0 w-6 h-[2px] rounded-[1.5px] self-center ${
           isActive ? 'bg-main' : 'bg-transparent'
         }`}
       />
 
       {/* 아이콘 */}
-      <View className="items-center justify-center">
+      <View className="items-center justify-center mt-[9px]">
         {children}
       </View>
 
       {/* 라벨 */}
-      <View className="items-center justify-center mt-[9px]">
+      <View className="items-center justify-center">
         <Text
           numberOfLines={1}
           className={`text-[10px] font-medium text-center ${isActive ? 'text-main' : 'text-gray'}`}
@@ -123,8 +123,6 @@ const BottomTabNavigator: React.FC = () => {
         borderTopWidth: 1,
         borderTopColor: COLORS.borderGray,
         paddingTop: 0,
-        paddingBottom: insets.bottom,
-        paddingHorizontal: TAB_BAR_HORIZONTAL_PADDING,
         height: 58 + insets.bottom,
         elevation: 0,
         shadowOpacity: 0,
@@ -151,7 +149,7 @@ const BottomTabNavigator: React.FC = () => {
     <Tab.Navigator screenOptions={getScreenOptions}>
       <Tab.Screen
         name="Search"
-        component={SearchScreen}
+        component={SearchStackNavigator}
         options={{ tabBarButton: createTabBarButton('Search', '검색') }}
       />
       <Tab.Screen

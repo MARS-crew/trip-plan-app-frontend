@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, Pressable } from 'react-native';
 
 // ============ Types ============
@@ -12,11 +12,16 @@ export interface ChipProps {
 // ============ Component ============
 export const Chip = React.memo<ChipProps>(
   ({ label, onPress, isSelected = false, className }) => {
-    // 2. 렌더링
+    // Hooks
+    const handlePress = useCallback(() => {
+      onPress?.();
+    }, [onPress]);
+
+    // 렌더링
     if (onPress) {
       return (
         <Pressable
-          onPress={onPress}
+          onPress={handlePress}
           className={`px-4 py-2 bg-chip rounded-2xl ${className ?? ''}`}
           accessibilityRole="button"
           accessibilityLabel={label}
