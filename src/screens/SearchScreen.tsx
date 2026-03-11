@@ -4,21 +4,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import type { RootStackParamList } from '@/navigation/types';
+import type { SearchStackParamList } from '@/navigation/SearchStackNavigator';
 
 // ============ Types ============
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type NavigationProp = NativeStackNavigationProp<SearchStackParamList>;
 
 // ============ Component ============
 const SearchScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
 
-  // 1. Hooks
+  // Hooks
   const handleNavigateToDetail = useCallback(() => {
     navigation.navigate('DestinationDetail', { destinationId: '1' });
   }, [navigation]);
 
-  // 2. 렌더링
+  // 렌더링
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <View className="flex-1 items-center justify-center px-4">
