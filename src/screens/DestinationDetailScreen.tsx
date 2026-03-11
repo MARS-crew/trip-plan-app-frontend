@@ -211,7 +211,7 @@ const DestinationDetailScreen: React.FC = () => {
                 </View>
               </ContentContainer>
             </View>
-            <View className="mt-2">
+            <View className="mt-2 mb-[26px]">
               <ContentContainer>
                 <View className="flex-row items-center justify-between ml-4 my-3">
                   <View className="flex-row items-center">
