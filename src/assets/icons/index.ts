@@ -12,6 +12,7 @@ export { default as SaveIcon } from './save.svg';
 export { default as StarIcon } from './star.svg';
 export { default as ScheduleIcon } from './schedule.svg';
 export { default as MarkerIcon } from './marker.svg';
+
 export { default as InfoIcon } from './info.svg';
 export { default as ReviewIcon } from './review.svg';
 export { default as ActiveInfoIcon } from './activeinfo.svg';
@@ -20,6 +21,9 @@ export { default as TimeIcon } from './time.svg';
 export { default as AddressIcon } from './address.svg';
 export { default as PlaceIcon } from './place.svg';
 export { default as VectorIcon } from './vector.svg';
+
+
+export { default as SearchArrowIcon } from './searcharrow.svg';
 
 // 타입 정의
 export interface IconProps {
