@@ -228,6 +228,13 @@ const DestinationDetailScreen: React.FC = () => {
                 </View>
               </ContentContainer>
             </View>
+              </>
+            ) : (
+              // TODO: 리뷰 탭 컨텐츠 구현 필요
+              <View>
+                <Text className="text-p text-gray">여기에 리뷰 작성 고고싱</Text>
+              </View>
+            )}
           </View>
       </ScrollView>
     </SafeAreaView>
