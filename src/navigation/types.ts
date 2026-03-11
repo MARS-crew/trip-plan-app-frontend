@@ -14,4 +14,8 @@ export type RootTabParamList = {
 
 export type RootStackParamList = {
   MainTabs: { screen?: keyof RootTabParamList } | undefined;
+
+  DestinationDetail: { destinationId: string };
+    WishlistScreen: { WishlistScreen: string };
+
 };
