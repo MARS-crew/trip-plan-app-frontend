@@ -43,16 +43,16 @@ const WishlistScreen: React.FC = () => {
         }}>
             </MapView> 
          
-                   <View className="flex flex-row items-center justify-center w-10 h-10">
+                    <View  className="absolute top-4 left-4 right-4 z-10" >  
                   <SearchContainer>
                       {/* 왼쪽: 뒤로가기 버튼 */}
-      <TouchableOpacity><View className='flex flex-row items-center'>
+      <TouchableOpacity  onPress={handleGoBack}><View className="top-3">
    <SearchArrowIcon/>
   </View>
   </TouchableOpacity>
   {/* 2. 검색 입력창 */}
   <TextInput
-    className="flex-1 h-10 px-2 text-base"
+    className="flex-1  px-2 text-base"
     placeholder="희망하는 관광지를 검색하세요"
     placeholderTextColor="#999"
   />
