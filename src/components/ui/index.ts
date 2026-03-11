@@ -3,3 +3,7 @@ export { NavigationBar } from './NavigationBar';
 export type { NavigationBarProps } from './NavigationBar';
 export { Chip } from './Chip';
 export type { ChipProps } from './Chip';
+export { TabNavigation } from './TabNavigation';
+export type { TabNavigationProps, TabItem } from './TabNavigation';
+export { ContentContainer } from './ContentContainer';
+export type { ContentContainerProps } from './ContentContainer';

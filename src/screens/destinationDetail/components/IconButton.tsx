@@ -30,12 +30,12 @@ export const IconButton = React.memo<IconButtonProps>(
     accessibilityLabel,
     className,
   }) => {
-    // 1. Hooks
+    // Hooks
     const handlePress = useCallback(() => {
       onPress();
     }, [onPress]);
 
-    // 2. 파생 값
+    // 파생 값
     const borderRadius = DEFAULT_SIZE / 2;
     // hex 색상을 rgba로 변환
     const hexToRgba = (hex: string, opacity: number): string => {
@@ -46,7 +46,7 @@ export const IconButton = React.memo<IconButtonProps>(
     };
     const rgbaColor = hexToRgba(backgroundColor, backgroundColorOpacity);
 
-    // 3. 렌더링
+    // 렌더링
     return (
       <TouchableOpacity
         onPress={handlePress}
