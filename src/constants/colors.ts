@@ -20,4 +20,3 @@ export const COLOR_VALUES = {
   gray: COLORS.gray,
   borderGray: COLORS.borderGray,
 } as const;
-
