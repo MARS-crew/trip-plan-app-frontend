@@ -88,7 +88,7 @@ const SelectTripScreen: React.FC = () => {
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <View className="mt-[6px] ml-4">
-        <Text className="text-black font-bold">추가할 여행 선택</Text>
+        <Text className="text-h text-black font-bold">추가할 여행 선택</Text>
         <Text className="text-p text-gray font-regular">2개의 여행이 있어요</Text>
         
         {/* 여행 정보 카드 */}
@@ -111,7 +111,7 @@ const SelectTripScreen: React.FC = () => {
                 />
                 
                 {/* 여행 중 버튼 */}
-                <View className="absolute top-[13px] left-[15px] flex-row gap-2">
+                <View className="absolute top-[13px] left-[15px]">
                   <TripStatusChip status="traveling" />
                 </View>
                 
@@ -132,7 +132,7 @@ const SelectTripScreen: React.FC = () => {
           </View>
           
           <Shadow
-            distance={3}
+            distance={2}
             startColor="#00000025"
             endColor="#00000000"
             offset={[0, 0]}
@@ -291,7 +291,7 @@ const SelectTripScreen: React.FC = () => {
           </View>
           
           <Shadow
-            distance={3}
+            distance={2}
             startColor="#00000025"
             endColor="#00000000"
             offset={[0, 0]}
