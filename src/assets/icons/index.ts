@@ -21,7 +21,7 @@ export { default as TimeIcon } from './time.svg';
 export { default as AddressIcon } from './address.svg';
 export { default as PlaceIcon } from './place.svg';
 export { default as VectorIcon } from './vector.svg';
-
+export { default as SearchingIcon } from './searching.svg';
 
 export { default as SearchArrowIcon } from './searcharrow.svg';
 
