@@ -6,8 +6,51 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Chip } from '@/components/ui';
 import TripCard from '@/screens/myTrip/TripCard';
+import { TripTimeline } from '@/screens/myTrip';
 
 type MapScreenNavigation = NativeStackNavigationProp<any>;
+
+const timelineItems = [
+  {
+    id: '1',
+    startTime: '09:00',
+    endTime: '11:00',
+    title: '아사쿠사 센소지',
+    location: '아사쿠사, 도쿄',
+    description: '도쿄에서 가장 오래된 사원 방문',
+  },
+  {
+    id: '2',
+    startTime: '12:00',
+    endTime: '13:30',
+    title: '츠키지 시장 점심',
+    location: '츠키지, 도쿄',
+    description: '신선한 스시와 해산물 즐기기'
+  },
+  {
+    id: '3',
+    startTime: '14:30',
+    endTime: '16:00',
+    title: '시부야 스크램블 교차로',
+    location: '시부야, 도쿄'
+  },
+  {
+    id: '4',
+    startTime: '17:00',
+    endTime: '18:30',
+    title: '하라주쿠 탐방',
+    location: '하라주쿠, 도쿄',
+    description: '쇼핑하기',
+  },
+  {
+    id: '5',
+    startTime: '19:30',
+    endTime: '18:30',
+    title: '츠키지 시장 점심',
+    location: '하라주쿠, 도쿄',
+    description: '쇼핑하기',
+  },
+];
 
 const MyTripScreen: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('전체');
@@ -16,6 +59,9 @@ const MyTripScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    <ScrollView className="flex-1"
+    showsVerticalScrollIndicator={false}
+    contextContainerStyle={{ paddingBottom:24 }} >
       <View className="flex-1 bg-screenBackground px-5 pt-6">
         <View className="flex-row items-start justify-between">
           <View>
@@ -66,7 +112,7 @@ const MyTripScreen: React.FC = () => {
           isOpen={openCardId === 1}
           onToggle={() => setOpenCardId((prev) => (prev === 1 ? null : 1))}
         >
-          <Text>스케줄 컴포넌트 추가 예정</Text>
+           <TripTimeline items={timelineItems} />
         </TripCard>
 
         <TripCard
@@ -78,7 +124,7 @@ const MyTripScreen: React.FC = () => {
           isOpen={openCardId === 2}
           onToggle={() => setOpenCardId((prev) => (prev === 2 ? null : 2))}
         >
-          <Text>스케줄 컴포넌트 추가 예정</Text>
+           <TripTimeline items={timelineItems} />
         </TripCard>
 
         <TripCard
@@ -90,9 +136,10 @@ const MyTripScreen: React.FC = () => {
           isOpen={openCardId === 3}
           onToggle={() => setOpenCardId((prev) => (prev === 3 ? null : 3))}
         >
-          <Text>스케줄 컴포넌트 추가 예정</Text>
+           <TripTimeline items={timelineItems} />
         </TripCard>
       </View>
+     </ScrollView>
     </SafeAreaView>
   );
 };
