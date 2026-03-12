@@ -68,10 +68,10 @@ const DestinationDetailScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* 헤더 이미지 영역 */}
-        <View className="relative w-full h-[300px]">
+        <View className="relative w-full">
           <Image
             source={require('@/assets/images/thumnail.png')}
-            className="w-full h-full"
+            className="w-full"
             resizeMode="cover"
           />
 
