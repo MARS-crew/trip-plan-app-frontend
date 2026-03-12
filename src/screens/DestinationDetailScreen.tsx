@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, Image, Text, ScrollView } from 'react-native';
+import { View, Image, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -49,6 +49,10 @@ const DestinationDetailScreen: React.FC = () => {
   const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId);
   }, []);
+
+  const handleAddToSchedule = useCallback(() => {
+    navigation.navigate('SelectTrip');
+  }, [navigation]);
 
   // 파생 값
   const tabs = React.useMemo(
@@ -112,10 +116,12 @@ const DestinationDetailScreen: React.FC = () => {
               <Text className="text-p text-gray ml-3 font-medium">리뷰 56,789개</Text>
             </View>
 
-            <View className="w-[108px] h-9 bg-main rounded-[6px] flex-row items-center justify-center">
+            <TouchableOpacity
+              className="w-[108px] h-9 bg-main rounded-[6px] flex-row items-center justify-center"
+              onPress={handleAddToSchedule}>
               <ScheduleIcon />
               <Text className="text-p text-white ml-[6px] font-regular">일정 추가하기</Text>
-            </View>
+            </TouchableOpacity>
           </View>
 
           {/* 카테고리 Chip */}
