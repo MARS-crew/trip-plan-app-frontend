@@ -11,6 +11,7 @@ const colors = {
   chip: '#F4F0EC',
   screenBackground: '#FDFBF9',
   contentBackground: '#FCF0E8',
+  botoomSheetBackground: '#DBDBDB',
 };
 
 const fontSize = {
