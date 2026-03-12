@@ -25,6 +25,7 @@ export { default as VectorIcon } from './vector.svg';
 export { default as VectorGrayIcon } from './vectorgray.svg';
 export { default as StarOffIcon } from './starOff.svg';
 
+export { default as SearchingIcon } from './searching.svg';
 
 export { default as SearchArrowIcon } from './searcharrow.svg';
 

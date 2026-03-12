@@ -3,7 +3,7 @@ import { View, Image, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { LeftArrowIcon, SaveIcon, ShareIcon, StarIcon, ScheduleIcon, MarkerIcon, SearchArrowIcon } from '@/assets/icons';
+import { LeftArrowIcon, SaveIcon, ShareIcon, StarIcon, ScheduleIcon, MarkerIcon, SearchArrowIcon, SearchingIcon } from '@/assets/icons';
 import { SearchContainer } from '@/components/ui';
 import type { RootStackParamList } from '@/navigation/types';
 import MapView, {
@@ -43,22 +43,25 @@ const WishlistScreen: React.FC = () => {
         }}>
             </MapView> 
          
-                    <View  className="absolute top-4 left-4 right-4 z-10" >  
+                    <View  className="absolute top-[5px] left-4 right-4 z-10" >  
                   <SearchContainer>
                       {/* 왼쪽: 뒤로가기 버튼 */}
-      <TouchableOpacity  onPress={handleGoBack}><View className="top-3">
+      <TouchableOpacity  onPress={handleGoBack}>
    <SearchArrowIcon/>
-  </View>
+  
   </TouchableOpacity>
   {/* 2. 검색 입력창 */}
+  <View className="">
   <TextInput
-    className="flex-1  px-2 text-base"
+    className="flex-1  text-h3 font-regular pr-12"
     placeholder="희망하는 관광지를 검색하세요"
     placeholderTextColor="#999"
-  />
+  /></View>
 
   {/* 3. 검색 아이콘 (필요시) */}
-
+<TouchableOpacity className="absolute right-4">
+  <SearchingIcon/>
+  </TouchableOpacity>
 </SearchContainer>
 </View>
 </View>
