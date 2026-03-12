@@ -22,7 +22,6 @@ import type { RootTabParamList } from './types';
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 const ICON_SIZE = 24;
-const TAB_BAR_HORIZONTAL_PADDING = 0;
 
 // ============ Sub Components ============
 interface CustomTabBarButtonProps extends BottomTabBarButtonProps {
@@ -38,11 +37,46 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
   label,
 }) => {
   
-  const currentRoute = useNavigationState(
-    (state) => state.routes[state.index]?.name as keyof RootTabParamList,
-  );
+  const navigationState = useNavigationState((state) => state);
+  
+  // 현재 탭 라우트 확인
+  const currentRoute = navigationState?.routes[navigationState?.index ?? 0]?.name as keyof RootTabParamList;
+  
+  // Search 스택의 현재 화면 확인
+  const searchStackState = navigationState?.routes.find(
+    (route) => route.name === 'Search',
+  )?.state;
+  
+  const searchCurrentScreen = searchStackState?.routes[searchStackState?.index ?? 0]?.name;
+  
+  // SelectTripScreen이면 Map 탭 활성화
+  const isActive = searchCurrentScreen === 'SelectTrip' 
+    ? routeName === 'Map' 
+    : currentRoute === routeName;
 
-  const isActive = currentRoute === routeName;
+  // 아이콘 렌더링 함수
+  const getIcon = useCallback(() => {
+    const iconColor = isActive ? COLORS.main : COLORS.gray;
+    const iconProps = {
+      width: ICON_SIZE,
+      height: ICON_SIZE,
+      fill: iconColor,
+      color: iconColor,
+    };
+
+    switch (routeName) {
+      case 'Home':
+        return <HomeIcon {...iconProps} />;
+      case 'Search':
+        return <SearchIcon {...iconProps} />;
+      case 'Map':
+        return <MapIcon {...iconProps} />;
+      case 'Bookmark':
+        return <BookmarkIcon {...iconProps} />;
+      case 'MyPage':
+        return <MyPageIcon {...iconProps} />;
+    }
+  }, [isActive, routeName]);
 
   return (
     <TouchableOpacity
@@ -51,18 +85,18 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
       className="flex-1 items-center justify-center relative">
       {/* 상단 인디케이터 - 탭바 최상단 테두리 위치 */}
       <View
-        className={`absolute top-0 w-6 h-[2px] rounded-[1.5px] self-center ${
+        className={`absolute -top-[1px] w-6 h-[2px] rounded-full self-center ${
           isActive ? 'bg-main' : 'bg-transparent'
         }`}
       />
 
       {/* 아이콘 */}
       <View className="items-center justify-center mt-[9px]">
-        {children}
+        {getIcon()}
       </View>
 
       {/* 라벨 */}
-      <View className="items-center justify-center">
+      <View className="items-center justify-center mt-[1px]">
         <Text
           numberOfLines={1}
           className={`text-[10px] font-medium text-center ${isActive ? 'text-main' : 'text-gray'}`}

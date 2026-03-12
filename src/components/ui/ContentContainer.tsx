@@ -25,7 +25,7 @@ export const ContentContainer = React.memo<ContentContainerProps>(
     return (
       <View className={widthClass || undefined}>
         <Shadow
-          distance={3}
+          distance={2}
           startColor="#00000025"
           endColor="#00000000"
           offset={[0, 0]}

@@ -12,3 +12,7 @@ export type { ContentContainerProps } from './ContentContainer';
 export {SearchContainer} from './SearchContainer';
 export type { SearchContainerProps } from './SearchContainer';
 
+
+export { TripStatusChip } from './TripStatusChip';
+export type { TripStatusChipProps, TripStatus } from './TripStatusChip';
+

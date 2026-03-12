@@ -1,6 +1,7 @@
 export type SearchStackParamList = {
   SearchMain: undefined;
   DestinationDetail: { destinationId: string };
+  SelectTrip: undefined;
 };
 
 export type RootTabParamList = {

@@ -5,4 +5,7 @@ export { default as MapScreen } from './MapScreen';
 export { default as BookmarkScreen } from './BookmarkScreen';
 export { default as MyPageScreen } from './MyPageScreen';
 export { default as DestinationDetailScreen } from './DestinationDetailScreen';
+
 export { default as WishlistScreen } from './WishlistScreen';
+
+export { default as SelectTripScreen } from './SelectTripScreen';
