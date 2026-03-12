@@ -2,17 +2,17 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const BookmarkScreen: React.FC = () => {
+const MyTripScreen: React.FC = () => {
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <View className="flex-1 items-center justify-center">
-        <Text className="text-h1 font-bold text-black">저장</Text>
+        <Text className="text-h1 font-bold text-black">내여행</Text>
       </View>
     </SafeAreaView>
   );
 };
 
-BookmarkScreen.displayName = 'BookmarkScreen';
+MyTripScreen.displayName = 'MyTripScreen';
 
-export default BookmarkScreen;
-export { BookmarkScreen };
+export default MyTripScreen;
+export { MyTripScreen };

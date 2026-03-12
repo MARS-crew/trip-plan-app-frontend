@@ -1,9 +1,9 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import SearchScreen from '@/screens/SearchScreen';
-import DestinationDetailScreen from '@/screens/DestinationDetailScreen';
-import SelectTripScreen from '@/screens/SelectTripScreen';
+import SearchScreen from '@/screens/search';
+import DestinationDetailScreen from '@/screens/destinationDetail';
+import SelectTripScreen from '@/screens/selectTrip';
 
 // ============ Types ============
 export type SearchStackParamList = {
