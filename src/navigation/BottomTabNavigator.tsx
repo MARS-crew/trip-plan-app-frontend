@@ -12,6 +12,7 @@ import {
   SavedScreen,
   MyPageScreen,
 } from '@/screens';
+import HomeStackNavigator from './HomeStackNavigator';
 import SearchStackNavigator from './SearchStackNavigator';
 import { HomeIcon, SearchIcon, MapIcon, BookmarkIcon, MyPageIcon } from '@/assets/icons';
 import { COLORS } from '@/constants';
@@ -193,7 +194,7 @@ const BottomTabNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeStackNavigator}
         options={{ tabBarButton: createTabBarButton('Home', '홈') }}
       />
       <Tab.Screen
