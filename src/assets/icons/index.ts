@@ -18,6 +18,7 @@ export { default as ReviewIcon } from './review.svg';
 export { default as ActiveInfoIcon } from './activeinfo.svg';
 export { default as ActiveReviewIcon } from './activereview.svg';
 export { default as TimeIcon } from './time.svg';
+export { default as Time2Icon } from './time2.svg';
 export { default as AddressIcon } from './address.svg';
 export { default as LocationIcon } from './location.svg';
 export { default as LocationOrangeIcon } from './location_orange.svg';
