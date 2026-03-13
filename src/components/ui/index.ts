@@ -9,10 +9,12 @@ export type { TabNavigationProps, TabItem } from './TabNavigation';
 export { ContentContainer } from './ContentContainer';
 export type { ContentContainerProps } from './ContentContainer';
 
-export {SearchContainer} from './SearchContainer';
+export { SearchContainer } from './SearchContainer';
 export type { SearchContainerProps } from './SearchContainer';
 
 
 export { TripStatusChip } from './TripStatusChip';
 export type { TripStatusChipProps, TripStatus } from './TripStatusChip';
 
+export { TopBar } from './TopBar';
+export type { TopBarProps } from './TopBar';

@@ -22,9 +22,13 @@ export { default as AddressIcon } from './address.svg';
 export { default as PlaceIcon } from './place.svg';
 export { default as VectorIcon } from './vector.svg';
 export { default as SearchingIcon } from './searching.svg';
+export { default as VectorGrayIcon } from './vectorgray.svg';
+export { default as BackArrow } from './backArrow.svg';
+export { default as WeatherInfoIcon } from './weather-info.svg';
+export { default as ScheduleInfoIcon } from './schedule-info.svg';
 
 export { default as SearchArrowIcon } from './searcharrow.svg';
-export { default as VectorGrayIcon } from './vectorgray.svg';
+
 export { default as HeartIcon } from './heart.svg'
 export { default as ActiveHeartIcon } from './activeheart.svg'
 // 타입 정의

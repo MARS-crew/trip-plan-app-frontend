@@ -19,3 +19,9 @@ export type RootStackParamList = {
     WishlistScreen: { WishlistScreen: string };
 
 };
+
+
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  Alert: undefined;
+};
