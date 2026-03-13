@@ -25,7 +25,8 @@ export { default as SearchingIcon } from './searching.svg';
 
 export { default as SearchArrowIcon } from './searcharrow.svg';
 export { default as VectorGrayIcon } from './vectorgray.svg';
-
+export { default as HeartIcon } from './heart.svg'
+export { default as ActiveHeartIcon } from './activeheart.svg'
 // 타입 정의
 export interface IconProps {
   fill?: string;
