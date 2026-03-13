@@ -3,9 +3,8 @@ import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Chip } from '@/components/ui';
 
-<<<<<<< HEAD:src/screens/saved/SavedScreen.tsx
 const SavedScreen: React.FC = () => {
-=======
+
 // ============ SVG Imports ============
 const THUMBNAIL_IMAGE = require('@/assets/images/thumnail.png');
 const SaveIcon = require('@/assets/icons/activebookmark.svg').default;
@@ -134,7 +133,6 @@ const BookmarkScreen: React.FC = () => {
     setSelectedCategory(categoryId);
   };
 
->>>>>>> 23ed92c (저장된 장소 페이지):src/screens/BookmarkScreen.tsx
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView
@@ -186,7 +184,7 @@ const BookmarkScreen: React.FC = () => {
   );
 };
 
-SavedScreen.displayName = 'SavedScreen';
+BookmarkScreen.displayName = 'BookmarkScreen';
 
-export default SavedScreen;
-export { SavedScreen };
+export default BookmarkScreen;
+export { BookmarkScreen };
