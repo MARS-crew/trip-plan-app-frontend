@@ -32,6 +32,7 @@ export { default as EmailIcon } from './email.svg';
 export { default as CalendarIcon } from './calendar.svg';
 export { default as GenderIcon } from './gender.svg';
 export { default as EarthIcon } from './earth.svg';
+export { default as SecessionIcon } from './secession.svg';
 export { default as PlaceIcon } from './place.svg';
 export { default as VectorIcon } from './vector.svg';
 export { default as VectorGrayIcon } from './vectorgray.svg';
