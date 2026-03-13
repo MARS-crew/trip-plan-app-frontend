@@ -22,6 +22,9 @@ export { default as AddressIcon } from './address.svg';
 export { default as PlaceIcon } from './place.svg';
 export { default as VectorIcon } from './vector.svg';
 export { default as VectorGrayIcon } from './vectorgray.svg';
+export { default as BackArrow } from './backArrow.svg';
+export { default as WeatherInfoIcon } from './weather-info.svg';
+export { default as ScheduleInfoIcon } from './schedule-info.svg';
 
 // 타입 정의
 export interface IconProps {
