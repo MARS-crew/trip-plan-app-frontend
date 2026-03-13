@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Chip } from '@/components/ui';
-import {
-  PlaceIcon,
-  CalendarIcon,
-  ChevronDownIcon,
-  ChevronUpIcon
-} from '@/assets/icons';
+import TripCard from '@/screens/myTrip/TripCard';
+
+type MapScreenNavigation = NativeStackNavigationProp<any>;
 
 const MyTripScreen: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('전체');
-  const [isOpen, setIsOpen] = useState(false);
+  const [openCardId, setOpenCardId] = useState<number | null>(null);
+  const navigation = useNavigation<MapScreenNavigation>();
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
@@ -32,7 +32,7 @@ const MyTripScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/*Chip*/}
+    {/*Chip*/}
         <View className="mt-7 flex-row">
           <Chip
             label="전체"
@@ -42,7 +42,10 @@ const MyTripScreen: React.FC = () => {
           />
           <Chip
             label="예정된 여행"
-            onPress={() => setSelectedChip('예정된 여행')}
+            onPress={() => {
+                setSelectedChip('예정된 여행');
+                navigation.navigate('EmptyMapScreen');
+                }}
             isSelected={selectedChip === '예정된 여행'}
             className="mr-2"
           />
@@ -50,161 +53,45 @@ const MyTripScreen: React.FC = () => {
             label="지난 여행"
             onPress={() => setSelectedChip('지난 여행')}
             isSelected={selectedChip === '지난 여행'}
-            className="mr-2"
           />
         </View>
 
-        {/*드롭다운*/}
-        <View className="mt-6 overflow-hidden rounded-[8px] bg-white"
-          style={{
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.25,
-            shadowRadius: 3,
-            elevation: 3,
-          }}>
-          <View className="relative">
-            <Image
-              source={require('@/assets/images/thumbnail2.png')}
-              className="h-[144px] w-[370px]"
-              resizeMode="cover"
-            />
+    {/*TripCard*/}
+        <TripCard
+          city="도쿄"
+          dateText="2026.02.28 - 2026.03.03"
+          scheduleText="5개의 일정 4일간"
+          imageSource={require('@/assets/images/thumbnail2.png')}
+          status="traveling"
+          isOpen={openCardId === 1}
+          onToggle={() => setOpenCardId((prev) => (prev === 1 ? null : 1))}
+        >
+          <Text>스케줄 컴포넌트 추가 예정</Text>
+        </TripCard>
 
-            <View className="absolute bottom-5 left-4">
-              <Text className="ml-[1.2px] text-h1 font-bold text-white">도쿄</Text>
-              <View className="flex-row items-center">
-                <CalendarIcon width={12} height={12}/>
-                <Text className="text-p1 text-white ml-[4px]">2026.02.28 - 2026.03.03</Text>
-              </View>
-            </View>
-          </View>
+        <TripCard
+          city="도쿄"
+          dateText="2026.02.28 - 2026.03.03"
+          scheduleText="5개의 일정 4일간"
+          imageSource={require('@/assets/images/thumbnail2.png')}
+          status="scheduled"
+          isOpen={openCardId === 2}
+          onToggle={() => setOpenCardId((prev) => (prev === 2 ? null : 2))}
+        >
+          <Text>스케줄 컴포넌트 추가 예정</Text>
+        </TripCard>
 
-          <View className="flex-row items-center justify-between px-4 py-3">
-          <View className="flex-row items-center">
-          <PlaceIcon width={14} height={14} className="mr-1"/>
-            <Text className="ml-1 text-p text-gray">5개의 일정   4일간</Text>
-            </View>
-
-            <Pressable onPress={() => setIsOpen((prev) => !prev)}>
-             <View className="flex-row items-center">
-              <Text className="text-p text-main">
-                {isOpen ? '일정 접기 ' : '전체 보기 '}
-              </Text>
-              {isOpen ? (
-                <ChevronUpIcon width={14} height={14} />
-              ) : (
-                <ChevronDownIcon width={14} height={14} />
-              )}
-             </View>
-            </Pressable>
-          </View>
-
-          {isOpen && (
-            <View className="border-t border-chip px-4 py-4">
-            </View>
-          )}
-        </View>
-
-        <View className="mt-6 overflow-hidden rounded-[8px] bg-white"
-          style={{
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.25,
-            shadowRadius: 3,
-            elevation: 3,
-          }}>
-          <View className="relative">
-            <Image
-              source={require('@/assets/images/thumbnail2.png')}
-              className="h-[144px] w-[370px]"
-              resizeMode="cover"
-            />
-            <View className="absolute inset-0 bg-black/20" />
-
-            <View className="absolute bottom-5 left-4">
-              <Text className="ml-[1.2px] text-h1 font-bold text-white">도쿄</Text>
-              <View className="flex-row items-center">
-                <CalendarIcon width={12} height={12}/>
-                <Text className="text-p1 text-white ml-[4px]">2026.02.28 - 2026.03.03</Text>
-              </View>
-            </View>
-          </View>
-
-          <View className="flex-row items-center justify-between px-4 py-3">
-          <View className="flex-row items-center">
-          <PlaceIcon width={14} height={14} className="mr-1"/>
-            <Text className="ml-1 text-p text-gray">5개의 일정   4일간</Text>
-            </View>
-
-            <Pressable onPress={() => setIsOpen((prev) => !prev)}>
-             <View className="flex-row items-center">
-              <Text className="text-p text-main">
-                {isOpen ? '일정 접기 ' : '전체 보기 '}
-              </Text>
-              {isOpen ? (
-                <ChevronUpIcon width={14} height={14} />
-              ) : (
-                <ChevronDownIcon width={14} height={14} />
-              )}
-             </View>
-            </Pressable>
-          </View>
-
-          {isOpen && (
-            <View className="border-t border-chip px-4 py-4">
-            </View>
-          )}
-        </View>
-
-        <View className="mt-6 overflow-hidden rounded-[8px] bg-white"
-          style={{
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.25,
-            shadowRadius: 3,
-            elevation: 3,
-          }}>
-          <View className="relative">
-            <Image
-              source={require('@/assets/images/thumbnail2.png')}
-              className="h-[144px] w-[370px]"
-              resizeMode="cover"
-            />
-
-            <View className="absolute bottom-5 left-4">
-              <Text className="ml-[1.2px] text-h1 font-bold text-white">도쿄</Text>
-              <View className="flex-row items-center">
-                <CalendarIcon width={12} height={12}/>
-                <Text className="text-p1 text-white ml-[4px]">2026.02.28 - 2026.03.03</Text>
-              </View>
-            </View>
-          </View>
-
-          <View className="flex-row items-center justify-between px-4 py-3">
-          <View className="flex-row items-center">
-          <PlaceIcon width={14} height={14} className="mr-1"/>
-            <Text className="ml-1 text-p text-gray">5개의 일정   4일간</Text>
-            </View>
-
-            <Pressable onPress={() => setIsOpen((prev) => !prev)}>
-             <View className="flex-row items-center">
-              <Text className="text-p text-main">
-                {isOpen ? '일정 접기 ' : '전체 보기 '}
-              </Text>
-              {isOpen ? (
-                <ChevronUpIcon width={14} height={14} />
-              ) : (
-                <ChevronDownIcon width={14} height={14} />
-              )}
-             </View>
-            </Pressable>
-          </View>
-
-          {isOpen && (
-            <View className="border-t border-chip px-4 py-4">
-            </View>
-          )}
-        </View>
+        <TripCard
+          city="도쿄"
+          dateText="2026.02.28 - 2026.03.03"
+          scheduleText="5개의 일정 4일간"
+          imageSource={require('@/assets/images/thumbnail2.png')}
+          status="completed"
+          isOpen={openCardId === 3}
+          onToggle={() => setOpenCardId((prev) => (prev === 3 ? null : 3))}
+        >
+          <Text>스케줄 컴포넌트 추가 예정</Text>
+        </TripCard>
       </View>
     </SafeAreaView>
   );
