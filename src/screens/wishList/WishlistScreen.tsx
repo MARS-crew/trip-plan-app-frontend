@@ -7,7 +7,7 @@ import { SearchArrowIcon, SearchingIcon, VectorIcon, PlaceIcon, HeartIcon, Activ
 import BottomSheet from '@gorhom/bottom-sheet';
 import CustomBottomSheet from '@/components/ui/CustomBottomSheet';
 import { ContentContainer, SearchContainer } from '@/components/ui';
-import { Chip } from '@/components/ui';
+
 import type { RootStackParamList } from '@/navigation/types';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { useState } from "react";
@@ -19,7 +19,7 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 // ============ Component ============
 const WishlistScreen: React.FC = () => {
-  const categories = ["실시간 추천", "저장된 장소", "위시 리스트"];
+
   // 파생 값
   const tabs = React.useMemo(
     () => [

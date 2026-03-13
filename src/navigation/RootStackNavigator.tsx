@@ -3,8 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import BottomTabNavigator from './BottomTabNavigator';
 
-import DestinationDetailScreen from '@/screens/DestinationDetailScreen';
-import WishlistScreen from '@/screens/WishlistScreen';
+
+import WishlistScreen from '@/screens/wishList/WishlistScreen';
 
 import type { RootStackParamList } from './types';
 
@@ -17,7 +17,7 @@ export const RootStackNavigator: React.FC = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
 
-      <Stack.Screen name="DestinationDetail" component={DestinationDetailScreen} />
+
       <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
 
     </Stack.Navigator>
