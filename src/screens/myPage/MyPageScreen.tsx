@@ -1,4 +1,6 @@
 import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScrollView, TouchableOpacity, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -13,6 +15,9 @@ import {
   LogoutIcon,
   SettingIcon,
 } from '@/assets';
+import type { RootStackParamList } from '@/navigation';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface StatItem {
   id: string;
@@ -110,6 +115,12 @@ const SettingItemIcon: React.FC<{ type: SettingItem['type'] }> = ({ type }) => {
 };
 
 const MyPageScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp>();
+
+  const handleNavigateToAccountSettings = (): void => {
+    navigation.navigate('AccountSettings');
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -133,6 +144,7 @@ const MyPageScreen: React.FC = () => {
             </View>
 
             <TouchableOpacity
+              onPress={handleNavigateToAccountSettings}
               activeOpacity={0.8}
               className="rounded-xl bg-contentBackground px-3 py-1.5">
               <Text className="text-p font-medium text-black">편집</Text>
@@ -207,6 +219,7 @@ const MyPageScreen: React.FC = () => {
           {settingItems.map((item, index) => (
             <TouchableOpacity
               key={item.id}
+              onPress={item.type === 'account' ? handleNavigateToAccountSettings : undefined}
               activeOpacity={0.8}
               className={`flex-row items-center justify-between px-4 py-4 ${index !== settingItems.length - 1 ? 'border-b border-borderGray' : ''}`}>
               <View className="flex-row items-center">
