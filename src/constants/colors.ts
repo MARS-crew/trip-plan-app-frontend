@@ -3,6 +3,7 @@
 
 export const COLORS = {
   main: '#DF6C20',
+  mainLight: 'rgba(223, 108, 32, 0.102)',
   black: '#251D18',
   gray: '#8C7B73',
   serve: '#DF6C201A',
@@ -12,6 +13,8 @@ export const COLORS = {
   chip: '#F4F0EC',
   screenBackground: '#FDFBF9',
   contentBackground: '#FCF0E8',
+  shadowStart: 'rgba(0, 0, 0, 0.145)',
+  shadowEnd: 'rgba(0, 0, 0, 0)',
 } as const;
 
 // 네비게이션바 전용 색상 상수
