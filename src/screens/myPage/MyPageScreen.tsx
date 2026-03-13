@@ -121,6 +121,10 @@ const MyPageScreen: React.FC = () => {
     navigation.navigate('AccountSettings');
   };
 
+  const handleNavigateToNotificationSettings = (): void => {
+    navigation.navigate('NotificationSettings');
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -219,7 +223,11 @@ const MyPageScreen: React.FC = () => {
           {settingItems.map((item, index) => (
             <TouchableOpacity
               key={item.id}
-              onPress={item.type === 'account' ? handleNavigateToAccountSettings : undefined}
+              onPress={
+                item.type === 'account'
+                  ? handleNavigateToAccountSettings
+                  : handleNavigateToNotificationSettings
+              }
               activeOpacity={0.8}
               className={`flex-row items-center justify-between px-4 py-4 ${index !== settingItems.length - 1 ? 'border-b border-borderGray' : ''}`}>
               <View className="flex-row items-center">
