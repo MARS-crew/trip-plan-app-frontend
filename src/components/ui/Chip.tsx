@@ -22,20 +22,20 @@ export const Chip = React.memo<ChipProps>(
       return (
         <Pressable
           onPress={handlePress}
-          className={`px-4 py-2 bg-chip rounded-2xl ${className ?? ''}`}
+          className={`px-4 py-2 rounded-2xl ${isSelected ? 'bg-main' : 'bg-chip'} ${className ?? ''}`}
           accessibilityRole="button"
           accessibilityLabel={label}
           accessibilityState={{ selected: isSelected }}>
-          <Text className="text-p text-black">{label}</Text>
+          <Text className={`text-p ${isSelected ? 'text-white' : 'text-black'}`}>{label}</Text>
         </Pressable>
       );
     }
 
     return (
       <View
-        className={`px-4 py-2 bg-chip rounded-2xl ${className ?? ''}`}
+        className={`px-4 py-2 rounded-2xl ${isSelected ? 'bg-main' : 'bg-chip'} ${className ?? ''}`}
         accessibilityLabel={label}>
-        <Text className="text-p text-black">{label}</Text>
+        <Text className={`text-p ${isSelected ? 'text-white' : 'text-black'}`}>{label}</Text>
       </View>
     );
   },

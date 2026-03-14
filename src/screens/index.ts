@@ -8,3 +8,4 @@ export { default as AccountSettingsScreen } from './accountSettings/AccountSetti
 export { default as NotificationSettingsScreen } from './notificationSettings/NotificationSettingsScreen';
 export { default as DestinationDetailScreen } from './destinationDetail';
 export { default as SelectTripScreen } from './selectTrip';
+export { default as EmptyMapScreen } from './myTrip';
