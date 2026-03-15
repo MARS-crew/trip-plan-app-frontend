@@ -7,6 +7,9 @@ import BottomTabNavigator from './BottomTabNavigator';
 import WishlistScreen from '@/screens/wishList/WishlistScreen';
 
 import type { RootStackParamList } from './types';
+import EmptyMapScreen from '@/screens/EmptyMapScreen';
+import AccountSettingsScreen from '@/screens/accountSettings/AccountSettingsScreen';
+import NotificationSettingsScreen from '@/screens/notificationSettings/NotificationSettingsScreen';
 
 // ============ Constants ============
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -20,6 +23,9 @@ export const RootStackNavigator: React.FC = () => {
 
       <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
 
+      <Stack.Screen name="EmptyMapScreen" component={EmptyMapScreen} />
+      <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
+      <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
     </Stack.Navigator>
   );
 };

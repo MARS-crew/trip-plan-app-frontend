@@ -18,6 +18,8 @@ export type RootStackParamList = {
   DestinationDetail: { destinationId: string };
   WishlistScreen: undefined;
 
+  AccountSettings: undefined;
+  NotificationSettings: undefined;
 };
 
 
