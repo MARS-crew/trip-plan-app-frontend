@@ -26,7 +26,7 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
 
 
-      <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
+      <Stack.Screen name="Wish" component={WishlistScreen} />
 
       <Stack.Screen name="EmptyMapScreen" component={EmptyMapScreen} />
       <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />

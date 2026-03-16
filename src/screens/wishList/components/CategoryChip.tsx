@@ -18,7 +18,7 @@ export const CategoryChip = React.memo<CategoryChipProps>(
         }, [onPress]);
 
 
-        const defaultContainerStyle = 'rounded-2xl items-center justify-center';
+        const defaultContainerStyle = 'items-center justify-center';
 
         // 선택 여부에 따른 색상만 자동으로 처리
         const bgStyle = isSelected ? 'bg-main' : 'bg-chip';
@@ -33,7 +33,7 @@ export const CategoryChip = React.memo<CategoryChipProps>(
             return (
                 <Pressable
                     onPress={handlePress}
-                    className={`${defaultContainerStyle} ${bgStyle} ${className ?? 'px-2 py-[2px]'}`}
+                    className={`${defaultContainerStyle} ${bgStyle} ${className ?? 'px-2 py-[2px] rounded-2xl '}`}
                 >
                     {renderContent}
                 </Pressable>
@@ -41,7 +41,7 @@ export const CategoryChip = React.memo<CategoryChipProps>(
         }
 
         return (
-            <View className={`${defaultContainerStyle} ${bgStyle} ${className ?? 'px-2 py-[2px]'}`}>
+            <View className={`${defaultContainerStyle} ${bgStyle} ${className ?? 'px-2 py-[2px] rounded-2xl '}`}>
                 {renderContent}
             </View>
         );

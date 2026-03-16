@@ -1,22 +1,23 @@
 import React from "react";
-import { View, Dimensions,Text } from "react-native";
+import { View, Dimensions } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  runOnJS,
 } from "react-native-reanimated";
 import { styled } from "nativewind";
 
 export interface CustomBottomSheetProps {
   children: React.ReactNode;
+  onStateChange?: (isExpanded: boolean) => void; // ✅ 이름 확인
 }
 
 const AnimatedView = styled(Animated.View);
-
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const VISIBLE_HEIGHT = 70;
 
-export function CustomBottomSheet({ children }: CustomBottomSheetProps) {
+export function CustomBottomSheet({ children, onStateChange }: CustomBottomSheetProps) {
   const MIN_Y = 70;
   const MAX_Y = SCREEN_HEIGHT - VISIBLE_HEIGHT;
 
@@ -30,36 +31,36 @@ export function CustomBottomSheet({ children }: CustomBottomSheetProps) {
     .onUpdate((e) => {
       const nextY = startY.value + e.translationY;
       translateY.value = Math.max(MIN_Y, Math.min(MAX_Y, nextY));
+
+      if (onStateChange) {
+        // 조금이라도 올라오면 true 전달
+        runOnJS(onStateChange)(translateY.value < MAX_Y);
+      }
+    })
+    .onEnd(() => {
+      // 멈춘 자리 그대로 유지 (애니메이션 없음)
+      if (onStateChange) {
+        runOnJS(onStateChange)(translateY.value < MAX_Y);
+      }
     });
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
 
   return (
     <AnimatedView
       className="absolute bottom-0 h-full w-full bg-white rounded-t-[16px] overflow-hidden"
       style={animatedStyle}
     >
-      {/* ✨ 1. 이 영역(핸들)을 잡고 끌 때만 바텀시트가 움직입니다. */}
       <GestureDetector gesture={gesture}>
         <View className="w-full items-center py-[20px] bg-white">
-          {/* 드래그 핸들 바 아이콘 */}
           <View className="w-10 h-1 bg-botoomSheetBackground rounded-full" />
         </View>
       </GestureDetector>
-
-      {/* ✨ 2. 이 아래는 제스처 영향권 밖이라 내부 스크롤(ScrollView, FlatList)이 작동합니다. */}
-      <View className="flex-1">
-        {children}
-      </View>
+      <View className="flex-1">{children}</View>
     </AnimatedView>
   );
 }
 
-
-CustomBottomSheet.displayName = "CustomBottomSheet";
 export default CustomBottomSheet;
-
