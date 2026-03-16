@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import BottomTabNavigator from './BottomTabNavigator';
+import { FindIdScreen } from '@/screens';
 import type { RootStackParamList } from './types';
 import EmptyMapScreen from '@/screens/EmptyMapScreen';
 import AccountSettingsScreen from '@/screens/accountSettings/AccountSettingsScreen';
@@ -20,6 +21,7 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
       <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
       <Stack.Screen name="AddTripScreen" component={AddTripScreen} />
+      <Stack.Screen name="FindId" component={FindIdScreen} />
     </Stack.Navigator>
   );
 };

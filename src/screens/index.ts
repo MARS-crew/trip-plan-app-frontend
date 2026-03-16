@@ -10,3 +10,4 @@ export { default as DestinationDetailScreen } from './destinationDetail';
 export { default as SelectTripScreen } from './selectTrip';
 export { default as EmptyMapScreen } from './myTrip';
 export { default, AddTripScreen } from './addTrip';
+export { default as FindIdScreen } from './findId';
