@@ -20,6 +20,7 @@ export type RootStackParamList = {
 
   AccountSettings: undefined;
   NotificationSettings: undefined;
+  FindId: undefined;
 };
 
 

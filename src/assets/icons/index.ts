@@ -45,6 +45,8 @@ export { default as CalendarIcon } from './calendar.svg';
 export { default as ChevronDownIcon } from './chevrondown.svg';
 export { default as ChevronUpIcon } from './chevronup.svg';
 export { default as AirplaneIcon } from './airplane.svg';
+export { default as CameraIcon } from './camera.svg';
+export { default as RightArrowIcon } from './rightarrow.svg';
 
 export { default as SearchArrowIcon } from './searcharrow.svg';
 

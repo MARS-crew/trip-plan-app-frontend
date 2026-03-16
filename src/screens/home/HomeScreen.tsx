@@ -1,20 +1,28 @@
 import { useNavigation } from '@react-navigation/native';
+import type { CompositeNavigationProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { HomeStackParamList } from '@/navigation';
+import type { RootStackParamList } from '@/navigation';
 
 // ============ Types ============
-type NavigationProp = NativeStackNavigationProp<HomeStackParamList>;
+type NavigationProp = CompositeNavigationProp<
+  NativeStackNavigationProp<HomeStackParamList>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
 
-    // Hooks
-    const handleNavigateToDetail = useCallback(() => {
+  const handleNavigateToDetail = (): void => {
     navigation.navigate('Alert');
-    }, [navigation]);
+  };
+
+  const handleNavigateToFindId = (): void => {
+    navigation.navigate('FindId');
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
@@ -24,6 +32,11 @@ const HomeScreen: React.FC = () => {
           onPress={handleNavigateToDetail}
           className="bg-main px-6 py-3 rounded-lg">
           <Text className="text-white font-semibold">알림 리스트</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleNavigateToFindId}
+          className="mt-3 bg-main px-6 py-3 rounded-lg">
+          <Text className="text-white font-semibold">아이디 찾기</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

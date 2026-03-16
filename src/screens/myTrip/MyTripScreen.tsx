@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -65,14 +66,20 @@ const MyTripScreen: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('전체');
   const [openCardId, setOpenCardId] = useState<number | null>(null);
   const navigation = useNavigation<MapScreenNavigation>();
+
+
+  // Hooks
   const handleNavigateToDetail = useCallback(() => {
+    navigation.navigate('AddTripScreen', { destinationId: 'string' });
+  }, [navigation]);
+  const handleNavigateToDetails = useCallback(() => {
     navigation.navigate('WishlistScreen');
   }, [navigation]);
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
       <ScrollView className="flex-1"
         showsVerticalScrollIndicator={false}
-        contextContainerStyle={{ paddingBottom: 24 }} >
+        contentContainerStyle={{ paddingBottom: 24 }} >
         <View className="flex-1 bg-screenBackground px-5 pt-6">
           <View className="flex-row items-start justify-between">
             <View>
@@ -81,16 +88,15 @@ const MyTripScreen: React.FC = () => {
             </View>
 
             <TouchableOpacity
-              activeOpacity={0.8}
-              className="h-[36px] w-[71px] flex-row items-center justify-center rounded-[6px] bg-main"
-            >
+              onPress={handleNavigateToDetail}
+              className="h-[36px] w-[71px] flex-row items-center justify-center rounded-[6px] bg-main">
               <Text className="mr-1 text-h3 text-white">+</Text>
               <Text className="text-p1 text-white">추가</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleNavigateToDetail}
-              className="bg-main px-6 py-3 rounded-lg">
-              <Text className="text-white font-semibold">위시 리스트</Text>
+              <TouchableOpacity
+                onPress={handleNavigateToDetails}
+                className="bg-main px-6 py-3 rounded-lg">
+                <Text className="text-white font-semibold">위시 리스트</Text>
+              </TouchableOpacity>
             </TouchableOpacity>
           </View>
 
@@ -105,6 +111,7 @@ const MyTripScreen: React.FC = () => {
             <Chip
               label="예정된 여행"
               onPress={() => {
+
                 setSelectedChip('예정된 여행');
                 navigation.navigate('EmptyMapScreen');
               }}
@@ -156,8 +163,48 @@ const MyTripScreen: React.FC = () => {
           </TripCard>
 
         </View>
+
+
+        {/*TripCard*/}
+        <TripCard
+          city="도쿄"
+          dateText="2026.02.28 - 2026.03.03"
+          scheduleText="5개의 일정 4일간"
+          imageSource={require('@/assets/images/thumnail2.png')}
+          status="traveling"
+          isOpen={openCardId === 1}
+          onToggle={() => setOpenCardId((prev) => (prev === 1 ? null : 1))}
+        >
+          <TripTimeline items={timelineItems} />
+        </TripCard>
+
+        <TripCard
+          city="도쿄"
+          dateText="2026.02.28 - 2026.03.03"
+          scheduleText="5개의 일정 4일간"
+          imageSource={require('@/assets/images/thumnail2.png')}
+          status="scheduled"
+          isOpen={openCardId === 2}
+          onToggle={() => setOpenCardId((prev) => (prev === 2 ? null : 2))}
+        >
+          <TripTimeline items={timelineItems} />
+        </TripCard>
+
+        <TripCard
+          city="도쿄"
+          dateText="2026.02.28 - 2026.03.03"
+          scheduleText="5개의 일정 4일간"
+          imageSource={require('@/assets/images/thumnail2.png')}
+          status="completed"
+          isOpen={openCardId === 3}
+          onToggle={() => setOpenCardId((prev) => (prev === 3 ? null : 3))}
+        >
+          <TripTimeline items={timelineItems} />
+        </TripCard>
+
       </ScrollView>
-    </SafeAreaView>
+
+    </SafeAreaView >
   );
 };
 
