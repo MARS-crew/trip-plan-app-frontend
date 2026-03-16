@@ -4,6 +4,10 @@ export { default as SearchIcon } from './search.svg';
 export { default as MapIcon } from './map.svg';
 export { default as BookmarkIcon } from './bookmark.svg';
 export { default as MyPageIcon } from './mypage.svg';
+export { default as AppLogoIcon } from './logo.svg';
+export { default as KakaoIcon } from './kakaoicon.svg';
+export { default as NaverIcon } from './navericon.svg';
+export { default as GoogleIcon } from './googleicon.svg';
 
 // 새로운 아이콘들
 export { default as LeftArrowIcon } from './leftarrow.svg';
@@ -40,7 +44,6 @@ export { default as VectorGrayIcon } from './vectorgray.svg';
 export { default as BackArrow } from './backArrow.svg';
 export { default as WeatherInfoIcon } from './weather-info.svg';
 export { default as ScheduleInfoIcon } from './schedule-info.svg';
-export { default as CalendarIcon } from './calendar.svg';
 export { default as ChevronDownIcon } from './chevrondown.svg';
 export { default as ChevronUpIcon } from './chevronup.svg';
 export { default as AirplaneIcon } from './airplane.svg';

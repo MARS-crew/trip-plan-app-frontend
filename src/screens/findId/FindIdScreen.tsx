@@ -27,7 +27,7 @@ const FindIdScreen: React.FC = () => {
   };
 
   const handleNavigateToLogin = (): void => {
-    // TODO: 로그인 화면으로 이동
+    navigation.navigate('Login');
   };
 
   return (

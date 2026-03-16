@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScrollView, TouchableOpacity, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -125,6 +125,15 @@ const MyPageScreen: React.FC = () => {
     navigation.navigate('NotificationSettings');
   };
 
+  const handleLogout = (): void => {
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      }),
+    );
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -245,7 +254,7 @@ const MyPageScreen: React.FC = () => {
           ))}
         </View>
 
-        <TouchableOpacity activeOpacity={0.8} className="mt-7 -mb-7 items-center">
+        <TouchableOpacity onPress={handleLogout} activeOpacity={0.8} className="mt-7 -mb-7 items-center">
           <View className="flex-row items-center">
             <LogoutIcon width={16} height={16} />
             <Text className="ml-1.5 text-p1 font-semibold text-[#F04A3E]">로그아웃</Text>
