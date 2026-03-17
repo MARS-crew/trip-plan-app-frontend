@@ -1,9 +1,8 @@
 import React, { useMemo } from 'react';
-import { StatusBar, useColorScheme } from 'react-native';
+import { StatusBar, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { NavigationContainer } from '@react-navigation/native';
 
-import { BottomTabNavigator } from '@/navigation';
+import { APP_NAME } from '@/constants';
 
 const App: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -16,9 +15,9 @@ const App: React.FC = () => {
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={statusBarStyle} />
-      <NavigationContainer>
-        <BottomTabNavigator />
-      </NavigationContainer>
+      <View className="flex-1 items-center justify-center">
+        <Text>{APP_NAME}</Text>
+      </View>
     </SafeAreaProvider>
   );
 };

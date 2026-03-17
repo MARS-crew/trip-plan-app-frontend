@@ -1,33 +1,5 @@
-// types barrel export
-// 전역 TypeScript 타입 정의
-
-// Navigation 타입
-export type { RootTabParamList } from '../navigation/types';
-
-// 공통 타입
-export interface BaseResponse<T = unknown> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
-export interface PaginationParams {
-  page: number;
-  limit: number;
-}
-
-export interface PaginatedResponse<T> extends BaseResponse<T[]> {
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
-// Error 타입
-export interface ApiError {
-  code: string;
-  message: string;
-  details?: Record<string, unknown>;
-}
+// 전역 타입 정의 barrel 파일
+// 세부 타입은 별도 파일로 분리하여 관리한다.
+// 예:
+// export * from './user.types';
+// export * from './trip.types';
