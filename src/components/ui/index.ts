@@ -7,3 +7,5 @@ export { TabNavigation } from './TabNavigation';
 export type { TabNavigationProps, TabItem } from './TabNavigation';
 export { ContentContainer } from './ContentContainer';
 export type { ContentContainerProps } from './ContentContainer';
+export { TripStatusChip } from './TripStatusChip';
+export type { TripStatusChipProps, TripStatus } from './TripStatusChip';
