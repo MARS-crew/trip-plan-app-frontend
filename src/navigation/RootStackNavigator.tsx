@@ -7,7 +7,6 @@ import type { RootStackParamList } from './types';
 import EmptyMapScreen from '@/screens/EmptyMapScreen';
 import AccountSettingsScreen from '@/screens/accountSettings/AccountSettingsScreen';
 import NotificationSettingsScreen from '@/screens/notificationSettings/NotificationSettingsScreen';
-import AddTripScreen from '@/screens/addTrip/AddTripScreen';
 
 // ============ Constants ============
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -20,7 +19,6 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="EmptyMapScreen" component={EmptyMapScreen} />
       <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
       <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
-      <Stack.Screen name="AddTripScreen" component={AddTripScreen} />
       <Stack.Screen name="FindId" component={FindIdScreen} />
     </Stack.Navigator>
   );

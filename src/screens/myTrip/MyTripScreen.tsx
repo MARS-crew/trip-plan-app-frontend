@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -57,16 +57,11 @@ const MyTripScreen: React.FC = () => {
   const [openCardId, setOpenCardId] = useState<number | null>(null);
   const navigation = useNavigation<MapScreenNavigation>();
 
-  // Hooks
-  const handleNavigateToDetail = useCallback(() => {
-    navigation.navigate('AddTripScreen', { destinationId: 'string' });
-  }, [navigation]);
-
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-     <ScrollView className="flex-1"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom:24 }} >
+    <ScrollView className="flex-1"
+    showsVerticalScrollIndicator={false}
+    contextContainerStyle={{ paddingBottom:24 }} >
       <View className="flex-1 bg-screenBackground px-5 pt-6">
         <View className="flex-row items-start justify-between">
           <View>
@@ -74,12 +69,13 @@ const MyTripScreen: React.FC = () => {
             <Text className="mt-1 text-p text-gray">3개의 여행이 있어요</Text>
           </View>
 
-        <TouchableOpacity
-          onPress={handleNavigateToDetail}
-          className="h-[36px] w-[71px] flex-row items-center justify-center rounded-[6px] bg-main">
+          <TouchableOpacity
+            activeOpacity={0.8}
+            className="h-[36px] w-[71px] flex-row items-center justify-center rounded-[6px] bg-main"
+          >
             <Text className="mr-1 text-h3 text-white">+</Text>
             <Text className="text-p1 text-white">추가</Text>
-        </TouchableOpacity>
+          </TouchableOpacity>
         </View>
 
     {/*Chip*/}
@@ -111,7 +107,7 @@ const MyTripScreen: React.FC = () => {
           city="도쿄"
           dateText="2026.02.28 - 2026.03.03"
           scheduleText="5개의 일정 4일간"
-          imageSource={require('@/assets/images/thumnail2.png')}
+          imageSource={require('@/assets/images/thumbnail2.png')}
           status="traveling"
           isOpen={openCardId === 1}
           onToggle={() => setOpenCardId((prev) => (prev === 1 ? null : 1))}
@@ -123,7 +119,7 @@ const MyTripScreen: React.FC = () => {
           city="도쿄"
           dateText="2026.02.28 - 2026.03.03"
           scheduleText="5개의 일정 4일간"
-          imageSource={require('@/assets/images/thumnail2.png')}
+          imageSource={require('@/assets/images/thumbnail2.png')}
           status="scheduled"
           isOpen={openCardId === 2}
           onToggle={() => setOpenCardId((prev) => (prev === 2 ? null : 2))}
@@ -135,7 +131,7 @@ const MyTripScreen: React.FC = () => {
           city="도쿄"
           dateText="2026.02.28 - 2026.03.03"
           scheduleText="5개의 일정 4일간"
-          imageSource={require('@/assets/images/thumnail2.png')}
+          imageSource={require('@/assets/images/thumbnail2.png')}
           status="completed"
           isOpen={openCardId === 3}
           onToggle={() => setOpenCardId((prev) => (prev === 3 ? null : 3))}
