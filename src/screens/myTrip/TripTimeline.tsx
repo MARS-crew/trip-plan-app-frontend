@@ -1,3 +1,7 @@
+import React from 'react';
+import { ScrollView, Text, View } from 'react-native';
+import { PlaceIcon } from '@/assets/icons';
+
 import React, { useCallback, useState } from 'react';
 import { ScrollView, Text, View, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -45,6 +49,9 @@ const TripTimeline: React.FC<TripTimelineProps> = ({ items }) => {
   return (
     <View className="relative pb-2">
       <View className="mb-6 flex-row items-center">
+        <View className="mr-1 h-[52px] w-[20px] items-center justify-center">
+          <Text className="text-[26px] text-gray">‹</Text>
+        </View>
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={handlePressPrev}
@@ -52,6 +59,14 @@ const TripTimeline: React.FC<TripTimelineProps> = ({ items }) => {
           <VectorLeftIcon />
         </TouchableOpacity>
 
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingRight: 20 }}
+          className="flex-1"
+        >
+          {dateItems.map((date, index) => {
+            const isSelected = index === 0;
         <View className="relative flex-1">
           <ScrollView
             horizontal
@@ -61,6 +76,20 @@ const TripTimeline: React.FC<TripTimelineProps> = ({ items }) => {
             {dateItems.map((date, index) => {
               const isSelected = index === selectedDateIndex;
 
+            return (
+              <View
+                key={date}
+                className={`h-[38px] w-[85px] items-center justify-center rounded-[8px] border ${
+                  isSelected ? 'border-main  bg-[#DF6C201A]' : 'border-[#E5E0DC] bg-white'
+                } ${index !== dateItems.length - 1 ? 'mr-2' : ''}`}
+              >
+                <Text className={`text-p1 ${isSelected ? 'text-main' : 'text-gray'}`}>
+                  {date}
+                </Text>
+              </View>
+            );
+          })}
+        </ScrollView>
               return (
                 <TouchableOpacity
                   key={date}
@@ -114,6 +143,8 @@ const TripTimeline: React.FC<TripTimelineProps> = ({ items }) => {
               width: 20,
             }}
           />
+        <View className="ml-1 h-[52px] w-[20px] items-center justify-center">
+          <Text className="text-[26px] text-gray">›</Text>
         </View>
 
         <TouchableOpacity

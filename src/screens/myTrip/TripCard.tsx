@@ -49,6 +49,17 @@ const TripCard = ({
           <Image source={imageSource} className="h-[144px] w-full" resizeMode="cover" />
 
           <View pointerEvents="none"/>
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.2)',
+            }}
+          />
 
         {/*TripStatusChip*/}
           <View className="absolute top-2 left-2">
@@ -57,10 +68,13 @@ const TripCard = ({
 
         {/*City*/}
           <View className="absolute bottom-3 left-4">
+          <View className="absolute bottom-5 left-4">
             <Text className="ml-[1.2px] text-h1 font-bold text-white">{city}</Text>
 
         {/*Date*/}
             <View className="flex-row items-center">
+              <CalendarIcon width={12} height={12} />
+              <Text className="ml-[4px] text-p1 text-white">{dateText}</Text>
               <CalendarIcon/>
               <Text className="ml-1 text-p1 text-white">{dateText}</Text>
             </View>
@@ -71,6 +85,7 @@ const TripCard = ({
         <View className="flex-row items-center justify-between px-4 py-3">
           <View className="flex-row items-center">
             <PlaceIcon width={14} height={14} />
+            <Text className="ml-1 text-p text-gray">{scheduleText}</Text>
             <Text className="ml-1 text-p text-gray">{scheduleText}개의 일정</Text>
             <Text className="ml-3 text-p text-gray">{scheduleCountText}일간</Text>
           </View>
