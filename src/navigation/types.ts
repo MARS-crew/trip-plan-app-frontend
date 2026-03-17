@@ -16,7 +16,6 @@ export type RootStackParamList = {
   MainTabs: { screen?: keyof RootTabParamList } | undefined;
   AccountSettings: undefined;
   NotificationSettings: undefined;
-  FindId: undefined;
 };
 
 
