@@ -17,9 +17,3 @@ export type RootStackParamList = {
   AccountSettings: undefined;
   NotificationSettings: undefined;
 };
-
-
-export type HomeStackParamList = {
-  HomeMain: undefined;
-  Alert: undefined;
-};
