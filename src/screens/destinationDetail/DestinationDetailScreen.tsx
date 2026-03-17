@@ -142,14 +142,12 @@ const DestinationDetailScreen: React.FC = () => {
 
           {/* 컨텐츠 영역 */}
           <View className="px-4">
-            {activeTab === 'info' ? (
-              <>
-                <ContentContainer className="p-4">
-                  <Text className="text-h4 font-semibold mb-2">소개</Text>
-                  <Text className="text-p text-gray font-medium">
-                    도쿄에서 가장 오래된 불교 사원으로, 웅장한 카미나리몬과 나카미세 거리가 유명합니다.
-                  </Text>
-                </ContentContainer>
+            <ContentContainer className="p-4">
+              <Text className="text-h4 font-semibold mb-2">소개</Text>
+              <Text className="text-p text-gray font-medium">
+                도쿄에서 가장 오래된 불교 사원으로, 웅장한 카미나리몬과 나카미세 거리가 유명합니다.
+              </Text>
+            </ContentContainer>
             <View className="mt-5">
               <ContentContainer className="w-[181px]">
                 <View className="flex-row items-center ml-4 mt-[14px] mb-[14px]">
@@ -234,13 +232,6 @@ const DestinationDetailScreen: React.FC = () => {
                 </View>
               </ContentContainer>
             </View>
-              </>
-            ) : (
-              // TODO: 리뷰 탭 컨텐츠 구현 필요
-              <View>
-                <Text className="text-p text-gray">여기에 리뷰 작성 고고싱</Text>
-              </View>
-            )}
           </View>
       </ScrollView>
     </SafeAreaView>
