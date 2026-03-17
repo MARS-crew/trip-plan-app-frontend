@@ -1,8 +1,38 @@
 /** @type {import('tailwindcss').Config} */
+
+const colors = {
+  main: '#DF6C20',
+  black: '#251D18',
+  gray: '#8C7B73',
+  serve: '#DF6C201A',
+  background: '#E8E6E5',
+  white: '#FFFFFF',
+  borderGray: '#E5E0DC',
+  chip: '#F4F0EC',
+  screenBackground: '#FDFBF9',
+  contentBackground: '#FCF0E8',
+};
+
+const fontSize = {
+  title: ['24px', { lineHeight: '32px', fontWeight: '700' }], // title - 24px, 32px, Bold
+  h: ['20px', { lineHeight: '28px', fontWeight: '700' }], // H - 20px, 28px, Bold
+  h1: ['18px', { lineHeight: '28px', fontWeight: '700' }], // H1 - 18px, 28px, Bold
+  h2: ['16px', { lineHeight: '24px', fontWeight: '600' }], // H2 - 16px, 24px, Semibold
+  h3: ['14px', { lineHeight: '20px', fontWeight: '600' }], // H3 - 14px, 20px, Semibold
+  p: ['12px', { lineHeight: '16px', fontWeight: '400' }], // p - 12px, 16px, Regular
+  p1: ['14px', { lineHeight: '20px', fontWeight: '500' }], // p1 - 14px, 20px, Medium
+};
+
 module.exports = {
-  content: ['./src/**/*.{js,jsx,ts,tsx}', './App.tsx'],
+  content: ['./App.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      colors,
+      fontFamily: {
+        sans: ['Pretendard', 'System'],
+      },
+      fontSize,
+    },
   },
   plugins: [],
 };
