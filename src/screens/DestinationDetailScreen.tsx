@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { IconButton } from '@/screens/destinationDetail/components';
+import { IconButton, ReviewCard } from '@/screens/destinationDetail/components';
 import { Chip, TabNavigation, ContentContainer } from '@/components/ui';
 import {
   LeftArrowIcon,
@@ -23,6 +23,15 @@ import {
   VectorIcon,
 } from '@/assets/icons';
 import type { SearchStackParamList } from '@/navigation/SearchStackNavigator';
+
+//예시 값
+const ratings = [
+  { label: '5점', count: 20000 },
+  { label: '4점', count: 13000 },
+  { label: '3점', count: 2500 },
+  { label: '2점', count: 800 },
+  { label: '1점', count: 489 },
+];
 
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<SearchStackParamList>;
@@ -62,6 +71,8 @@ const DestinationDetailScreen: React.FC = () => {
     ],
     [],
   );
+
+  const maxCount = Math.max(...ratings.map(r => r.count));
 
   // 렌더링
   return (
@@ -237,9 +248,47 @@ const DestinationDetailScreen: React.FC = () => {
               </>
             ) : (
               // TODO: 리뷰 탭 컨텐츠 구현 필요
-              <View>
-                <Text className="text-p text-gray">여기에 리뷰 작성 고고싱</Text>
+              <>
+              <View className="mb-4">
+                <ContentContainer>
+                  <View className="flex-row p-4 pb-6">
+                  {/* 왼쪽: 별점 평균 */}
+                    <View className="flex-row shrink-0 items-center gap-2">
+                      <StarIcon width={20} height={20} />
+                      <Text className="text-2xl font-medium text-black">4.6</Text>
+                    </View>
+                    
+                    {/* 오른쪽: 분포 바 */}
+                    <View className="flex-1 gap-1.5">
+                      {ratings.map((item) => (
+                        <View key={item.label} className="flex-row items-center gap-2">
+                          <Text className="w-7 text-p1 text-right text-black">{item.label}</Text>
+                          <View className="flex-1 h-3 bg-background rounded-sm overflow-hidden">
+                            <View
+                              className="h-full rounded-sm bg-main"
+                              style={{ width: `${(item.count / maxCount) * 100}%` }}
+                            />
+                          </View>
+                          <Text className="w-12 text-left text-p leading-none text-gray">
+                            {item.count.toLocaleString()}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                </ContentContainer>
               </View>
+              <ReviewCard
+                profileName="사랑스런그녀"
+                visitDt="2025.11.03"
+                scope={4}
+                content="도시 한 가운데에 있는 사원이라니 즐길거리가 많아 좋았습니다! 근처에 음식점이나 길거리 음식이 많이 판매하고 있어 관광 후 배를 채우기 좋았어요!"
+                imageList={[
+                  'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400',
+                  'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400',
+                ]}
+              />
+              </>
             )}
           </View>
       </ScrollView>
