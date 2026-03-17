@@ -68,10 +68,10 @@ const DestinationDetailScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* 헤더 이미지 영역 */}
-        <View className="relative w-full">
+        <View className="relative w-full h-[300px]">
           <Image
             source={require('@/assets/images/thumnail.png')}
-            className="w-full"
+            className="w-full h-full"
             resizeMode="cover"
           />
 
@@ -104,12 +104,12 @@ const DestinationDetailScreen: React.FC = () => {
             <Text className="text-title text-white font-bold mb-[7px]">센소지 아사쿠사</Text>
             <View className="flex-row items-center">
               <MarkerIcon />
-              <Text className="text-p text-white ml-[6px] font-medium">도쿄, 일본</Text>
+              <Text className="text-p text-white ml-[6px]">도쿄, 일본</Text>
             </View>
           </View>
         </View>
           {/* 별 아이콘, 평점, 리뷰, 일정 추가하기 버튼*/}
-          <View className="mt-6 px-4 flex-row items-center justify-between">
+          <View className="mt-7 px-4 flex-row items-center justify-between">
             <View className="flex-row items-center">
               <StarIcon />
               <Text className="text-h2 ml-1 font-bold">4.6</Text>
@@ -125,7 +125,7 @@ const DestinationDetailScreen: React.FC = () => {
           </View>
 
           {/* 카테고리 Chip */}
-          <View className="mt-6 px-4 flex-row">
+          <View className="mt-7 px-4 flex-row">
             <Chip label="관광지" className="mr-2" />
             <Chip label="문화" className="mr-2" />
             <Chip label="역사" />
