@@ -51,6 +51,7 @@ const AddTripScreen: React.FC = () => {
               />
               <TouchableOpacity
                 activeOpacity={0.8}
+                onPress={() => navigation.navigate('AddTripCalendar')}
                 className={`ml-4 h-[32px] w-[32px] items-center justify-center rounded-full ${tripName.length > 0 ? 'bg-[#DF6C20]' : 'bg-[#F1D6C5]'}`}>
                 <RightArrowIcon width={16} height={16} />
               </TouchableOpacity>

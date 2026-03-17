@@ -11,3 +11,4 @@ export { default as SelectTripScreen } from './selectTrip';
 export { default as EmptyMapScreen } from './myTrip';
 export { default, AddTripScreen } from './addTrip';
 export { default as FindIdScreen } from './findId';
+export { default, AddTripCalendarScreen } from './addTrip';

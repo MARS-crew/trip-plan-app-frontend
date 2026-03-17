@@ -8,6 +8,7 @@ import EmptyMapScreen from '@/screens/EmptyMapScreen';
 import AccountSettingsScreen from '@/screens/accountSettings/AccountSettingsScreen';
 import NotificationSettingsScreen from '@/screens/notificationSettings/NotificationSettingsScreen';
 import AddTripScreen from '@/screens/addTrip/AddTripScreen';
+import AddTripCalendarScreen from '@/screens/addTrip/AddTripCalendarScreen';
 
 // ============ Constants ============
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -22,6 +23,7 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
       <Stack.Screen name="AddTripScreen" component={AddTripScreen} />
       <Stack.Screen name="FindId" component={FindIdScreen} />
+      <Stack.Screen name="AddTripCalendar" component={AddTripCalendarScreen} />
     </Stack.Navigator>
   );
 };
