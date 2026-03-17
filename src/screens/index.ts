@@ -1,8 +1,4 @@
 // screens barrel export
-
-export { default as WishlistScreen } from './wishList/WishlistScreen';
-
-
 export { default as HomeScreen } from './home';
 export { default as SearchScreen } from './search';
 export { default as MyTripScreen } from './myTrip';
