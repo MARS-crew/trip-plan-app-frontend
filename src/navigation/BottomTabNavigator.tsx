@@ -8,6 +8,7 @@ import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 
 import {
   HomeScreen,
+  MapScreen,
   BookmarkScreen,
   MyPageScreen,
 } from '@/screens';

@@ -18,4 +18,4 @@ const EmptyMapScreen: React.FC = () => {
   );
 };
 
-export default EmptyMapScreen;  
+export default EmptyMapScreen;
