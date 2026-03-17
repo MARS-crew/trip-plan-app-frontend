@@ -3,7 +3,7 @@ import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 
-import { RootStackNavigator } from '@/navigation';
+import { BottomTabNavigator } from '@/navigation';
 
 const App: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -17,7 +17,7 @@ const App: React.FC = () => {
     <SafeAreaProvider>
       <StatusBar barStyle={statusBarStyle} />
       <NavigationContainer>
-        <RootStackNavigator />
+        <BottomTabNavigator />
       </NavigationContainer>
     </SafeAreaProvider>
   );

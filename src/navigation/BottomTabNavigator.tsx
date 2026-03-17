@@ -14,7 +14,7 @@ import {
   MyPageScreen,
 } from '@/screens';
 import { HomeIcon, SearchIcon, MapIcon, BookmarkIcon, MyPageIcon } from '@/assets/icons';
-import { COLORS } from '@/constants';
+import { COLORS, TEXT_SIZES } from '@/constants';
 
 import type { RootTabParamList } from './types';
 
@@ -22,7 +22,11 @@ import type { RootTabParamList } from './types';
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 const ICON_SIZE = 24;
+const INDICATOR_HEIGHT = 2;
+const INDICATOR_BORDER_RADIUS = 1.5;
+const SPACING = 4;
 const TAB_BAR_HORIZONTAL_PADDING = 0;
+const TRANSPARENT = 'transparent';
 
 // ============ Sub Components ============
 interface CustomTabBarButtonProps extends BottomTabBarButtonProps {
@@ -43,30 +47,40 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
   );
 
   const isActive = currentRoute === routeName;
+  const textColor = isActive ? COLORS.main : COLORS.gray;
 
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
-      className="flex-1 items-center justify-center">
+      style={{ flex: 1 }}
+      className="items-center justify-center">
       {/* 상단 인디케이터 */}
       <View
-        className={`w-6 h-[2px] rounded-[1.5px] mt-1 mb-2 self-center ${
-          isActive ? 'bg-main' : 'bg-transparent'
-        }`}
+        style={{
+          width: ICON_SIZE,
+          height: INDICATOR_HEIGHT,
+          borderRadius: INDICATOR_BORDER_RADIUS,
+          backgroundColor: isActive ? COLORS.main : TRANSPARENT,
+          marginBottom: SPACING,
+          alignSelf: 'center',
+        }}
       />
 
       {/* 아이콘 */}
-      <View className="items-center justify-center">
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
         {children}
       </View>
 
       {/* 라벨 */}
-      <View className="items-center justify-center mt-[9px]">
+      <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: SPACING }}>
         <Text
           numberOfLines={1}
-          className={`text-[10px] font-medium text-center ${isActive ? 'text-main' : 'text-gray'}`}
           style={{
+            fontSize: TEXT_SIZES.tabBarLabel.fontSize,
+            fontWeight: TEXT_SIZES.tabBarLabel.fontWeight,
+            color: textColor,
+            textAlign: 'center',
             includeFontPadding: false,
             textAlignVertical: 'center',
           }}>
@@ -94,18 +108,15 @@ const BottomTabNavigator: React.FC = () => {
         color: iconColor,
       };
 
-      switch (routeName) {
-        case 'Home':
-          return <HomeIcon {...iconProps} />;
-        case 'Search':
-          return <SearchIcon {...iconProps} />;
-        case 'Map':
-          return <MapIcon {...iconProps} />;
-        case 'Bookmark':
-          return <BookmarkIcon {...iconProps} />;
-        case 'MyPage':
-          return <MyPageIcon {...iconProps} />;
-      }
+      const iconMap: Record<keyof RootTabParamList, React.ReactElement> = {
+        Home: <HomeIcon {...iconProps} />,
+        Search: <SearchIcon {...iconProps} />,
+        Map: <MapIcon {...iconProps} />,
+        Bookmark: <BookmarkIcon {...iconProps} />,
+        MyPage: <MyPageIcon {...iconProps} />,
+      };
+
+      return iconMap[routeName];
     },
     [],
   );
@@ -123,9 +134,9 @@ const BottomTabNavigator: React.FC = () => {
         borderTopWidth: 1,
         borderTopColor: COLORS.borderGray,
         paddingTop: 0,
-        paddingBottom: insets.bottom,
+        paddingBottom: Math.max(insets.bottom, 8),
         paddingHorizontal: TAB_BAR_HORIZONTAL_PADDING,
-        height: 58 + insets.bottom,
+        height: 58 + Math.max(insets.bottom - 8, 0),
         elevation: 0,
         shadowOpacity: 0,
       },
@@ -178,7 +189,4 @@ const BottomTabNavigator: React.FC = () => {
   );
 };
 
-BottomTabNavigator.displayName = 'BottomTabNavigator';
-
 export default BottomTabNavigator;
-export { BottomTabNavigator };
