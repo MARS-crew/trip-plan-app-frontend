@@ -8,10 +8,10 @@ import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 
 import {
   HomeScreen,
-  MapScreen,
   BookmarkScreen,
   MyPageScreen,
 } from '@/screens';
+import { MyTripScreen } from '@/screens/myTrip';
 import SearchStackNavigator from './SearchStackNavigator';
 import { HomeIcon, SearchIcon, MapIcon, BookmarkIcon, MyPageIcon } from '@/assets/icons';
 import { COLORS } from '@/constants';
@@ -188,7 +188,7 @@ const BottomTabNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="Map"
-        component={MapScreen}
+        component={MyTripScreen}
         options={{ tabBarButton: createTabBarButton('Map', '내여행') }}
       />
       <Tab.Screen
