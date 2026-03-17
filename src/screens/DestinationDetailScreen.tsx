@@ -1,39 +1,22 @@
 import React, { useCallback } from 'react';
-import { View, Image, Text, ScrollView } from 'react-native';
+import { View, Image, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { IconButton } from '@/screens/destinationDetail/components';
-import { Chip, TabNavigation, ContentContainer } from '@/components/ui';
-import {
-  LeftArrowIcon,
-  SaveIcon,
-  ShareIcon,
-  StarIcon,
-  ScheduleIcon,
-  MarkerIcon,
-  InfoIcon,
-  ReviewIcon,
-  ActiveInfoIcon,
-  ActiveReviewIcon,
-  TimeIcon,
-  AddressIcon,
-  PlaceIcon,
-  VectorIcon,
-} from '@/assets/icons';
-import type { SearchStackParamList } from '@/navigation/SearchStackNavigator';
+import { Chip } from '@/components/ui';
+import { LeftArrowIcon, SaveIcon, ShareIcon, StarIcon, ScheduleIcon, MarkerIcon } from '@/assets/icons';
+import type { RootStackParamList } from '@/navigation/types';
 
 // ============ Types ============
-type NavigationProp = NativeStackNavigationProp<SearchStackParamList>;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 // ============ Component ============
 const DestinationDetailScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
 
-  // Hooks
-  const [activeTab, setActiveTab] = React.useState('info');
-
+  // 1. Hooks
   const handleGoBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
@@ -46,23 +29,10 @@ const DestinationDetailScreen: React.FC = () => {
     // TODO: 공유 기능 구현
   }, []);
 
-  const handleTabChange = useCallback((tabId: string) => {
-    setActiveTab(tabId);
-  }, []);
-
-  // 파생 값
-  const tabs = React.useMemo(
-    () => [
-      { id: 'info', icon: InfoIcon, activeIcon: ActiveInfoIcon, label: '정보' },
-      { id: 'review', icon: ReviewIcon, activeIcon: ActiveReviewIcon, label: '리뷰' },
-    ],
-    [],
-  );
-
-  // 렌더링
+  // 2. 렌더링
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <View className="flex-1">
         {/* 헤더 이미지 영역 */}
         <View className="relative w-full h-[300px]">
           <Image
@@ -96,138 +66,33 @@ const DestinationDetailScreen: React.FC = () => {
           </View>
 
           {/* 좌측 하단: 위치 정보 */}
-          <View className="absolute left-4 bottom-[19px]">
-            <Text className="text-title text-white font-bold mb-[7px]">센소지 아사쿠사</Text>
-            <View className="flex-row items-center">
-              <MarkerIcon />
-              <Text className="text-p text-white ml-[6px]">도쿄, 일본</Text>
-            </View>
+          <View className="absolute left-4 bottom-[19px] flex-row items-center">
+            <MarkerIcon />
+            <Text className="text-p text-white ml-[6px]">일본, 도쿄</Text>
           </View>
         </View>
-          {/* 별 아이콘, 평점, 리뷰, 일정 추가하기 버튼*/}
-          <View className="mt-7 px-4 flex-row items-center justify-between">
-            <View className="flex-row items-center">
-              <StarIcon />
-              <Text className="text-h2 ml-1 font-bold">4.6</Text>
-              <Text className="text-p text-gray ml-3 font-medium">리뷰 56,789개</Text>
-            </View>
 
-            <View className="w-[108px] h-9 bg-main rounded-[6px] flex-row items-center justify-center">
-              <ScheduleIcon />
-              <Text className="text-p text-white ml-[6px] font-regular">일정 추가하기</Text>
-            </View>
+        {/* 별 아이콘, 평점, 리뷰, 일정 추가하기 버튼*/}
+        <View className="mt-7 px-4 flex-row items-center justify-between">
+          <View className="flex-row items-center">
+            <StarIcon />
+            <Text className="text-h2 ml-1 font-bold">4.6</Text>
+            <Text className="text-p text-gray ml-3">리뷰 56,789개</Text>
           </View>
 
-          {/* 카테고리 Chip */}
-          <View className="mt-7 px-4 flex-row">
-            <Chip label="관광지" className="mr-2" />
-            <Chip label="문화" className="mr-2" />
-            <Chip label="역사" />
+          <View className="w-[108px] h-9 bg-main rounded-[6px] flex-row items-center justify-center">
+            <ScheduleIcon />
+            <Text className="text-p text-white ml-[6px]">일정 추가하기</Text>
           </View>
+        </View>
 
-          {/* 탭 네비게이션 */}
-          <View className="mt-9 px-4 mb-5">
-            <TabNavigation
-              tabs={tabs}
-              activeTabId={activeTab}
-              onTabChange={handleTabChange}
-            />
-          </View>
-
-          {/* 컨텐츠 영역 */}
-          <View className="px-4">
-            <ContentContainer className="p-4">
-              <Text className="text-h4 font-semibold mb-2">소개</Text>
-              <Text className="text-p text-gray font-medium">
-                도쿄에서 가장 오래된 불교 사원으로, 웅장한 카미나리몬과 나카미세 거리가 유명합니다.
-              </Text>
-            </ContentContainer>
-            <View className="mt-5">
-              <ContentContainer className="w-[181px]">
-                <View className="flex-row items-center ml-4 mt-[14px] mb-[14px]">
-                  <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center">
-                    <TimeIcon />
-                  </View>
-                  <View className="ml-[13px]">
-                    <Text className="text-p text-gray font-regular">영업시간</Text>
-                    <View className="mt-1">
-                      <Text className="text-p text-black font-regular">06:00 - 17:00</Text>
-                    </View>
-                  </View>
-                </View>
-              </ContentContainer>
-            </View>
-            <View className="mt-5">
-              <ContentContainer>
-                <View className="flex-row items-center ml-4 mt-[14px] mb-[14px]">
-                  <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center">
-                    <AddressIcon />
-                  </View>
-                  <View className="ml-[13px]">
-                    <Text className="text-p text-gray font-regular">주소</Text>
-                    <View className="mt-1">
-                      <Text className="text-p text-black font-regular">2 Chrome-3-1 Asakusa, Taito City, Tokyo</Text>
-                    </View>
-                  </View>
-                </View>
-              </ContentContainer>
-            </View>
-            <View className="mt-5">
-              <Text className="text-h4 text-black font-semibold">주변 추천 장소</Text>
-            </View>
-            <View className="mt-3">
-              <ContentContainer>
-                <View className="flex-row items-center justify-between ml-4 my-3">
-                  <View className="flex-row items-center">
-                    <View className="w-9 h-9 bg-chip rounded-lg items-center justify-center">
-                      <PlaceIcon />
-                    </View>
-                    <View className="ml-3">
-                      <Text className="text-p1 text-black font-medium">도쿄 스카이트리</Text>
-                    </View>
-                  </View>
-                  <View className="mr-4">
-                    <VectorIcon />
-                  </View>
-                </View>
-              </ContentContainer>
-            </View>
-            <View className="mt-2">
-              <ContentContainer>
-                <View className="flex-row items-center justify-between ml-4 my-3">
-                  <View className="flex-row items-center">
-                    <View className="w-9 h-9 bg-chip rounded-lg items-center justify-center">
-                      <PlaceIcon />
-                    </View>
-                    <View className="ml-3">
-                      <Text className="text-p1 text-black font-medium">우에노 공원</Text>
-                    </View>
-                  </View>
-                  <View className="mr-4">
-                    <VectorIcon />
-                  </View>
-                </View>
-              </ContentContainer>
-            </View>
-            <View className="mt-2">
-              <ContentContainer>
-                <View className="flex-row items-center justify-between ml-4 my-3">
-                  <View className="flex-row items-center">
-                    <View className="w-9 h-9 bg-chip rounded-lg items-center justify-center">
-                      <PlaceIcon />
-                    </View>
-                    <View className="ml-3">
-                      <Text className="text-p1 text-black font-medium">아메요코 시장</Text>
-                    </View>
-                  </View>
-                  <View className="mr-4">
-                    <VectorIcon />
-                  </View>
-                </View>
-              </ContentContainer>
-            </View>
-          </View>
-      </ScrollView>
+        {/* 카테고리 Chip */}
+        <View className="mt-7 px-4 flex-row">
+          <Chip label="관광지" className="mr-2" />
+          <Chip label="문화" className="mr-2" />
+          <Chip label="역사" />
+        </View>
+      </View>
     </SafeAreaView>
   );
 };

@@ -1,8 +1,3 @@
-export type SearchStackParamList = {
-  SearchMain: undefined;
-  DestinationDetail: { destinationId: string };
-};
-
 export type RootTabParamList = {
   Home: undefined;
   Search: undefined;
@@ -13,4 +8,5 @@ export type RootTabParamList = {
 
 export type RootStackParamList = {
   MainTabs: { screen?: keyof RootTabParamList } | undefined;
+  DestinationDetail: { destinationId: string };
 };
