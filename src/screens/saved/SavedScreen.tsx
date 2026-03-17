@@ -3,6 +3,8 @@ import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Chip } from '@/components/ui';
 
+const SavedScreen: React.FC = () => {
+
 // ============ SVG Imports ============
 const THUMBNAIL_IMAGE = require('@/assets/images/thumnail.png');
 const SaveIcon = require('@/assets/icons/activebookmark.svg').default;
