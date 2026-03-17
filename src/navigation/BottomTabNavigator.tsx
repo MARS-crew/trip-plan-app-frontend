@@ -8,8 +8,8 @@ import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 
 import {
   HomeScreen,
-  MyTripScreen,
-  SavedScreen,
+  MapScreen,
+  BookmarkScreen,
   MyPageScreen,
 } from '@/screens';
 import SearchStackNavigator from './SearchStackNavigator';
@@ -188,7 +188,7 @@ const BottomTabNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="Map"
-        component={MyTripScreen}
+        component={MapScreen}
         options={{ tabBarButton: createTabBarButton('Map', '내여행') }}
       />
       <Tab.Screen
@@ -198,7 +198,7 @@ const BottomTabNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="Bookmark"
-        component={SavedScreen}
+        component={BookmarkScreen}
         options={{ tabBarButton: createTabBarButton('Bookmark', '저장') }}
       />
       <Tab.Screen
