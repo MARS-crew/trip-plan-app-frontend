@@ -1,25 +1,45 @@
-import React, { useMemo } from 'react';
-import { StatusBar, Text, useColorScheme, View } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ *
+ * @format
+ */
 
-import { APP_NAME } from '@/constants';
+import { NewAppScreen } from '@react-native/new-app-screen';
+import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
-const App: React.FC = () => {
+function App() {
   const isDarkMode = useColorScheme() === 'dark';
-
-  const statusBarStyle = useMemo(
-    () => (isDarkMode ? 'light-content' : 'dark-content'),
-    [isDarkMode],
-  );
 
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle={statusBarStyle} />
-      <View className="flex-1 items-center justify-center">
-        <Text>{APP_NAME}</Text>
-      </View>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <AppContent />
     </SafeAreaProvider>
   );
-};
+}
+
+function AppContent() {
+  const safeAreaInsets = useSafeAreaInsets();
+
+  return (
+    <View style={styles.container}>
+      <NewAppScreen
+        templateFileName="App.tsx"
+        safeAreaInsets={safeAreaInsets}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
 
 export default App;

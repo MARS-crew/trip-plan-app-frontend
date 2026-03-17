@@ -1,3 +1,8 @@
-// navigation 설정 파일
-// 예시:
-// export { RootNavigator } from './RootNavigator';
+import React from 'react';
+
+// Placeholder for navigation setup
+// e.g., create navigators and export them
+
+const NavigationPlaceholder = () => null;
+
+export default NavigationPlaceholder;

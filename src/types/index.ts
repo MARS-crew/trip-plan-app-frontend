@@ -1,5 +1,18 @@
-// 전역 타입 정의 barrel 파일
-// 세부 타입은 별도 파일로 분리하여 관리한다.
-// 예:
-// export * from './user.types';
-// export * from './trip.types';
+// Type definitions for the application
+
+// Example types
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface Trip {
+  id: string;
+  title: string;
+  description?: string;
+  startDate: Date;
+  endDate: Date;
+}
+
+// Add other types as needed

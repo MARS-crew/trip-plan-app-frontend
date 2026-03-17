@@ -1,2 +1,6 @@
-// services barrel file
-// 예: export * from './userService';
+// Placeholder for services exports
+// e.g., API calls, data handling functions
+
+const ServicesPlaceholder = {};
+
+export default ServicesPlaceholder;

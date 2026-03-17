@@ -1,4 +1,11 @@
-// components barrel file
-// 공통 UI 컴포넌트는 `components/ui`에서 관리한다.
+import React from 'react';
+import { View, Text } from 'react-native';
 
-export * from './ui';
+// Boilerplate component export
+const ComponentsPlaceholder: React.FC = () => (
+  <View>
+    <Text>Components folder placeholder</Text>
+  </View>
+);
+
+export default ComponentsPlaceholder;
