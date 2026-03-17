@@ -51,7 +51,7 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
       className="flex-1 items-center justify-center relative">
       {/* 상단 인디케이터 - 탭바 최상단 테두리 위치 */}
       <View
-        className={`absolute top-0 w-6 h-[2px] rounded-[1.5px] self-center ${
+        className={`absolute -top-[1px] w-6 h-[2px] rounded-[1.5px] self-center ${
           isActive ? 'bg-main' : 'bg-transparent'
         }`}
       />
@@ -62,7 +62,7 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
       </View>
 
       {/* 라벨 */}
-      <View className="items-center justify-center mt-[1px]">
+      <View className="items-center justify-center">
         <Text
           numberOfLines={1}
           className={`text-[10px] font-medium text-center ${isActive ? 'text-main' : 'text-gray'}`}
