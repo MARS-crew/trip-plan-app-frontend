@@ -68,10 +68,10 @@ const DestinationDetailScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* 헤더 이미지 영역 */}
-        <View className="relative w-full">
+        <View className="relative w-full h-[300px]">
           <Image
             source={require('@/assets/images/thumnail.png')}
-            className="w-full"
+            className="w-full h-full"
             resizeMode="cover"
           />
 
@@ -104,12 +104,12 @@ const DestinationDetailScreen: React.FC = () => {
             <Text className="text-title text-white font-bold mb-[7px]">센소지 아사쿠사</Text>
             <View className="flex-row items-center">
               <MarkerIcon />
-              <Text className="text-p text-white ml-[6px] font-medium">도쿄, 일본</Text>
+              <Text className="text-p text-white ml-[6px]">도쿄, 일본</Text>
             </View>
           </View>
         </View>
           {/* 별 아이콘, 평점, 리뷰, 일정 추가하기 버튼*/}
-          <View className="mt-6 px-4 flex-row items-center justify-between">
+          <View className="mt-7 px-4 flex-row items-center justify-between">
             <View className="flex-row items-center">
               <StarIcon />
               <Text className="text-h2 ml-1 font-bold">4.6</Text>
@@ -125,7 +125,7 @@ const DestinationDetailScreen: React.FC = () => {
           </View>
 
           {/* 카테고리 Chip */}
-          <View className="mt-6 px-4 flex-row">
+          <View className="mt-7 px-4 flex-row">
             <Chip label="관광지" className="mr-2" />
             <Chip label="문화" className="mr-2" />
             <Chip label="역사" />
@@ -142,14 +142,12 @@ const DestinationDetailScreen: React.FC = () => {
 
           {/* 컨텐츠 영역 */}
           <View className="px-4">
-            {activeTab === 'info' ? (
-              <>
-                <ContentContainer className="p-4">
-                  <Text className="text-h4 font-semibold mb-2">소개</Text>
-                  <Text className="text-p text-gray font-medium">
-                    도쿄에서 가장 오래된 불교 사원으로, 웅장한 카미나리몬과 나카미세 거리가 유명합니다.
-                  </Text>
-                </ContentContainer>
+            <ContentContainer className="p-4">
+              <Text className="text-h4 font-semibold mb-2">소개</Text>
+              <Text className="text-p text-gray font-medium">
+                도쿄에서 가장 오래된 불교 사원으로, 웅장한 카미나리몬과 나카미세 거리가 유명합니다.
+              </Text>
+            </ContentContainer>
             <View className="mt-5">
               <ContentContainer className="w-[181px]">
                 <View className="flex-row items-center ml-4 mt-[14px] mb-[14px]">
@@ -217,7 +215,7 @@ const DestinationDetailScreen: React.FC = () => {
                 </View>
               </ContentContainer>
             </View>
-            <View className="mt-2 mb-[26px]">
+            <View className="mt-2">
               <ContentContainer>
                 <View className="flex-row items-center justify-between ml-4 my-3">
                   <View className="flex-row items-center">
@@ -234,13 +232,6 @@ const DestinationDetailScreen: React.FC = () => {
                 </View>
               </ContentContainer>
             </View>
-              </>
-            ) : (
-              // TODO: 리뷰 탭 컨텐츠 구현 필요
-              <View>
-                <Text className="text-p text-gray">여기에 리뷰 작성 고고싱</Text>
-              </View>
-            )}
           </View>
       </ScrollView>
     </SafeAreaView>
