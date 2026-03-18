@@ -34,6 +34,7 @@ export const ContentContainer = React.memo<ContentContainerProps>(
           style={{ borderRadius: 8, width: widthClass ? undefined : '100%' }}>
           <View className={`bg-white rounded-lg ${otherClasses ?? ''}`}>
             {children}
+            dsadsada
           </View>
         </Shadow>
       </View>
