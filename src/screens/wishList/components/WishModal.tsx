@@ -54,7 +54,7 @@ export const WishModal = React.memo<WishModalProps>(
                     <View className={`w-full bg-white rounded-xl p-4 items-center ${ModalContainer}`}>
 
                         {/* 아이콘 영역 */}
-                        {icon && <View className={`${ModalIcon}`}> {icon}</View>}
+                        {icon && <View className={`${ModalIcon}`}>{icon}</View>}
 
                         {/* 타이틀 영역 */}
                         <Text className={`text-h2 font-semibold text-center text-black ${primaryTitleTextClass}`}>
