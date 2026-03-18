@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import BottomTabNavigator from './BottomTabNavigator';
 
 
-import WishlistScreen from '@/screens/wishList/WishlistScreen';
+import WishlistScreen from '@/screens/WishlistScreen';
 
 import type { RootStackParamList } from './types';
 

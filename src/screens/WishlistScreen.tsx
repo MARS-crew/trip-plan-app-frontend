@@ -7,7 +7,7 @@ import { SearchArrowIcon, SearchingIcon, VectorIcon, PlaceIcon, HeartIcon, Activ
 import BottomSheet from '@gorhom/bottom-sheet';
 import CustomBottomSheet from '@/components/ui/CustomBottomSheet';
 import { ContentContainer, SearchContainer } from '@/components/ui';
-import { WishModal } from './components/WishModal';
+import { WishModal } from './wishList/components/WishModal';
 import type { RootStackParamList } from '@/navigation/types';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { useState } from "react";
@@ -115,9 +115,11 @@ const WishlistScreen: React.FC = () => {
                         resizeMode="cover"
                       />
                     </View>
-                    <View className="flex-1  ml-3 pr-5">
+                    <View className="flex-1 ml-3 pr-5">
                       <Text className="text-h3 text-black font-semibold">센소지 아사쿠사</Text>
-                      <View className="mt-[2px]"><Text className="text-p text-gray" numberOfLines={2}>도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.</Text></View>
+                      <View className="mt-[2px]">
+                        <Text className="text-p text-gray" numberOfLines={2}>도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.</Text>
+                      </View>
                       <View className="mt-[6px]  flex-row">
                         <CategoryChip label="관광지" className="mr-2 px-2 py-[2px] " />
                         <CategoryChip label="문화" className="mr-2 px-2 py-[2px] " />
@@ -329,7 +331,7 @@ const WishlistScreen: React.FC = () => {
 
         {!isSheetExpanded && (
           <>
-            <View className="absolute bottom-14 left-0 right-0 items-center z-20">
+            <View className="items-center absolute bottom-14 left-0 right-0 z-20">
               <CategoryChip
                 label="현 지도에서 검색"
                 onPress={() => console.log('검색')}
@@ -348,7 +350,7 @@ const WishlistScreen: React.FC = () => {
 
 
 
-          <View className="mt-2 px-4 flex-row items-center justify-between">
+          <View className="flex-row items-center justify-between mt-2 px-4 ">
             {/* 왼쪽: 탭 메뉴들 */}
             <View className="flex-row">
               {tabs.map((tab) => (
@@ -392,10 +394,10 @@ const WishlistScreen: React.FC = () => {
           ModalIcon="mb-6 mt-[21px]"
           ModalContainer="p-[22px]"
           primaryTitleTextClass="mb-[43px]"
-          primaryBtnClass="bg-main w-full py-3"
+          primaryBtnClass="w-full py-3 bg-main"
           primaryTextClass="text-white"
           secondaryLabel="직접 일정짜기"
-          secondaryBtnClass="border border-main w-full py-3"
+          secondaryBtnClass="w-full py-3 border border-main "
           secondaryTextClass="text-main"
           onPrimaryPress={handleAiPlan}
           onSecondaryPress={handleManualPlan}
@@ -412,10 +414,10 @@ const WishlistScreen: React.FC = () => {
           ModalIcon="mb-4"
           ModalContainer="p-4"
           primaryTitleTextClass="mb-4"
-          primaryBtnClass="bg-main flex-1 py-3"
+          primaryBtnClass="flex-1 bg-main py-3"
           primaryTextClass="text-white"
           secondaryLabel="나가기"
-          secondaryBtnClass="bg-chip flex-1 py-3"
+          secondaryBtnClass=" flex-1 bg-chip py-3"
           secondaryTextClass="text-gray"
           onPrimaryPress={() => setShowExitModal(false)}
           onSecondaryPress={() => navigation.goBack()}

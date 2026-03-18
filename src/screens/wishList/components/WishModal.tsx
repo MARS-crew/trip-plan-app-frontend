@@ -50,8 +50,8 @@ export const WishModal = React.memo<WishModalProps>(
     }) => {
         return (
             <Modal transparent visible={isVisible} animationType="fade" onRequestClose={onClose}>
-                <View className="flex-1 justify-center  items-center bg-[#251D18]/20 px-4">
-                    <View className={`w-full bg-white rounded-xl p-4 items-center ${ModalContainer}`}>
+                <View className="flex-1 justify-center  items-center px-4 bg-black/20">
+                    <View className={`items-center w-full p-4 bg-white rounded-xl  ${ModalContainer}`}>
 
                         {/* 아이콘 영역 */}
                         {icon && <View className={`${ModalIcon}`}>{icon}</View>}

@@ -6,23 +6,27 @@ import Animated, {
   useAnimatedStyle,
   runOnJS,
 } from "react-native-reanimated";
-import { styled } from "nativewind";
 
-export interface CustomBottomSheetProps {
-  children: React.ReactNode;
-  onStateChange?: (isExpanded: boolean) => void; // ✅ 이름 확인
-}
 
-const AnimatedView = styled(Animated.View);
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const VISIBLE_HEIGHT = 70;
+const MIN_Y = 70;
+const MAX_Y = SCREEN_HEIGHT - VISIBLE_HEIGHT;
 
-export function CustomBottomSheet({ children, onStateChange }: CustomBottomSheetProps) {
-  const MIN_Y = 70;
-  const MAX_Y = SCREEN_HEIGHT - VISIBLE_HEIGHT;
+
+interface CustomBottomSheetProps {
+  children: React.ReactNode;
+  onStateChange?: (isExpanded: boolean) => void;
+}
+
+export const CustomBottomSheet = ({
+  children,
+  onStateChange,
+}: CustomBottomSheetProps) => {
 
   const translateY = useSharedValue(MAX_Y);
   const startY = useSharedValue(0);
+
 
   const gesture = Gesture.Pan()
     .onStart(() => {
@@ -33,12 +37,10 @@ export function CustomBottomSheet({ children, onStateChange }: CustomBottomSheet
       translateY.value = Math.max(MIN_Y, Math.min(MAX_Y, nextY));
 
       if (onStateChange) {
-        // 조금이라도 올라오면 true 전달
         runOnJS(onStateChange)(translateY.value < MAX_Y);
       }
     })
     .onEnd(() => {
-      // 멈춘 자리 그대로 유지 (애니메이션 없음)
       if (onStateChange) {
         runOnJS(onStateChange)(translateY.value < MAX_Y);
       }
@@ -49,18 +51,18 @@ export function CustomBottomSheet({ children, onStateChange }: CustomBottomSheet
   }));
 
   return (
-    <AnimatedView
-      className="absolute bottom-0 h-full w-full bg-white rounded-t-[16px] overflow-hidden"
+    <Animated.View
+      className="absolute bottom-0 w-full h-full bg-white rounded-t-[16px] overflow-hidden"
       style={animatedStyle}
     >
       <GestureDetector gesture={gesture}>
-        <View className="w-full items-center py-[20px] bg-white">
+        <View className="items-center w-full py-[20px] bg-white">
           <View className="w-10 h-1 bg-botoomSheetBackground rounded-full" />
         </View>
       </GestureDetector>
       <View className="flex-1">{children}</View>
-    </AnimatedView>
+    </Animated.View>
   );
-}
-
+};
+CustomBottomSheet.displayName = 'CustomBottomSheet';
 export default CustomBottomSheet;
