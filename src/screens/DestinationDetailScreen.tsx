@@ -259,13 +259,13 @@ const DestinationDetailScreen: React.FC = () => {
                     </View>
                     
                     {/* 오른쪽: 분포 바 */}
-                    <View className="flex-1 gap-1.5">
+                    <View className="flex-1 gap-1">
                       {ratings.map((item) => (
                         <View key={item.label} className="flex-row items-center gap-2">
                           <Text className="w-7 text-p1 text-right text-black">{item.label}</Text>
-                          <View className="flex-1 h-3 bg-background rounded-sm overflow-hidden">
+                          <View className="flex-1 h-2 bg-background rounded-sm overflow-hidden">
                             <View
-                              className="h-full rounded-sm bg-main"
+                              className="h-2 rounded-sm bg-main"
                               style={{ width: `${(item.count / maxCount) * 100}%` }}
                             />
                           </View>
