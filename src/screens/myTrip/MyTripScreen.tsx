@@ -8,7 +8,7 @@ import { Chip } from '@/components/ui';
 import TripCard from '@/screens/myTrip/TripCard';
 import { TripTimeline } from '@/screens/myTrip';
 
-type MapScreenNavigation = NativeStackNavigationProp<any>;
+type MyTripNavigation = NativeStackNavigationProp<  RootStackParamList,'MyTripScreen'>;
 
 const timelineItems = [
   {
@@ -55,14 +55,13 @@ const timelineItems = [
 const MyTripScreen: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('전체');
   const [openCardId, setOpenCardId] = useState<number | null>(null);
-  const navigation = useNavigation<MapScreenNavigation>();
+  const navigation = useNavigation<MyTripNavigation>();
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-    <ScrollView className="flex-1"
-    showsVerticalScrollIndicator={false}
-    contextContainerStyle={{ paddingBottom:24 }} >
-      <View className="flex-1 bg-screenBackground px-5 pt-6">
+    <ScrollView className="flex-1 bg-screenBackground"
+    showsVerticalScrollIndicator={false}>
+      <View className="flex-1 bg-screenBackground px-5 py-6">
         <View className="flex-row items-start justify-between">
           <View>
             <Text className="text-h font-bold text-black">내여행</Text>
