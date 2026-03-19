@@ -83,11 +83,6 @@ const SearchScreen: React.FC = () => {
               </View>
             </View>
           </View>
-          <TouchableOpacity
-            onPress={handleNavigateToDetail}
-            className="bg-main px-6 py-3 rounded-lg">
-            <Text className="text-white font-semibold">여행지 상세 보기</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
