@@ -18,6 +18,9 @@ const popularSearch = [
   '싱가포르 마리나',
   '후쿠오카 온천',
 ];
+=======
+
+import type { SearchStackParamList } from '@/navigation/types';
 
 // ============ Constants ============
 const category = [

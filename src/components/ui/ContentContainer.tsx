@@ -13,12 +13,19 @@ export const ContentContainer = React.memo<ContentContainerProps>(
   ({ children, className }) => {
     // 파생 값
     const { widthClass, otherClasses } = useMemo(() => {
-      const widthMatch = className?.match(/\bw-\[?\d+px\]?/);
-      const width = widthMatch ? widthMatch[0] : null;
-      const other = width 
-        ? className?.replace(new RegExp(`\\b${width}\\s*`), '').trim()
-        : className;
-      return { widthClass: width, otherClasses: other };
+      if (!className) return { widthClass: null, otherClasses: undefined };
+
+      // tokens 기반으로 width 클래스(w-*, w-[*])만 분리해 안전하게 제거
+      const tokens = className.split(/\s+/).filter(Boolean);
+      const widthTokenIndex = tokens.findIndex((t) => /^w-(?:\[[^\]]+\]|\d+)$/.test(t));
+
+      if (widthTokenIndex === -1) {
+        return { widthClass: null, otherClasses: className };
+      }
+
+      const widthClass = tokens[widthTokenIndex] ?? null;
+      const otherClasses = tokens.filter((_, idx) => idx !== widthTokenIndex).join(' ').trim();
+      return { widthClass, otherClasses };
     }, [className]);
 
     // 렌더링

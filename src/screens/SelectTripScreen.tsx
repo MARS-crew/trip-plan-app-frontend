@@ -9,7 +9,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { ScheduleIcon, MarkerGrayIcon, VectorGrayIcon } from '@/assets/icons';
 import { COLORS } from '@/constants';
 import { TripStatusChip } from '@/components/ui';
-import type { SearchStackParamList } from '@/navigation/SearchStackNavigator';
+import type { SearchStackParamList } from '@/navigation/types';
 
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<SearchStackParamList>;
