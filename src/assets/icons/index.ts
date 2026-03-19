@@ -13,6 +13,7 @@ export { default as StarIcon } from './star.svg';
 export { default as ScheduleIcon } from './schedule.svg';
 export { default as MarkerIcon } from './marker.svg';
 export { default as MarkerGrayIcon } from './marker-gray.svg';
+
 export { default as InfoIcon } from './info.svg';
 export { default as ReviewIcon } from './review.svg';
 export { default as ActiveInfoIcon } from './activeinfo.svg';
@@ -23,9 +24,26 @@ export { default as PlaceIcon } from './place.svg';
 export { default as VectorIcon } from './vector.svg';
 export { default as VectorGrayIcon } from './vectorgray.svg';
 export { default as StarOffIcon } from './starOff.svg';
+
+
+export { default as SearchingIcon } from './searching.svg';
+
+export { default as SearchArrowIcon } from './searcharrow.svg';
+
+
+export { default as HeartIcon } from './heart.svg'
+export { default as ActiveHeartIcon } from './activeheart.svg'
+export { default as MyLocation } from './mylocation.svg'
+export { default as EmptyLocation } from './emptylocation.svg'
+export { default as EmptyWish } from './emptywish.svg'
+export { default as AlertIcon } from './alert.svg'
+export { default as RouteIcon } from './route.svg'
+export { default as WishStar } from './wishstar.svg'
+
 export { default as InputSearchIcon } from './inputsearch.svg';
 export { default as TimeB } from './timeB.svg';
 export { default as X } from './x.svg';
+
 // 타입 정의
 export interface IconProps {
   fill?: string;
