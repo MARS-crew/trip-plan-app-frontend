@@ -33,6 +33,9 @@ module.exports = {
         sans: ['Pretendard', 'System'],
       },
       fontSize,
+      boxShadow: {
+        card: '0 0 3px rgba(0,0,0,0.15)',
+      },
     },
   },
   plugins: [],

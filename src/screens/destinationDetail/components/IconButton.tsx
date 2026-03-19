@@ -36,7 +36,6 @@ export const IconButton = React.memo<IconButtonProps>(
     }, [onPress]);
 
     // 파생 값
-    const borderRadius = DEFAULT_SIZE / 2;
     // hex 색상을 rgba로 변환
     const hexToRgba = (hex: string, opacity: number): string => {
       const r = parseInt(hex.slice(1, 3), 16);

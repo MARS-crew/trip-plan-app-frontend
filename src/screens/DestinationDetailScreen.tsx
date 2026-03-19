@@ -22,7 +22,7 @@ import {
   PlaceIcon,
   VectorIcon,
 } from '@/assets/icons';
-import type { SearchStackParamList } from '@/navigation/SearchStackNavigator';
+import type { SearchStackParamList } from '@/navigation/types';
 
 //예시 값
 const ratings = [
@@ -131,7 +131,7 @@ const DestinationDetailScreen: React.FC = () => {
               className="w-[108px] h-9 bg-main rounded-[6px] flex-row items-center justify-center"
               onPress={handleAddToSchedule}>
               <ScheduleIcon />
-              <Text className="text-p text-white ml-[6px] font-regular">일정 추가하기</Text>
+              <Text className="text-p text-white ml-[6px]">일정 추가하기</Text>
             </TouchableOpacity>
           </View>
 
@@ -156,21 +156,21 @@ const DestinationDetailScreen: React.FC = () => {
             {activeTab === 'info' ? (
               <>
                 <ContentContainer className="p-4">
-                  <Text className="text-h4 font-semibold mb-2">소개</Text>
+                  <Text className="text-h3 font-semibold mb-2">소개</Text>
                   <Text className="text-p text-gray font-medium">
                     도쿄에서 가장 오래된 불교 사원으로, 웅장한 카미나리몬과 나카미세 거리가 유명합니다.
                   </Text>
                 </ContentContainer>
             <View className="mt-5">
               <ContentContainer className="w-[181px]">
-                <View className="flex-row items-center ml-4 mt-[14px] mb-[14px]">
+                <View className="flex-row items-center ml-4 mr-[44px] mt-[14px] mb-[14px]">
                   <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center">
                     <TimeIcon />
                   </View>
                   <View className="ml-[13px]">
-                    <Text className="text-p text-gray font-regular">영업시간</Text>
+                    <Text className="text-p text-gray">영업시간</Text>
                     <View className="mt-1">
-                      <Text className="text-p text-black font-regular">06:00 - 17:00</Text>
+                      <Text className="text-p text-black">06:00 - 17:00</Text>
                     </View>
                   </View>
                 </View>
@@ -183,16 +183,16 @@ const DestinationDetailScreen: React.FC = () => {
                     <AddressIcon />
                   </View>
                   <View className="ml-[13px]">
-                    <Text className="text-p text-gray font-regular">주소</Text>
+                    <Text className="text-p text-gray">주소</Text>
                     <View className="mt-1">
-                      <Text className="text-p text-black font-regular">2 Chrome-3-1 Asakusa, Taito City, Tokyo</Text>
+                      <Text className="text-p text-black">2 Chrome-3-1 Asakusa, Taito City, Tokyo</Text>
                     </View>
                   </View>
                 </View>
               </ContentContainer>
             </View>
             <View className="mt-5">
-              <Text className="text-h4 text-black font-semibold">주변 추천 장소</Text>
+              <Text className="text-h3 text-black font-semibold">주변 추천 장소</Text>
             </View>
             <View className="mt-3">
               <ContentContainer>
@@ -259,13 +259,13 @@ const DestinationDetailScreen: React.FC = () => {
                     </View>
                     
                     {/* 오른쪽: 분포 바 */}
-                    <View className="flex-1 gap-1.5">
+                    <View className="flex-1 gap-1">
                       {ratings.map((item) => (
                         <View key={item.label} className="flex-row items-center gap-2">
                           <Text className="w-7 text-p1 text-right text-black">{item.label}</Text>
-                          <View className="flex-1 h-3 bg-background rounded-sm overflow-hidden">
+                          <View className="flex-1 h-2 bg-background rounded-sm overflow-hidden">
                             <View
-                              className="h-full rounded-sm bg-main"
+                              className="h-2 rounded-sm bg-main"
                               style={{ width: `${(item.count / maxCount) * 100}%` }}
                             />
                           </View>

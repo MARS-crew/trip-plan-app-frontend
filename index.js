@@ -31,32 +31,19 @@ const getFontFamily = (fontWeight) => {
   }
 };
 
-// Text 컴포넌트에 기본 폰트 적용
-const originalTextRender = Text.render;
-Text.render = function (...args) {
-  const origin = originalTextRender.call(this, ...args);
-  const style = origin.props.style || [];
-  const flatStyle = Array.isArray(style) ? style.flat() : [style];
-  const fontWeight = flatStyle.find((s) => s?.fontWeight)?.fontWeight || '400';
-  const fontFamily = flatStyle.find((s) => s?.fontFamily)?.fontFamily || getFontFamily(String(fontWeight));
-  
-  return React.cloneElement(origin, {
-    style: [{ fontFamily }, ...flatStyle],
-  });
-};
+// Text / TextInput 기본 폰트 적용
+const defaultFontFamily = getFontFamily('400');
 
-// TextInput 컴포넌트에 기본 폰트 적용
-const originalTextInputRender = TextInput.render;
-TextInput.render = function (...args) {
-  const origin = originalTextInputRender.call(this, ...args);
-  const style = origin.props.style || [];
-  const flatStyle = Array.isArray(style) ? style.flat() : [style];
-  const fontWeight = flatStyle.find((s) => s?.fontWeight)?.fontWeight || '400';
-  const fontFamily = flatStyle.find((s) => s?.fontFamily)?.fontFamily || getFontFamily(String(fontWeight));
-  
-  return React.cloneElement(origin, {
-    style: [{ fontFamily }, ...flatStyle],
-  });
-};
+if (Text.defaultProps == null) {
+  Text.defaultProps = {};
+}
+const existingTextStyle = Text.defaultProps.style ?? [];
+Text.defaultProps.style = [existingTextStyle, { fontFamily: defaultFontFamily }].flat().filter(Boolean);
+
+if (TextInput.defaultProps == null) {
+  TextInput.defaultProps = {};
+}
+const existingTextInputStyle = TextInput.defaultProps.style ?? [];
+TextInput.defaultProps.style = [existingTextInputStyle, { fontFamily: defaultFontFamily }].flat().filter(Boolean);
 
 AppRegistry.registerComponent(appName, () => App);
