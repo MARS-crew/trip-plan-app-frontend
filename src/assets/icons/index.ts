@@ -22,33 +22,11 @@ export { default as ReviewIcon } from './review.svg';
 export { default as ActiveInfoIcon } from './activeinfo.svg';
 export { default as ActiveReviewIcon } from './activereview.svg';
 export { default as TimeIcon } from './time.svg';
-export { default as Time2Icon } from './time2.svg';
 export { default as AddressIcon } from './address.svg';
-export { default as LocationIcon } from './location.svg';
-export { default as LocationOrangeIcon } from './location_orange.svg';
-export { default as JapanLanguageIcon } from './japan_language.svg';
-export { default as ExchangeIcon } from './exchange.svg';
-export { default as Exchange2Icon } from './exchange2.svg';
-export { default as BellIcon } from './bell.svg';
-export { default as LogoutIcon } from './logout.svg';
-export { default as SettingIcon } from './setting.svg';
-export { default as NicknameIcon } from './nickname.svg';
-export { default as EmailIcon } from './email.svg';
-export { default as CalendarIcon } from './calendar.svg';
-export { default as GenderIcon } from './gender.svg';
-export { default as EarthIcon } from './earth.svg';
-export { default as SecessionIcon } from './secession.svg';
 export { default as PlaceIcon } from './place.svg';
 export { default as VectorIcon } from './vector.svg';
 export { default as VectorGrayIcon } from './vectorgray.svg';
-export { default as BackArrow } from './backArrow.svg';
-export { default as WeatherInfoIcon } from './weather-info.svg';
-export { default as ScheduleInfoIcon } from './schedule-info.svg';
-export { default as ChevronDownIcon } from './chevrondown.svg';
-export { default as ChevronUpIcon } from './chevronup.svg';
-export { default as AirplaneIcon } from './airplane.svg';
-export { default as CameraIcon } from './camera.svg';
-export { default as RightArrowIcon } from './rightarrow.svg';
+export { default as StarOffIcon } from './starOff.svg';
 
 // 타입 정의
 export interface IconProps {

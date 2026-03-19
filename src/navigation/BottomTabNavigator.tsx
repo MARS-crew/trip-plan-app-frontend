@@ -8,11 +8,10 @@ import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 
 import {
   HomeScreen,
-  MyTripScreen,
-  SavedScreen,
+  MapScreen,
+  BookmarkScreen,
   MyPageScreen,
 } from '@/screens';
-import HomeStackNavigator from './HomeStackNavigator';
 import SearchStackNavigator from './SearchStackNavigator';
 import { HomeIcon, SearchIcon, MapIcon, BookmarkIcon, MyPageIcon } from '@/assets/icons';
 import { COLORS } from '@/constants';
@@ -86,7 +85,7 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
       className="flex-1 items-center justify-center relative">
       {/* 상단 인디케이터 - 탭바 최상단 테두리 위치 */}
       <View
-        className={`absolute -top-[1px] w-6 h-[2px] rounded-full self-center ${
+        className={`absolute -top-[1px] w-6 h-[2px] rounded-[1.5px] self-center ${
           isActive ? 'bg-main' : 'bg-transparent'
         }`}
       />
@@ -97,7 +96,7 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
       </View>
 
       {/* 라벨 */}
-      <View className="items-center justify-center mt-[1px]">
+      <View className="items-center justify-center">
         <Text
           numberOfLines={1}
           className={`text-[10px] font-medium text-center ${isActive ? 'text-main' : 'text-gray'}`}
@@ -189,17 +188,17 @@ const BottomTabNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="Map"
-        component={MyTripScreen}
+        component={MapScreen}
         options={{ tabBarButton: createTabBarButton('Map', '내여행') }}
       />
       <Tab.Screen
         name="Home"
-        component={HomeStackNavigator}
+        component={HomeScreen}
         options={{ tabBarButton: createTabBarButton('Home', '홈') }}
       />
       <Tab.Screen
         name="Bookmark"
-        component={SavedScreen}
+        component={BookmarkScreen}
         options={{ tabBarButton: createTabBarButton('Bookmark', '저장') }}
       />
       <Tab.Screen
