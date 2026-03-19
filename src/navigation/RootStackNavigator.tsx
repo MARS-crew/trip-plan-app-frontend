@@ -14,6 +14,7 @@ import { AddTripCalendarScreen } from '@/screens/addTrip/AddTripCalendarScreen';
 import { AddCalendarMapScreen } from '@/screens/AddCalendarMapScreen';
 
 import EmptyMapScreen from '@/screens/myTrip/EmptyMapScreen';
+import AddTripScreen from '@/screens/addTrip/AddTripScreen';
 
 // ============ Constants ============
 const Stack = createNativeStackNavigator<RootStackParamList>();
