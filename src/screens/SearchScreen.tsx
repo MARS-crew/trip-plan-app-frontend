@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import type { SearchStackParamList } from '@/navigation/SearchStackNavigator';
+import type { SearchStackParamList } from '@/navigation/types';
 
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<SearchStackParamList>;
