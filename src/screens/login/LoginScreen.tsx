@@ -78,7 +78,7 @@ const LoginScreen: React.FC = () => {
 	};
 
 	const handleFindId = (): void => {
-		navigation.navigate('FindId');
+		// navigation.navigate('FindId');
 	};
 
 	const handleFindPassword = (): void => {
@@ -101,7 +101,7 @@ const LoginScreen: React.FC = () => {
 					<View className="items-center px-5 pt-5 pb-8">
 						<View className="items-center mt-8">
 							<AppLogoIcon width={64} height={96} />
-							<Text className="mt-4 text-p1 text-gray">
+							<Text className="mt-4 text-p1 text-gray font-medium">
 								똑똑한 여행의 시작 여행추천 AI
 							</Text>
 						</View>
@@ -122,7 +122,7 @@ const LoginScreen: React.FC = () => {
 									onChangeText={handleChangeUserId}
 									placeholder="아이디를 입력하세요"
 									placeholderTextColor={COLORS.gray}
-									className="w-full h-12 mt-2 px-3 rounded-xl border border-borderGray bg-screenBackground text-p1 font-regular"
+									className="w-full h-12 mt-2 px-3 rounded-xl border border-borderGray bg-[#FCFAF8] text-p1 font-regular"
 									autoCapitalize="none"
 									autoCorrect={false}
 									returnKeyType="next"
@@ -136,7 +136,7 @@ const LoginScreen: React.FC = () => {
 									onChangeText={handleChangePassword}
 									placeholder="비밀번호를 입력하세요"
 									placeholderTextColor={COLORS.gray}
-									className="w-full h-12 mt-2 mb-2 px-3 rounded-xl border border-borderGray bg-screenBackground text-p1 font-regular"
+									className="w-full h-12 mt-2 mb-2 px-3 rounded-xl border border-borderGray bg-[#FCFAF8] text-p1 font-regular"
 									secureTextEntry
 									autoCapitalize="none"
 									autoCorrect={false}
@@ -156,7 +156,7 @@ const LoginScreen: React.FC = () => {
 								className="w-full h-12 mt-2 items-center justify-center rounded-lg bg-main"
 								accessibilityRole="button"
 								accessibilityLabel="로그인">
-								<Text className="text-h2 font-bold text-white">로그인</Text>
+								<Text className="text-h3 font-bold text-white">로그인</Text>
 							</TouchableOpacity>
 
 							<View className="flex-row items-center justify-center mt-4">
