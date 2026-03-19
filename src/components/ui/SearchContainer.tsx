@@ -15,8 +15,8 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ children, ...p
     >
       <View
         // 흰색 배경, 둥근 모서리, 가로 정렬, 그림자 설정
-        // 컨벤션 5번(스타일 규칙) 순서: 레이아웃 -> 크기 -> 간격 -> 배경/테두리 -> 효과
-        className="flex-row items-center w-full h-14 bg-white border border-borderGray rounded-xl shadow-md"
+
+        className="flex-row items-center w-full h-[49px] bg-white border border-borderGray rounded-xl shadow-md"
       >
         {children}
       </View>

@@ -12,7 +12,7 @@ import type { RootStackParamList } from '@/navigation/types';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { useState } from "react";
 import { RouteIcon, AlertIcon } from '@/assets/icons';
-
+import { COLORS } from '@/constants';
 import { BackHandler } from 'react-native';
 import { CategoryChip } from '@/screens/wishList/components';
 // ============ Types ============
@@ -98,7 +98,7 @@ const WishlistScreen: React.FC = () => {
     return () => backHandler.remove();
   }, [showExitModal, showAddModal]);
   //바텀시트 안에 콘텐츠  
-  const renderContent = () => {
+  const renderContent = (): React.ReactElement | null => {
 
     switch (selectedCategory) {
       case 'trending':
@@ -121,9 +121,9 @@ const WishlistScreen: React.FC = () => {
                         <Text className="text-p text-gray" numberOfLines={2}>도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.</Text>
                       </View>
                       <View className="mt-[6px]  flex-row">
-                        <CategoryChip label="관광지" className="mr-2 px-2 py-[2px] " />
-                        <CategoryChip label="문화" className="mr-2 px-2 py-[2px] " />
-                        <CategoryChip label="역사" className=" px-2 py-[2px] " />
+                        <CategoryChip label="관광지" className="mr-2 px-2 py-[2px] rounded-2xl" />
+                        <CategoryChip label="문화" className="mr-2 px-2 py-[2px] rounded-2xl" />
+                        <CategoryChip label="역사" className=" px-2 py-[2px] rounded-2xl" />
                       </View>
                     </View>
                     <TouchableOpacity className="mr-4" onPress={() => setIsLiked(!isLiked)}>
@@ -146,9 +146,9 @@ const WishlistScreen: React.FC = () => {
                       <Text className="text-h3 text-black font-semibold">센소지 아사쿠사</Text>
                       <View className="mt-[2px]"><Text className="text-p text-gray" numberOfLines={2}>도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.</Text></View>
                       <View className="mt-[6px]  flex-row">
-                        <CategoryChip label="관광지" className="mr-2 px-2 py-[2px] " />
-                        <CategoryChip label="문화" className="mr-2 px-2 py-[2px] " />
-                        <CategoryChip label="역사" className=" px-2 py-[2px] " />
+                        <CategoryChip label="관광지" className="mr-2 px-2 py-[2px] rounded-2xl" />
+                        <CategoryChip label="문화" className="mr-2 px-2 py-[2px] rounded-2xl" />
+                        <CategoryChip label="역사" className=" px-2 py-[2px] rounded-2xl" />
                       </View>
                     </View>
                     <TouchableOpacity className="mr-4" onPress={() => setIsLiked(!isLiked)}>
@@ -212,7 +212,7 @@ const WishlistScreen: React.FC = () => {
         return null;
     }
   };
-  const renderEmptyContent = () => {
+  const renderEmptyContent = (): React.ReactElement | null => {
 
     switch (selectedCategory) {
       case 'trending':
@@ -258,9 +258,9 @@ const WishlistScreen: React.FC = () => {
                       <Text className="text-h3 text-black font-semibold">센소지 아사쿠사</Text>
                       <View className="mt-[2px]"><Text className="text-p text-gray" numberOfLines={2}>도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.</Text></View>
                       <View className="mt-[6px]  flex-row">
-                        <CategoryChip label="관광지" className="mr-2 px-2 py-[2px] " />
-                        <CategoryChip label="문화" className="mr-2 px-2 py-[2px] " />
-                        <CategoryChip label="역사" className=" px-2 py-[2px] " />
+                        <CategoryChip label="관광지" className="mr-2 px-2 py-[2px] rounded-2xl" />
+                        <CategoryChip label="문화" className="mr-2 px-2 py-[2px] rounded-2xl" />
+                        <CategoryChip label="역사" className=" px-2 py-[2px] rounded-2xl" />
                       </View>
                     </View>
                     <TouchableOpacity className="mr-4" onPress={() => setIsLiked(!isLiked)}>
@@ -319,7 +319,7 @@ const WishlistScreen: React.FC = () => {
             <TextInput
               className="flex-1  text-h3 font-regular pr-12 text-black"
               placeholder="희망하는 관광지를 검색하세요"
-              placeholderTextColor="#8C7B73"
+              placeholderTextColor={COLORS.gray}
             />
 
             {/* 3. 검색 아이콘 */}
