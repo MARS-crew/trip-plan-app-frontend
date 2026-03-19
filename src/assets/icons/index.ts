@@ -23,7 +23,9 @@ export { default as PlaceIcon } from './place.svg';
 export { default as VectorIcon } from './vector.svg';
 export { default as VectorGrayIcon } from './vectorgray.svg';
 export { default as StarOffIcon } from './starOff.svg';
-
+export { default as InputSearchIcon } from './inputsearch.svg';
+export { default as TimeB } from './timeB.svg';
+export { default as X } from './x.svg';
 // 타입 정의
 export interface IconProps {
   fill?: string;
