@@ -3,8 +3,9 @@ import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { SearchStackParamList } from '@/navigation/types';
+
 import { InputSearchIcon } from '@/assets/icons';
-import type { SearchStackParamList } from '@/navigation/SearchStackNavigator';
 import { SearchList } from './search/components/SearchList';
 import { PopularList } from './search/components/PopularList';
 import { CategoryChip } from './search/components/CategoryChip';
@@ -18,9 +19,6 @@ const popularSearch = [
   '싱가포르 마리나',
   '후쿠오카 온천',
 ];
-=======
-
-import type { SearchStackParamList } from '@/navigation/types';
 
 // ============ Constants ============
 const category = [
@@ -54,14 +52,13 @@ const SearchScreen: React.FC = () => {
               </View>
               <TextInput className="flex-1 px-4" placeholder="여행지, 맛집, 숙소를 검색해보세요" />
             </View>
-            <View className="">
+            <View>
               <Text className="text-h3 font-semibold mb-3">카테고리</Text>
-              <View className="gap-2">
-                {category.map((row, rowIdx) => (
-                  <View key={rowIdx} className="flex-row gap-2">
-                    {row.map((category) => (
-                      <CategoryChip category={category} />
-                    ))}
+
+              <View className="flex-row flex-wrap justify-between">
+                {category.flat().map((item) => (
+                  <View key={item} className="w-[32%] mb-2">
+                    <CategoryChip category={item} />
                   </View>
                 ))}
               </View>
