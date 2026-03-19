@@ -3,5 +3,6 @@
 // 예: export { TripTimeline } from './components/TripTimeline';
 
 export { default as MyTripScreen } from './MyTripScreen';
-export { default as TripTimeline } from './TripTimeline';
+export { default as TripCard } from './components/TripCard';
+export { default as TripTimeline } from './components/TripTimeline';
 export { default as EmptyMapScreen } from './EmptyMapScreen';

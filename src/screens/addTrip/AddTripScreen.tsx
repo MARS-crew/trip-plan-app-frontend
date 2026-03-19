@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { COLORS } from '@/constants';
 import {
     CameraIcon,
     RightArrowIcon,
@@ -49,14 +50,17 @@ const AddTripScreen: React.FC = () => {
             <View className="mt-7 w-[322px] flex-row items-center border-b-2 border-main">
               <TextInput
                 placeholder="여행명을 입력하세요"
-                placeholderTextColor="#8C7B73"
+                placeholderTextColor={COLORS.gray}
                 value={tripName}
                 onChangeText={setTripName}
                 className="flex-1 pr-4 text-p1 text-black"
               />
               <TouchableOpacity
                 activeOpacity={0.8}
-                className={`ml-4 h-[32px] w-[32px] items-center justify-center rounded-full ${tripName.length > 0 ? 'bg-[#DF6C20]' : 'bg-[#F1D6C5]'}`}>
+                onPress={() => navigation.navigate('AddTripCalendar')}
+                className="ml-4 h-[32px] w-[32px] items-center justify-center rounded-full"
+                style={{ backgroundColor: tripName.length > 0 ? COLORS.main : COLORS.buttonDisabled,
+                    }}>
                 <RightArrowIcon width={16} height={16} />
               </TouchableOpacity>
             </View>
