@@ -28,6 +28,8 @@ export { default as AirplaneIcon } from './airplane.svg';
 export { default as CalendarIcon } from './calendar.svg';
 export { default as ChevronDownIcon } from './chevrondown.svg';
 export { default as ChevronUpIcon } from './chevronup.svg';
+export { default as VectorLeftIcon } from './vectorleft.svg';
+export { default as PlusIcon } from './plus.svg';
 
 
 export { default as SearchingIcon } from './searching.svg';

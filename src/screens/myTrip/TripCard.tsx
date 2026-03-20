@@ -13,6 +13,7 @@ export interface TripCardProps {
   city: string;
   dateText: string;
   scheduleText: string;
+  scheduleCountText: string;
   imageSource: any;
   status: 'traveling' | 'scheduled' | 'completed';
   isOpen: boolean;
@@ -23,6 +24,7 @@ export interface TripCardProps {
 const TripCard = ({
   city,
   dateText,
+  scheduleCountText,
   scheduleText,
   imageSource,
   status,
@@ -54,13 +56,13 @@ const TripCard = ({
           </View>
 
         {/*City*/}
-          <View className="absolute bottom-5 left-4">
+          <View className="absolute bottom-3 left-4">
             <Text className="ml-[1.2px] text-h1 font-bold text-white">{city}</Text>
 
         {/*Date*/}
             <View className="flex-row items-center">
-              <CalendarIcon width={12} height={12} />
-              <Text className="ml-[4px] text-p1 text-white">{dateText}</Text>
+              <CalendarIcon/>
+              <Text className="ml-1 text-p1 text-white">{dateText}</Text>
             </View>
           </View>
         </View>
@@ -69,7 +71,8 @@ const TripCard = ({
         <View className="flex-row items-center justify-between px-4 py-3">
           <View className="flex-row items-center">
             <PlaceIcon width={14} height={14} />
-            <Text className="ml-1 text-p text-gray">{scheduleText}</Text>
+            <Text className="ml-1 text-p text-gray">{scheduleText}개의 일정</Text>
+            <Text className="ml-3 text-p text-gray">{scheduleCountText}일간</Text>
           </View>
 
         {/*Toggle*/}
