@@ -28,6 +28,9 @@ export { default as PlaceIcon } from './place.svg';
 export { default as VectorIcon } from './vector.svg';
 export { default as VectorGrayIcon } from './vectorgray.svg';
 export { default as StarOffIcon } from './starOff.svg';
+export { default as ScheduleInfoIcon } from './schedule-info.svg'
+export { default as WeatherInfoIcon } from './weather-info.svg'
+export { default as BackArrow } from './backArrow.svg'
 
 
 export { default as SearchingIcon } from './searching.svg';
@@ -47,6 +50,10 @@ export { default as WishStar } from './wishstar.svg'
 export { default as InputSearchIcon } from './inputsearch.svg';
 export { default as TimeB } from './timeB.svg';
 export { default as X } from './x.svg';
+export { default as PhotoCamera } from './photoCamera.svg';
+export { default as DeletButton } from './deletBtn.svg';
+export { default as StarIconV2 } from './StarV2.svg';
+export { default as StarOffIconV2 } from './StarOffV2.svg';
 
 // 타입 정의
 export interface IconProps {
