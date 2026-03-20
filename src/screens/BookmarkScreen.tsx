@@ -79,7 +79,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place }) => {
           <Image source={THUMBNAIL_IMAGE} className="h-full w-full" resizeMode="cover" />
 
           <TouchableOpacity
-            className="absolute right-2 top-2 h-7 w-7 items-center justify-center rounded-full"
+            className="absolute right-[10] top-[10] h-7 w-7 items-center justify-center rounded-full"
             style={{ backgroundColor: 'rgba(79, 79, 79, 0.8)' }}
             onPress={() => {
               return;
@@ -103,7 +103,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place }) => {
           <Chip label={place.category} className="rounded-xl bg-chip px-2.5 py-1" />
           <View className="flex-row items-center">
             <StarIcon width={12} height={12} />
-            <Text className="ml-0.5 font-Pretendard text-p font-semibold text-black">
+            <Text className="ml-0.5 font-Pretendard text-p text-black">
               {place.rating}
             </Text>
           </View>
