@@ -9,25 +9,31 @@ export interface TopBarProps {
   className ?: string;
 }
 
-export const TopBar: React.FC<TopBarProps> = ({ title, onPress , className }) => {
+export const TopBar: React.FC<TopBarProps> = ({
+  title,
+  onPress,
+  className,
+}) => {
   return (
-    <View className={`flex-row items-center h-14 pl-6 ${className ?? ''}`}>
+    <View className={`relative h-14 justify-center px-6 ${className ?? ''}`}>
       <Pressable
         onPress={onPress}
-        className="items-start justify-center h-10 w-10"
+        className="items-start justify-center h-10 w-10 z-10"
         accessibilityRole="button"
-        accessibilityLabel="뒤로가기">
-        <BackArrow 
-            className="w-5 h-5"
-            accessibilityLabel="뒤로가기"
+        accessibilityLabel="뒤로가기"
+      >
+        <BackArrow
+          className="h-5 w-5"
+          accessibilityLabel="뒤로가기"
         />
       </Pressable>
 
-      <Text numberOfLines={1} className="text-center text-h font-bold text-black">
+      <Text
+        numberOfLines={1}
+        className="absolute left-16 right-16 text-center text-h font-bold text-black"
+      >
         {title}
       </Text>
-
-      <View className="h-10 w-10" />
     </View>
   );
 };
