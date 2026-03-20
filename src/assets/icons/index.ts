@@ -24,6 +24,9 @@ export { default as PlaceIcon } from './place.svg';
 export { default as VectorIcon } from './vector.svg';
 export { default as VectorGrayIcon } from './vectorgray.svg';
 export { default as StarOffIcon } from './starOff.svg';
+export { default as ScheduleInfoIcon } from './schedule-info.svg'
+export { default as WeatherInfoIcon } from './weather-info.svg'
+export { default as BackArrow } from './backArrow.svg'
 
 
 export { default as SearchingIcon } from './searching.svg';
