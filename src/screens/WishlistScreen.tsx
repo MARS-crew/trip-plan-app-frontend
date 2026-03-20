@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useEffect } from 'react';
-import { View, Image, TextInput, TouchableOpacity, Text, ScrollView } from 'react-native';
+import { View, Image, TextInput, TouchableOpacity, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -14,7 +14,7 @@ import { useState } from "react";
 import { RouteIcon, AlertIcon } from '@/assets/icons';
 import { COLORS } from '@/constants';
 import { BackHandler } from 'react-native';
-import { CategoryChip } from '@/screens/wishList/components';
+import { CategoryChip, PlaceCard } from '@/screens/wishList/components';
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -30,17 +30,46 @@ const WishlistScreen: React.FC = () => {
     ],
     [],
   );
+  const DUMMY_PLACES = [
+    {
+      id: 'place_1',
+      title: '센소지 아사쿠사',
+      location: '도쿄, 일본',
+      description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+      categories: ['관광지', '문화', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+    {
+      id: 'place_2',
+      title: '오사카 성',
+      location: '오사카, 일본',
+      description: '오사카의 상징적인 랜드마크로, 아름다운 벚꽃과 역사적인 분위기를 자랑합니다.',
+      categories: ['관광지', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+  ];
+  const toggleLike = useCallback((id: string) => {
+    setLikedItemIds((prevIds) => {
+      const newIds = new Set(prevIds);
+      if (newIds.has(id)) {
+        newIds.delete(id);
+      } else {
+        newIds.add(id);
+      }
+      return newIds;
+    });
+  }, []);
   const [isLiked, setIsLiked] = useState(false);
   const navigation = useNavigation<NavigationProp>();
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const [likedItemIds, setLikedItemIds] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string | null>('trending');
-  // 1. Hooks
-  // Hooks
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [activeTab, setActiveTab] = React.useState('info');
   const [isSheetExpanded, setIsSheetExpanded] = useState<boolean>(false);
-
+  const searchInputRef = useRef<TextInput>(null);
   const handleSheetChange = useCallback((expanded: boolean) => {
     setIsSheetExpanded(expanded);
   }, []);
@@ -306,9 +335,16 @@ const WishlistScreen: React.FC = () => {
             longitude: 126.941574,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
-          }}></MapView>
+          }}
+          onPress={() => {
 
-        <View className="absolute top-[5px] left-4 right-4 z-10">
+            searchInputRef.current?.blur();
+          }}
+        ></MapView>
+
+
+
+        <Pressable className="absolute top-[5px] left-4 right-4 z-50">
           <SearchContainer>
             {/* 왼쪽: 뒤로가기 버튼 */}
             <TouchableOpacity onPress={handleGoBack} className="ml-4 mr-2">
@@ -320,6 +356,7 @@ const WishlistScreen: React.FC = () => {
               className="flex-1  text-h3 font-regular pr-12 text-black"
               placeholder="희망하는 관광지를 검색하세요"
               placeholderTextColor={COLORS.gray}
+              onFocus={() => { setIsSearchFocused(true) }}
             />
 
             {/* 3. 검색 아이콘 */}
@@ -327,7 +364,7 @@ const WishlistScreen: React.FC = () => {
               <SearchingIcon />
             </TouchableOpacity>
           </SearchContainer>
-        </View>
+        </Pressable>
 
         {!isSheetExpanded && (
           <>
@@ -382,7 +419,47 @@ const WishlistScreen: React.FC = () => {
           </View>
 
         </CustomBottomSheet>
-        {/* 1. 완료 모 */}
+        {/* 1. 완료 모달 */}
+        {isSearchFocused && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 40,
+            }}
+          >
+
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => {
+                setIsSearchFocused(false);
+
+
+              }}
+              onBlur={() => setIsSearchFocused(false)}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'white',
+              }}
+            />
+            {/**검색바 공간 차지 */}
+            <View className="h-14"></View>
+            {DUMMY_PLACES.map((place) => (
+              <PlaceCard
+                key={`${selectedCategory}-${place.id}`}
+                place={place}
+                isLiked={likedItemIds.has(place.id)}
+                onToggleLike={toggleLike}
+                iconType="default" />))}
+          </View>
+        )}
         <WishModal
           isVisible={showAddModal}
           onClose={() => setShowAddModal(false)}
