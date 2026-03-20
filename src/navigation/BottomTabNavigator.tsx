@@ -17,7 +17,6 @@ import { HomeIcon, SearchIcon, MapIcon, BookmarkIcon, MyPageIcon } from '@/asset
 import { COLORS } from '@/constants';
 
 import type { RootTabParamList } from './types';
-import HomeStackNavigator from './HomeStackNavigator';
 
 // ============ Constants ============
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -194,7 +193,7 @@ const BottomTabNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="Home"
-        component={HomeStackNavigator}
+        component={HomeScreen}
         options={{ tabBarButton: createTabBarButton('Home', '홈') }}
       />
       <Tab.Screen

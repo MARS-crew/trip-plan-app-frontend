@@ -12,11 +12,6 @@ export type RootTabParamList = {
   MyPage: undefined;
 };
 
-export type HomeStackParamList = {
-  HomeMain: undefined;
-  Alert: undefined;
-};
-
 export type RootStackParamList = {
   MainTabs: { screen?: keyof RootTabParamList } | undefined;
 
