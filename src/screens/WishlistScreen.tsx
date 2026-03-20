@@ -38,7 +38,7 @@ const WishlistScreen: React.FC = () => {
     ],
     [],
   );
-  const DUMMY_PLACES: PlaceCardProps['place'][] = [
+  const TRENDING_PLACES: PlaceCardProps['place'][] = [
     {
       id: 'place_1',
       title: '센소지 아사쿠사',
@@ -47,9 +47,43 @@ const WishlistScreen: React.FC = () => {
       categories: ['관광지', '문화', '역사'],
       image: require('@/assets/images/thumnail.png'),
     },
-
-  ];
-
+  ]
+  const SAVED_PLACES: PlaceCardProps['place'][] = [
+    {
+      id: 'place_1',
+      title: '센소지 아사쿠사',
+      location: '도쿄, 일본',
+      description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+      categories: ['관광지', '문화', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+    {
+      id: 'place_2',
+      title: '센소지 아사쿠사',
+      location: '도쿄, 일본',
+      description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+      categories: ['관광지', '문화', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+  ]
+  const WISHLIST_PLACES: PlaceCardProps['place'][] = [
+    {
+      id: 'place_1',
+      title: '센소지 아사쿠사',
+      location: '도쿄, 일본',
+      description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+      categories: ['관광지', '문화', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+    {
+      id: 'place_2',
+      title: '센소지 아사쿠사',
+      location: '도쿄, 일본',
+      description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+      categories: ['관광지', '문화', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+  ]
   const translateY = useSharedValue(MAX_Y);
   // 하트 다중 선택용 상태 관리
   const [likedItemIds, setLikedItemIds] = useState<Set<string>>(new Set());
@@ -156,7 +190,7 @@ const WishlistScreen: React.FC = () => {
           <>
             <View><Text className="text-h2 font-semibold">현재 핫한 장소</Text></View>
             <View className="mt-4">
-              {DUMMY_PLACES.map((place) => (
+              {TRENDING_PLACES.map((place) => (
                 <PlaceCard
                   key={`trending-${place.id}`}
                   place={place}
@@ -171,7 +205,7 @@ const WishlistScreen: React.FC = () => {
       case 'saved':
         return (
           <View className="py-4 mr-[1px]">
-            {DUMMY_PLACES.map((place) => (
+            {SAVED_PLACES.map((place) => (
               <PlaceCard
                 key={`saved-${place.id}`}
                 place={place}
@@ -184,7 +218,7 @@ const WishlistScreen: React.FC = () => {
       case 'wishlist':
         return (
           <View className="py-4 mr-[1px]">
-            {DUMMY_PLACES.map((place) => (
+            {WISHLIST_PLACES.map((place) => (
               <PlaceCard
                 key={`wishlist-${place.id}`}
                 place={place}
@@ -208,7 +242,7 @@ const WishlistScreen: React.FC = () => {
           <>
             <View><Text className="text-h2 font-semibold">현재 핫한 장소</Text></View>
             <View className="mt-4">
-              {DUMMY_PLACES.map((place) => (
+              {TRENDING_PLACES.map((place) => (
                 <PlaceCard
                   key={`empty-trending-${place.id}`}
                   place={place}
@@ -325,7 +359,18 @@ const WishlistScreen: React.FC = () => {
 
           <View className="mx-4 mt-3">
             <ScrollView>
-              {DUMMY_PLACES.length === 0 ? renderEmptyContent() : renderContent()}
+              {(() => {
+                if (selectedCategory === 'trending') {
+                  return renderContent();
+                }
+
+
+                const activeData = selectedCategory === 'saved' ? SAVED_PLACES : WISHLIST_PLACES;
+
+                return activeData.length === 0
+                  ? renderEmptyContent()
+                  : renderContent();
+              })()}
             </ScrollView>
           </View>
 
