@@ -46,17 +46,7 @@ const TripCard = ({
         <View className="relative">
           <Image source={imageSource} className="h-[144px] w-full" resizeMode="cover" />
 
-          <View
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              top: 0,
-              right: 0,
-              bottom: 0,
-              left: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.2)',
-            }}
-          />
+          <View pointerEvents="none"/>
 
         {/*TripStatusChip*/}
           <View className="absolute top-2 left-2">

@@ -3,6 +3,7 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import {RootStackParamList} from './navigation/RootStackParamList';
 
 import { Chip } from '@/components/ui';
 import TripCard from '@/screens/myTrip/TripCard';
@@ -52,10 +53,40 @@ const timelineItems = [
   },
 ];
 
+const tripCardItems = [
+  {
+    id: 1,
+    city: '도쿄',
+    dateText: '2026.02.28 - 2026.03.03',
+    scheduleText: '5개의 일정 4일간',
+    imageSource: require('@/assets/images/thumnail2.png'),
+    status: 'traveling' as const,
+  },
+  {
+    id: 2,
+    city: '도쿄',
+    dateText: '2026.02.28 - 2026.03.03',
+    scheduleText: '5개의 일정 4일간',
+    imageSource: require('@/assets/images/thumnail2.png'),
+    status: 'scheduled' as const,
+  },
+  {
+    id: 3,
+    city: '도쿄',
+    dateText: '2026.02.28 - 2026.03.03',
+    scheduleText: '5개의 일정 4일간',
+    imageSource: require('@/assets/images/thumnail2.png'),
+    status: 'completed' as const,
+  },
+];
+
 const MyTripScreen: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('전체');
   const [openCardId, setOpenCardId] = useState<number | null>(null);
   const navigation = useNavigation<MyTripNavigation>();
+  const handleNavigateToDetail = () => {
+    navigation.navigate('WishlistScreen');
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
@@ -102,41 +133,27 @@ const MyTripScreen: React.FC = () => {
         </View>
 
     {/*TripCard*/}
-        <TripCard
-          city="도쿄"
-          dateText="2026.02.28 - 2026.03.03"
-          scheduleText="5개의 일정 4일간"
-          imageSource={require('@/assets/images/thumnail2.png')}
-          status="traveling"
-          isOpen={openCardId === 1}
-          onToggle={() => setOpenCardId((prev) => (prev === 1 ? null : 1))}
-        >
-           <TripTimeline items={timelineItems} />
-        </TripCard>
+        {tripCardItems.map((tripCardItem) => (
+          <TripCard
+            key={tripCardItem.id}
+            city={tripCardItem.city}
+            dateText={tripCardItem.dateText}
+            scheduleText={tripCardItem.scheduleText}
+            imageSource={tripCardItem.imageSource}
+            status={tripCardItem.status}
+            isOpen={openCardId === tripCardItem.id}
+            onToggle={() =>
+              setOpenCardId((prev) => (prev === tripCardItem.id ? null : tripCardItem.id))
+            }>
+            <TripTimeline items={timelineItems} />
+          </TripCard>
+        ))}
 
-        <TripCard
-          city="도쿄"
-          dateText="2026.02.28 - 2026.03.03"
-          scheduleText="5개의 일정 4일간"
-          imageSource={require('@/assets/images/thumnail2.png')}
-          status="scheduled"
-          isOpen={openCardId === 2}
-          onToggle={() => setOpenCardId((prev) => (prev === 2 ? null : 2))}
-        >
-           <TripTimeline items={timelineItems} />
-        </TripCard>
-
-        <TripCard
-          city="도쿄"
-          dateText="2026.02.28 - 2026.03.03"
-          scheduleText="5개의 일정 4일간"
-          imageSource={require('@/assets/images/thumnail2.png')}
-          status="completed"
-          isOpen={openCardId === 3}
-          onToggle={() => setOpenCardId((prev) => (prev === 3 ? null : 3))}
-        >
-           <TripTimeline items={timelineItems} />
-        </TripCard>
+      <TouchableOpacity
+        onPress={handleNavigateToDetail}
+        className="bg-main px-5 py-3 mt-5 rounded-lg">
+        <Text className="text-white font-semibold">위시 리스트</Text>
+      </TouchableOpacity>
       </View>
      </ScrollView>
     </SafeAreaView>
