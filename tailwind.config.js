@@ -11,6 +11,7 @@ const colors = {
   chip: '#F4F0EC',
   screenBackground: '#FDFBF9',
   contentBackground: '#FCF0E8',
+  botoomSheetBackground: '#DBDBDB',
 };
 
 const fontSize = {
@@ -32,6 +33,9 @@ module.exports = {
         sans: ['Pretendard', 'System'],
       },
       fontSize,
+      boxShadow: {
+        card: '0 0 3px rgba(0,0,0,0.15)',
+      },
     },
   },
   plugins: [],

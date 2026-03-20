@@ -19,4 +19,8 @@ export type HomeStackParamList = {
 
 export type RootStackParamList = {
   MainTabs: { screen?: keyof RootTabParamList } | undefined;
+
+  DestinationDetail: { destinationId: string };
+  WishlistScreen: undefined;
+
 };
