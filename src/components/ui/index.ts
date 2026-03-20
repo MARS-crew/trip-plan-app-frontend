@@ -19,3 +19,4 @@ export type { TopBarProps } from './TopBar'
 export {SearchContainer} from './SearchContainer';
 export type { SearchContainerProps } from './SearchContainer';
 
+export { PhotoUploader } from './PhotoUploader'
