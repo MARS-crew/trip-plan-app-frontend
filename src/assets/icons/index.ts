@@ -50,6 +50,13 @@ export { default as PhotoCamera } from './photoCamera.svg';
 export { default as DeletButton } from './deletBtn.svg';
 export { default as StarIconV2 } from './StarV2.svg';
 export { default as StarOffIconV2 } from './StarOffV2.svg';
+export { default as LocationOrangeIcon } from './location_orange.svg';
+export { default as JapanLanguageIcon } from './japan_language.svg';
+export { default as ExchangeIcon } from './exchange.svg';
+export { default as Exchange2Icon } from './exchange2.svg';
+export { default as BellIcon } from './bell.svg';
+export { default as LogoutIcon } from './logout.svg';
+export { default as SettingIcon } from './setting.svg';
 
 // 타입 정의
 export interface IconProps {
