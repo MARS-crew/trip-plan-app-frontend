@@ -78,7 +78,7 @@ const SearchScreen: React.FC = () => {
               <Text className="text-h3 font-semibold mb-3">인기 검색어</Text>
               <View className="bg-white rounded-xl px-4 mb-6">
                 {popularSearch.map((item, index) => (
-                  <PopularList index={index} item={item} />
+                  <PopularList key={index} index={index} item={item} />
                 ))}
               </View>
             </View>
