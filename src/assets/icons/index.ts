@@ -33,6 +33,8 @@ export { default as SearchingIcon } from './searching.svg';
 
 export { default as SearchArrowIcon } from './searcharrow.svg';
 
+export { default as ActiveBookmarkIcon } from './activebookmark.svg';
+export { default as LocationIcon } from './location.svg';
 
 export { default as HeartIcon } from './heart.svg'
 export { default as ActiveHeartIcon } from './activeheart.svg'
