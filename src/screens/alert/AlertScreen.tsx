@@ -8,13 +8,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export interface AlertProps { 
     title : string;
     time : string;
-    weatherContent : string;
+    contentInfo : string;
 }
 
 const alertData = [
-    {title : '일정 안내' , time : '10:30' , weatherContent : '2시간뒤 도톤보리 방문 일정이 있습니다.'},
-    {title : '날씨 안내' , time : '10:30' , weatherContent : '오늘 구름이 많아 흐릴거 같아요. 조금 따뜻하게 입어 봐요'},
-    {title : '날씨 안내' , time : '10:30'  , weatherContent : '오늘은 비가 올거 같아요 우산을 챙기는게 어떨까요?'}
+    {title : '일정 안내' , time : '10:30' , contentInfo : '2시간뒤 도톤보리 방문 일정이 있습니다.'},
+    {title : '날씨 안내' , time : '10:30' , contentInfo : '오늘 구름이 많아 흐릴거 같아요. 조금 따뜻하게 입어 봐요'},
+    {title : '날씨 안내' , time : '10:30'  , contentInfo : '오늘은 비가 올거 같아요 우산을 챙기는게 어떨까요?'}
 ]
 
 const AlertScreen: React.FC = () => {
