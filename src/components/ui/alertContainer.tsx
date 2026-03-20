@@ -5,7 +5,7 @@ import { View, Text } from 'react-native';
 export interface AlertProps { 
     title : string;
     time : string;
-    weatherInfo : string;
+    weatherContent : string;
 }
 
 export const AlertContainer = ( alert :AlertProps) => {
@@ -31,7 +31,7 @@ export const AlertContainer = ( alert :AlertProps) => {
         </View>
         
         <Text className="text-p1 text-gray leading-relaxed">
-        {alert.weatherInfo}
+        {alert.weatherContent}
         </Text>
       </View>
     </View>
