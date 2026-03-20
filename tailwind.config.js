@@ -13,6 +13,10 @@ const colors = {
   contentBackground: '#FCF0E8',
   inputBackground: '#FCFAF8',
   botoomSheetBackground: '#DBDBDB',
+  errmassage: '#FF4444',
+  kakaoYellow: '#FEE500',
+  naverGreen: '#03A94D',
+
   errormessage: '#FF4444',
 };
 
