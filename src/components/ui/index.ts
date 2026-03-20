@@ -10,6 +10,7 @@ export { ContentContainer } from './ContentContainer';
 export type { ContentContainerProps } from './ContentContainer';
 export { TripStatusChip } from './TripStatusChip';
 export type { TripStatusChipProps, TripStatus } from './TripStatusChip';
+
 export { TopBar } from './TopBar'
 export type { TopBarProps } from './TopBar'
 
