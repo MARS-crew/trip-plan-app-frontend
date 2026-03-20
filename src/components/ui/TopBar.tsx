@@ -30,7 +30,7 @@ export const TopBar: React.FC<TopBarProps> = ({
 
       <Text
         numberOfLines={1}
-        className="absolute left-16 right-16 text-center text-h font-bold text-black"
+        className="absolute left-16 text-center text-h font-bold text-black"
       >
         {title}
       </Text>

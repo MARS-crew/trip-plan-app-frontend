@@ -46,6 +46,10 @@ export { default as WishStar } from './wishstar.svg'
 export { default as InputSearchIcon } from './inputsearch.svg';
 export { default as TimeB } from './timeB.svg';
 export { default as X } from './x.svg';
+export { default as PhotoCamera } from './photoCamera.svg';
+export { default as DeletButton } from './deletBtn.svg';
+export { default as StarIconV2 } from './StarV2.svg';
+export { default as StarOffIconV2 } from './StarOffV2.svg';
 
 // 타입 정의
 export interface IconProps {
