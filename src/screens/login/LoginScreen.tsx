@@ -4,9 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 import React, { useState } from 'react';
+import SocialLoginButton from './SocialLoginButton';
 import {
 	KeyboardAvoidingView,
 	Pressable,
+	ScrollView,
 	Text,
 	TextInput,
 	TouchableOpacity,
@@ -14,41 +16,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-interface SocialLoginButtonProps {
-	label: string;
-	bgClassName: string;
-	textClassName: string;
-	icon: React.ReactElement;
-	outlined?: boolean;
-}
-
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
-	label,
-	bgClassName,
-	textClassName,
-	icon,
-	outlined = false,
-}) => {
-	return (
-		<Pressable
-			className={`flex-row items-center justify-center w-full h-11 mt-3 px-5 rounded-lg ${bgClassName} ${outlined ? 'border border-borderGray' : ''}`}
-			accessibilityRole="button"
-			accessibilityLabel={label}>
-			<View className="flex-row items-center justify-center">
-				<View className="mr-3">{icon}</View>
-				<Text className={`text-p1 font-medium fontfamily-No ${textClassName}`}>{label}</Text>
-			</View>
-		</Pressable>
-	);
-};
 
 const LoginScreen: React.FC = () => {
 	const navigation = useNavigation<NavigationProp>();
-	const [userId, setUserId] = useState('');
-	const [password, setPassword] = useState('');
-	const [loginErrorMessage, setLoginErrorMessage] = useState('');
+	const [userId, setUserId] = useState<string>('');
+	const [password, setPassword] = useState<string>('');
+	const [loginErrorMessage, setLoginErrorMessage] = useState<string>('');
 
 	const hasLoginError = loginErrorMessage.length > 0;
 	
@@ -92,6 +66,7 @@ const LoginScreen: React.FC = () => {
 	return (
 		<SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
 			<KeyboardAvoidingView className="flex-1">
+				<ScrollView>
 					<View className="items-center px-5 pt-5 pb-8">
 						<View className="mt-8 items-center">
 							<AppLogoIcon width={64} height={96} />
@@ -113,7 +88,7 @@ const LoginScreen: React.FC = () => {
 									value={userId}
 									onChangeText={handleChangeUserId}
 									placeholder="아이디를 입력하세요"
-									className="mt-3 h-11.5 w-full rounded-xl border border-borderGray bg-inputBackground px-3 text-p1 font-regular"
+									className="mt-3 h-[46px] w-full rounded-xl border border-borderGray bg-inputBackground px-3 text-p1 font-regular"
 									autoCapitalize="none"
 									autoCorrect={false}
 									returnKeyType="next"
@@ -127,7 +102,7 @@ const LoginScreen: React.FC = () => {
 									onChangeText={handleChangePassword}
 									placeholder="비밀번호를 입력하세요"
 									placeholderTextColor={COLORS.gray}
-									className="mt-3 h-11.5 w-full rounded-xl border border-borderGray bg-inputBackground px-3 text-p1 font-regular"
+									className="mt-3 h-[46px] w-full rounded-xl border border-borderGray bg-inputBackground px-3 text-p1 font-regular"
 									secureTextEntry
 									autoCapitalize="none"
 									autoCorrect={false}
@@ -150,11 +125,11 @@ const LoginScreen: React.FC = () => {
 								<Pressable onPress={handleFindId} accessibilityRole="button" accessibilityLabel="아이디 찾기">
 									<Text className="text-p text-gray">아이디 찾기</Text>
 								</Pressable>
-								<Text className="mx-3 text-p1 text-borderGray">|</Text>
+								<View className="mx-3 h-3 w-px bg-borderGray" />
 								<Pressable onPress={handleFindPassword} accessibilityRole="button" accessibilityLabel="비밀번호 찾기">
 									<Text className="text-p text-gray">비밀번호 찾기</Text>
 								</Pressable>
-								<Text className="mx-3 text-p1 text-borderGray">|</Text>
+								<View className="mx-3 h-3 w-px bg-borderGray" />
 								<Pressable onPress={handleSignUp} accessibilityRole="button" accessibilityLabel="회원가입">
 									<Text className="text-p text-main">회원가입</Text>
 								</Pressable>
@@ -192,6 +167,7 @@ const LoginScreen: React.FC = () => {
 							로그인 시 이용약관 및 개인정보처리방침에 동의합니다.
 						</Text>
 					</View>
+				</ScrollView>
 			</KeyboardAvoidingView>
 		</SafeAreaView>
 	);
