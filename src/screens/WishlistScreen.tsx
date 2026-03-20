@@ -1,12 +1,12 @@
 import React, { useCallback, useRef, useEffect } from 'react';
-import { View, Image, TextInput, TouchableOpacity, Text, ScrollView } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, ScrollView, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { SearchArrowIcon, SearchingIcon, VectorIcon, PlaceIcon, HeartIcon, ActiveHeartIcon, MyLocation, EmptyLocation, EmptyWish, WishStar } from '@/assets/icons';
+import { SearchArrowIcon, SearchingIcon, MyLocation, EmptyLocation, EmptyWish, WishStar } from '@/assets/icons';
 import BottomSheet from '@gorhom/bottom-sheet';
 import CustomBottomSheet from '@/components/ui/CustomBottomSheet';
-import { ContentContainer, SearchContainer } from '@/components/ui';
+import { SearchContainer } from '@/components/ui';
 import { WishModal } from './wishList/components/WishModal';
 import type { RootStackParamList } from '@/navigation/types';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
@@ -14,10 +14,18 @@ import { useState } from "react";
 import { RouteIcon, AlertIcon } from '@/assets/icons';
 import { COLORS } from '@/constants';
 import { BackHandler } from 'react-native';
-import { CategoryChip } from '@/screens/wishList/components';
+import { CategoryChip, PlaceCard, PlaceCardProps } from '@/screens/wishList/components';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  interpolate,
+
+} from 'react-native-reanimated';
+
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
+const SCREEN_HEIGHT = Dimensions.get("window").height;
+const MAX_Y = SCREEN_HEIGHT - 70; // 바텀시트가 내려가 있을 때의 위치
 // ============ Component ============
 const WishlistScreen: React.FC = () => {
 
@@ -30,6 +38,33 @@ const WishlistScreen: React.FC = () => {
     ],
     [],
   );
+  const DUMMY_PLACES: PlaceCardProps['place'][] = [
+    {
+      id: 'place_1',
+      title: '센소지 아사쿠사',
+      location: '도쿄, 일본',
+      description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+      categories: ['관광지', '문화', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+
+  ];
+
+  const translateY = useSharedValue(MAX_Y);
+  // 하트 다중 선택용 상태 관리
+  const [likedItemIds, setLikedItemIds] = useState<Set<string>>(new Set());
+
+  const toggleLike = useCallback((id: string) => {
+    setLikedItemIds((prevIds) => {
+      const newIds = new Set(prevIds);
+      if (newIds.has(id)) {
+        newIds.delete(id);
+      } else {
+        newIds.add(id);
+      }
+      return newIds;
+    });
+  }, []);
   const [isLiked, setIsLiked] = useState(false);
   const navigation = useNavigation<NavigationProp>();
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -77,7 +112,22 @@ const WishlistScreen: React.FC = () => {
   const handleComplete = useCallback(() => {
     setShowAddModal(true);
   }, []);
+  const mapUIAnimatedStyle = useAnimatedStyle(() => {
+    // interpolate를 사용하면 바텀시트가 위로 10px만 올라와도 
+    // opacity가 즉시 0으로 수렴합니다. (JS를 거치지 않음)
+    const opacity = interpolate(
+      translateY.value,
+      [MAX_Y - 5, MAX_Y], // 👈 10px 구간에서 순식간에 사라짐
+      [0, 1],
+      'clamp' // 구간 밖으로 나가도 0~1 유지
+    );
 
+    return {
+      opacity,
+      // 완전히 투명해지면 터치가 안 되도록 설정
+      pointerEvents: opacity === 0 ? 'none' : 'auto',
+    };
+  });
   useEffect(() => {
     const backAction = () => {
       //모달이 떠 있으면 동작 막기
@@ -98,194 +148,94 @@ const WishlistScreen: React.FC = () => {
     return () => backHandler.remove();
   }, [showExitModal, showAddModal]);
   //바텀시트 안에 콘텐츠  
+  // 1. 데이터가 있을 때 나오는 화면 (리스트)
   const renderContent = (): React.ReactElement | null => {
-
     switch (selectedCategory) {
       case 'trending':
         return (
-          <><View ><Text className="text-h2 font-semibold">현재 핫한 장소</Text></View>
-            <View className="mt-4 ">
-              <View className="mb-3 mr-[1px]">
-                <ContentContainer >
-                  <View className="flex-row items-center">
-                    <View className="w-28 h-28 rounded-l-lg overflow-hidden shrink-0">
-                      <Image
-                        source={require('@/assets/images/thumnail.png')}
-                        className="w-full h-full"
-                        resizeMode="cover"
-                      />
-                    </View>
-                    <View className="flex-1 ml-3 pr-5">
-                      <Text className="text-h3 text-black font-semibold">센소지 아사쿠사</Text>
-                      <View className="mt-[2px]">
-                        <Text className="text-p text-gray" numberOfLines={2}>도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.</Text>
-                      </View>
-                      <View className="mt-[6px]  flex-row">
-                        <CategoryChip label="관광지" className="mr-2 px-2 py-[2px] rounded-2xl" />
-                        <CategoryChip label="문화" className="mr-2 px-2 py-[2px] rounded-2xl" />
-                        <CategoryChip label="역사" className=" px-2 py-[2px] rounded-2xl" />
-                      </View>
-                    </View>
-                    <TouchableOpacity className="mr-4" onPress={() => setIsLiked(!isLiked)}>
-                      <VectorIcon></VectorIcon>
-                    </TouchableOpacity>
-                  </View>
-                </ContentContainer>
-              </View>
-              <View className="mb-3 mr-[1px]">
-                <ContentContainer>
-                  <View className="flex-row items-center">
-                    <View className="w-28 h-28 rounded-l-lg overflow-hidden shrink-0">
-                      <Image
-                        source={require('@/assets/images/thumnail.png')}
-                        className="w-full h-full"
-                        resizeMode="cover"
-                      />
-                    </View>
-                    <View className="flex-1  ml-3 pr-5">
-                      <Text className="text-h3 text-black font-semibold">센소지 아사쿠사</Text>
-                      <View className="mt-[2px]"><Text className="text-p text-gray" numberOfLines={2}>도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.</Text></View>
-                      <View className="mt-[6px]  flex-row">
-                        <CategoryChip label="관광지" className="mr-2 px-2 py-[2px] rounded-2xl" />
-                        <CategoryChip label="문화" className="mr-2 px-2 py-[2px] rounded-2xl" />
-                        <CategoryChip label="역사" className=" px-2 py-[2px] rounded-2xl" />
-                      </View>
-                    </View>
-                    <TouchableOpacity className="mr-4" onPress={() => setIsLiked(!isLiked)}>
-                      <VectorIcon></VectorIcon>
-                    </TouchableOpacity>
-                  </View>
-                </ContentContainer>
-              </View>
+          <>
+            <View><Text className="text-h2 font-semibold">현재 핫한 장소</Text></View>
+            <View className="mt-4">
+              {DUMMY_PLACES.map((place) => (
+                <PlaceCard
+                  key={`trending-${place.id}`}
+                  place={place}
+                  isLiked={likedItemIds.has(place.id)}
+                  onToggleLike={toggleLike}
+                  isTrending={true} // 트렌딩 디자인
+                />
+              ))}
             </View>
           </>
         );
       case 'saved':
         return (
           <View className="py-4 mr-[1px]">
-            <ContentContainer>
-              <View className="flex-row items-center">
-                <View className="w-28 h-28 rounded-l-lg overflow-hidden shrink-0">
-                  <Image
-                    source={require('@/assets/images/thumnail.png')}
-                    className="w-full h-full"
-                    resizeMode="cover"
-                  />
-                </View>
-                <View className="flex-1 ml-3 pr-5">
-                  <Text className="text-h3 text-black font-semibold">센소지 아사쿠사</Text>
-                  <View className="flex-row mt-1"><PlaceIcon /><Text className="text-p text-gray">도쿄, 일본</Text></View>
-                  <View className="mt-2"><Text className="text-p text-gray" numberOfLines={2}>도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는...</Text></View>
-                </View>
-                <TouchableOpacity className="mr-4 self-start mt-4 shrink-0" onPress={() => setIsLiked(!isLiked)}>
-                  {isLiked ? <ActiveHeartIcon /> : <HeartIcon />}
-                </TouchableOpacity>
-              </View>
-            </ContentContainer>
+            {DUMMY_PLACES.map((place) => (
+              <PlaceCard
+                key={`saved-${place.id}`}
+                place={place}
+                isLiked={likedItemIds.has(place.id)}
+                onToggleLike={toggleLike}
+              />
+            ))}
           </View>
         );
       case 'wishlist':
         return (
           <View className="py-4 mr-[1px]">
-            <ContentContainer>
-              <View className="flex-row items-center">
-                <View className="w-28 h-28 rounded-l-lg overflow-hidden shrink-0">
-                  <Image
-                    source={require('@/assets/images/thumnail.png')}
-                    className="w-full h-full"
-                    resizeMode="cover"
-                  />
-                </View>
-                <View className="flex-1 ml-3 pr-5">
-                  <Text className="text-h3 text-black font-semibold">센소지 아사쿠사</Text>
-                  <View className="flex-row mt-1"><PlaceIcon /><Text className="text-p text-gray">도쿄, 일본</Text></View>
-                  <View className="mt-2"><Text className="text-p text-gray" numberOfLines={2}>도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는...</Text></View>
-                </View>
-                <TouchableOpacity className="mr-4 self-start mt-4 shrink-0" onPress={() => setIsLiked(!isLiked)}>
-                  <ActiveHeartIcon />
-                </TouchableOpacity>
-              </View>
-            </ContentContainer>
+            {DUMMY_PLACES.map((place) => (
+              <PlaceCard
+                key={`wishlist-${place.id}`}
+                place={place}
+                isLiked={likedItemIds.has(place.id)}
+                onToggleLike={toggleLike}
+              />
+            ))}
           </View>
         );
       default:
         return null;
     }
   };
-  const renderEmptyContent = (): React.ReactElement | null => {
 
+  // 데이터가 없을 때 나오는 화면
+  const renderEmptyContent = (): React.ReactElement | null => {
     switch (selectedCategory) {
       case 'trending':
+
         return (
-          <><View ><Text className="text-h2 font-semibold">현재 핫한 장소</Text></View>
-            <View className="mt-4 ">
-              <View className="mb-3 mr-[1px]">
-                <ContentContainer >
-                  <View className="flex-row items-center">
-                    <View className="w-28 h-28 rounded-l-lg overflow-hidden shrink-0">
-                      <Image
-                        source={require('@/assets/images/thumnail.png')}
-                        className="w-full h-full"
-                        resizeMode="cover"
-                      />
-                    </View>
-                    <View className="flex-1  ml-3 pr-5">
-                      <Text className="text-h3 text-black font-semibold">센소지 아사쿠사</Text>
-                      <View className="mt-[2px]"><Text className="text-p text-gray" numberOfLines={2}>도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.</Text></View>
-                      <View className="mt-[6px]  flex-row">
-                        <CategoryChip label="관광지" className="mr-2 px-2 py-[2px] " />
-                        <CategoryChip label="문화" className="mr-2 px-2 py-[2px] " />
-                        <CategoryChip label="역사" className=" px-2 py-[2px] " />
-                      </View>
-                    </View>
-                    <TouchableOpacity className="mr-4" onPress={() => setIsLiked(!isLiked)}>
-                      <VectorIcon></VectorIcon>
-                    </TouchableOpacity>
-                  </View>
-                </ContentContainer>
-              </View>
-              <View className="mb-3 mr-[1px]">
-                <ContentContainer>
-                  <View className="flex-row items-center">
-                    <View className="w-28 h-28 rounded-l-lg overflow-hidden shrink-0">
-                      <Image
-                        source={require('@/assets/images/thumnail.png')}
-                        className="w-full h-full"
-                        resizeMode="cover"
-                      />
-                    </View>
-                    <View className="flex-1  ml-3 pr-5">
-                      <Text className="text-h3 text-black font-semibold">센소지 아사쿠사</Text>
-                      <View className="mt-[2px]"><Text className="text-p text-gray" numberOfLines={2}>도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.</Text></View>
-                      <View className="mt-[6px]  flex-row">
-                        <CategoryChip label="관광지" className="mr-2 px-2 py-[2px] rounded-2xl" />
-                        <CategoryChip label="문화" className="mr-2 px-2 py-[2px] rounded-2xl" />
-                        <CategoryChip label="역사" className=" px-2 py-[2px] rounded-2xl" />
-                      </View>
-                    </View>
-                    <TouchableOpacity className="mr-4" onPress={() => setIsLiked(!isLiked)}>
-                      <VectorIcon></VectorIcon>
-                    </TouchableOpacity>
-                  </View>
-                </ContentContainer>
-              </View>
+          <>
+            <View><Text className="text-h2 font-semibold">현재 핫한 장소</Text></View>
+            <View className="mt-4">
+              {DUMMY_PLACES.map((place) => (
+                <PlaceCard
+                  key={`empty-trending-${place.id}`}
+                  place={place}
+                  isLiked={likedItemIds.has(place.id)}
+                  onToggleLike={toggleLike}
+                  isTrending={true}
+                />
+              ))}
             </View>
           </>
         );
+      //저장된 장소 데이터 없을 경우
       case 'saved':
         return (
           <View className="py-4 mr-[1px] items-center">
-            <View className=" mt-20"><EmptyLocation /></View>
-            <View className=" mt-4"><Text className="text-h2 font-semibold">저장한 장소가 없어요</Text></View>
-            <View className=" mt-1"><Text className="text-p1 text-gray font-medium ">마음에 드는 장소를 저장해주세요.</Text></View>
+            <View className="mt-20"><EmptyLocation /></View>
+            <View className="mt-4"><Text className="text-h2 font-semibold">저장한 장소가 없어요</Text></View>
+            <View className="mt-1"><Text className="text-p1 text-gray font-medium">마음에 드는 장소를 저장해주세요.</Text></View>
           </View>
         );
+      //위시리스트 데이터 없을 경우
       case 'wishlist':
         return (
           <View className="py-4 mr-[1px] items-center">
-            <View className=" mt-20"><EmptyWish /></View>
-            <View className=" mt-4"><Text className="text-h2 font-semibold">위시리스트에 장소가 없어요</Text></View>
-            <View className=" mt-1"><Text className="text-p1 text-gray font-medium ">가고싶은 장소를 위시리스트에 추가해주세요.</Text></View>
+            <View className="mt-20"><EmptyWish /></View>
+            <View className="mt-4"><Text className="text-h2 font-semibold">위시리스트에 장소가 없어요</Text></View>
+            <View className="mt-1"><Text className="text-p1 text-gray font-medium">가고싶은 장소를 위시리스트에 추가해주세요.</Text></View>
           </View>
         );
       default:
@@ -329,26 +279,24 @@ const WishlistScreen: React.FC = () => {
           </SearchContainer>
         </View>
 
-        {!isSheetExpanded && (
-          <>
-            <View className="items-center absolute bottom-14 left-0 right-0 z-20">
-              <CategoryChip
-                label="현 지도에서 검색"
-                onPress={() => console.log('검색')}
-                isSelected={true}
-                textClassName="text-p1"
-                className="px-[29px] py-[10px] rounded-full"
-              /></View>
-            <TouchableOpacity className="absolute bottom-14 right-4 z-20">
-              <MyLocation />
-            </TouchableOpacity>
-          </>
-        )}
+        {/* 3. 지도 위 UI를 Animated.View로 감싸고 mapUIAnimatedStyle 적용 */}
+        <Animated.View style={[mapUIAnimatedStyle, { position: 'absolute', bottom: 64, left: 0, right: 0, zIndex: 20 }]}>
+          <View className="items-center">
+            <CategoryChip
+              label="현 지도에서 검색"
+              isSelected={true}
+              textClassName="text-p1"
+              className="px-[29px] py-[10px] rounded-full"
+            />
+          </View>
+          <TouchableOpacity className="absolute right-4 bottom-0">
+            <MyLocation />
+          </TouchableOpacity>
+        </Animated.View>
         <CustomBottomSheet
+          translateY={translateY}
           onStateChange={handleSheetChange}// 상태 변경 감지
         >
-
-
 
           <View className="flex-row items-center justify-between mt-2 px-4 ">
             {/* 왼쪽: 탭 메뉴들 */}
@@ -375,9 +323,9 @@ const WishlistScreen: React.FC = () => {
           </View>
 
 
-          <View className="mx-4 mt-2">
+          <View className="mx-4 mt-3">
             <ScrollView>
-              {renderContent()}
+              {DUMMY_PLACES.length === 0 ? renderEmptyContent() : renderContent()}
             </ScrollView>
           </View>
 

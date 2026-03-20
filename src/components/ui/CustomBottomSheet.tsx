@@ -5,8 +5,9 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   runOnJS,
+  SharedValue
 } from "react-native-reanimated";
-
+import { scheduleOnRN } from "react-native-worklets";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const VISIBLE_HEIGHT = 70;
@@ -17,14 +18,16 @@ const MAX_Y = SCREEN_HEIGHT - VISIBLE_HEIGHT;
 interface CustomBottomSheetProps {
   children: React.ReactNode;
   onStateChange?: (isExpanded: boolean) => void;
+  translateY: SharedValue<number>;
 }
 
 export const CustomBottomSheet = ({
   children,
   onStateChange,
+  translateY,
 }: CustomBottomSheetProps) => {
 
-  const translateY = useSharedValue(MAX_Y);
+
   const startY = useSharedValue(0);
 
 
@@ -36,16 +39,16 @@ export const CustomBottomSheet = ({
       const nextY = startY.value + e.translationY;
       translateY.value = Math.max(MIN_Y, Math.min(MAX_Y, nextY));
 
-      if (onStateChange) {
-        runOnJS(onStateChange)(translateY.value < MAX_Y);
-      }
+      // ❌ 여기서 runOnJS(onStateChange) 호출을 지우세요. 
+      // 초당 수십 번 호출되면서 성능을 갉아먹습니다.
     })
-    .onEnd(() => {
+    .onEnd((e) => {
+      // 손을 뗐을 때 최종 상태만 한 번 전달
+      const isExpanded = translateY.value < MAX_Y - 50;
       if (onStateChange) {
-        runOnJS(onStateChange)(translateY.value < MAX_Y);
+        runOnJS(onStateChange)(isExpanded);
       }
     });
-
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
