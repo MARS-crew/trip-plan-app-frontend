@@ -1,6 +1,11 @@
-import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
-import { PlaceIcon } from '@/assets/icons';
+import React, { useCallback, useState } from 'react';
+import { ScrollView, Text, View, TouchableOpacity } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import {
+  PlaceIcon,
+  VectorLeftIcon,
+  VectorIcon,
+} from '@/assets/icons';
 
 import React, { useCallback, useState } from 'react';
 import { ScrollView, Text, View, TouchableOpacity } from 'react-native';
@@ -49,6 +54,12 @@ const TripTimeline: React.FC<TripTimelineProps> = ({ items }) => {
   return (
     <View className="relative pb-2">
       <View className="mb-6 flex-row items-center">
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={handlePressPrev}
+          className=" h-6 w-2 items-center justify-center">
+          <VectorLeftIcon />
+        </TouchableOpacity>
         <View className="mr-1 h-[52px] w-[20px] items-center justify-center">
           <Text className="text-[26px] text-gray">‹</Text>
         </View>
@@ -75,7 +86,30 @@ const TripTimeline: React.FC<TripTimelineProps> = ({ items }) => {
             className="flex-1">
             {dateItems.map((date, index) => {
               const isSelected = index === selectedDateIndex;
+        <View className="relative flex-1">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 20 }}
+            className="flex-1">
+            {dateItems.map((date, index) => {
+              const isSelected = index === selectedDateIndex;
 
+              return (
+                <TouchableOpacity
+                  key={date}
+                  activeOpacity={0.8}
+                  onPress={() => handleSelectDate(index)}
+                  className={`h-[38px] w-[85px] items-center justify-center rounded-[8px] border ${
+                    isSelected ? 'border-main bg-[#DF6C201A]' : 'border-[#E5E0DC] bg-white'
+                  } ${index !== dateItems.length - 1 ? 'mr-2' : ''}`}>
+                  <Text className={`text-p1 ${isSelected ? 'text-main' : 'text-gray'}`}>
+                    {date}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
             return (
               <View
                 key={date}
@@ -106,6 +140,43 @@ const TripTimeline: React.FC<TripTimelineProps> = ({ items }) => {
             })}
           </ScrollView>
 
+          <LinearGradient
+            pointerEvents="none"
+            colors={[
+              'rgba(255,255,255,1)',
+              'rgba(255,255,255,1)',
+              'rgba(255,255,255,0.9)',
+              'rgba(255,255,255,0.2)',
+            ]}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 20,
+            }}
+          />
+
+          <LinearGradient
+            pointerEvents="none"
+            colors={[
+              'rgba(255,255,255,0.2)',
+              'rgba(255,255,255,0.9)',
+              'rgba(255,255,255,1)',
+              'rgba(255,255,255,1)',
+            ]}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={{
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 20,
+            }}
+          />
           <LinearGradient
             pointerEvents="none"
             colors={[

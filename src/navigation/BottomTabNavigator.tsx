@@ -70,7 +70,7 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
         return <HomeIcon {...iconProps} />;
       case 'Search':
         return <SearchIcon {...iconProps} />;
-      case 'Map':
+      case 'MyTrip':
         return <MapIcon {...iconProps} />;
       case 'Bookmark':
         return <BookmarkIcon {...iconProps} />;
@@ -196,9 +196,9 @@ const BottomTabNavigator: React.FC = () => {
         options={{ tabBarButton: createTabBarButton('Search', '검색') }}
       />
       <Tab.Screen
-        name="Map"
-        component={MapScreen}
-        options={{ tabBarButton: createTabBarButton('Map', '내여행') }}
+        name="MyTrip"
+        component={MyTripScreen}
+        options={{ tabBarButton: createTabBarButton('MyTrip', '내여행') }}
       />
       <Tab.Screen
         name="Home"
