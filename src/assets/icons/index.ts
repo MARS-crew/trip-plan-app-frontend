@@ -52,6 +52,8 @@ export { default as PlusIcon } from './plus.svg';
 export { default as ScheduleInfoIcon } from './schedule-info.svg'
 export { default as WeatherInfoIcon } from './weather-info.svg'
 export { default as BackArrow } from './backArrow.svg'
+export { default as CameraIcon } from './camera.svg';
+export { default as RightArrowIcon } from './rightarrow.svg';
 
 
 export { default as SearchingIcon } from './searching.svg';

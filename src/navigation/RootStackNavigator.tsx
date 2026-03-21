@@ -9,6 +9,7 @@ import { FindPasswordScreen } from '@/screens';
 import { PrivacyPolicyScreen } from '@/screens/terms/PrivacyPolicyScreen';
 import { NightMarketingScreen } from '@/screens/terms/NightMarketingScreen';
 import { MarketingConsentScreen } from '@/screens/terms/MarketingConsentScreen';
+import { AddTripScreen } from '@/screens/addTrip/AddTripScreen';
 
 import EmptyMapScreen from '@/screens/myTrip/EmptyMapScreen';
 
@@ -28,6 +29,7 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="FindId" component={FindIdScreen} />
       <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
       <Stack.Screen name="FindPassword" component={FindPasswordScreen} />
+      <Stack.Screen name="AddTripScreen" component={AddTripScreen} />
     </Stack.Navigator>
   );
 };

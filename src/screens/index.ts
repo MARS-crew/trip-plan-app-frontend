@@ -10,4 +10,5 @@ export { default as DestinationDetailScreen } from './DestinationDetailScreen';
 export { default as SelectTripScreen } from './SelectTripScreen';
 export { default as WishlistScreen } from './WishlistScreen';
 export { default as FindPasswordScreen } from './FindPasswordScreen';
-export { MyTripScreen } from './myTrip';
+export { default as MyTripScreen } from './myTrip';
+export { default as AddTripScreen } from './addTrip';

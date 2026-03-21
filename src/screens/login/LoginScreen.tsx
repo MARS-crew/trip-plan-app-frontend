@@ -40,12 +40,12 @@ const LoginScreen: React.FC = () => {
 	};
 
 	const handleLogin = (): void => {
-		if (userId.trim().length === 0 || password.trim().length === 0) {
-			setLoginErrorMessage('아이디 및 비밀번호를 확인해주세요');
-			return;
-		}
-
-		setLoginErrorMessage('');
+// 		if (userId.trim().length === 0 || password.trim().length === 0) {
+// 			setLoginErrorMessage('아이디 및 비밀번호를 확인해주세요');
+// 			return;
+// 		}
+//
+// 		setLoginErrorMessage('');
 		navigation.replace('MainTabs', { screen: 'Home' });
 	};
 
