@@ -1,11 +1,10 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { Pressable, Text, Image, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Text, Image, TouchableOpacity, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 
-import { IconButton } from '@/screens/destinationDetail/components';
 import TripDetailCard from '@/components/ui/TripDetailCard';
 import {
   WishIcon,
@@ -16,10 +15,14 @@ import {
   PlusIcon
 } from '@/assets/icons';
 
-type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList,'TripDetailScreen'>;
+type TripDetailNavigation = NativeStackNavigationProp<
+  RootStackParamList,
+  'TripDetailScreen'
+>;
 
 const TripDetailScreen: React.FC = () => {
   const navigation = useNavigation<TripDetailNavigation>();
+  const [isKebabMenuOpen, setIsKebabMenuOpen] = useState(false);
 
   const handleGoBack = useCallback(() => {
     navigation.goBack();
@@ -30,7 +33,11 @@ const TripDetailScreen: React.FC = () => {
   }, []);
 
   const handleKebab = useCallback(() => {
-    // 케밥 메뉴
+    setIsKebabMenuOpen(true);
+  }, []);
+
+  const handleCloseKebabMenu = useCallback(() => {
+    setIsKebabMenuOpen(false);
   }, []);
 
   return (
@@ -44,26 +51,35 @@ const TripDetailScreen: React.FC = () => {
             resizeMode="cover"
           />
 
-          <View className="absolute left-4 top-4">
-            <IconButton
-              icon={LeftArrowIcon}
+          <View className="absolute left-4 right-4 top-4 z-50 flex-row items-center justify-between">
+            <TouchableOpacity
               onPress={handleGoBack}
-              accessibilityLabel="뒤로가기"
-            />
-          </View>
+              activeOpacity={0.8}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              className="h-[40px] w-[40px] items-center justify-center rounded-full bg-black/40"
+            >
+              <LeftArrowIcon />
+            </TouchableOpacity>
 
-          <View className="absolute right-4 top-4 flex-row">
-            <IconButton
-              className="mr-2"
-              icon={WishIcon}
-              onPress={handleWish}
-              accessibilityLabel="위시"
-            />
-            <IconButton
-              icon={KebabMenuIcon}
-              onPress={handleKebab}
-              accessibilityLabel="케밥"
-            />
+            <View className="flex-row items-center">
+              <TouchableOpacity
+                onPress={handleWish}
+                activeOpacity={0.8}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                className="mr-2 h-[40px] w-[40px] items-center justify-center rounded-full bg-black/40"
+              >
+                <WishIcon />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleKebab}
+                activeOpacity={0.8}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                className="h-[40px] w-[40px] items-center justify-center rounded-full bg-black/40"
+              >
+                <KebabMenuIcon />
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View className="absolute left-4 bottom-[19px]">
@@ -92,6 +108,10 @@ const TripDetailScreen: React.FC = () => {
               description="도쿄에서 가장 오래된 사원 방문"
               startTime="09:00"
               endTime="11:00"
+              isCurrentSchedule={true}
+              onPressAction={() => {
+                // 방문지 저장 버튼
+              }}
             />
           </View>
 
@@ -113,11 +133,10 @@ const TripDetailScreen: React.FC = () => {
               className="h-[50px] w-[370px] flex-row items-center justify-center rounded-[8px] border border-dashed border-borderGray"
             >
               <PlusIcon />
-              <Text className="ml-2 text-p1  text-gray">일정 추가하기</Text>
+              <Text className="ml-2 text-p1 text-gray">일정 추가하기</Text>
             </TouchableOpacity>
           </View>
         </View>
-
 
         {/* 2일차 */}
         <View className="bg-screenBackground">
@@ -139,7 +158,6 @@ const TripDetailScreen: React.FC = () => {
           </View>
         </View>
 
-
         {/* 3일차 */}
         <View className="bg-screenBackground">
           <View className="flex-row items-center justify-between px-4">
@@ -160,9 +178,8 @@ const TripDetailScreen: React.FC = () => {
           </View>
         </View>
 
-
         {/* 4일차 */}
-        <View className="bg-screenBackground">
+        <View className="bg-screenBackground pb-10">
           <View className="flex-row items-center justify-between px-4">
             <Text className="text-h3 font-semibold">4일차 / 03/03</Text>
           </View>
@@ -180,9 +197,70 @@ const TripDetailScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
         </View>
-
-
       </ScrollView>
+
+      {/* 케밥 메뉴 레이어 */}
+      {isKebabMenuOpen ? (
+        <View className="absolute inset-0 z-50">
+          <Pressable
+            className="absolute inset-0 bg-black/30"
+            onPress={handleCloseKebabMenu}
+          />
+
+          <View className="absolute bottom-0 left-0 right-0">
+            <View
+              className="h-[257px] w-full rounded-t-[24px] bg-white px-5 pt-6"
+              style={{ maxWidth: 402, alignSelf: 'center' }}
+            >
+              <View className="mb-8 self-center h-[5px] w-[184px] rounded-full bg-black/80" />
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleCloseKebabMenu}
+                className="mb-8 flex-row items-center"
+              >
+                <View className="mr-4 h-[44px] w-[44px] items-center justify-center rounded-[12px] bg-chip">
+                  <Text className="text-h3 text-gray">✎</Text>
+                </View>
+                <Text className="text-h3 font-semibold text-black">제목 변경</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleCloseKebabMenu}
+                className="mb-8 flex-row items-center"
+              >
+                <View className="mr-4 h-[44px] w-[44px] items-center justify-center rounded-[12px] bg-chip">
+                  <Text className="text-h3 text-gray">◫</Text>
+                </View>
+                <Text className="text-h3 font-semibold text-black">날짜 변경</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleCloseKebabMenu}
+                className="mb-8 flex-row items-center"
+              >
+                <View className="mr-4 h-[44px] w-[44px] items-center justify-center rounded-[12px] bg-chip">
+                  <Text className="text-h3 text-gray">↗</Text>
+                </View>
+                <Text className="text-h3 font-semibold text-black">공유</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleCloseKebabMenu}
+                className="flex-row items-center"
+              >
+                <View className="mr-4 h-[44px] w-[44px] items-center justify-center rounded-[12px] bg-chip">
+                  <Text className="text-h3 text-gray">🗑</Text>
+                </View>
+                <Text className="text-h3 font-semibold text-black">삭제</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 };
