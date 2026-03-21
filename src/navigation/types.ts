@@ -2,7 +2,7 @@ export type SearchStackParamList = {
   SearchMain: undefined;
   DestinationDetail: { destinationId: string };
   SelectTrip: undefined;
-  ReviewWrite : undefined;
+  ReviewWrite: undefined;
 };
 
 export type RootTabParamList = {
@@ -20,7 +20,9 @@ export type HomeStackParamList = {
 
 export type RootStackParamList = {
   MainTabs: { screen?: keyof RootTabParamList } | undefined;
-
+  PrivacyPolicyScreen: undefined;
+  NightMarketingScreen: undefined;
+  MarketingConsentScreen: undefined;
   DestinationDetail: { destinationId: string };
   WishlistScreen: undefined;
 

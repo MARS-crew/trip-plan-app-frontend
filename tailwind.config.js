@@ -12,6 +12,7 @@ const colors = {
   screenBackground: '#FDFBF9',
   contentBackground: '#FCF0E8',
   botoomSheetBackground: '#DBDBDB',
+  zero: '#00000000',
 };
 
 const fontSize = {
