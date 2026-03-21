@@ -2,10 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import BottomTabNavigator from './BottomTabNavigator';
-
-import { FindIdScreen } from '@/screens';
-import LoginScreen from '@/screens/login';
-import WishlistScreen from '@/screens/WishlistScreen';
+import { FindIdScreen, LoginScreen, WishlistScreen } from '@/screens';
 
 import type { RootStackParamList } from './types';
 import { FindPasswordScreen } from '@/screens';
@@ -23,8 +20,6 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="EmptyMapScreen" component={EmptyMapScreen} />
       <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
       <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
-      <Stack.Screen name="FindId" component={FindIdScreen} />
-      <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
       <Stack.Screen name="FindId" component={FindIdScreen} />
       <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
       <Stack.Screen name="FindPassword" component={FindPasswordScreen} />
