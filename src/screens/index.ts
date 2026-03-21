@@ -9,4 +9,5 @@ export { default as MyPageScreen } from './MyPageScreen';
 export { default as DestinationDetailScreen } from './DestinationDetailScreen';
 export { default as SelectTripScreen } from './SelectTripScreen';
 export { default as WishlistScreen } from './WishlistScreen';
+export { default as HomeScreen } from './HomeScreen';
 export { default as MyTripScreen } from './myTrip';

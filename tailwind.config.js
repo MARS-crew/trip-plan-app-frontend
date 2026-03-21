@@ -11,7 +11,9 @@ const colors = {
   chip: '#F4F0EC',
   screenBackground: '#FDFBF9',
   contentBackground: '#FCF0E8',
+  inputBackground: '#FCFAF8',
   botoomSheetBackground: '#DBDBDB',
+  errormessage: '#FF4444',
 };
 
 const fontSize = {
