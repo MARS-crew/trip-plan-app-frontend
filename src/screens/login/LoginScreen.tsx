@@ -51,7 +51,7 @@ const LoginScreen: React.FC = () => {
 	};
 
 	const handleFindId = (): void => {
-		// 아이디 찾기 화면 이동
+		navigation.navigate('FindId');
 	};
 
 	const handleFindPassword = (): void => {

@@ -1,19 +1,23 @@
 import { HomeStackParamList } from '@/navigation';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/navigation/types';
+import type { CompositeNavigationProp } from '@react-navigation/native';
 import React, { useCallback } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-type NavigationProp = NativeStackNavigationProp<HomeStackParamList>;
+type NavigationProp = CompositeNavigationProp<
+  NativeStackNavigationProp<HomeStackParamList>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
 
-    // Hooks
-    const handleNavigateToDetail = useCallback(() => {
+  const handleNavigateToDetail = useCallback(() => {
     navigation.navigate('Alert');
-    }, [navigation]);
+  }, [navigation]);
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
