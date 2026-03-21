@@ -12,12 +12,6 @@ export type RootTabParamList = {
   Bookmark: undefined;
   MyPage: undefined;
 };
-
-export type HomeStackParamList = {
-  HomeMain: undefined;
-  Alert: undefined;
-};
-
 export type RootStackParamList = {
   Login: undefined;
   MainTabs: { screen?: keyof RootTabParamList } | undefined;
@@ -30,4 +24,13 @@ export type RootStackParamList = {
   NotificationSettings: undefined;
   FindId: undefined;
   WishlistScreen: undefined;
+  FindPassword: undefined;
 };
+
+
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  Alert: undefined;
+};
+
+

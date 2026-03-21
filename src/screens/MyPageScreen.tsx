@@ -18,7 +18,7 @@ const MyPageScreen: React.FC = () => {
   }, [navigation]);
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <View className="flex-1 items-center justify-center">
+      <View className="flex-1 items-center justify-center px-4">
         <Text className="text-h1 font-bold text-black">마이페이지</Text>
         <TouchableOpacity
           onPress={handleNavigateToPrivacy}
