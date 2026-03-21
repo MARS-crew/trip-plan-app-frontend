@@ -21,6 +21,7 @@ export type RootStackParamList = {
   DestinationDetail: { destinationId: string };
   WishlistScreen: undefined;
   FindPassword: undefined;
+  EmptyMapScreen: undefined;
 };
 
 
@@ -28,3 +29,5 @@ export type HomeStackParamList = {
   HomeMain: undefined;
   Alert: undefined;
 };
+
+
