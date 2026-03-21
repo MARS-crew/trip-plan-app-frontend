@@ -4,6 +4,10 @@ export { default as SearchIcon } from './search.svg';
 export { default as MapIcon } from './map.svg';
 export { default as BookmarkIcon } from './bookmark.svg';
 export { default as MyPageIcon } from './mypage.svg';
+export { default as AppLogoIcon } from './logo.svg';
+export { default as KakaoIcon } from './kakaoicon.svg';
+export { default as NaverIcon } from './navericon.svg';
+export { default as GoogleIcon } from './googleicon.svg';
 
 // 새로운 아이콘들
 export { default as LeftArrowIcon } from './leftarrow.svg';
