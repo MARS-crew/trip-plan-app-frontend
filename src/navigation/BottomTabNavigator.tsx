@@ -8,10 +8,10 @@ import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 
 import {
   HomeScreen,
-  MapScreen,
   BookmarkScreen,
   MyPageScreen,
 } from '@/screens';
+import { MyTripScreen } from '@/screens/myTrip';
 import SearchStackNavigator from './SearchStackNavigator';
 import { HomeIcon, SearchIcon, MapIcon, BookmarkIcon, MyPageIcon } from '@/assets/icons';
 import { COLORS } from '@/constants';
@@ -52,7 +52,7 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
   
   // SelectTripScreen이면 Map 탭 활성화
   const isActive = searchCurrentScreen === 'SelectTrip' 
-    ? routeName === 'Map' 
+    ? routeName === 'MyTrip'
     : currentRoute === routeName;
 
   // 아이콘 렌더링 함수
@@ -70,7 +70,7 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
         return <HomeIcon {...iconProps} />;
       case 'Search':
         return <SearchIcon {...iconProps} />;
-      case 'Map':
+      case 'MyTrip':
         return <MapIcon {...iconProps} />;
       case 'Bookmark':
         return <BookmarkIcon {...iconProps} />;
@@ -134,7 +134,7 @@ const BottomTabNavigator: React.FC = () => {
           return <HomeIcon {...iconProps} />;
         case 'Search':
           return <SearchIcon {...iconProps} />;
-        case 'Map':
+        case 'MyTrip':
           return <MapIcon {...iconProps} />;
         case 'Bookmark':
           return <BookmarkIcon {...iconProps} />;
@@ -196,9 +196,9 @@ const BottomTabNavigator: React.FC = () => {
         options={{ tabBarButton: createTabBarButton('Search', '검색') }}
       />
       <Tab.Screen
-        name="Map"
-        component={MapScreen}
-        options={{ tabBarButton: createTabBarButton('Map', '내여행') }}
+        name="MyTrip"
+        component={MyTripScreen}
+        options={{ tabBarButton: createTabBarButton('MyTrip', '내여행') }}
       />
       <Tab.Screen
         name="Home"
