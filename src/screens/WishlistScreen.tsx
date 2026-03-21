@@ -124,6 +124,24 @@ const WishlistScreen: React.FC = () => {
       image: require('@/assets/images/thumnail.png'),
     },
   ]
+  const search_places: PlaceCardProps['place'][] = [
+    {
+      id: 'place_6',
+      title: '센소지 아사쿠사',
+      location: '도쿄, 일본',
+      description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+      categories: ['관광지', '문화', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+    {
+      id: 'place_1',
+      title: '센소지 아사쿠사',
+      location: '도쿄, 일본',
+      description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+      categories: ['관광지', '문화', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+  ]
 
 
   // 하트 다중 선택용 상태 관리
@@ -144,13 +162,12 @@ const WishlistScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>('trending');
-  // 1. Hooks
-  // Hooks
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [activeTab, setActiveTab] = React.useState('info');
   const [isSheetExpanded, setIsSheetExpanded] = useState<boolean>(false);
-
+  const searchInputRef = useRef<TextInput>(null);
   const handleSheetChange = useCallback((expanded: boolean) => {
     setIsSheetExpanded(expanded);
   }, []);
@@ -341,7 +358,8 @@ const WishlistScreen: React.FC = () => {
             longitude: 126.941574,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
-          }}></MapView>
+          }}
+        ></MapView>
 
         {/* 지도 영역만 누르면 바텀시트 내려가기 */}
         <TouchableOpacity
@@ -357,7 +375,7 @@ const WishlistScreen: React.FC = () => {
           onPress={handleMapPress}
         />
 
-        <View className="absolute top-[5px] left-4 right-4 z-10">
+        <View className="absolute top-[5px] left-4 right-4 z-50">
           <SearchContainer>
             {/* 왼쪽: 뒤로가기 버튼 */}
             <TouchableOpacity onPress={handleGoBack} className="ml-4 mr-2">
@@ -369,6 +387,8 @@ const WishlistScreen: React.FC = () => {
               className="flex-1  text-h3 font-regular pr-12 text-black"
               placeholder="희망하는 관광지를 검색하세요"
               placeholderTextColor={COLORS.gray}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setIsSearchFocused(false)}
             />
 
             {/* 3. 검색 아이콘 */}
@@ -453,6 +473,49 @@ const WishlistScreen: React.FC = () => {
           </View>
 
         </CustomBottomSheet>
+        {/* 검색창이 포커스 되었을 때 */}
+        {isSearchFocused && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 40,
+            }}
+          >
+
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => {
+                setIsSearchFocused(false);
+
+
+              }}
+              onBlur={() => setIsSearchFocused(false)}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'white',
+              }}
+            />
+            {/**검색바 공간 차지 */}
+            <View className="px-4 ">
+              <View className="h-14 mb-3"></View>
+              {search_places.map((place) => (
+                <PlaceCard
+                  key={`${selectedCategory}-${place.id}`}
+                  place={place}
+                  isLiked={likedItemIds.has(place.id)}
+                  onToggleLike={toggleLike}
+                />))}
+            </View>
+          </View>
+        )}
         {/* 1. 완료 모 */}
         <WishModal
           isVisible={showAddModal}
