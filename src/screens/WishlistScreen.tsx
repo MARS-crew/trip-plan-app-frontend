@@ -26,15 +26,14 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Shadow } from 'react-native-shadow-2';
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-const SCREEN_HEIGHT = Dimensions.get("window").height;
-const BOTTOM_SHEET_MIN_HEIGHT = 32;   // 바텀시트 기본 높이
-const SNAP_LOW = SCREEN_HEIGHT - 66;   // 바텀시트 기본 높이 (66)
 
-const MAX_Y = SNAP_LOW; // 초기값: 최하단
-const SEARCH_BUTTON_BOTTOM = BOTTOM_SHEET_MIN_HEIGHT + 20; // 바텀시트 위에 10px 여유
 // ============ Component ============
 const WishlistScreen: React.FC = () => {
-
+  const BOTTOM_SHEET_MIN_HEIGHT = 28;   // 바텀시트 기본 높이
+  const SHEET_HEIGHT = 654;
+  const SNAP_LOW = SHEET_HEIGHT - 28;
+  const translateY = useSharedValue(SHEET_HEIGHT - BOTTOM_SHEET_MIN_HEIGHT);
+  const SEARCH_BUTTON_BOTTOM = BOTTOM_SHEET_MIN_HEIGHT + 10; // 바텀시트 위에 10px 여유
   // 파생 값
   const tabs = React.useMemo(
     () => [
@@ -125,7 +124,8 @@ const WishlistScreen: React.FC = () => {
       image: require('@/assets/images/thumnail.png'),
     },
   ]
-  const translateY = useSharedValue(MAX_Y);
+
+
   // 하트 다중 선택용 상태 관리
   const [likedItemIds, setLikedItemIds] = useState<Set<string>>(new Set());
 
@@ -190,7 +190,7 @@ const WishlistScreen: React.FC = () => {
 
   const handleMapPress = useCallback(() => {
     if (isSheetExpanded) {
-      translateY.value = withTiming(SNAP_LOW, {
+      translateY.value = withTiming(SHEET_HEIGHT - 28, {
         duration: 400,
         easing: Easing.out(Easing.exp),
       });
@@ -330,7 +330,7 @@ const WishlistScreen: React.FC = () => {
 
   // 2. 렌더링
   return (
-    <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-screenBackground" edges={['top', 'bottom']}>
       <View className="flex-1">
         <MapView
           provider={PROVIDER_GOOGLE}
