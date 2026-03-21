@@ -2,6 +2,7 @@ export type SearchStackParamList = {
   SearchMain: undefined;
   DestinationDetail: { destinationId: string };
   SelectTrip: undefined;
+  ReviewWrite : undefined;
 };
 
 export type RootTabParamList = {
@@ -10,6 +11,11 @@ export type RootTabParamList = {
   Map: undefined;
   Bookmark: undefined;
   MyPage: undefined;
+};
+
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  Alert: undefined;
 };
 
 export type RootStackParamList = {
