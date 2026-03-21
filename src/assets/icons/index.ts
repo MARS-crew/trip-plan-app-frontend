@@ -17,6 +17,7 @@ export { default as StarIcon } from './star.svg';
 export { default as ScheduleIcon } from './schedule.svg';
 export { default as MarkerIcon } from './marker.svg';
 export { default as MarkerGrayIcon } from './marker-gray.svg';
+
 export { default as InfoIcon } from './info.svg';
 export { default as ReviewIcon } from './review.svg';
 export { default as ActiveInfoIcon } from './activeinfo.svg';

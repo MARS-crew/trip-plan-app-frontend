@@ -1,22 +1,25 @@
 import { TimeB, X } from '@/assets';
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 // ============ Types ============
 export interface SearchListProps {
   item: string;
-  // TODO: props 정의
+  onPress?: (item: string) => void;
+  onDelete?: (item: string) => void;
 }
 
 // ============ Component ============
-export const SearchList = React.memo<SearchListProps>(({ item }) => {
+export const SearchList = React.memo<SearchListProps>(({ item, onPress, onDelete }) => {
   return (
     <View className="h-[42px] flex-row items-center justify-between">
-      <View className=" flex-row items-center gap-3">
+      <TouchableOpacity className="flex-row items-center gap-3 flex-1" onPress={() => onPress?.(item)} activeOpacity={0.7}>
         <TimeB />
         <Text className="text-p1">{item}</Text>
-      </View>
-      <X />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onDelete?.(item)}>
+        <X />
+      </TouchableOpacity>
     </View>
   );
 });

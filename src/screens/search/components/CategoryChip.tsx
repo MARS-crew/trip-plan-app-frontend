@@ -1,14 +1,15 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 
 // ============ Types ============
 export interface CategoryChipProps {
   category: string;
+  onPress?: (category: string) => void;
 }
 
 // ============ Component ============
-export const CategoryChip = React.memo<CategoryChipProps>(({ category }) => {
+export const CategoryChip = React.memo<CategoryChipProps>(({ category, onPress }) => {
   return (
     <View key={category} className="flex-1">
       <Shadow
@@ -19,9 +20,13 @@ export const CategoryChip = React.memo<CategoryChipProps>(({ category }) => {
           width: '100%',
         }}
         stretch>
-        <View className="h-11 rounded-xl bg-white justify-center items-center">
+        <TouchableOpacity
+          className="h-11 rounded-xl bg-white justify-center items-center"
+          onPress={() => onPress?.(category)}
+          activeOpacity={0.7}
+        >
           <Text className="text-sm font-medium">{category}</Text>
-        </View>
+        </TouchableOpacity>
       </Shadow>
     </View>
   );
