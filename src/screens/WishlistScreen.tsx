@@ -413,7 +413,7 @@ const WishlistScreen: React.FC = () => {
               distance={4}
               startColor="#00000015"
               offset={[0, 2]}
-              style={{ borderRadius: 9999 }}
+              style={{ borderRadius: 100 }}
             >
               <TouchableOpacity className="items-center justify-center w-7 h-7 bg-white rounded-full">
                 <MyLocation />
