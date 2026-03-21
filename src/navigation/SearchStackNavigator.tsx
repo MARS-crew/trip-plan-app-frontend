@@ -4,12 +4,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SearchScreen from '@/screens/SearchScreen';
 import DestinationDetailScreen from '@/screens/DestinationDetailScreen';
 import SelectTripScreen from '@/screens/SelectTripScreen';
+import ReviewWriteScreen from '@/screens/reviewWrite/ReviewWriteScreen';
 
 // ============ Types ============
 export type SearchStackParamList = {
   SearchMain: undefined;
   DestinationDetail: { destinationId: string };
   SelectTrip: undefined;
+  ReviewWrite : undefined;
 };
 
 // ============ Constants ============
@@ -22,6 +24,7 @@ const SearchStackNavigator: React.FC = () => {
       <Stack.Screen name="SearchMain" component={SearchScreen} />
       <Stack.Screen name="DestinationDetail" component={DestinationDetailScreen} />
       <Stack.Screen name="SelectTrip" component={SelectTripScreen} />
+      <Stack.Screen name="ReviewWrite" component={ReviewWriteScreen} />
     </Stack.Navigator>
   );
 };
