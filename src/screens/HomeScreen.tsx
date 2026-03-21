@@ -22,10 +22,6 @@ const HomeScreen: React.FC = () => {
     navigation.navigate('Alert');
   }, [navigation]);
 
-  const handleNavigateToFindId = useCallback(() => {
-    navigation.navigate('FindId');
-  }, [navigation]);
-
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <View className="flex-1 items-center justify-center">
@@ -34,11 +30,6 @@ const HomeScreen: React.FC = () => {
           onPress={handleNavigateToDetail}
           className="bg-main px-6 py-3 rounded-lg">
           <Text className="text-white font-semibold">알림 리스트</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={handleNavigateToFindId}
-          className="mt-4 bg-main px-6 py-3 rounded-lg">
-          <Text className="text-white font-semibold">아이디 찾기</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
