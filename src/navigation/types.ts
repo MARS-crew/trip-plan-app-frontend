@@ -24,4 +24,5 @@ export type RootStackParamList = {
   DestinationDetail: { destinationId: string };
   WishlistScreen: undefined;
 
+  FindPassword: undefined;
 };

@@ -7,6 +7,7 @@ import BottomTabNavigator from './BottomTabNavigator';
 import WishlistScreen from '@/screens/WishlistScreen';
 
 import type { RootStackParamList } from './types';
+import { FindPasswordScreen } from '@/screens';
 
 // ============ Constants ============
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -20,6 +21,7 @@ export const RootStackNavigator: React.FC = () => {
 
       <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
 
+      <Stack.Screen name="FindPassword" component={FindPasswordScreen} />
     </Stack.Navigator>
   );
 };
