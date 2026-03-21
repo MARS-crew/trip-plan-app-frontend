@@ -26,9 +26,11 @@ export const CustomBottomSheet = ({
   const startY = useSharedValue(0);
 
   // 1. 3단계 스냅 포인트 계산 (바닥 기준 높이)
-  const SNAP_MIN = SCREEN_HEIGHT - 66;   // 최하단 (기본 높이 66)
-  const SNAP_MID = SCREEN_HEIGHT - 310;  // 중간 (264 높이)
-  const SNAP_HIGH = SCREEN_HEIGHT - 654; // 최상단 (620 높이)
+  const SHEET_HEIGHT = 654; // 최대로 올라왔을 때 높이
+
+  const SNAP_MIN = SHEET_HEIGHT - 28;   // 32px만 보이게
+  const SNAP_MID = SHEET_HEIGHT - 310;
+  const SNAP_HIGH = 0;
 
   const gesture = Gesture.Pan()
     .onStart(() => {
@@ -77,16 +79,27 @@ export const CustomBottomSheet = ({
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
-    paddingBottom: translateY.value,
+
   }));
 
   return (
     <Animated.View
-      className="absolute bottom-0 w-full h-full bg-white rounded-t-[16px] overflow-hidden"
-      style={animatedStyle}
+      style={[
+        {
+          position: 'absolute',
+          bottom: 0,
+          width: '100%',
+          height: SHEET_HEIGHT,
+          backgroundColor: 'white',
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
+
+        },
+        animatedStyle,
+      ]}
     >
       <GestureDetector gesture={gesture}>
-        <View className="items-center w-full py-[14px] bg-white">
+        <View className="items-center w-full py-[14px] bg-white rounded-full">
           <View className="w-10 h-1 bg-botoomSheetBackground rounded-full" />
         </View>
       </GestureDetector>
