@@ -16,6 +16,11 @@ export const COLORS = {
   chip: '#F4F0EC',
   screenBackground: '#FDFBF9',
   contentBackground: '#FCF0E8',
+  sunday: '#EF4444',
+  saturday: '#0088FF',
+  muted: '#8C7B7366',
+  buttonDisabled: '#E8D3C1',
+  buttonDisabledOverlay: '#DF6C2080',
 } as const;
 
 // 네비게이션바 전용 색상 상수
