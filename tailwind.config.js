@@ -12,6 +12,7 @@ const colors = {
   background: '#E8E6E5',
   white: '#FFFFFF',
   borderGray: '#E5E0DC',
+  chatHeaderCircleBackground: '#FCF0E9',
   chip: '#F4F0EC',
   screenBackground: '#FDFBF9',
   contentBackground: '#FCF0E8',

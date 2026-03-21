@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   Animated,
   Image,
@@ -46,6 +46,25 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
   onDatePress,
   onScroll,
 }) => {
+  const scrollRef = useRef<ScrollView>(null);
+  const [contentWidth, setContentWidth] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const SLIDE_STEP = 93;
+
+  const maxScrollX = Math.max(0, contentWidth - containerWidth);
+  const canScrollLeft = scrollPosition > 0;
+  const canScrollRight = scrollPosition < maxScrollX - 1;
+
+  const handlePressLeftArrow = useCallback((): void => {
+    const nextX = Math.max(0, scrollPosition - SLIDE_STEP);
+    scrollRef.current?.scrollTo({ x: nextX, animated: true });
+  }, [scrollPosition]);
+
+  const handlePressRightArrow = useCallback((): void => {
+    const nextX = Math.min(maxScrollX, scrollPosition + SLIDE_STEP);
+    scrollRef.current?.scrollTo({ x: nextX, animated: true });
+  }, [maxScrollX, scrollPosition]);
+
   return (
     <View className="mt-4 mx-4">
       <View className="bg-white overflow-hidden" style={{ borderTopLeftRadius: 8, borderTopRightRadius: 8 }}>
@@ -115,12 +134,18 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
               opacity: animatedOpacity,
             }}
           >
-            <View className="absolute left-0 top-0 bottom-0 flex-row items-center z-10" pointerEvents="none">
-              <View className="w-10 h-full bg-white justify-center items-center" style={{ zIndex: 2 }}>
+            <View className="absolute left-0 top-0 bottom-0 flex-row items-center z-10">
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={handlePressLeftArrow}
+                disabled={!canScrollLeft}
+                className="w-10 h-full bg-white justify-center items-center"
+                style={{ zIndex: 2, opacity: canScrollLeft ? 1 : 0.4 }}
+              >
                 <View style={{ transform: [{ rotate: '180deg' }] }}>
                   <VectorGrayIcon />
                 </View>
-              </View>
+              </TouchableOpacity>
               {scrollPosition > 0 ? (
                 <LinearGradient
                   colors={['rgba(255,255,255,1)', 'rgba(255,255,255,0.9)', 'rgba(255,255,255,0.2)', 'rgba(255,255,255,0)']}
@@ -133,12 +158,15 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
             </View>
 
             <ScrollView
+              ref={scrollRef}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingLeft: 40, paddingRight: 16, gap: 8, alignItems: 'center', paddingVertical: 13 }}
               style={{ flex: 1, height: 64 }}
               nestedScrollEnabled
               scrollEventThrottle={16}
+              onLayout={(event): void => setContainerWidth(event.nativeEvent.layout.width)}
+              onContentSizeChange={(width): void => setContentWidth(width)}
               onScroll={(event): void => onScroll(cardIndex, event)}
             >
               {dates.map((item, index) => {
@@ -163,17 +191,25 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
               })}
             </ScrollView>
 
-            <View className="absolute right-0 top-0 bottom-0 flex-row items-center z-10" pointerEvents="none">
-              <LinearGradient
-                colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.2)', 'rgba(255,255,255,0.9)', 'rgba(255,255,255,1)']}
-                locations={[0, 0.39, 0.87, 1]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={{ width: 12, height: '100%', zIndex: 1 }}
-              />
-              <View className="w-10 h-full bg-white justify-center items-center" style={{ zIndex: 2 }}>
+            <View className="absolute right-0 top-0 bottom-0 flex-row items-center z-10">
+              {canScrollRight ? (
+                <LinearGradient
+                  colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.2)', 'rgba(255,255,255,0.9)', 'rgba(255,255,255,1)']}
+                  locations={[0, 0.39, 0.87, 1]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ width: 12, height: '100%', zIndex: 1 }}
+                />
+              ) : null}
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={handlePressRightArrow}
+                disabled={!canScrollRight}
+                className="w-10 h-full bg-white justify-center items-center"
+                style={{ zIndex: 2, opacity: canScrollRight ? 1 : 0.4 }}
+              >
                 <VectorGrayIcon />
-              </View>
+              </TouchableOpacity>
             </View>
           </Animated.View>
         </View>
@@ -181,5 +217,3 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
     </View>
   );
 };
-
-TripSelectionCard.displayName = 'TripSelectionCard';
