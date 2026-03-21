@@ -28,37 +28,16 @@ export { default as PlaceIcon } from './place.svg';
 export { default as VectorIcon } from './vector.svg';
 export { default as VectorGrayIcon } from './vectorgray.svg';
 export { default as StarOffIcon } from './starOff.svg';
-<<<<<<< HEAD
-export { default as ScheduleInfoIcon } from './schedule-info.svg';
-export { default as WeatherInfoIcon } from './weather-info.svg';
-export { default as BackArrow } from './backArrow.svg';
-=======
-export { default as AirplaneIcon } from './airplane.svg';
-export { default as CalendarIcon } from './calendar.svg';
-export { default as ChevronDownIcon } from './chevrondown.svg';
-export { default as ChevronUpIcon } from './chevronup.svg';
-export { default as VectorLeftIcon } from './vectorleft.svg';
-export { default as PlusIcon } from './plus.svg';
-export { default as ScheduleInfoIcon } from './schedule-info.svg'
-export { default as WeatherInfoIcon } from './weather-info.svg'
-export { default as BackArrow } from './backArrow.svg'
-export { default as ScheduleInfoIcon } from './schedule-info.svg'
-export { default as WeatherInfoIcon } from './weather-info.svg'
-export { default as BackArrow } from './backArrow.svg'
-export { default as AirplaneIcon } from './airplane.svg';
-export { default as CalendarIcon } from './calendar.svg';
-export { default as BackArrow } from './backArrow.svg';
-export { default as WeatherInfoIcon } from './weather-info.svg';
-export { default as ScheduleInfoIcon } from './schedule-info.svg';
-export { default as ChevronDownIcon } from './chevrondown.svg';
-export { default as ChevronUpIcon } from './chevronup.svg';
-export { default as VectorLeftIcon } from './vectorleft.svg';
-export { default as PlusIcon } from './plus.svg';
-export { default as ScheduleInfoIcon } from './schedule-info.svg'
-export { default as WeatherInfoIcon } from './weather-info.svg'
-export { default as BackArrow } from './backArrow.svg'
 
->>>>>>> cc2135a1e9f855d5aa45f6b875a5e5b0e10c9d1a
+export { default as AirplaneIcon } from './airplane.svg';
+export { default as CalendarIcon } from './calendar.svg';
+export { default as ScheduleInfoIcon } from './schedule-info.svg';
+export { default as ChevronDownIcon } from './chevrondown.svg';
+export { default as ChevronUpIcon } from './chevronup.svg';
+export { default as VectorLeftIcon } from './vectorleft.svg';
+export { default as PlusIcon } from './plus.svg';
+export { default as WeatherInfoIcon } from './weather-info.svg';
+export { default as BackArrow } from './backArrow.svg';
 
 export { default as SearchingIcon } from './searching.svg';
 
