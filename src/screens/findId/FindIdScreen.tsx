@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { ContentContainer, TopBar } from '@/components';
+import { ContentContainer, LabeledInput, TopBar } from '@/components';
 import type { RootStackParamList } from '@/navigation/types';
 
 // ============ Types ============
@@ -54,35 +54,21 @@ const FindIdScreen: React.FC = () => {
             {'가입 시 등록한 이메일과 닉네임을 입력하면\n아이디를 찾을 수 있습니다.'}
           </Text>
 
-          <View className="mb-4">
-            <View className="flex-row mb-2">
-              <Text className="text-h3 font-semibold text-black">닉네임</Text>
-              <Text className="text-p1 text-errormessage">*</Text>
-            </View>
-            <TextInput
-              className="w-full h-[46px] bg-inputBackground rounded-xl px-3 text-p1 textstyle-Regular border border-borderGray"
-              placeholder="닉네임을 입력해주세요" 
-              placeholderTextColor="#8C7B73"
-              value={nickname}
-              onChangeText={handleChangeNickname}
-            />
-          </View>
+          <LabeledInput
+            label="닉네임"
+            value={nickname}
+            onChangeText={handleChangeNickname}
+            placeholder="닉네임을 입력해주세요"
+          />
 
-          <View className="mb-4">
-            <View className="flex-row mb-2">
-              <Text className="text-h3 font-semibold text-black">이메일</Text>
-              <Text className="text-p1 text-errormessage">*</Text>
-            </View>
-            <TextInput
-              className="w-full h-[46px] bg-inputBackground rounded-xl px-3 text-p1 textstyle-Regular border border-borderGray"
-              placeholder="이메일을 입력해주세요"
-              placeholderTextColor="#8C7B73"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={handleChangeEmail}
-            />
-          </View>
+          <LabeledInput
+            label="이메일"
+            value={email}
+            onChangeText={handleChangeEmail}
+            placeholder="이메일을 입력해주세요"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
           <TouchableOpacity
             className={`w-full h-11 rounded-lg items-center justify-center ${isSubmitDisabled ? 'bg-main/50' : 'bg-main'}`}
