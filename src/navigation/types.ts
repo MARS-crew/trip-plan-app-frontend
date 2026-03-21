@@ -1,5 +1,6 @@
 export type SearchStackParamList = {
   SearchMain: undefined;
+  SearchResult: { query: string };
   DestinationDetail: { destinationId: string };
   SelectTrip: undefined;
   ReviewWrite : undefined;
