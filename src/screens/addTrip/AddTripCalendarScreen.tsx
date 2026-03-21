@@ -6,7 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 import { CalendarList, LocaleConfig } from 'react-native-calendars';
 
-import { BackArrowIcon } from '@/assets/icons';
+import { BackArrow } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
 
 // ==================== Types ====================
@@ -158,7 +158,7 @@ const AddTripCalendarScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <View className="h-14 flex-row items-center pl-6">
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BackArrowIcon className="h-5 w-5" />
+          <BackArrow className="h-5 w-5" />
         </TouchableOpacity>
         <Text className="ml-4 text-h font-bold text-black">
           여행지 추가

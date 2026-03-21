@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -7,8 +7,9 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PlusIcon } from '@/assets/icons';
 import { Chip } from '@/components/ui';
 import type { RootStackParamList } from '@/navigation/types';
-import { EmptyMapScreen, TripTimeline } from '@/screens/myTrip';
-import TripCard from '@/screens/myTrip/TripCard';
+import { EmptyMapScreen } from '@/screens/myTrip';
+import TripCard from './components/TripCard';
+import TripTimeline from './components/TripTimeline';
 
 type MyTripNavigation = NativeStackNavigationProp<RootStackParamList>;
 
