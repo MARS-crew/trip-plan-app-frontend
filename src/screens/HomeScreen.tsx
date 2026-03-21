@@ -1,8 +1,6 @@
-import { HomeStackParamList } from '@/navigation';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@/navigation/types';
 import type { CompositeNavigationProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,11 +8,6 @@ import type { HomeStackParamList } from '@/navigation';
 import type { RootStackParamList } from '@/navigation';
 
 // ============ Types ============
-type NavigationProp = CompositeNavigationProp<
-  NativeStackNavigationProp<HomeStackParamList>,
-  NativeStackNavigationProp<RootStackParamList>
->;
-
 type NavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<HomeStackParamList>,
   NativeStackNavigationProp<RootStackParamList>

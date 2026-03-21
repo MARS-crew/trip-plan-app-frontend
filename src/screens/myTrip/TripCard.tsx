@@ -71,7 +71,8 @@ const TripCard = ({
         <View className="flex-row items-center justify-between px-4 py-3">
           <View className="flex-row items-center">
             <PlaceIcon width={14} height={14} />
-            <Text className="ml-1 text-p text-gray">{scheduleText}</Text>
+            <Text className="ml-1 text-p text-gray">{scheduleText}개의 일정</Text>
+            <Text className="ml-3 text-p text-gray">{scheduleCountText}일간</Text>
           </View>
 
         {/*Toggle*/}
