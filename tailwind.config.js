@@ -16,7 +16,9 @@ const colors = {
   errmassage: '#FF4444',
   kakaoYellow: '#FEE500',
   naverGreen: '#03A94D',
-  
+
+  errormessage: '#FF4444',
+
 };
 
 const fontSize = {
