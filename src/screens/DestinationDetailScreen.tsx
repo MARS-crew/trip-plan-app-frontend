@@ -43,23 +43,23 @@ const DestinationDetailScreen: React.FC = () => {
   // Hooks
   const [activeTab, setActiveTab] = React.useState('info');
 
-  const handleGoBack = useCallback(() => {
+  const handleGoBack = useCallback((): void => {
     navigation.goBack();
   }, [navigation]);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback((): void => {
     // TODO: 저장 기능 구현
   }, []);
 
-  const handleShare = useCallback(() => {
+  const handleShare = useCallback((): void => {
     // TODO: 공유 기능 구현
   }, []);
 
-  const handleTabChange = useCallback((tabId: string) => {
+  const handleTabChange = useCallback((tabId: string): void => {
     setActiveTab(tabId);
   }, []);
 
-  const handleAddToSchedule = useCallback(() => {
+  const handleAddToSchedule = useCallback((): void => {
     navigation.navigate('SelectTrip');
   }, [navigation]);
 
@@ -296,7 +296,6 @@ const DestinationDetailScreen: React.FC = () => {
   );
 };
 
-DestinationDetailScreen.displayName = 'DestinationDetailScreen';
 
 export default DestinationDetailScreen;
 export { DestinationDetailScreen };
