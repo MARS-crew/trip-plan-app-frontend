@@ -26,13 +26,11 @@ export type RootStackParamList = {
   NotificationSettings: undefined;
   FindId: undefined;
 };
-
-
 export type HomeStackParamList = {
   HomeMain: undefined;
   Alert: undefined;
 
-  DestinationDetail: { destinationId: string };
-  WishlistScreen: undefined;
-
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  Alert: undefined;
 };

@@ -12,7 +12,6 @@ export { TripStatusChip } from './TripStatusChip';
 export type { TripStatusChipProps, TripStatus } from './TripStatusChip';
 export { TopBar } from './TopBar'
 export type { TopBarProps } from './TopBar'
-
 export { TopBar } from './TopBar'
 export type { TopBarProps } from './TopBar'
 

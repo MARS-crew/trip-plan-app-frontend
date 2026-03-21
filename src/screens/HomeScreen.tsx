@@ -15,6 +15,11 @@ type NavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<RootStackParamList>
 >;
 
+type NavigationProp = CompositeNavigationProp<
+  NativeStackNavigationProp<HomeStackParamList>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
+
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
 

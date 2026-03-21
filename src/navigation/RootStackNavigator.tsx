@@ -7,6 +7,8 @@ import { FindIdScreen, LoginScreen } from '@/screens';
 import { FindIdScreen } from '@/screens';
 
 
+import { FindIdScreen } from '@/screens';
+import LoginScreen from '@/screens/login';
 import WishlistScreen from '@/screens/WishlistScreen';
 
 import type { RootStackParamList } from './types';
@@ -27,6 +29,8 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="FindId" component={FindIdScreen} />
       <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
       <Stack.Screen name="EmptyMapScreen" component={EmptyMapScreen} />
+      <Stack.Screen name="FindId" component={FindIdScreen} />
+      <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
     </Stack.Navigator>
   );
 };
