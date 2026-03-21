@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, Text, ScrollView, Dimensions } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,13 +19,19 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   interpolate,
-
+  withTiming,
+  Easing,
 } from 'react-native-reanimated';
-
+import { ScrollView } from 'react-native-gesture-handler';
+import { Shadow } from 'react-native-shadow-2';
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
-const MAX_Y = SCREEN_HEIGHT - 70; // 바텀시트가 내려가 있을 때의 위치
+const BOTTOM_SHEET_MIN_HEIGHT = 32;   // 바텀시트 기본 높이
+const SNAP_LOW = SCREEN_HEIGHT - 66;   // 바텀시트 기본 높이 (66)
+
+const MAX_Y = SNAP_LOW; // 초기값: 최하단
+const SEARCH_BUTTON_BOTTOM = BOTTOM_SHEET_MIN_HEIGHT + 20; // 바텀시트 위에 10px 여유
 // ============ Component ============
 const WishlistScreen: React.FC = () => {
 
@@ -77,6 +83,41 @@ const WishlistScreen: React.FC = () => {
     },
     {
       id: 'place_2',
+      title: '센소지 아사쿠사',
+      location: '도쿄, 일본',
+      description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+      categories: ['관광지', '문화', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+
+    {
+      id: 'place_3',
+      title: '센소지 아사쿠사',
+      location: '도쿄, 일본',
+      description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+      categories: ['관광지', '문화', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+    {
+      id: 'place_4',
+      title: '센소지 아사쿠사',
+      location: '도쿄, 일본',
+      description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+      categories: ['관광지', '문화', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+    {
+      id: 'place_5',
+      title: '센소지 아사쿠사',
+      location: '도쿄, 일본',
+      description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+      categories: ['관광지', '문화', '역사'],
+      image: require('@/assets/images/thumnail.png'),
+    },
+
+
+    {
+      id: 'place_6',
       title: '센소지 아사쿠사',
       location: '도쿄, 일본',
       description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
@@ -146,20 +187,30 @@ const WishlistScreen: React.FC = () => {
   const handleComplete = useCallback(() => {
     setShowAddModal(true);
   }, []);
+
+  const handleMapPress = useCallback(() => {
+    if (isSheetExpanded) {
+      translateY.value = withTiming(SNAP_LOW, {
+        duration: 400,
+        easing: Easing.out(Easing.exp),
+      });
+      setIsSheetExpanded(false);
+    }
+  }, [isSheetExpanded, translateY]);
+
   const mapUIAnimatedStyle = useAnimatedStyle(() => {
-    // interpolate를 사용하면 바텀시트가 위로 10px만 올라와도 
-    // opacity가 즉시 0으로 수렴합니다. (JS를 거치지 않음)
+    'worklet'
     const opacity = interpolate(
       translateY.value,
-      [MAX_Y - 5, MAX_Y], // 👈 10px 구간에서 순식간에 사라짐
+      [SNAP_LOW - 5, SNAP_LOW], // SNAP_LOW 지점에 가까워질 때만 나타남
       [0, 1],
-      'clamp' // 구간 밖으로 나가도 0~1 유지
+      'clamp'
     );
 
     return {
       opacity,
-      // 완전히 투명해지면 터치가 안 되도록 설정
-      pointerEvents: opacity === 0 ? 'none' : 'auto',
+      // 버튼의 기본 위치를 70 지점보다 살짝 위로 설정
+      pointerEvents: opacity < 0.1 ? 'none' : 'auto',
     };
   });
   useEffect(() => {
@@ -292,6 +343,20 @@ const WishlistScreen: React.FC = () => {
             longitudeDelta: 0.0421,
           }}></MapView>
 
+        {/* 지도 영역만 누르면 바텀시트 내려가기 */}
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            top: 70,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            pointerEvents: isSheetExpanded ? 'auto' : 'none',
+          }}
+          activeOpacity={1}
+          onPress={handleMapPress}
+        />
+
         <View className="absolute top-[5px] left-4 right-4 z-10">
           <SearchContainer>
             {/* 왼쪽: 뒤로가기 버튼 */}
@@ -314,7 +379,7 @@ const WishlistScreen: React.FC = () => {
         </View>
 
         {/* 3. 지도 위 UI를 Animated.View로 감싸고 mapUIAnimatedStyle 적용 */}
-        <Animated.View style={[mapUIAnimatedStyle, { position: 'absolute', bottom: 64, left: 0, right: 0, zIndex: 20 }]}>
+        <Animated.View style={[mapUIAnimatedStyle, { position: 'absolute', bottom: SEARCH_BUTTON_BOTTOM, left: 0, right: 0, zIndex: 20 }]}>
           <View className="items-center">
             <CategoryChip
               label="현 지도에서 검색"
@@ -323,16 +388,25 @@ const WishlistScreen: React.FC = () => {
               className="px-[29px] py-[10px] rounded-full"
             />
           </View>
-          <TouchableOpacity className="absolute right-4 bottom-0">
-            <MyLocation />
-          </TouchableOpacity>
+          <View className="absolute right-4 bottom-2">
+            <Shadow
+              distance={4}
+              startColor="#00000015"
+              offset={[0, 2]}
+              style={{ borderRadius: 9999 }}
+            >
+              <TouchableOpacity className="items-center justify-center w-7 h-7 bg-white rounded-full">
+                <MyLocation />
+              </TouchableOpacity>
+            </Shadow>
+          </View>
         </Animated.View>
         <CustomBottomSheet
           translateY={translateY}
           onStateChange={handleSheetChange}// 상태 변경 감지
         >
 
-          <View className="flex-row items-center justify-between mt-2 px-4 ">
+          <View className="flex-row items-center justify-between mt-5 px-4 ">
             {/* 왼쪽: 탭 메뉴들 */}
             <View className="flex-row">
               {tabs.map((tab) => (
@@ -357,8 +431,12 @@ const WishlistScreen: React.FC = () => {
           </View>
 
 
-          <View className="mx-4 mt-3">
-            <ScrollView>
+          <View className="mx-4 mt-3 flex-1">
+            <ScrollView
+              scrollEventThrottle={16}
+              showsVerticalScrollIndicator={false}
+              nestedScrollEnabled={true}
+            >
               {(() => {
                 if (selectedCategory === 'trending') {
                   return renderContent();
