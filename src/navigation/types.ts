@@ -13,6 +13,7 @@ export type RootTabParamList = {
   MyPage: undefined;
 };
 export type RootStackParamList = {
+  Login: undefined;
   MainTabs: { screen?: keyof RootTabParamList } | undefined;
   AccountSettings: undefined;
   NotificationSettings: undefined;

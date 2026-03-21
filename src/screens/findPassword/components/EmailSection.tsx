@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
-import { COLORS } from '@/constants';
+import { LabeledInput } from '@/components/ui';
 
 // ============ Types ============
 export interface EmailSectionProps {
@@ -27,14 +27,12 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
   onSendVerification,
 }) => {
   return (
-    <View className="mt-4">
-      <Text className="text-h3 font-semibold text-black">
-        이메일 <Text className="text-p1 text-statusError">*</Text>
-      </Text>
-
-      <View className="flex-row mt-2">
-        <TextInput
-          className={`flex-1 h-[46px] px-2 bg-inputBackground rounded-xl border text-p1 font-Regular text-black ${
+    <View>
+      <View className="flex-row items-end">
+        <LabeledInput
+          label="이메일"
+          containerClassName="flex-1 mb-0"
+          className={`h-[46px] px-2 rounded-xl border text-p1 font-Regular text-black ${
             isEmailError
               ? 'bg-inputBackground border-statusError'
               : isEmailSent
@@ -42,7 +40,7 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
                 : 'bg-screenBackground border-borderGray'
           }`}
           placeholder="example@gmail.com"
-          placeholderTextColor={COLORS.gray}
+          placeholderTextColor="#8C7B73"
           value={email}
           onChangeText={onChangeEmail}
           autoCapitalize="none"

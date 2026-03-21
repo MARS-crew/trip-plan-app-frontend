@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
-import { COLORS } from '@/constants';
+import { LabeledInput } from '@/components/ui';
 
 // ============ Types ============
 export interface CodeSectionProps {
@@ -20,17 +20,15 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
 }) => {
   return (
     <View className="mt-4">
-      <Text className="text-h3 font-semibold text-black">
-        인증번호 <Text className="text-p1 text-statusError">*</Text>
-      </Text>
-
-      <View className="flex-row mt-2">
-        <TextInput
-          className={`flex-1 h-[46px] px-2 bg-inputBackground rounded-xl border text-p1 font-Regular text-black ${
+      <View className="flex-row items-end">
+        <LabeledInput
+          label="인증번호"
+          containerClassName="flex-1 mb-0"
+          className={`h-[46px] px-2 rounded-xl border text-p1 font-Regular text-black ${
             isCodeError ? 'border-statusError' : 'border-borderGray'
           }`}
           placeholder="6자리 인증번호"
-          placeholderTextColor={COLORS.gray}
+          placeholderTextColor={"#8C7B73"}
           value={code}
           onChangeText={onChangeCode}
           autoCapitalize="none"

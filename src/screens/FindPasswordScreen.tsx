@@ -9,10 +9,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { TopBar } from '@/components/ui';
+import { TopBar, LabeledInput } from '@/components/ui';
 import type { RootStackParamList } from '@/navigation';
 import {
-  IdSection,
   EmailSection,
   CodeSection,
   ResultCard,
@@ -44,8 +43,8 @@ const FindPasswordScreen: React.FC = () => {
   const isCodeVerified = useMemo(() => codeStatus === 'success', [codeStatus]);
   const isTempPwSent = useMemo(() => tempPwStatus === 'sent', [tempPwStatus]);
   const sendCodeButtonText = useMemo(
-    () => (isCodeFieldVisible ? '재전송' : '인증번호 발송'),
-    [isCodeFieldVisible],
+    () => (isCodeFieldVisible || isCodeVerified ? '재전송' : '인증번호 발송'),
+    [isCodeFieldVisible, isCodeVerified],
   );
   const isSubmitEnabled = useMemo(
     () => userId.trim().length > 0 && email.trim().length > 0 && isCodeVerified,
@@ -116,11 +115,18 @@ const FindPasswordScreen: React.FC = () => {
             <TopBar title="비밀번호 찾기" onPress={handleGoBack} />
             <View className="flex-1 px-4">
             <View className="mt-6 px-6 py-6 bg-white rounded-lg border border-borderGray">
-              <Text className="text-p font-Regular text-gray">
+              <Text className="mb-4 text-p font-Regular text-gray ">
                 아이디와 가입 시 등록한 이메일을 입력하면 이메일로 임시 비밀번호를 전송해드립니다.
               </Text>
 
-              <IdSection userId={userId} onChangeUserId={handleChangeUserId} />
+              <LabeledInput
+                label="아이디"
+                value={userId}
+                onChangeText={handleChangeUserId}
+                placeholder="아이디를 입력해주세요"
+                autoCorrect={false}
+                returnKeyType="next"
+              />
 
               <EmailSection
                 email={email}

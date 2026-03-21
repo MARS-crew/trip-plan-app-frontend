@@ -1,6 +1,3 @@
-export { IdSection } from './IdSection';
-export type { IdSectionProps } from './IdSection';
-
 export { EmailSection } from './EmailSection';
 export type { EmailSectionProps } from './EmailSection';
 
