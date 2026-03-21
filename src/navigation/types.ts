@@ -19,9 +19,18 @@ export type HomeStackParamList = {
 };
 
 export type RootStackParamList = {
+  Login: undefined;
   MainTabs: { screen?: keyof RootTabParamList } | undefined;
+  EmptyMapScreen: undefined;
+  AccountSettings: undefined;
+  NotificationSettings: undefined;
+  FindId: undefined;
+};
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  Alert: undefined;
 
-  DestinationDetail: { destinationId: string };
-  WishlistScreen: undefined;
-
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  Alert: undefined;
 };
