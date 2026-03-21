@@ -23,8 +23,4 @@ export type RootStackParamList = {
 export type HomeStackParamList = {
   HomeMain: undefined;
   Alert: undefined;
-
-  DestinationDetail: { destinationId: string };
-  WishlistScreen: undefined;
-
 };

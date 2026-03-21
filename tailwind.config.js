@@ -13,7 +13,10 @@ const colors = {
   contentBackground: '#FCF0E8',
   inputBackground: '#FCFAF8',
   botoomSheetBackground: '#DBDBDB',
-  errormessage: '#FF4444',
+  errmassage: '#FF4444',
+  kakaoYellow: '#FEE500',
+  naverGreen: '#03A94D',
+  
 };
 
 const fontSize = {
@@ -37,6 +40,7 @@ module.exports = {
       fontSize,
       boxShadow: {
         card: '0 0 3px rgba(0,0,0,0.15)',
+        logincard : '0 0 5px rgba(0,0,0,0.25)',
       },
     },
   },
