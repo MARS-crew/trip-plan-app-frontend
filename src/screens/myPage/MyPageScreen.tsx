@@ -116,10 +116,28 @@ const MyPageScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
 
   const handleNavigateToAccountSettings = (): void => {
+    const parentNavigation = navigation.getParent() as
+      | { navigate: (...args: unknown[]) => void }
+      | undefined;
+
+    if (parentNavigation) {
+      parentNavigation.navigate('AccountSettings');
+      return;
+    }
+
     navigation.navigate('AccountSettings');
   };
 
   const handleNavigateToNotificationSettings = (): void => {
+    const parentNavigation = navigation.getParent() as
+      | { navigate: (...args: unknown[]) => void }
+      | undefined;
+
+    if (parentNavigation) {
+      parentNavigation.navigate('NotificationSettings');
+      return;
+    }
+
     navigation.navigate('NotificationSettings');
   };
 
