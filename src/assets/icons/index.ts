@@ -35,17 +35,11 @@ export { default as ChevronDownIcon } from './chevrondown.svg';
 export { default as ChevronUpIcon } from './chevronup.svg';
 export { default as VectorLeftIcon } from './vectorleft.svg';
 export { default as PlusIcon } from './plus.svg';
-<<<<<<< HEAD
+
 export { default as WeatherInfoIcon } from './weather-info.svg';
 export { default as BackArrow } from './backArrow.svg';
-=======
-export { default as ScheduleInfoIcon } from './schedule-info.svg'
-export { default as WeatherInfoIcon } from './weather-info.svg'
-export { default as BackArrow } from './backArrow.svg'
 export { default as CameraIcon } from './camera.svg';
 export { default as RightArrowIcon } from './rightarrow.svg';
-
->>>>>>> edf963e36f0b754e87426d397ab7bb1bdac144bd
 
 export { default as SearchingIcon } from './searching.svg';
 
