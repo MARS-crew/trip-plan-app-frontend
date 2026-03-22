@@ -175,7 +175,7 @@ const MyPageScreen: React.FC = () => {
                 <View className="items-center">
                   <StatIcon type={item.type} />
                   <Text className="mt-2 text-h1 font-bold text-black">{item.value}</Text>
-                  <Text className="mt-0.5 text-p1 text-gray">{item.label}</Text>
+                  <Text className="mt-0.5 text-p text-gray">{item.label}</Text>
                 </View>
               </View>
             ))}
