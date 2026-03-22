@@ -1,5 +1,5 @@
 import { AppLogoIcon, GoogleIcon, KakaoIcon, NaverIcon } from '@/assets';
-import { COLORS } from '@/constants';
+import { LabeledInput } from '@/components';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
@@ -10,7 +10,6 @@ import {
 	Pressable,
 	ScrollView,
 	Text,
-	TextInput,
 	TouchableOpacity,
 	View,
 } from 'react-native';
@@ -45,7 +44,6 @@ const LoginScreen: React.FC = () => {
 			setLoginErrorMessage('아이디 및 비밀번호를 확인해주세요');
 			return;
 		}
-
 		setLoginErrorMessage('');
 		navigation.replace('MainTabs', { screen: 'Home' });
 	};
@@ -55,7 +53,7 @@ const LoginScreen: React.FC = () => {
 	};
 
 	const handleFindPassword = (): void => {
-		// 비밀번호 찾기 화면 이동
+		navigation.navigate('FindPassword');
 	};
 
 	const handleSignUp = (): void => {
@@ -82,34 +80,31 @@ const LoginScreen: React.FC = () => {
 								shadowOffset: { width: 0, height: 0 },
 								elevation: 5,
 							}}>
-							<View>
-								<Text className="text-h3 font-semibold">아이디</Text>
-								<TextInput
-									value={userId}
-									onChangeText={handleChangeUserId}
-									placeholder="아이디를 입력하세요"
-									className="mt-3 h-[46px] w-full rounded-xl border border-borderGray bg-inputBackground px-3 text-p1 font-regular"
-									autoCapitalize="none"
-									autoCorrect={false}
-									returnKeyType="next"
-								/>
-							</View>
+							<LabeledInput
+								label="아이디"
+								required={false}
+								containerClassName=""
+								value={userId}
+								onChangeText={handleChangeUserId}
+								placeholder="아이디를 입력하세요"
+								autoCapitalize="none"
+								autoCorrect={false}
+								returnKeyType="next"
+							/>
 
-							<View className="mt-4">
-								<Text className="text-h3 font-semibold">비밀번호</Text>
-								<TextInput
-									value={password}
-									onChangeText={handleChangePassword}
-									placeholder="비밀번호를 입력하세요"
-									placeholderTextColor={COLORS.gray}
-									className="mt-3 h-[46px] w-full rounded-xl border border-borderGray bg-inputBackground px-3 text-p1 font-regular"
-									secureTextEntry
-									autoCapitalize="none"
-									autoCorrect={false}
-									returnKeyType="done"
-									onSubmitEditing={handleLogin}
-								/>
-							</View>
+							<LabeledInput
+								label="비밀번호"
+								required={false}
+								containerClassName="mt-4"
+								value={password}
+								onChangeText={handleChangePassword}
+								placeholder="비밀번호를 입력하세요"
+								secureTextEntry
+								autoCapitalize="none"
+								autoCorrect={false}
+								returnKeyType="done"
+								onSubmitEditing={handleLogin}
+							/>
 
 							{hasLoginError && <Text className="mt-3 text-p text-errmassage">{loginErrorMessage}</Text>}
 

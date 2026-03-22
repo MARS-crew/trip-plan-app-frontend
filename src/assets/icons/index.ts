@@ -17,7 +17,6 @@ export { default as StarIcon } from './star.svg';
 export { default as ScheduleIcon } from './schedule.svg';
 export { default as MarkerIcon } from './marker.svg';
 export { default as MarkerGrayIcon } from './marker-gray.svg';
-
 export { default as InfoIcon } from './info.svg';
 export { default as ReviewIcon } from './review.svg';
 export { default as ActiveInfoIcon } from './activeinfo.svg';
@@ -36,8 +35,17 @@ export { default as ChevronDownIcon } from './chevrondown.svg';
 export { default as ChevronUpIcon } from './chevronup.svg';
 export { default as VectorLeftIcon } from './vectorleft.svg';
 export { default as PlusIcon } from './plus.svg';
+<<<<<<< HEAD
 export { default as WeatherInfoIcon } from './weather-info.svg';
 export { default as BackArrow } from './backArrow.svg';
+=======
+export { default as ScheduleInfoIcon } from './schedule-info.svg'
+export { default as WeatherInfoIcon } from './weather-info.svg'
+export { default as BackArrow } from './backArrow.svg'
+export { default as CameraIcon } from './camera.svg';
+export { default as RightArrowIcon } from './rightarrow.svg';
+
+>>>>>>> edf963e36f0b754e87426d397ab7bb1bdac144bd
 
 export { default as SearchingIcon } from './searching.svg';
 
@@ -55,6 +63,8 @@ export { default as WishStar } from './wishstar.svg';
 export { default as InputSearchIcon } from './inputsearch.svg';
 export { default as TimeB } from './timeB.svg';
 export { default as X } from './x.svg';
+export { default as RobotIcon } from './robot.svg';
+export { default as SendIcon } from './send.svg';
 export { default as PhotoCamera } from './photoCamera.svg';
 export { default as DeletButton } from './deletBtn.svg';
 export { default as StarIconV2 } from './StarV2.svg';

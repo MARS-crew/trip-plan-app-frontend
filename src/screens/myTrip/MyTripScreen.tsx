@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -7,8 +7,9 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PlusIcon } from '@/assets/icons';
 import { Chip } from '@/components/ui';
 import type { RootStackParamList } from '@/navigation/types';
-import { EmptyMapScreen, TripTimeline } from '@/screens/myTrip';
-import TripCard from '@/screens/myTrip/TripCard';
+import { EmptyMapScreen } from '@/screens/myTrip';
+import TripCard from './components/TripCard';
+import TripTimeline from './components/TripTimeline';
 
 type MyTripNavigation = NativeStackNavigationProp<RootStackParamList>;
 
@@ -88,7 +89,7 @@ const MyTripScreen: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('전체');
   const [openCardId, setOpenCardId] = useState<number | null>(null);
   const navigation = useNavigation<MyTripNavigation>();
-  const handleNavigateToDetail = () => {
+  const handleNavigateToWish = () => {
     navigation.navigate('WishlistScreen');
   };
 
@@ -103,6 +104,11 @@ const MyTripScreen: React.FC = () => {
 
     return tripCardItems.filter((tripCardItem) => tripCardItem.status === 'completed');
   }, [selectedChip]);
+
+   // Hooks
+    const handleNavigateToDetail = useCallback(() => {
+      navigation.navigate('AddTripScreen', { destinationId: 'string' });
+    }, [navigation]);
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
@@ -119,6 +125,7 @@ const MyTripScreen: React.FC = () => {
           </View>
 
           <TouchableOpacity
+            onPress={handleNavigateToDetail}
             activeOpacity={0.8}
             className="h-[36px] w-[71px] flex-row items-center justify-center rounded-[6px] bg-main"
           >
@@ -174,7 +181,7 @@ const MyTripScreen: React.FC = () => {
         )}
 
       <TouchableOpacity
-        onPress={handleNavigateToDetail}
+        onPress={handleNavigateToWish}
         className="bg-main px-5 py-3 mt-5 rounded-lg">
         <Text className="text-white font-semibold">위시 리스트</Text>
       </TouchableOpacity>
