@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 
 import { MarkerGrayIcon } from '@/assets/icons';
 
@@ -14,6 +14,7 @@ export interface TripDetailCardProps {
   currentStatusText?: string;
   actionLabel?: string;
   onPressAction?: () => void;
+  onPressCard?: () => void;
 }
 
 const TripDetailCard: React.FC<TripDetailCardProps> = ({
@@ -27,9 +28,13 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
   currentStatusText = '현재 진행되는 일정입니다',
   actionLabel = '방문지 저장',
   onPressAction,
+  onPressCard,
 }) => {
   return (
-    <View className="w-[370px] rounded-[8px] border border-borderGray bg-white px-3 py-4">
+    <Pressable
+      onPress={onPressCard}
+      disabled={!onPressCard}
+      className="w-[370px] rounded-[8px] border border-borderGray bg-white px-3 py-4">
       <View className="flex-row items-start justify-between">
         <View className="flex-1 flex-row items-start">
           <View className="mr-4 h-9 w-9 items-center justify-center rounded-full bg-main">
@@ -48,7 +53,7 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
           </View>
         </View>
 
-        <View className="items-end mt-2 justify-center">
+        <View className="mt-2 items-end justify-center">
           <Text className="text-p font-bold text-main">{startTime}</Text>
           <Text className="mt-1 text-p text-gray">{endTime}</Text>
         </View>
@@ -66,7 +71,7 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
           </TouchableOpacity>
         </View>
       ) : null}
-    </View>
+    </Pressable>
   );
 };
 
