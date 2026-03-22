@@ -53,6 +53,16 @@ export { default as WeatherInfoIcon } from './weather-info.svg'
 export { default as BackArrow } from './backArrow.svg'
 export { default as CameraIcon } from './camera.svg';
 export { default as RightArrowIcon } from './rightarrow.svg';
+export { default as WishIcon } from './wish.svg';
+export { default as KebabMenuIcon } from './kebabmenu.svg';
+export { default as Map2Icon } from './map2.svg';
+export { default as PlusIcon } from './plus.svg';
+export { default as KebabCalIcon } from './kebabcal.svg';
+export { default as KebabEditIcon } from './kebabedit.svg';
+export { default as KebabShareIcon } from './kebabshare.svg';
+export { default as KebabTrashIcon } from './kebabtrash.svg';
+export { default as KebabMapIcon } from './kebabmap.svg';
+
 
 
 export { default as SearchingIcon } from './searching.svg';
