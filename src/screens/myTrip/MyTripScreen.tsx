@@ -92,6 +92,9 @@ const MyTripScreen: React.FC = () => {
   const handleNavigateToWish = () => {
     navigation.navigate('WishlistScreen');
   };
+  const handleNavigateToAddSchedule = () => {
+      navigation.navigate('AddScheduleScreen')
+      };
 
   const filteredTripCardItems = useMemo(() => {
     if (selectedChip === '전체') {
@@ -184,6 +187,12 @@ const MyTripScreen: React.FC = () => {
         onPress={handleNavigateToWish}
         className="bg-main px-5 py-3 mt-5 rounded-lg">
         <Text className="text-white font-semibold">위시 리스트</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={handleNavigateToAddSchedule}
+        className="bg-main px-5 py-3 mt-5 rounded-lg">
+        <Text className="text-white font-semibold">내 여행지 일정 추가</Text>
       </TouchableOpacity>
       </View>
       </ScrollView>

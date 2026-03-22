@@ -11,6 +11,7 @@ import { NightMarketingScreen } from '@/screens/terms/NightMarketingScreen';
 import { MarketingConsentScreen } from '@/screens/terms/MarketingConsentScreen';
 import { AddTripScreen } from '@/screens/addTrip/AddTripScreen';
 import { AddTripCalendarScreen } from '@/screens/addTrip/AddTripCalendarScreen';
+import { AddScheduleScreen } from '@/screens/addSchedule/AddScheduleScreen';
 
 import EmptyMapScreen from '@/screens/myTrip/EmptyMapScreen';
 
@@ -32,6 +33,7 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="FindPassword" component={FindPasswordScreen} />
       <Stack.Screen name="AddTripScreen" component={AddTripScreen} />
       <Stack.Screen name="AddTripCalendar" component={AddTripCalendarScreen} />
+      <Stack.Screen name="AddScheduleScreen" component={AddScheduleScreen} />
 
     </Stack.Navigator>
   );
