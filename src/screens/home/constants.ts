@@ -1,0 +1,12 @@
+export const CHAT_SHEET_HEIGHT = 678;
+export const CHAT_INPUT_BOTTOM_SPACING = 12;
+export const CHAT_HEADER_HEIGHT = 60;
+export const CHAT_CASE_DEFAULT_TOP_SPACING = 87;
+export const CHAT_USER_BUBBLE_TOP_SPACING = 27;
+export const CHAT_CASE_VERTICAL_GAP = 12;
+export const CHAT_PROFILE_SIZE = 28;
+export const CHAT_PROFILE_ICON_SIZE = 14;
+export const CHAT_PROFILE_TO_BUBBLE_GAP = 8;
+export const CHAT_CASE_CARD_RADIUS = 16;
+export const CHAT_INPUT_RADIUS = 25;
+export const CHAT_SEND_BUTTON_SIZE = 48;

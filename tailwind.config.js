@@ -5,13 +5,26 @@ const colors = {
   black: '#251D18',
   gray: '#8C7B73',
   serve: '#DF6C201A',
+  statusError: '#EF4444',
+  statusSuccess: '#30A69A',
+  inputBackground: '#FCFAF8',
+  emailBackground: '#E1EBFA',
   background: '#E8E6E5',
   white: '#FFFFFF',
   borderGray: '#E5E0DC',
+  chatHeaderCircleBackground: '#FCF0E9',
   chip: '#F4F0EC',
   screenBackground: '#FDFBF9',
   contentBackground: '#FCF0E8',
+  inputBackground: '#FCFAF8',
   botoomSheetBackground: '#DBDBDB',
+  zero: '#00000000',
+  errmassage: '#FF4444',
+  kakaoYellow: '#FEE500',
+  naverGreen: '#03A94D',
+
+  errormessage: '#FF4444',
+
 };
 
 const fontSize = {
@@ -35,6 +48,7 @@ module.exports = {
       fontSize,
       boxShadow: {
         card: '0 0 3px rgba(0,0,0,0.15)',
+        logincard: '0 0 5px rgba(0,0,0,0.25)',
       },
     },
   },

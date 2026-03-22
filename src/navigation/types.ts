@@ -2,7 +2,7 @@ export type SearchStackParamList = {
   SearchMain: undefined;
   DestinationDetail: { destinationId: string };
   SelectTrip: undefined;
-  ReviewWrite : undefined;
+  ReviewWrite: undefined;
 };
 
 export type RootTabParamList = {
@@ -12,16 +12,25 @@ export type RootTabParamList = {
   Bookmark: undefined;
   MyPage: undefined;
 };
+export type RootStackParamList = {
+  Login: undefined;
+  MainTabs: { screen?: keyof RootTabParamList } | undefined;
+  PrivacyPolicyScreen: undefined;
+  NightMarketingScreen: undefined;
+  MarketingConsentScreen: undefined;
+  DestinationDetail: { destinationId: string };
+  EmptyMapScreen: undefined;
+  AccountSettings: undefined;
+  NotificationSettings: undefined;
+  FindId: undefined;
+  WishlistScreen: undefined;
+  FindPassword: undefined;
+};
+
 
 export type HomeStackParamList = {
   HomeMain: undefined;
   Alert: undefined;
 };
 
-export type RootStackParamList = {
-  MainTabs: { screen?: keyof RootTabParamList } | undefined;
 
-  DestinationDetail: { destinationId: string };
-  WishlistScreen: undefined;
-
-};

@@ -3,7 +3,7 @@ import { View, TouchableOpacity, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigationState } from '@react-navigation/native';
+import { getFocusedRouteNameFromRoute, useNavigationState } from '@react-navigation/native';
 import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 
 import {
@@ -12,6 +12,7 @@ import {
   BookmarkScreen,
   MyPageScreen,
 } from '@/screens';
+import { MyTripScreen } from '@/screens/myTrip';
 import SearchStackNavigator from './SearchStackNavigator';
 import { HomeIcon, SearchIcon, MapIcon, BookmarkIcon, MyPageIcon } from '@/assets/icons';
 import { COLORS } from '@/constants';
@@ -52,7 +53,7 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
   
   // SelectTripScreen이면 Map 탭 활성화
   const isActive = searchCurrentScreen === 'SelectTrip' 
-    ? routeName === 'Map' 
+    ? routeName === 'MyTrip'
     : currentRoute === routeName;
 
   // 아이콘 렌더링 함수
@@ -70,7 +71,7 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
         return <HomeIcon {...iconProps} />;
       case 'Search':
         return <SearchIcon {...iconProps} />;
-      case 'Map':
+      case 'MyTrip':
         return <MapIcon {...iconProps} />;
       case 'Bookmark':
         return <BookmarkIcon {...iconProps} />;
@@ -134,7 +135,7 @@ const BottomTabNavigator: React.FC = () => {
           return <HomeIcon {...iconProps} />;
         case 'Search':
           return <SearchIcon {...iconProps} />;
-        case 'Map':
+        case 'MyTrip':
           return <MapIcon {...iconProps} />;
         case 'Bookmark':
           return <BookmarkIcon {...iconProps} />;
@@ -147,13 +148,8 @@ const BottomTabNavigator: React.FC = () => {
 
   // Screen Options 함수
   const getScreenOptions = useCallback(
-    ({ route }: { route: { name: keyof RootTabParamList } }): BottomTabNavigationOptions => ({
-      headerShown: false,
-      tabBarIcon: ({ focused }) => getTabBarIcon(route.name, focused),
-      tabBarActiveTintColor: COLORS.main,
-      tabBarInactiveTintColor: COLORS.gray,
-      tabBarShowLabel: false,
-      tabBarStyle: {
+    ({ route }: { route: { name: keyof RootTabParamList } }): BottomTabNavigationOptions => {
+      const defaultTabBarStyle = {
         backgroundColor: COLORS.white,
         borderTopWidth: 1,
         borderTopColor: COLORS.borderGray,
@@ -161,13 +157,26 @@ const BottomTabNavigator: React.FC = () => {
         height: 58 + insets.bottom,
         elevation: 0,
         shadowOpacity: 0,
-      },
-      tabBarItemStyle: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-    }),
+      };
+      const shouldHideTabBar =
+        route.name === 'Search' && getFocusedRouteNameFromRoute(route as never) === 'SelectTrip';
+
+      return {
+        headerShown: false,
+        tabBarIcon: ({ focused }) => getTabBarIcon(route.name, focused),
+        tabBarActiveTintColor: COLORS.main,
+        tabBarInactiveTintColor: COLORS.gray,
+        tabBarShowLabel: false,
+        tabBarStyle: shouldHideTabBar
+          ? { ...defaultTabBarStyle, display: 'none' }
+          : defaultTabBarStyle,
+        tabBarItemStyle: {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+      };
+    },
     [getTabBarIcon, insets.bottom],
   );
 
@@ -188,9 +197,9 @@ const BottomTabNavigator: React.FC = () => {
         options={{ tabBarButton: createTabBarButton('Search', '검색') }}
       />
       <Tab.Screen
-        name="Map"
-        component={MapScreen}
-        options={{ tabBarButton: createTabBarButton('Map', '내여행') }}
+        name="MyTrip"
+        component={MyTripScreen}
+        options={{ tabBarButton: createTabBarButton('MyTrip', '내여행') }}
       />
       <Tab.Screen
         name="Home"
