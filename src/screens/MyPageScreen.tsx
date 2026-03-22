@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScrollView, TouchableOpacity, View, Text } from 'react-native';
@@ -113,6 +113,14 @@ const SettingItemIcon: React.FC<{ type: SettingItem['type'] }> = ({ type }) => {
   return <BellIcon width={16} height={16} />;
 };
 
+const cardStyle = {
+  shadowColor: '#000000',
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.08,
+  shadowRadius: 1.5,
+  elevation: 1,
+};
+
 const MyPageScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
 
@@ -132,9 +140,11 @@ const MyPageScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-4 pb-16">
-          <Text className="mt-4 text-h1 font-bold text-black">마이페이지</Text>
+          <Text className="mt-4 text-h font-bold text-black">마이페이지</Text>
 
-          <View className="mt-4 rounded-2xl border border-borderGray bg-white p-4">
+          <View
+            className="mt-4 rounded-2xl border border-[#D9D9D9] bg-white p-4"
+            style={cardStyle}>
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
                 <View className="mr-3 h-16 w-16 items-center justify-center rounded-full bg-contentBackground">
@@ -150,7 +160,7 @@ const MyPageScreen: React.FC = () => {
                 </View>
               </View>
 
-              <TouchableOpacity activeOpacity={0.8} className="rounded-xl bg-contentBackground px-3 py-1.5">
+              <TouchableOpacity activeOpacity={0.8} className="rounded-lg bg-chip px-3 py-1.5">
                 <Text className="text-p font-medium text-black">편집</Text>
               </TouchableOpacity>
             </View>
@@ -160,7 +170,8 @@ const MyPageScreen: React.FC = () => {
             {stats.map(item => (
               <View
                 key={item.id}
-                className="w-[31.5%] rounded-2xl border border-borderGray bg-white py-4">
+                className="w-[31.5%] rounded-2xl border border-[#D9D9D9] bg-white py-4"
+                style={cardStyle}>
                 <View className="items-center">
                   <StatIcon type={item.type} />
                   <Text className="mt-2 text-h1 font-bold text-black">{item.value}</Text>
@@ -170,12 +181,14 @@ const MyPageScreen: React.FC = () => {
             ))}
           </View>
 
-          <View className="mt-5 flex-row items-center">
+          <View className="mt-5 ml-1 flex-row items-center">
             <JapanLanguageIcon width={16} height={16} />
             <Text className="ml-1.5 text-h3 font-semibold text-black">일본 기본 회화</Text>
           </View>
 
-          <View className="mt-2 overflow-hidden rounded-2xl border border-borderGray bg-white">
+          <View
+            className="mt-2 overflow-hidden rounded-2xl border border-[#D9D9D9] bg-white"
+            style={cardStyle}>
             {phrases.map((phrase, index) => (
               <View
                 key={phrase.id}
@@ -189,44 +202,46 @@ const MyPageScreen: React.FC = () => {
             ))}
           </View>
 
-          <View className="mt-5 flex-row items-center">
+          <View className="mt-5 ml-1 flex-row items-center">
             <ExchangeIcon width={16} height={16} />
             <Text className="ml-1.5 text-h3 font-semibold text-black">환율 계산기</Text>
           </View>
 
-          <View className="mt-2 rounded-2xl border border-borderGray bg-white p-4">
+          <View className="mt-2 rounded-2xl border border-[#D9D9D9] bg-white p-4" style={cardStyle}>
             <View className="flex-row items-center justify-between">
               <Text className="text-p1 text-gray">1 KRW = 0.110000 JPY</Text>
-              <Text className="text-p1 text-gray">일본 엔</Text>
+              <Text className="text-p text-gray">일본 엔</Text>
             </View>
 
             <View className="mt-3 rounded-2xl bg-chip px-4 py-3.5">
               <Text className="text-p1 text-gray">KRW</Text>
-              <Text className="mt-1 text-title font-bold text-black">₩ 10,000</Text>
+              <Text className="mt-1 text-h1 font-bold text-black">₩ 10,000</Text>
             </View>
 
             <View className="items-center">
-              <View className="mb-2 mt-2 h-8 w-8 items-center justify-center rounded-full bg-main">
+              <View className="mb-1 mt-1 h-8 w-8 items-center justify-center rounded-full bg-main">
                 <Exchange2Icon width={14} height={14} />
               </View>
             </View>
 
             <View className="rounded-2xl bg-chip px-4 py-3.5">
               <Text className="text-p1 text-gray">JPY</Text>
-              <Text className="mt-1 text-title font-bold text-main">¥ 1,100</Text>
+              <Text className="mt-1 text-h1 font-bold text-main">¥ 1,100</Text>
             </View>
           </View>
 
-          <Text className="mt-5 text-p1 text-gray">계정</Text>
+          <Text className="mt-5 ml-1 text-p1 font-semibold text-gray">계정</Text>
 
-          <View className="mt-2 overflow-hidden rounded-2xl border border-borderGray bg-white">
+          <View
+            className="mt-2 overflow-hidden rounded-2xl border border-[#D9D9D9] bg-white"
+            style={cardStyle}>
             {settingItems.map((item, index) => (
               <TouchableOpacity
                 key={item.id}
                 activeOpacity={0.8}
                 className={`flex-row items-center justify-between px-4 py-4 ${index !== settingItems.length - 1 ? 'border-b border-borderGray' : ''}`}>
                 <View className="flex-row items-center">
-                  <View className="h-9 w-9 items-center justify-center rounded-xl bg-chip">
+                  <View className="h-9 w-9 items-center justify-center rounded-md bg-chip">
                     <SettingItemIcon type={item.type} />
                   </View>
                   <View className="ml-3">
