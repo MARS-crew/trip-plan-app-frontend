@@ -3,18 +3,16 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScrollView, TouchableOpacity, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  BookmarkIcon,
-  MapIcon,
-  LocationOrangeIcon,
-  VectorIcon,
-  JapanLanguageIcon,
-  ExchangeIcon,
-  Exchange2Icon,
-  BellIcon,
-  LogoutIcon,
-  SettingIcon,
-} from '@/assets';
+import BookmarkIcon from '@/assets/icons/bookmark.svg';
+import MapIcon from '@/assets/icons/map.svg';
+import LocationOrangeIcon from '@/assets/icons/location_orange.svg';
+import VectorIcon from '@/assets/icons/vector.svg';
+import JapanLanguageIcon from '@/assets/icons/japan_language.svg';
+import ExchangeIcon from '@/assets/icons/exchange.svg';
+import Exchange2Icon from '@/assets/icons/exchange2.svg';
+import BellIcon from '@/assets/icons/bell.svg';
+import LogoutIcon from '@/assets/icons/logout.svg';
+import SettingIcon from '@/assets/icons/setting.svg';
 import type { RootStackParamList } from '@/navigation';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -254,7 +252,7 @@ const MyPageScreen: React.FC = () => {
           ))}
         </View>
 
-        <TouchableOpacity onPress={handleLogout} activeOpacity={0.8} className="mt-7 -mb-7 items-center">
+        <TouchableOpacity onPress={handleLogout} activeOpacity={0.8} className="mt-7 items-center">
           <View className="flex-row items-center">
             <LogoutIcon width={16} height={16} />
             <Text className="ml-1.5 text-p1 font-semibold text-[#F04A3E]">로그아웃</Text>
