@@ -89,6 +89,7 @@ export { default as PhotoCamera } from './photoCamera.svg';
 export { default as DeletButton } from './deletBtn.svg';
 export { default as StarIconV2 } from './StarV2.svg';
 export { default as StarOffIconV2 } from './StarOffV2.svg';
+export { default as ActiveStar } from './active-star.svg';
 
 // 타입 정의
 export interface IconProps {
