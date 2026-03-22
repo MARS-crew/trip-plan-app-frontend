@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Chip } from '@/components/ui';
+import type { RootTabParamList } from '@/navigation/types';
 // ============ SVG Imports ============
 const THUMBNAIL_IMAGE = require('@/assets/images/thumnail.png');
 const SaveIcon = require('@/assets/icons/activebookmark.svg').default;
@@ -59,11 +62,14 @@ const DUMMY_PLACES: BookmarkedPlace[] = [
 
 interface PlaceCardProps {
   place: BookmarkedPlace;
+  onPress: () => void;
 }
 
-const PlaceCard: React.FC<PlaceCardProps> = ({ place }) => {
+const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
   return (
-    <View
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={onPress}
       className="overflow-hidden rounded-lg bg-white"
       style={{
         shadowColor: '#000',
@@ -114,16 +120,26 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place }) => {
           <Text className="font-Pretendard text-xs text-black">{place.rating}</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
+type BookmarkNavigationProp = BottomTabNavigationProp<RootTabParamList, 'Bookmark'>;
+
 const BookmarkScreen: React.FC = () => {
+  const navigation = useNavigation<BookmarkNavigationProp>();
   const [selectedCategory, setSelectedCategory] = useState<(typeof CATEGORIES)[number]['id']>('all');
 
   const handleCategoryPress = (categoryId: (typeof CATEGORIES)[number]['id']) => {
     setSelectedCategory(categoryId);
   };
+
+  const handlePlacePress = useCallback((destinationId: string): void => {
+    navigation.navigate('Search', {
+      screen: 'DestinationDetail',
+      params: { destinationId, origin: 'bookmark' },
+    });
+  }, [navigation]);
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
@@ -165,7 +181,7 @@ const BookmarkScreen: React.FC = () => {
           <View className="flex-row flex-wrap justify-between">
             {DUMMY_PLACES.map((place) => (
               <View key={place.id} className="mb-2 w-[48.8%]">
-                <PlaceCard place={place} />
+                <PlaceCard place={place} onPress={() => handlePlacePress(place.id)} />
               </View>
             ))}
           </View>
