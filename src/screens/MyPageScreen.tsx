@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ScrollView, TouchableOpacity, View, Text } from 'react-native';
+import { ScrollView, TouchableOpacity, View, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { RootStackParamList } from '@/navigation';
 import BookmarkIcon from '@/assets/icons/bookmark.svg';
@@ -15,6 +15,7 @@ import BellIcon from '@/assets/icons/bell.svg';
 import LogoutIcon from '@/assets/icons/logout.svg';
 import SettingIcon from '@/assets/icons/setting.svg';
 import EarthIcon from '@/assets/icons/earth.svg';
+import { COLORS } from '@/constants';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -95,11 +96,11 @@ const settingItems: SettingItem[] = [
 
 const StatIcon: React.FC<{ type: StatItem['type'] }> = ({ type }) => {
   if (type === 'map') {
-    return <MapIcon width={20} height={20} fill="#DF6C20" />;
+    return <MapIcon width={20} height={20} fill={COLORS.main} />;
   }
 
   if (type === 'bookmark') {
-    return <BookmarkIcon width={16} height={20} fill="#DF6C20" />;
+    return <BookmarkIcon width={16} height={20} fill={COLORS.main} />;
   }
 
   return <LocationOrangeIcon width={20} height={20} />;
@@ -114,15 +115,60 @@ const SettingItemIcon: React.FC<{ type: SettingItem['type'] }> = ({ type }) => {
 };
 
 const cardStyle = {
-  shadowColor: '#000000',
+  shadowColor: COLORS.black,
   shadowOffset: { width: 0, height: 0 },
   shadowOpacity: 0.08,
   shadowRadius: 1.5,
   elevation: 1,
 };
 
+const RATE_KRW_TO_JPY = '1 KRW = 0.110000 JPY';
+const RATE_JPY_TO_KRW = '1 JPY = 9.090909 KRW';
+
+const formatAmountWithCommas = (input: string): string => {
+  const digitsOnly = input.replace(/\D/g, '');
+  if (!digitsOnly) {
+    return '';
+  }
+
+  const normalized = digitsOnly.replace(/^0+(?=\d)/, '');
+  return normalized.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+
 const MyPageScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
+  const [krwAmount, setKrwAmount] = React.useState<string>('10,000');
+  const [jpyAmount, setJpyAmount] = React.useState<string>('1,100');
+  const [isKrwToJpy, setIsKrwToJpy] = React.useState<boolean>(true);
+
+  const handleAmountChange = React.useCallback(
+    (setter: React.Dispatch<React.SetStateAction<string>>) =>
+      (text: string): void => {
+        setter(formatAmountWithCommas(text));
+      },
+    [],
+  );
+
+  const handleSwapExchange = React.useCallback((): void => {
+    setIsKrwToJpy(prev => !prev);
+    setKrwAmount(jpyAmount);
+    setJpyAmount(krwAmount);
+  }, [krwAmount, jpyAmount]);
+
+  const topCurrencyCode = isKrwToJpy ? 'KRW' : 'JPY';
+  const bottomCurrencyCode = isKrwToJpy ? 'JPY' : 'KRW';
+  const topCurrencySymbol = isKrwToJpy ? '₩' : '¥';
+  const bottomCurrencySymbol = isKrwToJpy ? '¥' : '₩';
+  const exchangeRateText = isKrwToJpy ? RATE_KRW_TO_JPY : RATE_JPY_TO_KRW;
+  const rightCurrencyLabel = isKrwToJpy ? '일본 엔' : '대한민국 원';
+  const topAmount = isKrwToJpy ? krwAmount : jpyAmount;
+  const bottomAmount = isKrwToJpy ? jpyAmount : krwAmount;
+  const handleTopAmountChange = isKrwToJpy
+    ? handleAmountChange(setKrwAmount)
+    : handleAmountChange(setJpyAmount);
+  const handleBottomAmountChange = isKrwToJpy
+    ? handleAmountChange(setJpyAmount)
+    : handleAmountChange(setKrwAmount);
 
   const handleNavigateToPrivacy = (): void => {
     navigation.navigate('PrivacyPolicyScreen');
@@ -140,10 +186,10 @@ const MyPageScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-4 pb-16">
-          <Text className="mt-4 text-h font-bold text-black">마이페이지</Text>
+          <Text className="mt-3.5 text-h font-bold text-black">마이페이지</Text>
 
           <View
-            className="mt-4 rounded-2xl border border-[#D9D9D9] bg-white p-4"
+            className="mt-3.5 rounded-lg border border-subtleBorder bg-white p-4"
             style={cardStyle}>
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
@@ -155,7 +201,7 @@ const MyPageScreen: React.FC = () => {
                   <Text className="mt-0.5 text-p1 text-black">travel@gmail.com</Text>
                   <View className="mt-1 flex-row items-center">
                     <EarthIcon width={12} height={12} />
-                    <Text className="ml-1 text-p text-[#24A89A]">현재 위치: 일본</Text>
+                    <Text className="ml-1 text-p text-locationTeal">현재 위치: 일본</Text>
                   </View>
                 </View>
               </View>
@@ -166,11 +212,11 @@ const MyPageScreen: React.FC = () => {
             </View>
           </View>
 
-          <View className="mt-3 flex-row justify-between">
+          <View className="mt-4 flex-row justify-between">
             {stats.map(item => (
               <View
                 key={item.id}
-                className="w-[31.5%] rounded-2xl border border-[#D9D9D9] bg-white py-4"
+                className="w-[31.5%] rounded-lg border border-subtleBorder bg-white py-4"
                 style={cardStyle}>
                 <View className="items-center">
                   <StatIcon type={item.type} />
@@ -187,7 +233,7 @@ const MyPageScreen: React.FC = () => {
           </View>
 
           <View
-            className="mt-2 overflow-hidden rounded-2xl border border-[#D9D9D9] bg-white"
+            className="mt-2 overflow-hidden rounded-lg border border-subtleBorder bg-white"
             style={cardStyle}>
             {phrases.map((phrase, index) => (
               <View
@@ -207,33 +253,52 @@ const MyPageScreen: React.FC = () => {
             <Text className="ml-1.5 text-h3 font-semibold text-black">환율 계산기</Text>
           </View>
 
-          <View className="mt-2 rounded-2xl border border-[#D9D9D9] bg-white p-4" style={cardStyle}>
+          <View className="mt-2 rounded-lg border border-subtleBorder bg-white p-4" style={cardStyle}>
             <View className="flex-row items-center justify-between">
-              <Text className="text-p1 text-gray">1 KRW = 0.110000 JPY</Text>
-              <Text className="text-p text-gray">일본 엔</Text>
+              <Text className="text-p text-xs text-left text-gray">{exchangeRateText}</Text>
+              <Text className="text-p text-gray">{rightCurrencyLabel}</Text>
             </View>
 
-            <View className="mt-3 rounded-2xl bg-chip px-4 py-3.5">
-              <Text className="text-p1 text-gray">KRW</Text>
-              <Text className="mt-1 text-h1 font-bold text-black">₩ 10,000</Text>
-            </View>
-
-            <View className="items-center">
-              <View className="mb-1 mt-1 h-8 w-8 items-center justify-center rounded-full bg-main">
-                <Exchange2Icon width={14} height={14} />
+            <View className="mt-3 rounded-xl bg-chip px-4 py-3.5">
+              <Text className="text-p1 text-gray">{topCurrencyCode}</Text>
+              <View className="mt-1 flex-row items-center">
+                <Text className="mr-1 text-h1 font-bold text-black">{topCurrencySymbol}</Text>
+                <TextInput
+                  value={topAmount}
+                  onChangeText={handleTopAmountChange}
+                  keyboardType="number-pad"
+                  className="flex-1 p-0 text-h1 font-bold text-black"
+                />
               </View>
             </View>
 
-            <View className="rounded-2xl bg-chip px-4 py-3.5">
-              <Text className="text-p1 text-gray">JPY</Text>
-              <Text className="mt-1 text-h1 font-bold text-main">¥ 1,100</Text>
+            <View className="items-center">
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleSwapExchange}
+                className="mb-1 mt-1 h-8 w-8 items-center justify-center rounded-full bg-main">
+                <Exchange2Icon width={14} height={14} />
+              </TouchableOpacity>
+            </View>
+
+            <View className="rounded-xl bg-chip px-4 py-3.5">
+              <Text className="text-p1 text-gray">{bottomCurrencyCode}</Text>
+              <View className="mt-1 flex-row items-center">
+                <Text className="mr-1 text-h1 font-bold text-main">{bottomCurrencySymbol}</Text>
+                <TextInput
+                  value={bottomAmount}
+                  onChangeText={handleBottomAmountChange}
+                  keyboardType="number-pad"
+                  className="flex-1 p-0 text-h1 font-bold text-main"
+                />
+              </View>
             </View>
           </View>
 
           <Text className="mt-5 ml-1 text-p1 font-semibold text-gray">계정</Text>
 
           <View
-            className="mt-2 overflow-hidden rounded-2xl border border-[#D9D9D9] bg-white"
+            className="mt-2 overflow-hidden rounded-lg border border-subtleBorder bg-white"
             style={cardStyle}>
             {settingItems.map((item, index) => (
               <TouchableOpacity
@@ -255,7 +320,16 @@ const MyPageScreen: React.FC = () => {
             ))}
           </View>
 
-          <View className="mt-5 gap-2">
+          <TouchableOpacity activeOpacity={0.8} className="mt-7 items-center">
+            <View className="flex-row items-center">
+              <LogoutIcon width={16} height={16} />
+              <Text className="ml-1.5 text-p1 font-semibold text-logoutRed">로그아웃</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      
+
+      <View className="mt-2 gap-2">
             <TouchableOpacity
               onPress={handleNavigateToPrivacy}
               activeOpacity={0.8}
@@ -277,16 +351,10 @@ const MyPageScreen: React.FC = () => {
               <Text className="text-center font-semibold text-white">야간마케팅동의</Text>
             </TouchableOpacity>
           </View>
-
-          <TouchableOpacity activeOpacity={0.8} className="mt-7 items-center">
-            <View className="flex-row items-center">
-              <LogoutIcon width={16} height={16} />
-              <Text className="ml-1.5 text-p1 font-semibold text-[#F04A3E]">로그아웃</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+          </ScrollView>
     </SafeAreaView>
+
+    
   );
 };
 
