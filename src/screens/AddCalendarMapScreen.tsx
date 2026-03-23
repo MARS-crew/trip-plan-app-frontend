@@ -9,6 +9,8 @@ import {
 import MapView, { Marker, Region } from 'react-native-maps';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/navigation/types';
 
 import { BackArrowGray, InputSearchIcon, MapMarker } from '@/assets/icons';
 import { COLORS } from '@/constants'
@@ -27,6 +29,8 @@ interface PlaceMarker {
   title: string;
   address: string;
 }
+
+type AddCalendarMapNavigation = NativeStackNavigationProp<RootStackParamList>;
 
 const AddCalendarMapScreen: React.FC = () => {
   const navigation = useNavigation<AddCalendarMapNavigation>();
@@ -69,7 +73,7 @@ const AddCalendarMapScreen: React.FC = () => {
   );
 
   // 등록 버튼
-  // PLI-21 머지 후 navigation 연결 예쩡
+  // PLI-21 머지 후 navigation 연결 예정
   const handleRegister = useCallback(() => {
     if (!selectedPlace) return;
     navigation.goBack();
