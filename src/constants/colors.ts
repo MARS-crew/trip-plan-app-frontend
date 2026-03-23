@@ -20,6 +20,8 @@ export const COLORS = {
   contentBackground: '#FCF0E8',
   locationTeal: '#24A89A',
   logoutRed: '#F04A3E',
+  withdrawDanger: '#FF4D4F',
+  withdrawBg: '#FFF5F5',
   sunday: '#EF4444',
   saturday: '#0088FF',
   muted: '#8C7B7366',

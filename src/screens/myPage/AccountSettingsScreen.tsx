@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, View, Text } from 'react-native';
+import { Modal, TextInput, TouchableOpacity, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -9,6 +9,8 @@ import EmailIcon from '@/assets/icons/email.svg';
 import CalendarIcon from '@/assets/icons/calendar.svg';
 import GenderIcon from '@/assets/icons/gender.svg';
 import EarthIcon from '@/assets/icons/earth.svg';
+import SecessionIcon from '@/assets/icons/secession.svg';
+import { COLORS } from '@/constants';
 import type { RootStackParamList } from '@/navigation';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -20,12 +22,27 @@ interface ProfileItem {
   type: 'nickname' | 'email' | 'birthday' | 'gender' | 'country';
 }
 
+type WithdrawModalStep = 'none' | 'step1' | 'step2' | 'step3';
+type WithdrawReason = 'access' | 'review' | 'recommend' | 'other';
+
+interface WithdrawReasonItem {
+  id: WithdrawReason;
+  label: string;
+}
+
 const profileItems: ProfileItem[] = [
   { id: 'nickname', label: '닉네임', value: '여행자', type: 'nickname' },
   { id: 'email', label: '이메일', value: 'traveler@gmail.com', type: 'email' },
   { id: 'birthday', label: '생년월일', value: '2003-07-08', type: 'birthday' },
   { id: 'gender', label: '성별', value: '여자', type: 'gender' },
   { id: 'country', label: '국가', value: '대한민국', type: 'country' },
+];
+
+const withdrawReasons: WithdrawReasonItem[] = [
+  { id: 'access', label: '앱에 잘 접속하지 않아요' },
+  { id: 'review', label: '리뷰의 신뢰성이 떨어져요' },
+  { id: 'recommend', label: '여행지 추천이 적당하지 않아요' },
+  { id: 'other', label: '기타' },
 ];
 
 const ProfileItemIcon: React.FC<{ type: ProfileItem['type'] }> = ({ type }) => {
@@ -50,6 +67,23 @@ const ProfileItemIcon: React.FC<{ type: ProfileItem['type'] }> = ({ type }) => {
 
 const AccountSettingsScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
+  const [withdrawModalStep, setWithdrawModalStep] = React.useState<WithdrawModalStep>('none');
+  const [selectedReason, setSelectedReason] = React.useState<WithdrawReason | null>(null);
+  const [otherReason, setOtherReason] = React.useState<string>('');
+
+  const handleCloseWithdrawModal = React.useCallback((): void => {
+    setWithdrawModalStep('none');
+    setSelectedReason(null);
+    setOtherReason('');
+  }, []);
+
+  const handleSelectWithdrawReason = React.useCallback((reason: WithdrawReason): void => {
+    setSelectedReason(reason);
+  }, []);
+
+  const handleOpenWithdrawModal = React.useCallback((): void => {
+    setWithdrawModalStep('step1');
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
@@ -85,10 +119,13 @@ const AccountSettingsScreen: React.FC = () => {
           ))}
         </View>
 
-        <View className="mt-6 rounded-lg border border-[#FF4D4F] bg-[#FFF5F5] px-4 py-4">
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={handleOpenWithdrawModal}
+          className="mt-6 rounded-lg border border-withdrawDanger bg-withdrawBg px-4 py-4">
           <View className="flex-row items-center">
-            <Text className="text-h2 text-[#FF4D4F]">⚠</Text>
-            <Text className="ml-2 text-h2 font-semibold text-[#EF4444]">회원 탈퇴</Text>
+            <SecessionIcon width={24} height={24} />
+            <Text className="ml-2 text-h2 font-semibold text-statusError">회원 탈퇴</Text>
           </View>
 
           <Text className="mt-4 text-sm font-medium text-p1 text-gray">
@@ -96,11 +133,144 @@ const AccountSettingsScreen: React.FC = () => {
             이 작업은 되돌릴 수 없습니다
           </Text>
 
-          <TouchableOpacity activeOpacity={0.85} className="mt-7 rounded-lg bg-red-500 py-3">
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={handleOpenWithdrawModal}
+            className="mt-7 rounded-lg bg-statusError py-3">
             <Text className="text-center text-h3 font-semibold text-white">회원 탈퇴</Text>
           </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={withdrawModalStep === 'step1'}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCloseWithdrawModal}>
+        <View className="flex-1 items-center justify-center bg-black/25 px-4">
+          <View className="w-full rounded-2xl bg-white px-4 pb-4 pt-5" style={{ maxWidth: 360 }}>
+            <View className="items-center">
+              <SecessionIcon width={24} height={24} />
+              <Text className="mt-3 text-left text-h2 font-semibold text-black">
+                서비스에서 탈퇴하시겠습니까?
+              </Text>
+            </View>
+
+            <View className="mt-8 flex-row justify-between">
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={() => setWithdrawModalStep('step2')}
+                className="w-[48%] rounded-xl bg-chip py-3">
+                <Text className="text-center text-sm text-h3 font-semibold text-gray">예</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={handleCloseWithdrawModal}
+                className="w-[48%] rounded-xl bg-main py-3">
+                <Text className="text-center text-sm text-h3 font-semibold text-white">취소</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={withdrawModalStep === 'step2'}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCloseWithdrawModal}>
+        <View className="flex-1 items-center justify-center bg-black/25 px-4">
+          <View className="w-full rounded-2xl bg-white px-4 pb-4 pt-5" style={{ maxWidth: 360 }}>
+            <View className="items-center">
+              <SecessionIcon width={24} height={24} />
+              <Text className="mt-3 text-center text-h2 font-bold text-black leading-8">
+                탈퇴시 여행 일정 및 리뷰가 사라지게{'\n'}
+                되며 복구가 불가능합니다.{"\n"}
+                탈퇴 하시겠습니까?
+              </Text>
+            </View>
+
+            <View className="mt-8 flex-row justify-between">
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={() => setWithdrawModalStep('step3')}
+                className="w-[48%] rounded-xl bg-chip py-3">
+                <Text className="text-center text-h3 font-semibold text-gray">회원 탈퇴</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={handleCloseWithdrawModal}
+                className="w-[48%] rounded-xl bg-main py-3">
+                <Text className="text-center text-sm text-h3 font-semibold text-white">취소</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={withdrawModalStep === 'step3'}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCloseWithdrawModal}>
+        <View className="flex-1 items-center justify-center bg-black/25 px-4">
+          <View className="w-full rounded-2xl bg-white px-4 pb-4 pt-5" style={{ maxWidth: 360 }}>
+            <View className="ml-2">
+              <SecessionIcon width={24} height={24} />
+            </View>
+            <Text className="ml-2 mt-2 text-h2 font-semibold text-black">회원 탈퇴를 원하시는 이유를 선택해주세요.</Text>
+            <Text className="ml-2 mt-2 text-p1 font-medium text-gray leading-6">
+              서비스에 만족을 드리지 못해 죄송합니다.{"\n"}
+              탈퇴 사유를 남겨주시면 서비스 개선에 더욱 힘쓰겠습니다.
+            </Text>
+
+            <View className="mt-4">
+              {withdrawReasons.map(reason => {
+                const isSelected = selectedReason === reason.id;
+                return (
+                  <TouchableOpacity
+                    key={reason.id}
+                    activeOpacity={0.8}
+                    onPress={() => handleSelectWithdrawReason(reason.id)}
+                    className="mb-3 ml-3 flex-row items-center">
+                    <View
+                      className={`h-5 w-5 items-center justify-center rounded-full border ${
+                        isSelected ? 'border-main' : 'border-borderGray'
+                      }`}>
+                      {isSelected ? <View className="h-2.5 w-2.5 rounded-full bg-main" /> : null}
+                    </View>
+                    <Text className="ml-3 text-p1 font-medium text-gray">{reason.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {selectedReason === 'other' ? (
+              <TextInput
+                value={otherReason}
+                onChangeText={setOtherReason}
+                placeholder="탈퇴 사유를 입력해주세요"
+                placeholderTextColor={COLORS.gray}
+                multiline
+                textAlignVertical="top"
+                className="ml-6 mr-1 mt-0.5 h-32 rounded-xl border border-borderGray bg-inputBackground px-4 py-3 text-p1 text-black"
+              />
+            ) : null}
+
+            <View className="mt-6 flex-row justify-between">
+              <TouchableOpacity activeOpacity={0.85} className="w-[48%] rounded-xl bg-chip py-3">
+                <Text className="text-center text-h3 font-semibold text-gray">탈퇴 하기</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={() => setWithdrawModalStep('step2')}
+                className="w-[48%] rounded-xl bg-main py-3">
+                <Text className="text-center text-h3 font-semibold text-white">이전</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
