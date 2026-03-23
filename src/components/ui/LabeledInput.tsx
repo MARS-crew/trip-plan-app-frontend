@@ -9,6 +9,7 @@ export interface LabeledInputProps extends TextInputProps {
   placeholder: string;
   required?: boolean;
   containerClassName?: string;
+  inputClassName?: string;
 }
 
 // ============ Component ============
@@ -19,6 +20,7 @@ export const LabeledInput: React.FC<LabeledInputProps> = ({
   placeholder,
   required = true,
   containerClassName = 'mb-4',
+  inputClassName,
   ...textInputProps
 }) => {
   return (
@@ -28,7 +30,7 @@ export const LabeledInput: React.FC<LabeledInputProps> = ({
         {required && <Text className="text-p1 text-statusError">*</Text>}
       </View>
       <TextInput
-        className="w-full h-[46px] bg-inputBackground rounded-xl px-3 text-p1 textstyle-Regular border border-borderGray"
+        className={`w-full h-[46px] rounded-xl px-3 text-p1 textstyle-Regular border border-borderGray bg-inputBackground ${inputClassName ?? ''}`}
         placeholder={placeholder}
         placeholderTextColor="#8C7B73"
         value={value}
