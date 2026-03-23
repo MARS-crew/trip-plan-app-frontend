@@ -320,7 +320,7 @@ const AddTripCalendarScreen: React.FC = () => {
             <TouchableOpacity
               activeOpacity={0.8}
               disabled={!isButtonEnabled}
-              onPress={() => navigation.navigate('TripDetail')}
+              onPress={() => navigation.navigate('WishlistScreen')}
               className="h-[44px] w-[370px] items-center justify-center rounded-[4px]"
               style={{
                 backgroundColor: isButtonEnabled ? COLORS.main : COLORS.buttonDisabledOverlay,
