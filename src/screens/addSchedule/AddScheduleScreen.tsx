@@ -108,7 +108,7 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
                 style={{
                   fontSize: 15,
                   fontWeight: isSelected ? '600' : '400',
-                  color: isSelected ? COLORS.text : COLORS.gray
+                  color: isSelected ? COLORS.black : COLORS.gray
                 }}
               >
                 {format(item)}
@@ -218,12 +218,12 @@ const AddScheduleScreen = () => {
     ? `${formValues.date.year}-${pad(formValues.date.month)}-${pad(formValues.date.day)}`
     : '날짜를 선택해주세요.';
 
-  const timeLabel = (timeValue: TimeValue, placeholder: string) => {
+  const timeLabel = (timeValue: TimeValue | null, placeholder: string) => {
     return timeValue ? `${pad(timeValue.hour)}:${pad(timeValue.minute)}` : placeholder;
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-screenBackground mx-4" edges={['top']}>
       <TopBar title="일정 추가" onPress={() => navigation.goBack()} />
 
       <ScrollView
@@ -232,7 +232,7 @@ const AddScheduleScreen = () => {
         contentContainerStyle={{ paddingBottom: 120 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="mt-6 self-center w-[370px] rounded-[8px] border border-borderGray bg-white px-6 py-6">
+        <View className="mt-6 self-center w-full rounded-[8px] border border-borderGray bg-white px-6 py-6">
           <View>
             <View className="mb-2 flex-row items-center">
               <Text className="text-h3 font-semibold text-black">일정명</Text>
@@ -243,7 +243,7 @@ const AddScheduleScreen = () => {
               onChangeText={(value) => handleChangeText('title', value)}
               placeholder="일정명을 입력해주세요."
               placeholderTextColor={COLORS.gray}
-              className="h-[46px] w-full rounded-[8px] border border-borderGray bg-screenBackground px-4 text-h3 text-black"
+              className="h-[46px] w-full rounded-[12px] border border-borderGray bg-screenBackground px-4 text-h3 text-black"
               maxLength={30}
             />
           </View>
@@ -319,7 +319,7 @@ const AddScheduleScreen = () => {
           </View>
         </View>
 
-        <View className="mt-6 items-center px-4">
+        <View className="mt-6 items-center">
           <TouchableOpacity
           // navigation 연결 예정
             activeOpacity={0.8}
