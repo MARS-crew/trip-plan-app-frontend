@@ -182,6 +182,32 @@ const MyPageScreen: React.FC = () => {
     navigation.navigate('NightMarketingScreen');
   };
 
+  const handleNavigateToAccountSettings = (): void => {
+    const parentNavigation = navigation.getParent() as
+      | { navigate: (...args: unknown[]) => void }
+      | undefined;
+
+    if (parentNavigation) {
+      parentNavigation.navigate('AccountSettings');
+      return;
+    }
+
+    navigation.navigate('AccountSettings');
+  };
+
+  const handleNavigateToNotificationSettings = (): void => {
+    const parentNavigation = navigation.getParent() as
+      | { navigate: (...args: unknown[]) => void }
+      | undefined;
+
+    if (parentNavigation) {
+      parentNavigation.navigate('NotificationSettings');
+      return;
+    }
+
+    navigation.navigate('NotificationSettings');
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -206,7 +232,10 @@ const MyPageScreen: React.FC = () => {
                 </View>
               </View>
 
-              <TouchableOpacity activeOpacity={0.8} className="rounded-lg bg-chip px-3 py-1.5">
+              <TouchableOpacity
+                onPress={handleNavigateToAccountSettings}
+                activeOpacity={0.8}
+                className="rounded-lg bg-chip px-3 py-1.5">
                 <Text className="text-p font-medium text-black">편집</Text>
               </TouchableOpacity>
             </View>
@@ -303,6 +332,11 @@ const MyPageScreen: React.FC = () => {
             {settingItems.map((item, index) => (
               <TouchableOpacity
                 key={item.id}
+                onPress={
+                  item.type === 'account'
+                    ? handleNavigateToAccountSettings
+                    : handleNavigateToNotificationSettings
+                }
                 activeOpacity={0.8}
                 className={`flex-row items-center justify-between px-4 py-4 ${index !== settingItems.length - 1 ? 'border-b border-borderGray' : ''}`}>
                 <View className="flex-row items-center">

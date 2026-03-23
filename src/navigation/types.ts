@@ -23,6 +23,8 @@ export type RootStackParamList = {
   EmptyMapScreen: undefined;
   AccountSettings: undefined;
   NotificationSettings: undefined;
+  AddTripScreen: undefined;
+  AddTripCalendar: undefined;
   FindId: undefined;
   WishlistScreen: undefined;
   FindPassword: undefined;

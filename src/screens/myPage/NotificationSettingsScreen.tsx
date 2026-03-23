@@ -6,6 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import BackArrow from '@/assets/icons/backArrow.svg';
 import BellIcon from '@/assets/icons/bell.svg';
 import Time2Icon from '@/assets/icons/time2.svg';
+import { COLORS } from '@/constants';
 import type { RootStackParamList } from '@/navigation';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -34,10 +35,10 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ value, onPress }) => {
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={onPress}
-      className={`h-[24px] w-[44px] rounded-full ${value ? 'bg-main' : 'bg-[#D9D9D9]'}`}
+      className={`h-[24px] w-[44px] rounded-full ${value ? 'bg-main' : 'bg-subtleBorder'}`}
       style={{
         justifyContent: 'center',
-        shadowColor: '#000000',
+        shadowColor: COLORS.black,
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.1,
         shadowRadius: 1.5,
@@ -63,13 +64,13 @@ const NotificationSettingsScreen: React.FC = () => {
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={navigation.goBack}
-            className="mr-2 h-10 w-10 items-start justify-center">
+            className="ml-2 mr-1 h-10 w-10 items-start justify-center">
             <BackArrow width={20} height={20} />
           </TouchableOpacity>
-          <Text className="text-xl font-bold text-left text-[#251d18]">알림 설정</Text>
+          <Text className="text-xl font-bold text-left text-black">알림 설정</Text>
         </View>
 
-        <Text className="ml-1 mt-9 text-xs font-semibold text-left text-black">푸시 알림</Text>
+        <Text className="ml-1 mt-6 text-xs font-semibold text-left text-black">푸시 알림</Text>
 
         <View className="mt-3 overflow-hidden rounded-2xl border border-borderGray bg-white">
           <View className="flex-row items-center justify-between px-4 py-4">
@@ -79,7 +80,7 @@ const NotificationSettingsScreen: React.FC = () => {
               </View>
 
               <View className="ml-3">
-                <Text className="text-medium font-semibold text-black">푸시 알림</Text>
+                <Text className="text-sm font-medium text-left text-black">푸시 알림</Text>
                 <Text className="mt-0.5 text-p text-black">일정, 날씨 관련 알림</Text>
               </View>
             </View>
@@ -95,7 +96,7 @@ const NotificationSettingsScreen: React.FC = () => {
                 </View>
 
                 <View className="ml-3">
-                  <Text className="text-medium font-semibold text-black">야간 푸시 알림 동의</Text>
+                  <Text className="text-sm font-medium text-left text-black">야간 푸시 알림 동의</Text>
                   <Text className="mt-0.5 text-p text-black">야간 중 푸시 알림</Text>
                 </View>
               </View>
