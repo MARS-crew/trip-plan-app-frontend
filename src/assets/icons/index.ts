@@ -50,6 +50,7 @@ export { default as KebabEditIcon } from './kebabedit.svg';
 export { default as KebabShareIcon } from './kebabshare.svg';
 export { default as KebabTrashIcon } from './kebabtrash.svg';
 export { default as KebabMapIcon } from './kebabmap.svg';
+export { default as PlusGrayIcon } from './plusgray.svg';
 
 
 export { default as SearchingIcon } from './searching.svg';
