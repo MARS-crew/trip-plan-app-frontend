@@ -146,6 +146,9 @@ type PickerMode = 'date' | 'startTime' | 'endTime' | null;
 const AddScheduleScreen = () => {
   const navigation = useNavigation();
   const today = new Date();
+  const handleNavigateToTripDetail = () => {
+      navigation.navigate('TripDetail')
+      };
 
   const [formValues, setFormValues] = useState<FormValues>({
     title: '',
@@ -321,7 +324,7 @@ const AddScheduleScreen = () => {
 
         <View className="mt-6 items-center">
           <TouchableOpacity
-          // navigation 연결 예정
+            onPress={handleNavigateToTripDetail}
             activeOpacity={0.8}
             className="h-[44px] w-full items-center justify-center rounded-[8px] bg-main"
           >
