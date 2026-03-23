@@ -7,10 +7,11 @@ import {
   Keyboard,
 } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
 import { BackArrowGray, InputSearchIcon, MapMarker } from '@/assets/icons';
+import { COLORS } from '@/constants'
 
 // 기본 지도 위치
 const DEFAULT_REGION: Region = {
@@ -20,16 +21,17 @@ const DEFAULT_REGION: Region = {
   longitudeDelta: 0.05,
 };
 
-type PlaceMarker = {
+interface PlaceMarker {
   latitude: number;
   longitude: number;
   title: string;
   address: string;
-};
+}
 
 const AddCalendarMapScreen: React.FC = () => {
   const navigation = useNavigation<AddCalendarMapNavigation>();
   const mapRef = useRef<MapView>(null);
+  const insets = useSafeAreaInsets();
 
   const [keyword, setKeyword] = useState('');
 
@@ -97,8 +99,11 @@ const AddCalendarMapScreen: React.FC = () => {
       </MapView>
 
       {/* 검색 */}
-      <View className="absolute left-4 right-4 top-12 z-10">
-        <View className="h-[46px] flex-row items-center rounded-[12px] border border-[#E5E0DC] bg-white px-4">
+      <View
+        className="absolute left-4 right-4 z-10"
+        style={{ top: insets.top + 5 }}
+      >
+        <View className="h-[46px] w-full flex-row items-center rounded-[12px] border border-borderGray bg-white px-4">
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <BackArrowGray />
           </TouchableOpacity>
@@ -107,7 +112,7 @@ const AddCalendarMapScreen: React.FC = () => {
             value={keyword}
             onChangeText={setKeyword}
             placeholder="희망하는 관광지를 검색하세요"
-            placeholderTextColor="#8C7B73"
+            placeholderTextColor= {COLORS.gray}
             className="ml-2 flex-1 text-black"
           />
 
@@ -118,7 +123,10 @@ const AddCalendarMapScreen: React.FC = () => {
       </View>
 
       {/* 등록 버튼 */}
-      <View className="absolute bottom-10 left-4 right-4 z-10">
+      <View
+        className="absolute left-4 right-4 z-10"
+        style={{ bottom: insets.bottom + 52 }}
+      >
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={handleRegister}
