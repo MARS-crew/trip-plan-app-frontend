@@ -214,7 +214,7 @@ const TripDetailScreen: React.FC = () => {
           <View className="mt-[18px] border-t border-borderGray" />
 
           {day1Cards.map((card) => (
-            <View key={card.id} className="mt-[12px] items-center">
+            <View key={card.id} className="mt-[12px] px-4">
               <TripDetailCard
                 {...card}
                 onPressAction={() => {
@@ -225,11 +225,11 @@ const TripDetailScreen: React.FC = () => {
             </View>
           ))}
 
-          <View className="mt-[12px] items-center pb-8">
+          <View className="mt-[12px] px-4 mb-[32px]">
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => navigation.navigate('AddSchedule')}
-              className="h-[50px] w-[370px] flex-row items-center justify-center rounded-[8px] border border-dashed border-borderGray">
+              className="h-[50px] w-full flex-row items-center justify-center rounded-[8px] border border-dashed border-borderGray">
               <PlusIcon />
               <Text className="ml-2 text-p1 text-gray">일정 추가하기</Text>
             </TouchableOpacity>
@@ -243,7 +243,7 @@ const TripDetailScreen: React.FC = () => {
 
           <View className="mt-[18px] border-t border-borderGray" />
 
-          <View className="mt-[12px] items-center pb-8">
+          <View className="mt-[12px] px-4 pb-8">
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => navigation.navigate('AddSchedule')}
@@ -261,7 +261,7 @@ const TripDetailScreen: React.FC = () => {
 
           <View className="mt-[18px] border-t border-borderGray" />
 
-          <View className="mt-[12px] items-center pb-8">
+          <View className="mt-[12px] px-4 pb-8">
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => navigation.navigate('AddSchedule')}
@@ -386,12 +386,11 @@ const TripDetailScreen: React.FC = () => {
           className="absolute bottom-0 left-0 right-0 z-50 items-center"
           style={bottomSheetStyle}>
           <View
-            className="h-[257px] w-full rounded-t-[12px] bg-white px-5 pt-6"
-            style={{ maxWidth: 402 }}>
+            className="w-full rounded-t-[12px] bg-white px-5 pt-[28px] pb-[28px]">
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={handleCloseKebabMenu}
-              className="px-4 py-3 flex-row items-center">
+              className="pl-4 pr-4 py-3 flex-row items-center">
               <View className="mr-3">
                 <KebabEditIcon />
               </View>
@@ -401,7 +400,7 @@ const TripDetailScreen: React.FC = () => {
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={handleCloseKebabMenu}
-              className="px-4 py-3 flex-row items-center">
+              className="pl-4 pr-4 py-3 flex-row items-center">
               <View className="mr-3">
                 <KebabCalIcon />
               </View>
@@ -411,7 +410,7 @@ const TripDetailScreen: React.FC = () => {
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={handleCloseKebabMenu}
-              className="px-4 py-3 flex-row items-center">
+              className="pl-4 pr-4 py-3 flex-row items-center">
               <View className="mr-3">
                 <KebabShareIcon />
               </View>
@@ -421,7 +420,7 @@ const TripDetailScreen: React.FC = () => {
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={handleCloseKebabMenu}
-              className="px-4 py-3 flex-row items-center">
+              className="pl-4 pr-4 py-3 flex-row items-center">
               <View className="mr-3">
                 <KebabTrashIcon />
               </View>

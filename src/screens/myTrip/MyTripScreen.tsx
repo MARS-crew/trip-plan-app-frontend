@@ -189,14 +189,6 @@ const MyTripScreen: React.FC = () => {
         className="bg-main px-5 py-3 mt-5 rounded-lg">
         <Text className="text-white font-semibold">위시 리스트</Text>
       </TouchableOpacity>
-
-
-
-      <TouchableOpacity
-        onPress={handleNavigateToAddCalMap}
-        className="bg-main px-5 py-3 mt-5 rounded-lg">
-        <Text className="text-white font-semibold">일정 추가 지도 페이지</Text>
-      </TouchableOpacity>
       </View>
       </ScrollView>
     </SafeAreaView>
