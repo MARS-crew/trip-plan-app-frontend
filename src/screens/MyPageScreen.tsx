@@ -16,10 +16,18 @@ const MyPageScreen: React.FC = () => {
   const handleNavigateToNightMarketing = useCallback(() => {
     navigation.navigate('NightMarketingScreen');
   }, [navigation]);
+  const handleNavigateToVisitedPlaceList = useCallback(() => {
+    navigation.navigate('VisitedPlaceListScreen');
+  }, [navigation]);
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <View className="flex-1 items-center justify-center px-4">
         <Text className="text-h1 font-bold text-black">마이페이지</Text>
+        <TouchableOpacity
+          onPress={handleNavigateToVisitedPlaceList}
+          className="bg-white border border-borderGray px-6 py-3 rounded-lg mb-2">
+          <Text className="text-black font-semibold">방문한 장소</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={handleNavigateToPrivacy}
           className="bg-main px-6 py-3 rounded-lg">
