@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
 import { TopBar } from '@/components';
+import { COLORS } from '@/constants/colors';
 
 const ITEM_HEIGHT = 44;
 const VISIBLE_ITEMS = 5;
@@ -26,12 +27,12 @@ const MINUTES = Array.from({ length: 60 }, (_, i) => i);
 const pad = (n: number) => String(n).padStart(2, '0');
 const getDaysInMonth = (year: number, month: number) => new Date(year, month, 0).getDate();
 
-type SpinnerColumnProps = {
+interface SpinnerColumnProps {
   items: number[];
   selectedIndex: number;
   onSelect: (index: number) => void;
   format?: (n: number) => string;
-};
+}
 
 const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
   items,
@@ -62,7 +63,7 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
           left: 8,
           right: 8,
           height: 1,
-          backgroundColor: '#BDBDBD',
+          backgroundColor: COLORS.main,
           zIndex: 1,
         }}
       />
@@ -74,7 +75,7 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
           left: 8,
           right: 8,
           height: 1,
-          backgroundColor: '#FCFAF8',
+          backgroundColor: COLORS.inputBackground,
           zIndex: 1,
         }}
       />
@@ -105,9 +106,9 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
             >
               <Text
                 style={{
-                  fontSize: isSelected ? 17 : 15,
+                  fontSize: 15,
                   fontWeight: isSelected ? '600' : '400',
-                  color: isSelected ? '#1A1A1A' : '#C0B8B4',
+                  color: isSelected ? COLORS.text : COLORS.gray
                 }}
               >
                 {format(item)}
@@ -120,17 +121,25 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
   );
 };
 
-type DateValue = { year: number; month: number; day: number } | null;
-type TimeValue = { hour: number; minute: number } | null;
+interface DateValue {
+  year: number;
+  month: number;
+  day: number;
+}
 
-type FormValues = {
+interface TimeValue {
+  hour: number;
+  minute: number;
+}
+
+interface FormValues {
   title: string;
-  date: DateValue;
-  startTime: TimeValue;
-  endTime: TimeValue;
+  date: DateValue | null;
+  startTime: TimeValue | null;
+  endTime: TimeValue | null;
   location: string;
   memo: string;
-};
+}
 
 type PickerMode = 'date' | 'startTime' | 'endTime' | null;
 
@@ -206,7 +215,7 @@ const AddScheduleScreen = () => {
   };
 
   const dateLabel = formValues.date
-    ? `${formValues.date.year}.${pad(formValues.date.month)}.${pad(formValues.date.day)}`
+    ? `${formValues.date.year}-${pad(formValues.date.month)}-${pad(formValues.date.day)}`
     : '날짜를 선택해주세요.';
 
   const timeLabel = (timeValue: TimeValue, placeholder: string) => {
@@ -223,18 +232,18 @@ const AddScheduleScreen = () => {
         contentContainerStyle={{ paddingBottom: 120 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="mt-6 self-center w-[370px] rounded-[8px] border border-[#E5E0DC] bg-white px-6 py-6">
+        <View className="mt-6 self-center w-[370px] rounded-[8px] border border-borderGray bg-white px-6 py-6">
           <View>
             <View className="mb-2 flex-row items-center">
               <Text className="text-h3 font-semibold text-black">일정명</Text>
-              <Text className="ml-[2px] text-h3 text-[#EF4444]">*</Text>
+              <Text className="ml-[2px] text-h3 text-statusError">*</Text>
             </View>
             <TextInput
               value={formValues.title}
               onChangeText={(value) => handleChangeText('title', value)}
               placeholder="일정명을 입력해주세요."
-              placeholderTextColor="#8C7B73"
-              className="h-[46px] w-full rounded-[8px] border border-[#E5E0DC] bg-screenBackground px-4 text-h3 text-black"
+              placeholderTextColor={COLORS.gray}
+              className="h-[46px] w-full rounded-[8px] border border-borderGray bg-screenBackground px-4 text-h3 text-black"
               maxLength={30}
             />
           </View>
@@ -242,55 +251,55 @@ const AddScheduleScreen = () => {
           <View className="mt-4">
             <View className="mb-2 flex-row items-center">
               <Text className="text-h3 font-semibold text-black">날짜</Text>
-              <Text className="ml-[2px] text-h3 text-[#EF4444]">*</Text>
+              <Text className="ml-[2px] text-h3 text-statusError">*</Text>
             </View>
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={openDatePicker}
-              className="h-[46px] w-full flex-row items-center justify-between rounded-[8px] border border-[#E5E0DC] bg-screenBackground px-4"
+              className="h-[46px] w-full flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4"
             >
-              <Text className={`text-h3 ${formValues.date ? 'text-black' : 'text-[#8C7B73]'}`}>
+              <Text className={`text-h3 ${formValues.date ? 'text-black' : 'text-gray'}`}>
                 {dateLabel}
               </Text>
-              <Text style={{ fontSize: 12, color: '#8C7B73' }}>▼</Text>
+              <Text style={{ fontSize: 12, color: COLORS.gray }}>▼</Text>
             </TouchableOpacity>
           </View>
 
           <View className="mt-4">
             <Text className="mb-2 text-h3 font-semibold text-black">시간</Text>
-            <View className="flex-row gap-3">
+            <View className="flex-row gap-2">
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => openTimePicker('startTime')}
-                className="h-[46px] flex-1 flex-row items-center justify-between rounded-[8px] border border-[#E5E0DC] bg-screenBackground px-4"
+                className="h-[46px] flex-1 flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4"
               >
-                <Text className={`text-h3 ${formValues.startTime ? 'text-black' : 'text-[#8C7B73]'}`}>
+                <Text className={`text-h3 ${formValues.startTime ? 'text-black' : 'text-gray'}`}>
                   {timeLabel(formValues.startTime, '시작 시간')}
                 </Text>
-                <Text style={{ fontSize: 12, color: '#8C7B73' }}>▼</Text>
+                <Text style={{ fontSize: 12, color: COLORS.gray }}>▼</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => openTimePicker('endTime')}
-                className="h-[46px] flex-1 flex-row items-center justify-between rounded-[8px] border border-[#E5E0DC] bg-screenBackground px-4"
+                className="h-[46px] flex-1 flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4"
               >
-                <Text className={`text-h3 ${formValues.endTime ? 'text-black' : 'text-[#8C7B73]'}`}>
+                <Text className={`text-h3 ${formValues.endTime ? 'text-black' : 'text-gray'}`}>
                   {timeLabel(formValues.endTime, '종료 시간')}
                 </Text>
-                <Text style={{ fontSize: 12, color: '#8C7B73' }}>▼</Text>
+                <Text style={{ fontSize: 12, color: COLORS.gray }}>▼</Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          <View className="mt-4">
+          <View className="mt-[14px]">
             <Text className="mb-2 text-h3 font-semibold text-black">장소</Text>
             <TextInput
               value={formValues.location}
               onChangeText={(value) => handleChangeText('location', value)}
               placeholder="장소를 입력해주세요"
-              placeholderTextColor="#8C7B73"
-              className="h-[46px] w-full rounded-[8px] border border-[#E5E0DC] bg-screenBackground px-4 text-h3 text-black"
+              placeholderTextColor={COLORS.gray}
+              className="h-[46px] w-full rounded-[12px] border border-borderGray bg-screenBackground px-4 text-h3 text-black"
               maxLength={30}
             />
           </View>
@@ -301,10 +310,10 @@ const AddScheduleScreen = () => {
               value={formValues.memo}
               onChangeText={(value) => handleChangeText('memo', value)}
               placeholder="메모를 입력해주세요"
-              placeholderTextColor="#8C7B73"
+              placeholderTextColor={COLORS.gray}
               multiline
               textAlignVertical="top"
-              className="h-[128px] w-full rounded-[8px] border border-[#E5E0DC] bg-screenBackground px-4 py-3 text-h3 text-black"
+              className="h-[128px] w-full rounded-[12px] border border-borderGray bg-screenBackground px-4 py-3 text-h3 text-black"
               maxLength={100}
             />
           </View>
@@ -312,8 +321,9 @@ const AddScheduleScreen = () => {
 
         <View className="mt-6 items-center px-4">
           <TouchableOpacity
+          // navigation 연결 예정
             activeOpacity={0.8}
-            className="h-[44px] w-[370px] items-center justify-center rounded-[8px] bg-main"
+            className="h-[44px] w-full items-center justify-center rounded-[8px] bg-main"
           >
             <Text className="text-h3 font-semibold text-white">등록하기</Text>
           </TouchableOpacity>
@@ -336,7 +346,7 @@ const AddScheduleScreen = () => {
           <View className="rounded-t-[16px] bg-white px-6 pb-10 pt-4">
             <View className="mb-4 flex-row items-center justify-between">
               <TouchableOpacity onPress={() => setPickerMode(null)}>
-                <Text className="text-p1 text-[#8C7B73]">취소</Text>
+                <Text className="text-p1 text-gray">취소</Text>
               </TouchableOpacity>
 
               <Text className="text-h3 font-semibold text-black">
