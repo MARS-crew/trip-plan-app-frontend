@@ -12,6 +12,8 @@ import { MarketingConsentScreen } from '@/screens/terms/MarketingConsentScreen';
 import { AddTripScreen } from '@/screens/addTrip/AddTripScreen';
 import { AddTripCalendarScreen } from '@/screens/addTrip/AddTripCalendarScreen';
 import { VisitedPlaceListScreen } from '@/screens';
+import TripDetailScreen from '@/screens/tripDetail/TripDetailScreen';
+import { AddScheduleScreen } from '@/screens/addSchedule/AddScheduleScreen';
 
 import EmptyMapScreen from '@/screens/myTrip/EmptyMapScreen';
 
@@ -35,6 +37,8 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="AddTripCalendar" component={AddTripCalendarScreen} />
       <Stack.Screen name="VisitedPlaceListScreen" component={VisitedPlaceListScreen} />
 
+      <Stack.Screen name="TripDetail" component={TripDetailScreen} />
+      <Stack.Screen name="AddSchedule" component={AddScheduleScreen} />
     </Stack.Navigator>
   );
 };

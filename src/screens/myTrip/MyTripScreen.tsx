@@ -89,9 +89,6 @@ const MyTripScreen: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('전체');
   const [openCardId, setOpenCardId] = useState<number | null>(null);
   const navigation = useNavigation<MyTripNavigation>();
-  const handleNavigateToWish = () => {
-    navigation.navigate('WishlistScreen');
-  };
 
   const filteredTripCardItems = useMemo(() => {
     if (selectedChip === '전체') {
@@ -179,12 +176,6 @@ const MyTripScreen: React.FC = () => {
             </TripCard>
           ))
         )}
-
-      <TouchableOpacity
-        onPress={handleNavigateToWish}
-        className="bg-main px-5 py-3 mt-5 rounded-lg">
-        <Text className="text-white font-semibold">위시 리스트</Text>
-      </TouchableOpacity>
       </View>
       </ScrollView>
     </SafeAreaView>
