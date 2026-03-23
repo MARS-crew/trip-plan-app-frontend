@@ -44,11 +44,11 @@ const KebabMenuSheet = ({ isVisible, translateY, onClose }: KebabMenuSheetProps)
       <Animated.View
         className="absolute bottom-0 left-0 right-0 z-50"
         style={sheetStyle}>
-        <View className="w-full rounded-t-[12px] bg-white px-5 pb-[28px] pt-[28px]">
+        <View className="w-full rounded-t-[12px] bg-white px-4 pb-[28px] pt-[28px]">
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onClose}
-            className="flex-row items-center px-4 py-3">
+            className="flex-row items-center px-4 pb-3">
             <View className="mr-3">
               <KebabEditIcon />
             </View>

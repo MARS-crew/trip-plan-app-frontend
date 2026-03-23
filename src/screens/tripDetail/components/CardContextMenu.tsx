@@ -42,9 +42,9 @@ const CardContextMenu = ({ card, opacity, topOffset, onClose }: CardContextMenuP
 
       <Animated.View
         pointerEvents="box-none"
-        className="absolute left-0 right-0 z-50 items-center"
+        className="absolute left-0 right-0 z-50 px-4 items-center"
         style={[menuStyle, { top: topOffset }]}>
-        <View className="w-[370px]">
+        <View className="w-full">
           <TripDetailCard
             {...card}
             onPressAction={() => {}}
