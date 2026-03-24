@@ -190,7 +190,7 @@ const WishlistScreen: React.FC = () => {
     bottomSheetRef.current?.collapse();
   }, []);
   const handleAiPlan = useCallback(() => {
-    console.log('AI 추천 일정 실행');
+   navigation.navigate('TripDetail');
     setShowAddModal(false);
     // 여기에 AI 일정 생성 페이지로 이동하는 로직 추가
   }, []);
