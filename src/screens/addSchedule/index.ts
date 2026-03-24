@@ -1,1 +1,1 @@
-export { default, AddScheduleScreen } from './AddScheduleScreen';
+export { default as AddScheduleScreen } from './AddScheduleScreen';
