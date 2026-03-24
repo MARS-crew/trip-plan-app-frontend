@@ -17,6 +17,7 @@ export { default as StarIcon } from './star.svg';
 export { default as ScheduleIcon } from './schedule.svg';
 export { default as MarkerIcon } from './marker.svg';
 export { default as MarkerGrayIcon } from './marker-gray.svg';
+
 export { default as InfoIcon } from './info.svg';
 export { default as ReviewIcon } from './review.svg';
 export { default as ActiveInfoIcon } from './activeinfo.svg';
@@ -42,6 +43,17 @@ export { default as WeatherInfoIcon } from './weather-info.svg';
 export { default as BackArrow } from './backArrow.svg';
 export { default as CameraIcon } from './camera.svg';
 export { default as RightArrowIcon } from './rightarrow.svg';
+export { default as WishIcon } from './wish.svg';
+export { default as KebabMenuIcon } from './kebabmenu.svg';
+export { default as Map2Icon } from './map2.svg';
+export { default as PlusIcon } from './plus.svg';
+export { default as KebabCalIcon } from './kebabcal.svg';
+export { default as KebabEditIcon } from './kebabedit.svg';
+export { default as KebabShareIcon } from './kebabshare.svg';
+export { default as KebabTrashIcon } from './kebabtrash.svg';
+export { default as KebabMapIcon } from './kebabmap.svg';
+export { default as PlusGrayIcon } from './plusgray.svg';
+
 
 export { default as SearchingIcon } from './searching.svg';
 
@@ -68,6 +80,8 @@ export { default as DeletButton } from './deletBtn.svg';
 export { default as StarIconV2 } from './StarV2.svg';
 export { default as StarOffIconV2 } from './StarOffV2.svg';
 export { default as ActiveStar } from './active-star.svg';
+export { default as BackArrowGray } from './backarrowgray.svg';
+export { default as MapMarker } from './mapmarker.svg';
 
 // 타입 정의
 export interface IconProps {
