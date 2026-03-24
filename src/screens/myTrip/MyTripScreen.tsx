@@ -90,6 +90,10 @@ const MyTripScreen: React.FC = () => {
   const [openCardId, setOpenCardId] = useState<number | null>(null);
   const navigation = useNavigation<MyTripNavigation>();
 
+  const handleNavigateToAddCalMap = () => {
+    navigation.navigate('AddCalendarMapScreen');
+  };
+
   const filteredTripCardItems = useMemo(() => {
     if (selectedChip === '전체') {
       return tripCardItems;
