@@ -13,3 +13,4 @@ export { default as FindPasswordScreen } from './FindPasswordScreen';
 export { default as MyTripScreen } from './myTrip';
 export { default as AddTripScreen } from './addTrip';
 export { default as AddCalendarMapScreen } from './AddCalendarMapScreen';
+export { default as AddScheduleScreen } from './addSchedule';
