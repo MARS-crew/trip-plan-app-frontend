@@ -12,3 +12,7 @@ export { default as WishlistScreen } from './WishlistScreen';
 export { default as FindPasswordScreen } from './FindPasswordScreen';
 export { default as MyTripScreen } from './myTrip/MyTripScreen';
 export { default as AddTripScreen } from './addTrip';
+export { default as AddTripCalendarScreen } from './addTrip/AddTripCalendarScreen';
+export { default as AddScheduleScreen } from './addSchedule/AddScheduleScreen';
+export { default as TripDetailScreen } from './tripDetail/TripDetailScreen';
+export { default as EmptyMapScreen } from './myTrip/EmptyMapScreen';
