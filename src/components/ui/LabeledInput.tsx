@@ -1,3 +1,4 @@
+import { COLORS } from '@/constants';
 import React from 'react';
 import { View, Text, TextInput, TextInputProps } from 'react-native';
 
@@ -32,7 +33,7 @@ export const LabeledInput: React.FC<LabeledInputProps> = ({
       <TextInput
         className={`w-full h-[46px] rounded-xl px-3 text-p1 textstyle-Regular border border-borderGray bg-inputBackground ${inputClassName ?? ''}`}
         placeholder={placeholder}
-        placeholderTextColor="#8C7B73"
+        placeholderTextColor={COLORS.gray}
         value={value}
         onChangeText={onChangeText}
         {...textInputProps}
