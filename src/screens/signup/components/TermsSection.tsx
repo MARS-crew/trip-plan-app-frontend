@@ -48,9 +48,9 @@ export const TermsSection: React.FC<TermsSectionProps> = ({
                 )}
               </Pressable>
               <Text className="ml-3 text-h3 font-semibold text-black">
-                개인정보 수집 및 이용 동의
+                개인정보 수집 및 이용 동의 
               </Text>
-              <Text className="text-h3 font-semibold text-statusError">(필수)</Text>
+              <Text className="text-h3 font-semibold text-statusError"> (필수)</Text>
             </View>
             <Pressable onPress={onNavigatePrivacyPolicy} className="p-1">
               <VectorIcon width={16} height={16} />
@@ -67,8 +67,8 @@ export const TermsSection: React.FC<TermsSectionProps> = ({
                   <UncheckedCircleIcon width={16} height={16} />
                 )}
               </Pressable>
-              <Text className="ml-3 text-h3 font-semibold text-black">마케팅 정보 수신 동의 </Text>
-              <Text className="text-h3 font-semibold text-gray">(선택)</Text>
+              <Text className="ml-3 text-h3 font-semibold text-black">마케팅 정보 수신 동의</Text>
+              <Text className="text-h3 font-semibold text-gray"> (선택)</Text>
             </View>
             <Pressable onPress={onNavigateMarketingConsent} className="p-1">
               <VectorIcon width={16} height={16} />
@@ -86,9 +86,9 @@ export const TermsSection: React.FC<TermsSectionProps> = ({
                 )}
               </Pressable>
               <Text className="ml-3 text-h3 font-semibold text-black">
-                야간 마케팅 정보 수신 동의
+                야간 마케팅 정보 수신 동의 
               </Text>
-              <Text className="text-h3 font-semibold text-gray">(선택)</Text>
+              <Text className="text-h3 font-semibold text-gray"> (선택)</Text>
             </View>
             <Pressable onPress={onNavigateNightMarketing} className="p-1">
               <VectorIcon width={16} height={16} />

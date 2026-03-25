@@ -443,13 +443,13 @@ const SignUpScreen: React.FC = () => {
           />
 
           {showTermsError && !termsAgreement.serviceTerms ? (
-            <Text className="mt-5 ml-1 text-left text-p text-statusError">이용약관에 동의해주세요</Text>
+            <Text className="mt-2 mb-4 ml-1 text-left text-p text-statusError">이용약관에 동의해주세요</Text>
           ) : null}
 
           {/* 회원가입 버튼 */}
           <TouchableOpacity
             onPress={handleSignUp}
-            className="mt-2 h-11 items-center justify-center rounded-lg bg-main">
+            className="mt-5 h-11 items-center justify-center rounded-lg bg-main">
             <Text className="text-h3 font-semibold text-white">가입하기</Text>
           </TouchableOpacity>
 

@@ -75,13 +75,13 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
           </View>
           <Pressable
             onPress={onCheckId}
-            className="h-[46px] w-[78px] items-center justify-center rounded-xl border border-borderGray bg-white">
+            className="h-[46px] px-4 items-center justify-center rounded-xl border border-borderGray bg-white">
             <Text className="text-p text-gray">중복 확인</Text>
           </Pressable>
         </View>
 
         {idCheckStatus !== 'idle' && (
-          <Text className={`mb-2 mt-[-10px] text-p ${idMessageClass}`}>{idMessage}</Text>
+          <Text className={`mt-2 mb-4 text-p ${idMessageClass}`}>{idMessage}</Text>
         )}
 
         <View onLayout={onNicknameLayout}>
@@ -111,17 +111,17 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
                 : passwordInputClassName
             }
             secureTextEntry={true}
-            containerClassName="mb-1"
+            containerClassName=""
           />
         </View>
 
         {hasPasswordError && (
-          <Text className="mb-4 text-p1 text-statusError">
+          <Text className="mt-2 text-p text-statusError">
             영문,숫자,특수기호 를 포함한 8자리 이상으로 작성해 주세요.
           </Text>
         )}
 
-        <View className="mb-4" onLayout={onPasswordConfirmLayout}>
+        <View className="mt-4" onLayout={onPasswordConfirmLayout}>
           <LabeledInput
             label="비밀번호 확인"
             required={true}
@@ -138,7 +138,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
             containerClassName=""
           />
           {formData.passwordConfirm.length > 0 && !isPasswordMatched && (
-            <Text className="mt-1 text-p1 text-statusError">비밀번호가 일치하지 않습니다.</Text>
+            <Text className="mt-2 mb-5 text-p text-statusError">비밀번호가 일치하지 않습니다.</Text>
           )}
         </View>
       </ContentContainer>
