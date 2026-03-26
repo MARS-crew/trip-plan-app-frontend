@@ -5,6 +5,7 @@ export { default as SearchScreen } from './SearchScreen';
 export { default as BookmarkScreen } from './BookmarkScreen';
 export { default as FindIdScreen } from './findId';
 export { default as LoginScreen } from './login';
+export { default as SignUpScreen } from './signup';
 export { default as MyPageScreen } from './MyPageScreen';
 export { default as DestinationDetailScreen } from './DestinationDetailScreen';
 export { default as SelectTripScreen } from './SelectTripScreen';
