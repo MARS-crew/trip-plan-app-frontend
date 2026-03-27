@@ -22,7 +22,7 @@ const SearchResultScreen: React.FC = () => {
   const { query } = params;
 
   const handlePressItem = useCallback((item: { id: string }) => {
-    navigation.navigate('DestinationDetail', { destinationId: item.id });
+    navigation.navigate('DestinationDetail', { destinationId: item.id, origin: 'search' });
   }, [navigation]);
 
   const results = useMemo(() => {

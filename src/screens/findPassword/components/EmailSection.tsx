@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
 import { LabeledInput } from '@/components/ui';
+import { COLORS } from '@/constants';
 
 // ============ Types ============
 export interface EmailSectionProps {
@@ -26,6 +27,8 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
   onChangeEmail,
   onSendVerification,
 }) => {
+  const isResend = sendCodeButtonText === '재전송';
+
   return (
     <View>
       <View className="flex-row items-end">
@@ -40,7 +43,7 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
                 : 'bg-screenBackground border-borderGray'
           }`}
           placeholder="example@gmail.com"
-          placeholderTextColor="#8C7B73"
+          placeholderTextColor={COLORS.gray}
           value={email}
           onChangeText={onChangeEmail}
           autoCapitalize="none"
@@ -50,7 +53,9 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
         />
 
         <TouchableOpacity
-          className={`w-[107px] h-[46px] ml-2 shrink-0 rounded-xl border border-borderGray items-center justify-center bg-white`}
+          className={`h-[46px] ml-2 shrink-0 items-center justify-center rounded-xl border border-borderGray bg-white ${
+            isResend ? 'px-[38px]' : 'px-5'
+          }`}
           onPress={onSendVerification}
           disabled={!canSendCode}
           accessibilityRole="button"
