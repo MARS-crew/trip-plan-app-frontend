@@ -17,6 +17,7 @@ export type RootTabParamList = {
 };
 export type RootStackParamList = {
   Login: undefined;
+  SignUp: undefined;
   MainTabs: { screen?: keyof RootTabParamList } | undefined;
   PrivacyPolicyScreen: undefined;
   NightMarketingScreen: undefined;
