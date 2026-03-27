@@ -81,11 +81,11 @@ const VisitedPlaceListScreen: React.FC = () => {
 		<SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
 			<ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
 				<View className="px-4 pb-8">
-					<View className="h-14 flex-row items-center">
+					<View className="flex-row h-14 items-center">
 						<TouchableOpacity
 							activeOpacity={0.8}
 							onPress={navigation.goBack}
-							className="mr-1 ml-2 h-10 w-10 items-start justify-center">
+							className="ml-2 mr-1 h-10 w-10 items-start justify-center">
 							<BackArrow width={20} height={20} />
 						</TouchableOpacity>
 						<Text className="text-h font-bold text-black">방문한 장소 리스트</Text>
@@ -101,16 +101,16 @@ const VisitedPlaceListScreen: React.FC = () => {
 										key={item.id}
 										className="overflow-hidden rounded-lg bg-white"
 										style={cardStyle}>
-										<View className="flex-row px-3 pb-3 pt-3">
+										<View className="flex-row px-3 py-3">
 											<Image source={item.imageSource} className="h-28 w-28 rounded-lg" resizeMode="cover" />
 
-											<View className="ml-3 flex-1 pt-5">
+											<View className="flex-1 ml-3 pt-5">
 												<View className="flex-row items-start justify-between">
 													<View className="flex-1 pr-2">
 														<Text className="text-h3 font-semibold text-black">{item.title}</Text>
 														<View className="mt-1 flex-row items-center">
 															<MarkerGrayIcon width={12} height={12} />
-															<Text className="ml-1 mt-1 mb-2 text-p text-gray">{item.location}</Text>
+															<Text className="mb-2 ml-1 mt-1 text-p text-gray">{item.location}</Text>
 														</View>
 														<View className="mt-2 flex-row gap-1.5">
 															{item.tags.map(tag => (
@@ -130,11 +130,11 @@ const VisitedPlaceListScreen: React.FC = () => {
 
 										<View className="h-px bg-chip" />
 
-										<View className="p-3 pt-2.5">
+										<View className="p-3">
 											<TouchableOpacity
 												activeOpacity={0.85}
 												className="h-11 items-center justify-center rounded-lg border border-borderGray bg-inputBackground">
-												<Text className="text-center text-p1 font-semibold text-black">{item.reviewCta}</Text>
+												<Text className="text-center text-p3 font-semibold text-black">{item.reviewCta}</Text>
 											</TouchableOpacity>
 										</View>
 									</View>
