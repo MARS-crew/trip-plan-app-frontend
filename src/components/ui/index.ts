@@ -20,3 +20,6 @@ export { LabeledInput } from './LabeledInput';
 export type { LabeledInputProps } from './LabeledInput';
 
 export { PhotoUploader } from './PhotoUploader'
+
+export { default as TripDetailCard } from './TripDetailCard';
+export type { TripDetailCardProps } from './TripDetailCard';
