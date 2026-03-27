@@ -25,6 +25,8 @@ export const COLORS = {
   muted: '#8C7B7366',
   buttonDisabled: '#E8D3C1',
   buttonDisabledOverlay: '#DF6C2080',
+  withdrawDanger: '#FF4D4F',
+  withdrawBg: '#FFF5F5',
 } as const;
 
 // 네비게이션바 전용 색상 상수

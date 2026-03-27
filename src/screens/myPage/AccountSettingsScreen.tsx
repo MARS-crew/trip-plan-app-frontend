@@ -9,6 +9,7 @@ import EmailIcon from '@/assets/icons/email.svg';
 import CalendarIcon from '@/assets/icons/calendar.svg';
 import GenderIcon from '@/assets/icons/gender.svg';
 import EarthIcon from '@/assets/icons/earth.svg';
+import { COLORS } from '@/constants';
 import type { RootStackParamList } from '@/navigation';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -70,7 +71,7 @@ const AccountSettingsScreen: React.FC = () => {
           {profileItems.map((item, index) => (
             <View
               key={item.id}
-              className={`flex-row items-center px-4 py-3.5 ${
+              className={`flex-row items-center px-4 py-4 ${
                 index !== profileItems.length - 1 ? 'border-b border-borderGray' : ''
               }`}>
               <View className="h-9 w-9 items-center justify-center rounded-lg bg-chip">
@@ -79,24 +80,37 @@ const AccountSettingsScreen: React.FC = () => {
 
               <View className="ml-3">
                 <Text className="text-p text-gray">{item.label}</Text>
-                <Text className="text-sm font-medium text-black">{item.value}</Text>
+                <Text className="text-p1 font-medium text-black">{item.value}</Text>
               </View>
             </View>
           ))}
         </View>
 
-        <View className="mt-6 rounded-lg border border-[#FF4D4F] bg-[#FFF5F5] px-4 py-4">
+        <View
+          className="mt-5 rounded-lg px-4 py-4"
+          style={{
+            borderWidth: 1,
+            borderColor: COLORS.withdrawDanger,
+            backgroundColor: COLORS.withdrawBg,
+          }}>
           <View className="flex-row items-center">
-            <Text className="text-h2 text-[#FF4D4F]">⚠</Text>
-            <Text className="ml-2 text-h2 font-semibold text-[#EF4444]">회원 탈퇴</Text>
+            <Text className="text-h2" style={{ color: COLORS.statusError }}>
+              ⚠
+            </Text>
+            <Text className="ml-2 text-h2 font-semibold" style={{ color: COLORS.statusError }}>
+              회원 탈퇴
+            </Text>
           </View>
 
-          <Text className="mt-4 text-sm font-medium text-p1 text-gray">
+          <Text className="mt-4 text-p1 font-medium text-p1 text-gray">
             계정을 삭제하면 모든 여행 기록, 저장된 장소, 개인 설정이 영구적으로 삭제됩니다.
             이 작업은 되돌릴 수 없습니다
           </Text>
 
-          <TouchableOpacity activeOpacity={0.85} className="mt-7 rounded-lg bg-red-500 py-3">
+          <TouchableOpacity
+            activeOpacity={0.85}
+            className="mt-4 rounded-lg py-3"
+            style={{ backgroundColor: COLORS.statusError }}>
             <Text className="text-center text-h3 font-semibold text-white">회원 탈퇴</Text>
           </TouchableOpacity>
         </View>
