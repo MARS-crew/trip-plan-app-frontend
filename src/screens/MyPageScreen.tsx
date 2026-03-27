@@ -182,6 +182,19 @@ const MyPageScreen: React.FC = () => {
     navigation.navigate('NightMarketingScreen');
   };
 
+  const handleNavigateToProfileEdit = (): void => {
+    const parentNavigation = navigation.getParent() as
+      | { navigate: (...args: unknown[]) => void }
+      | undefined;
+
+    if (parentNavigation) {
+      parentNavigation.navigate('ProfileEditScreen');
+      return;
+    }
+
+    navigation.navigate('ProfileEditScreen');
+  };
+
   const handleNavigateToAccountSettings = (): void => {
     const parentNavigation = navigation.getParent() as
       | { navigate: (...args: unknown[]) => void }
@@ -233,7 +246,7 @@ const MyPageScreen: React.FC = () => {
               </View>
 
               <TouchableOpacity
-                onPress={handleNavigateToAccountSettings}
+                onPress={handleNavigateToProfileEdit}
                 activeOpacity={0.8}
                 className="rounded-lg bg-chip px-3 py-1.5">
                 <Text className="text-p font-medium text-black">편집</Text>

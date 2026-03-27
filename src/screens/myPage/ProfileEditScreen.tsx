@@ -56,7 +56,7 @@ const ProfileEditScreen: React.FC = () => {
       </View>
 
       <View className="px-4 pt-3">
-        <View className="rounded-lg border border-borderGray bg-white px-4 pb-4 pt-5" style={cardStyle}>
+        <View className="rounded-lg border border-borderGray bg-white px-6 pb-4 pt-6" style={cardStyle}>
           <Text className="text-p text-gray">이메일을 인증하고 프로필을 수정하세요.</Text>
 
           <View className="mt-6">
@@ -88,7 +88,7 @@ const ProfileEditScreen: React.FC = () => {
               <>
                 <Text className="mt-2 text-p text-statusSuccess">인증번호가 발송되었습니다. 이메일을 확인해주세요.</Text>
 
-                <View className="mt-3">
+                <View className="mt-4">
                   <View className="flex-row items-center">
                     <Text className="text-h3 font-semibold text-black">인증번호</Text>
                     <Text className="text-p1 font-medium text-statusError">*</Text>
