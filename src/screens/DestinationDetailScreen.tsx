@@ -1,7 +1,9 @@
 import React, { useCallback } from 'react';
 import { View, Image, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { IconButton, ReviewCard } from '@/screens/destinationDetail/components';
@@ -22,7 +24,7 @@ import {
   PlaceIcon,
   VectorIcon,
 } from '@/assets/icons';
-import type { SearchStackParamList } from '@/navigation/types';
+import type { RootTabParamList, SearchStackParamList } from '@/navigation/types';
 
 //예시 값
 const ratings = [
@@ -35,17 +37,35 @@ const ratings = [
 
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<SearchStackParamList>;
+type DetailRouteProp = RouteProp<SearchStackParamList, 'DestinationDetail'>;
+type TabNavigationProp = BottomTabNavigationProp<RootTabParamList>;
 
 // ============ Component ============
 const DestinationDetailScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
+  const { params } = useRoute<DetailRouteProp>();
+  const origin = params?.origin ?? 'search';
 
   // Hooks
   const [activeTab, setActiveTab] = React.useState('info');
 
   const handleGoBack = useCallback((): void => {
-    navigation.goBack();
-  }, [navigation]);
+    if (origin === 'bookmark') {
+      const tabNavigation = navigation.getParent<TabNavigationProp>();
+      if (tabNavigation) {
+        tabNavigation.navigate('Search', { screen: 'SearchMain' });
+        tabNavigation.navigate('Bookmark');
+        return;
+      }
+    }
+
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
+    navigation.navigate('SearchMain');
+  }, [navigation, origin]);
 
   const handleSave = useCallback((): void => {
     // TODO: 저장 기능 구현

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
 import { LabeledInput } from '@/components/ui';
+import { COLORS } from '@/constants';
 
 // ============ Types ============
 export interface CodeSectionProps {
@@ -28,7 +29,7 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
             isCodeError ? 'border-statusError' : 'border-borderGray'
           }`}
           placeholder="6자리 인증번호"
-          placeholderTextColor={"#8C7B73"}
+          placeholderTextColor={COLORS.gray}
           value={code}
           onChangeText={onChangeCode}
           autoCapitalize="none"
@@ -39,7 +40,7 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
         />
 
         <TouchableOpacity
-          className="w-[107px] h-[46px] ml-2 bg-white rounded-xl border border-borderGray items-center justify-center"
+          className="h-[46px] px-11 ml-2 bg-white rounded-xl border border-borderGray items-center justify-center"
           onPress={onVerifyCode}
           accessibilityRole="button"
           accessibilityLabel="인증번호 확인">

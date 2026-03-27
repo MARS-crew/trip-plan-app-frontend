@@ -34,6 +34,8 @@ export { default as CalendarIcon } from './calendar.svg';
 export { default as ScheduleInfoIcon } from './schedule-info.svg';
 export { default as ChevronDownIcon } from './chevrondown.svg';
 export { default as ChevronUpIcon } from './chevronup.svg';
+export { default as DownDropdownIcon } from './downdropdown.svg';
+export { default as UpDropdownIcon } from './updropdown.svg';
 export { default as VectorLeftIcon } from './vectorleft.svg';
 export { default as PlusIcon } from './plus.svg';
 
@@ -68,6 +70,8 @@ export { default as WishStar } from './wishstar.svg';
 
 export { default as InputSearchIcon } from './inputsearch.svg';
 export { default as TimeB } from './timeB.svg';
+export { default as CheckedCircleIcon } from './checkedcircle.svg';
+export { default as UncheckedCircleIcon } from './uncheckedcircle.svg';
 export { default as X } from './x.svg';
 export { default as RobotIcon } from './robot.svg';
 export { default as SendIcon } from './send.svg';
@@ -76,6 +80,8 @@ export { default as DeletButton } from './deletBtn.svg';
 export { default as StarIconV2 } from './StarV2.svg';
 export { default as StarOffIconV2 } from './StarOffV2.svg';
 export { default as ActiveStar } from './active-star.svg';
+export { default as BackArrowGray } from './backarrowgray.svg';
+export { default as MapMarker } from './mapmarker.svg';
 
 // 타입 정의
 export interface IconProps {

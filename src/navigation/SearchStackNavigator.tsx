@@ -11,7 +11,7 @@ import ReviewWriteScreen from '@/screens/reviewWrite/ReviewWriteScreen';
 export type SearchStackParamList = {
   SearchMain: undefined;
   SearchResult: { query: string };
-  DestinationDetail: { destinationId: string };
+  DestinationDetail: { destinationId: string; origin?: 'search' | 'bookmark' };
   SelectTrip: undefined;
   ReviewWrite : undefined;
 };

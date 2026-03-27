@@ -57,7 +57,7 @@ const LoginScreen: React.FC = () => {
 	};
 
 	const handleSignUp = (): void => {
-		// 회원가입 화면 이동
+		navigation.navigate('SignUp');
 	};
 
 	// 4. 렌더링
