@@ -148,7 +148,7 @@ const AccountSettingsScreen: React.FC = () => {
         animationType="fade"
         onRequestClose={handleCloseWithdrawModal}>
         <View className="flex-1 items-center justify-center bg-black/25 px-4">
-          <View className="w-full rounded-2xl bg-white px-4 pb-4 pt-5" style={{ maxWidth: 360 }}>
+          <View className="w-full rounded-xl bg-white px-4 pb-4 pt-5" style={{ maxWidth: 360 }}>
             <View className="items-center">
               <SecessionIcon width={24} height={24} />
               <Text className="mt-3 text-left text-h2 font-semibold text-black">
@@ -180,12 +180,12 @@ const AccountSettingsScreen: React.FC = () => {
         animationType="fade"
         onRequestClose={handleCloseWithdrawModal}>
         <View className="flex-1 items-center justify-center bg-black/25 px-4">
-          <View className="w-full rounded-2xl bg-white px-4 pb-4 pt-5" style={{ maxWidth: 360 }}>
+          <View className="w-full rounded-xl bg-white px-4 pb-4 pt-4" style={{ maxWidth: 370 }}>
             <View className="items-center">
               <SecessionIcon width={24} height={24} />
-              <Text className="mt-3 text-center text-h2 font-bold text-black leading-8">
+              <Text className="mt-4 text-center text-base font-semibold text-black leading-6">
                 탈퇴시 여행 일정 및 리뷰가 사라지게{'\n'}
-                되며 복구가 불가능합니다.{"\n"}
+                되며 복구가 불가합니다.{"\n"}
                 탈퇴 하시겠습니까?
               </Text>
             </View>
@@ -194,14 +194,14 @@ const AccountSettingsScreen: React.FC = () => {
               <TouchableOpacity
                 activeOpacity={0.85}
                 onPress={() => setWithdrawModalStep('step3')}
-                className="w-[48%] rounded-xl bg-chip py-3">
-                <Text className="text-center text-h3 font-semibold text-gray">회원 탈퇴</Text>
+                className="h-11 w-[48%] justify-center rounded-lg bg-chip">
+                <Text className="text-center text-sm font-semibold text-gray">회원 탈퇴</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.85}
                 onPress={handleCloseWithdrawModal}
-                className="w-[48%] rounded-xl bg-main py-3">
-                <Text className="text-center text-sm text-h3 font-semibold text-white">취소</Text>
+                className="h-11 w-[48%] justify-center rounded-lg bg-main">
+                <Text className="text-center text-sm font-semibold text-white">취소</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -214,12 +214,12 @@ const AccountSettingsScreen: React.FC = () => {
         animationType="fade"
         onRequestClose={handleCloseWithdrawModal}>
         <View className="flex-1 items-center justify-center bg-black/25 px-4">
-          <View className="w-full rounded-2xl bg-white px-4 pb-4 pt-5" style={{ maxWidth: 360 }}>
+          <View className="w-full rounded-xl bg-white px-4 pb-4 pt-5" style={{ maxWidth: 370 }}>
             <View className="ml-2">
               <SecessionIcon width={24} height={24} />
             </View>
-            <Text className="ml-2 mt-2 text-h2 font-semibold text-black">회원 탈퇴를 원하시는 이유를 선택해주세요.</Text>
-            <Text className="ml-2 mt-2 text-p1 font-medium text-gray leading-6">
+            <Text className="ml-2 mt-[15] text-h2 font-semibold text-black">회원 탈퇴를 원하시는 이유를 선택해주세요.</Text>
+            <Text className="ml-2 mt-1 text-p1 font-medium text-gray leading-6">
               서비스에 만족을 드리지 못해 죄송합니다.{"\n"}
               탈퇴 사유를 남겨주시면 서비스 개선에 더욱 힘쓰겠습니다.
             </Text>
@@ -232,14 +232,14 @@ const AccountSettingsScreen: React.FC = () => {
                     key={reason.id}
                     activeOpacity={0.8}
                     onPress={() => handleSelectWithdrawReason(reason.id)}
-                    className="mb-3 ml-3 flex-row items-center">
+                    className="ml-2 mb-[9px] flex-row items-center">
                     <View
                       className={`h-5 w-5 items-center justify-center rounded-full border ${
                         isSelected ? 'border-main' : 'border-borderGray'
                       }`}>
-                      {isSelected ? <View className="h-2.5 w-2.5 rounded-full bg-main" /> : null}
+                      {isSelected ? <View className="h-3.5 w-3.5 rounded-full bg-main" /> : null}
                     </View>
-                    <Text className="ml-3 text-p1 font-medium text-gray">{reason.label}</Text>
+                    <Text className="mb-2 ml-3 text-p1 font-medium text-gray">{reason.label}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -257,7 +257,7 @@ const AccountSettingsScreen: React.FC = () => {
               />
             ) : null}
 
-            <View className="mt-6 flex-row justify-between">
+            <View className="flex-row mt-4 justify-between">
               <TouchableOpacity activeOpacity={0.85} className="w-[48%] rounded-xl bg-chip py-3">
                 <Text className="text-center text-h3 font-semibold text-gray">탈퇴 하기</Text>
               </TouchableOpacity>
