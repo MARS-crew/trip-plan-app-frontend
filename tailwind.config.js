@@ -19,6 +19,8 @@ const colors = {
   contentBackground: '#FCF0E8',
   locationTeal: '#24A89A',
   logoutRed: '#F04A3E',
+  withdrawDanger: '#FF4D4F',
+  withdrawBg: '#FFF5F5',
   inputBackground: '#FCFAF8',
   botoomSheetBackground: '#DBDBDB',
   zero: '#00000000',
