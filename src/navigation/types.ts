@@ -22,6 +22,7 @@ export type RootStackParamList = {
   PrivacyPolicyScreen: undefined;
   NightMarketingScreen: undefined;
   MarketingConsentScreen: undefined;
+  ProfileEditScreen: undefined;
   DestinationDetail: { destinationId: string };
   EmptyMapScreen: undefined;
   AccountSettings: undefined;
