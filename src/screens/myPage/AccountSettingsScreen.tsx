@@ -102,7 +102,7 @@ const AccountSettingsScreen: React.FC = () => {
             </Text>
           </View>
 
-          <Text className="mt-4 text-p1 font-medium text-p1 text-gray">
+          <Text className="mt-4 text-p1 font-medium text-gray">
             계정을 삭제하면 모든 여행 기록, 저장된 장소, 개인 설정이 영구적으로 삭제됩니다.
             이 작업은 되돌릴 수 없습니다
           </Text>
