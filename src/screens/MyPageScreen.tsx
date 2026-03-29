@@ -182,6 +182,19 @@ const MyPageScreen: React.FC = () => {
     navigation.navigate('NightMarketingScreen');
   };
 
+  const handleNavigateToProfileEdit = (): void => {
+    const parentNavigation = navigation.getParent() as
+      | { navigate: (...args: unknown[]) => void }
+      | undefined;
+
+    if (parentNavigation) {
+      parentNavigation.navigate('ProfileEditScreen');
+      return;
+    }
+
+    navigation.navigate('ProfileEditScreen');
+  };
+
   const handleNavigateToAccountSettings = (): void => {
     const parentNavigation = navigation.getParent() as
       | { navigate: (...args: unknown[]) => void }
@@ -208,10 +221,23 @@ const MyPageScreen: React.FC = () => {
     navigation.navigate('NotificationSettings');
   };
 
+  const handleNavigateToVisitedPlaceList = (): void => {
+    const parentNavigation = navigation.getParent() as
+      | { navigate: (...args: unknown[]) => void }
+      | undefined;
+
+    if (parentNavigation) {
+      parentNavigation.navigate('VisitedPlaceListScreen');
+      return;
+    }
+
+    navigation.navigate('VisitedPlaceListScreen');
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="px-4 pb-16">
+        <View className="px-4 pb-[33px]">
           <Text className="mt-3.5 text-h font-bold text-black">마이페이지</Text>
 
           <View
@@ -233,7 +259,7 @@ const MyPageScreen: React.FC = () => {
               </View>
 
               <TouchableOpacity
-                onPress={handleNavigateToAccountSettings}
+                onPress={handleNavigateToProfileEdit}
                 activeOpacity={0.8}
                 className="rounded-lg bg-chip px-3 py-1.5">
                 <Text className="text-p font-medium text-black">편집</Text>
@@ -243,8 +269,11 @@ const MyPageScreen: React.FC = () => {
 
           <View className="mt-4 flex-row justify-between">
             {stats.map(item => (
-              <View
+              <TouchableOpacity
                 key={item.id}
+                activeOpacity={item.type === 'marker' ? 0.8 : 1}
+                disabled={item.type !== 'marker'}
+                onPress={item.type === 'marker' ? handleNavigateToVisitedPlaceList : undefined}
                 className="w-[31.5%] rounded-lg border border-subtleBorder bg-white py-4"
                 style={cardStyle}>
                 <View className="items-center">
@@ -252,7 +281,7 @@ const MyPageScreen: React.FC = () => {
                   <Text className="mt-2 text-h1 font-bold text-black">{item.value}</Text>
                   <Text className="mt-0.5 text-p text-gray">{item.label}</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
 
@@ -354,38 +383,14 @@ const MyPageScreen: React.FC = () => {
             ))}
           </View>
 
-          <TouchableOpacity activeOpacity={0.8} className="mt-7 items-center">
+          <TouchableOpacity activeOpacity={0.8} className="mt-[35px] items-center">
             <View className="flex-row items-center">
               <LogoutIcon width={16} height={16} />
-              <Text className="ml-1.5 text-p1 font-semibold text-logoutRed">로그아웃</Text>
+              <Text className="ml-1.5 text-xs font-medium text-logoutRed">로그아웃</Text>
             </View>
           </TouchableOpacity>
         </View>
-      
-
-      <View className="mt-2 gap-2">
-            <TouchableOpacity
-              onPress={handleNavigateToPrivacy}
-              activeOpacity={0.8}
-              className="rounded-lg bg-main px-6 py-3">
-              <Text className="text-center font-semibold text-white">약관동의</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={handleNavigateToMarketing}
-              activeOpacity={0.8}
-              className="rounded-lg bg-main px-6 py-3">
-              <Text className="text-center font-semibold text-white">마케팅동의</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={handleNavigateToNightMarketing}
-              activeOpacity={0.8}
-              className="rounded-lg bg-main px-6 py-3">
-              <Text className="text-center font-semibold text-white">야간마케팅동의</Text>
-            </TouchableOpacity>
-          </View>
-          </ScrollView>
+      </ScrollView>
     </SafeAreaView>
 
     
