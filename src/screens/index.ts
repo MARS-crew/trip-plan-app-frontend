@@ -1,4 +1,4 @@
-// screens barrel export
+﻿// screens barrel export
 export { default as MapScreen } from './MapScreen';
 export { default as HomeScreen } from './HomeScreen';
 export { default as SearchScreen } from './SearchScreen';
@@ -8,6 +8,7 @@ export { default as LoginScreen } from './login';
 export { default as SignUpScreen } from './signup';
 export { default as MyPageScreen } from './MyPageScreen';
 export { default as DestinationDetailScreen } from './DestinationDetailScreen';
+export { default as VisitedPlaceListScreen } from './myPage/VisitedPlaceListScreen';
 export { default as SelectTripScreen } from './SelectTripScreen';
 export { default as WishlistScreen } from './WishlistScreen';
 export { default as FindPasswordScreen } from './FindPasswordScreen';

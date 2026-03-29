@@ -29,6 +29,7 @@ export type RootStackParamList = {
   NotificationSettings: undefined;
   AddTripScreen: undefined;
   AddTripCalendar: undefined;
+  VisitedPlaceListScreen: undefined;
   FindId: undefined;
   WishlistScreen: undefined;
   FindPassword: undefined;

@@ -221,6 +221,19 @@ const MyPageScreen: React.FC = () => {
     navigation.navigate('NotificationSettings');
   };
 
+  const handleNavigateToVisitedPlaceList = (): void => {
+    const parentNavigation = navigation.getParent() as
+      | { navigate: (...args: unknown[]) => void }
+      | undefined;
+
+    if (parentNavigation) {
+      parentNavigation.navigate('VisitedPlaceListScreen');
+      return;
+    }
+
+    navigation.navigate('VisitedPlaceListScreen');
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -256,8 +269,11 @@ const MyPageScreen: React.FC = () => {
 
           <View className="mt-4 flex-row justify-between">
             {stats.map(item => (
-              <View
+              <TouchableOpacity
                 key={item.id}
+                activeOpacity={item.type === 'marker' ? 0.8 : 1}
+                disabled={item.type !== 'marker'}
+                onPress={item.type === 'marker' ? handleNavigateToVisitedPlaceList : undefined}
                 className="w-[31.5%] rounded-lg border border-subtleBorder bg-white py-4"
                 style={cardStyle}>
                 <View className="items-center">
@@ -265,7 +281,7 @@ const MyPageScreen: React.FC = () => {
                   <Text className="mt-2 text-h1 font-bold text-black">{item.value}</Text>
                   <Text className="mt-0.5 text-p text-gray">{item.label}</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
 
