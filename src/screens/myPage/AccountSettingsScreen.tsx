@@ -121,7 +121,6 @@ const AccountSettingsScreen: React.FC = () => {
 
         <TouchableOpacity
           activeOpacity={1}
-          onPress={handleOpenWithdrawModal}
           className="mt-6 rounded-lg border border-withdrawDanger bg-withdrawBg px-4 py-4">
           <View className="flex-row items-center">
             <SecessionIcon width={24} height={24} />
@@ -135,6 +134,7 @@ const AccountSettingsScreen: React.FC = () => {
 
           <TouchableOpacity
             activeOpacity={0.85}
+            onPress={handleOpenWithdrawModal}
             className="mt-4 rounded-lg py-3"
             style={{ backgroundColor: COLORS.statusError }}>
             <Text className="text-center text-h3 font-semibold text-white">회원 탈퇴</Text>
