@@ -9,8 +9,11 @@ import { FindPasswordScreen } from '@/screens';
 import { PrivacyPolicyScreen } from '@/screens/terms/PrivacyPolicyScreen';
 import { NightMarketingScreen } from '@/screens/terms/NightMarketingScreen';
 import { MarketingConsentScreen } from '@/screens/terms/MarketingConsentScreen';
+import ProfileEditScreen from '@/screens/myPage/ProfileEditScreen';
+import ProfileEditDetailScreen from '@/screens/myPage/ProfileEditDetailScreen';
 import { AddTripScreen } from '@/screens/addTrip/AddTripScreen';
 import { AddTripCalendarScreen } from '@/screens/addTrip/AddTripCalendarScreen';
+import { VisitedPlaceListScreen } from '@/screens';
 import NotificationSettingsScreen from '@/screens/myPage/NotificationSettingsScreen';
 import AccountSettingsScreen from '@/screens/myPage/AccountSettingsScreen';
 import { AddCalendarMapScreen } from '@/screens/AddCalendarMapScreen';
@@ -32,12 +35,15 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="MarketingConsentScreen" component={MarketingConsentScreen} />
       <Stack.Screen name="PrivacyPolicyScreen" component={PrivacyPolicyScreen} />
       <Stack.Screen name="NightMarketingScreen" component={NightMarketingScreen} />
+      <Stack.Screen name="ProfileEditScreen" component={ProfileEditScreen} />
+      <Stack.Screen name="ProfileEditDetailScreen" component={ProfileEditDetailScreen} />
       <Stack.Screen name="EmptyMapScreen" component={EmptyMapScreen} />
       <Stack.Screen name="FindId" component={FindIdScreen} />
       <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
       <Stack.Screen name="FindPassword" component={FindPasswordScreen} />
       <Stack.Screen name="AddTripScreen" component={AddTripScreen} />
       <Stack.Screen name="AddTripCalendar" component={AddTripCalendarScreen} />
+      <Stack.Screen name="VisitedPlaceListScreen" component={VisitedPlaceListScreen} />
       <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
       <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
 
