@@ -75,7 +75,7 @@ const TabItem = React.memo<TabItemProps>(
     return (
       <Pressable
         onPress={handlePress}
-        className="flex-1 items-center"
+        className="flex-1 items-center justify-between"
         accessibilityRole="button"
         accessibilityLabel={tab.label}
         accessibilityState={{ selected: isActive }}>
