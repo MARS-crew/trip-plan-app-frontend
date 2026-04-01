@@ -57,7 +57,7 @@ export const WishModal = React.memo<WishModalProps>(
                         {icon && <View className={`${ModalIcon}`}>{icon}</View>}
 
                         {/* 타이틀 영역 */}
-                        <Text className={`text-h2 font-semibold text-center text-black ${primaryTitleTextClass}`}>
+                        <Text className={`text-h2 font-pretendardSemiBold text-center text-black ${primaryTitleTextClass}`}>
                             {title}
                         </Text>
 
@@ -69,7 +69,7 @@ export const WishModal = React.memo<WishModalProps>(
                                 onPress={onPrimaryPress}
                                 className={` flex-row justify-center items-center rounded-lg  ${primaryBtnClass}`}
                             >{primaryIcon && <View className="mr-2">{primaryIcon}</View>}
-                                <Text className={`text-center font-semibold text-p1 ${primaryTextClass}`}>
+                                <Text className={`text-center font-pretendardSemiBold text-p1 ${primaryTextClass}`}>
                                     {primaryLabel}
                                 </Text>
                             </Pressable>
@@ -79,7 +79,7 @@ export const WishModal = React.memo<WishModalProps>(
                                 onPress={onSecondaryPress}
                                 className={` rounded-lg  ${secondaryBtnClass}`}
                             >
-                                <Text className={`text-center font-semibold text-p1 ${secondaryTextClass}`}>
+                                <Text className={`text-center font-pretendardSemiBold text-p1 ${secondaryTextClass}`}>
                                     {secondaryLabel}
                                 </Text>
                             </Pressable>

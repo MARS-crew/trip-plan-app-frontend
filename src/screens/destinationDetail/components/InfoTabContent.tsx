@@ -10,8 +10,8 @@ export const InfoTabContent: React.FC = () => {
   return (
     <>
       <ContentContainer className="p-4">
-        <Text className="text-h3 font-semibold mb-2">소개</Text>
-        <Text className="text-p text-gray font-medium">
+        <Text className="text-h3 font-pretendardSemiBold mb-2">소개</Text>
+        <Text className="text-p text-gray font-pretendardMedium">
           도쿄에서 가장 오래된 불교 사원으로, 웅장한 카미나리몬과 나카미세 거리가 유명합니다.
         </Text>
       </ContentContainer>
@@ -49,7 +49,7 @@ export const InfoTabContent: React.FC = () => {
       </View>
 
       <View className="mt-5">
-        <Text className="text-h3 text-black font-semibold">주변 추천 장소</Text>
+        <Text className="text-h3 text-black font-pretendardSemiBold">주변 추천 장소</Text>
       </View>
 
       {RECOMMENDED_PLACES.map((placeName, index) => (
@@ -63,7 +63,7 @@ export const InfoTabContent: React.FC = () => {
                   <PlaceIcon width={16} height={16} />
                 </View>
                 <View className="ml-3">
-                  <Text className="text-p1 text-black font-medium">{placeName}</Text>
+                  <Text className="text-p1 text-black font-pretendardMedium">{placeName}</Text>
                 </View>
               </View>
               <View className="mr-4">

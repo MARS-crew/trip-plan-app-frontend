@@ -83,10 +83,10 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
               </View>
             ) : null}
             <View className="absolute bottom-[14px] left-3">
-              <Text className="text-h1 text-white font-bold mb-1">도쿄</Text>
+              <Text className="text-h1 text-white font-pretendardBold mb-1">도쿄</Text>
               <View className="flex-row items-center">
                 <DateIcon width={12} height={12} />
-                <Text className="text-p text-white font-regular ml-[2px]">2026.02.28 - 2026.03.03</Text>
+                <Text className="text-p text-white font-pretendardRegular ml-[2px]">2026.02.28 - 2026.03.03</Text>
               </View>
             </View>
           </View>
@@ -123,8 +123,8 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
                   width={14}
                   height={14}
                 />
-                <Text className="text-p text-gray font-regular ml-1">5개의 일정</Text>
-                <Text className="text-p text-gray font-regular ml-3">4일간</Text>
+                <Text className="text-p text-gray font-pretendardRegular ml-1">5개의 일정</Text>
+                <Text className="text-p text-gray font-pretendardRegular ml-3">4일간</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -188,7 +188,7 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
                       backgroundColor: isSelected ? 'rgba(223, 108, 32, 0.102)' : 'transparent',
                     }}
                   >
-                    <Text className="text-p1 font-medium" style={{ color: isSelected ? COLORS.main : COLORS.gray }}>
+                    <Text className="text-p1 font-pretendardMedium" style={{ color: isSelected ? COLORS.main : COLORS.gray }}>
                       {item.date}({item.day})
                     </Text>
                   </TouchableOpacity>

@@ -109,7 +109,7 @@ const SearchScreen: React.FC = () => {
       <ScrollView keyboardShouldPersistTaps="handled">
         <View className="flex-1 px-4">
           <View className="h-14 justify-center">
-            <Text className="text-h font-bold">검색</Text>
+            <Text className="text-h font-pretendardBold">검색</Text>
           </View>
           <View className="gap-6">
             <View className="h-[46px] bg-white border border-borderGray rounded-xl flex-row items-center">
@@ -126,7 +126,7 @@ const SearchScreen: React.FC = () => {
               />
             </View>
             <View>
-              <Text className="text-h3 font-semibold mb-3">카테고리</Text>
+              <Text className="text-h3 font-pretendardSemiBold mb-3">카테고리</Text>
 
               <View className="flex-row flex-wrap justify-between">
                 {category.flat().map((item) => (
@@ -138,7 +138,7 @@ const SearchScreen: React.FC = () => {
             </View>
             <View className="">
               <View className="flex-row justify-between mb-4">
-                <Text className="text-h3 font-semibold">최근 검색</Text>
+                <Text className="text-h3 font-pretendardSemiBold">최근 검색</Text>
                 <Text className="text-p">전체 삭제</Text>
               </View>
               <View>
@@ -148,7 +148,7 @@ const SearchScreen: React.FC = () => {
               </View>
             </View>
             <View className="">
-              <Text className="text-h3 font-semibold mb-3">인기 검색어</Text>
+              <Text className="text-h3 font-pretendardSemiBold mb-3">인기 검색어</Text>
               <View className="bg-white rounded-xl px-4 mb-6">
                 {popularSearch.map((item, index) => (
                   <PopularList key={index} index={index} item={item} onPress={handleNavigate} />

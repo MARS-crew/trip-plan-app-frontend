@@ -24,7 +24,7 @@ const AddTripScreen: React.FC = () => {
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <BackArrow className='w-5 h-5'/>
             </TouchableOpacity>
-            <Text numberOfLines={1} className="ml-4 text-h font-bold text-black">여행지 추가</Text>
+            <Text numberOfLines={1} className="ml-4 text-h font-pretendardBold text-black">여행지 추가</Text>
           </View>
 
         <View className="flex-1 bg-screenBackground px-8">
@@ -43,7 +43,7 @@ const AddTripScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            <Text className="mt-[24px] text-h1 font-bold text-black">
+            <Text className="mt-[24px] text-h1 font-pretendardBold text-black">
               어디로 여행을 떠나시나요?
             </Text>
 

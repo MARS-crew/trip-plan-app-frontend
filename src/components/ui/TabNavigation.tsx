@@ -82,7 +82,7 @@ const TabItem = React.memo<TabItemProps>(
         {/* 아이콘과 텍스트 */}
         <View className="flex-row items-center mb-[15px]">
           <IconComponent />
-          <Text className={`text-p font-medium ml-[6px] ${textColor}`}>
+          <Text className={`text-p font-pretendardMedium ml-[6px] ${textColor}`}>
             {tab.label}
           </Text>
         </View>

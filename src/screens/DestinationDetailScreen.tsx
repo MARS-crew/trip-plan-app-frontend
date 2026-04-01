@@ -132,7 +132,7 @@ const DestinationDetailScreen: React.FC = () => {
 
           {/* 좌측 하단: 위치 정보 */}
           <View className="absolute left-4 bottom-[19px]">
-            <Text className="text-title text-white font-bold mb-[7px]">센소지 아사쿠사</Text>
+            <Text className="text-title text-white font-pretendardBold mb-[7px]">센소지 아사쿠사</Text>
             <View className="flex-row items-center">
               <MarkerIcon />
               <Text className="text-p text-white ml-[6px]">도쿄, 일본</Text>
@@ -143,8 +143,8 @@ const DestinationDetailScreen: React.FC = () => {
           <View className="mt-7 px-4 flex-row items-center justify-between">
             <View className="flex-row items-center">
               <StarIcon />
-              <Text className="text-h2 ml-1 font-bold">4.6</Text>
-              <Text className="text-p1 text-gray ml-3 font-medium">리뷰 56,789개</Text>
+              <Text className="text-h2 ml-1 font-pretendardBold">4.6</Text>
+              <Text className="text-p1 text-gray ml-3 font-pretendardMedium">리뷰 56,789개</Text>
             </View>
 
             <TouchableOpacity
@@ -182,7 +182,7 @@ const DestinationDetailScreen: React.FC = () => {
                     <View className="flex-row p-4 pb-6">
                       <View className="flex-row shrink-0 items-center gap-2">
                         <StarIcon width={20} height={20} />
-                        <Text className="text-2xl font-medium text-black">4.6</Text>
+                        <Text className="text-2xl font-pretendardMedium text-black">4.6</Text>
                       </View>
 
                       <View className="flex-1 gap-1">

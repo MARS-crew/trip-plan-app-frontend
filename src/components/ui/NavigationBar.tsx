@@ -96,7 +96,7 @@ const NavItem = React.memo<NavItemProps>(({ item, isActive, IconComponent, onPre
         <IconComponent fill={iconColor} width={ICON_SIZE} height={ICON_SIZE} />
       </View>
       <Text
-        className={`text-[10px] font-medium tracking-[0] leading-[13px] ${textColor}`}
+        className={`text-[10px] font-pretendardMedium tracking-[0] leading-[13px] ${textColor}`}
         numberOfLines={1}>
         {item.label}
       </Text>
