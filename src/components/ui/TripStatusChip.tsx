@@ -36,7 +36,7 @@ export const TripStatusChip: React.FC<TripStatusChipProps> = ({
   // 렌더링
   return (
     <View
-      className={`rounded-full px-4 h-[22px] items-center justify-center ${className ?? ''}`}
+      className={`rounded-full px-3 py-[3px] items-center justify-center ${className ?? ''}`}
       style={{ backgroundColor: config.backgroundColor }}
       accessibilityLabel={config.label}>
       <Text className="text-p text-white">{config.label}</Text>
