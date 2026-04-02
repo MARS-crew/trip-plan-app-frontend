@@ -19,6 +19,7 @@ import AccountSettingsScreen from '@/screens/myPage/AccountSettingsScreen';
 import { AddCalendarMapScreen } from '@/screens/AddCalendarMapScreen';
 import TripDetailScreen from '@/screens/tripDetail/TripDetailScreen';
 import { AddScheduleScreen } from '@/screens/addSchedule/AddScheduleScreen';
+import { ScheduleMapScreen } from '@/screens/scheduleMap/ScheduleMapScreen';
 
 import EmptyMapScreen from '@/screens/myTrip/EmptyMapScreen';
 
@@ -50,6 +51,7 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="TripDetail" component={TripDetailScreen} />
       <Stack.Screen name="AddSchedule" component={AddScheduleScreen} />
       <Stack.Screen name="AddCalendarMapScreen" component={AddCalendarMapScreen} />
+      <Stack.Screen name="ScheduleMap" component={ScheduleMapScreen} />
     </Stack.Navigator>
   );
 };

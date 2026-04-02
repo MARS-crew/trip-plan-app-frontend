@@ -1,7 +1,9 @@
 import React from 'react';
 import { Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import { MarkerGrayIcon } from '@/assets/icons';
+import { COLORS } from '@/constants/colors';
 
 export interface TripDetailCardProps {
   order: number;
@@ -14,7 +16,9 @@ export interface TripDetailCardProps {
   currentStatusText?: string;
   actionLabel?: string;
   onPressAction?: () => void;
+  actionLayout?: 'inline' | 'fullWidth';
   onPressCard?: () => void;
+  accentColor?: string;
 }
 
 const TripDetailCard: React.FC<TripDetailCardProps> = ({
@@ -28,8 +32,11 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
   currentStatusText = '현재 진행되는 일정입니다',
   actionLabel = '방문지 저장',
   onPressAction,
+  actionLayout = 'inline',
   onPressCard,
+  accentColor = COLORS.main,
 }) => {
+const navigation = useNavigation<TripDetailNavigation>();
   return (
     <Pressable
       onPress={onPressCard}
@@ -37,7 +44,10 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
       className="w-full rounded-[8px] border border-borderGray bg-white px-4 py-4">
       <View className="flex-row items-start justify-between">
         <View className="flex-1 flex-row items-start">
-          <View className="mr-3 h-7 w-7 items-center justify-center rounded-full bg-main">
+          <View
+            className="mr-3 h-7 w-7 items-center justify-center rounded-full"
+            style={{ backgroundColor: accentColor }}
+          >
             <Text className="text-h3 font-pretendardSemiBold text-white">{order}</Text>
           </View>
 
@@ -54,22 +64,37 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
         </View>
 
         <View className="justify-between py-[13px] items-end">
-          <Text className="text-p font-pretendardBold text-main">{startTime}</Text>
+          <Text className="text-p font-pretendardBold" style={{ color: accentColor }}>{startTime}</Text>
           <Text className="mt-1 text-p text-gray">{endTime}</Text>
         </View>
       </View>
 
       {isCurrentSchedule ? (
-        <View className="mt-[22px] flex-row items-center justify-between">
-          <Text className="text-p text-gray">{currentStatusText}</Text>
+        actionLayout === 'fullWidth' ? (
+          <View className="mt-4">
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={onPressAction}
+              className="h-[44px] w-full items-center justify-center rounded-[8px] bg-main"
+              style={{ backgroundColor: accentColor }}
+            >
+              <Text className="text-h3 font-pretendardSemiBold text-white">{actionLabel}</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View className="mt-4 flex-row items-center justify-between">
+            <Text className="text-p text-gray">{currentStatusText}</Text>
 
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={onPressAction}
-            className="h-[36px] w-[75px] items-center justify-center rounded-[6px] bg-main">
-            <Text className="text-p text-white">{actionLabel}</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('ScheduleMap')}
+              className="h-[36px] w-[75px] items-center justify-center rounded-[6px]"
+              style={{ backgroundColor: accentColor }}
+            >
+              <Text className="text-p text-white">{actionLabel}</Text>
+            </TouchableOpacity>
+          </View>
+        )
       ) : null}
     </Pressable>
   );
