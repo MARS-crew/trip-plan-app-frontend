@@ -48,11 +48,11 @@ const navigation = useNavigation<TripDetailNavigation>();
             className="mr-3 h-7 w-7 items-center justify-center rounded-full"
             style={{ backgroundColor: accentColor }}
           >
-            <Text className="text-h3 font-semibold text-white">{order}</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-white">{order}</Text>
           </View>
 
           <View className="flex-1">
-            <Text className="text-h3 font-semibold text-black">{title}</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-black">{title}</Text>
 
             <View className="mt-[2px] flex-row items-center">
               <MarkerGrayIcon width={12} height={12} />
@@ -64,7 +64,7 @@ const navigation = useNavigation<TripDetailNavigation>();
         </View>
 
         <View className="justify-between py-[13px] items-end">
-          <Text className="text-p font-bold" style={{ color: COLORS.main }}>{startTime}</Text>
+          <Text className="text-p font-pretendardBold" style={{ color: accentColor }}>{startTime}</Text>
           <Text className="mt-1 text-p text-gray">{endTime}</Text>
         </View>
       </View>
@@ -76,9 +76,9 @@ const navigation = useNavigation<TripDetailNavigation>();
               activeOpacity={0.8}
               onPress={onPressAction}
               className="h-[44px] w-full items-center justify-center rounded-[8px] bg-main"
-              style={{ backgroundColor: COLORS.main }}
+              style={{ backgroundColor: accentColor }}
             >
-              <Text className="text-h3 font-semibold text-white">{actionLabel}</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-white">{actionLabel}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -89,7 +89,7 @@ const navigation = useNavigation<TripDetailNavigation>();
               activeOpacity={0.8}
               onPress={() => navigation.navigate('ScheduleMap')}
               className="h-[36px] w-[75px] items-center justify-center rounded-[6px]"
-              style={{ backgroundColor: COLORS.main }}
+              style={{ backgroundColor: accentColor }}
             >
               <Text className="text-p text-white">{actionLabel}</Text>
             </TouchableOpacity>
