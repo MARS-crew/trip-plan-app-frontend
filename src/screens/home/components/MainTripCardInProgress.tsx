@@ -25,7 +25,7 @@ const MainTripCardInProgress: React.FC<MainTripCardInProgressProps> = ({ onViewA
               <View className="w-[10px] h-[10px] bg-greenstate rounded-full" style={{ transform: [{ translateY: 1 }] }} />
               <Text className="ml-[9px] text-white text-p">여행중</Text>
             </View>
-            <Text className="text-white text-h1 font-bold">도쿄 여행</Text>
+            <Text className="text-white text-h1 font-pretendardBold">도쿄 여행</Text>
           </View>
         </View>
 
@@ -38,11 +38,11 @@ const MainTripCardInProgress: React.FC<MainTripCardInProgressProps> = ({ onViewA
           <View className="bg-serve rounded-xl p-3 mb-[18px]">
             <View className="flex-row items-start">
               <View className="mr-[14px] items-center">
-                <Text className="text-main text-h3 font-bold">09:00</Text>
-                <Text className="text-gray text-p font-medium">11:00</Text>
+                <Text className="text-main text-h3 font-pretendardBold">09:00</Text>
+                <Text className="text-gray text-p font-pretendardMedium">11:00</Text>
               </View>
               <View className="flex-1">
-                <Text className="text-black text-p1 font-semibold mb-[2px]">아사쿠사 센소지</Text>
+                <Text className="text-black text-p1 font-pretendardSemiBold mb-[2px]">아사쿠사 센소지</Text>
                 <View className="flex-row items-center mb-1">
                   <MarkerGrayIcon width={12} height={12} />
                   <Text className="text-gray text-p ml-1">아사쿠사, 도쿄</Text>
@@ -54,12 +54,12 @@ const MainTripCardInProgress: React.FC<MainTripCardInProgressProps> = ({ onViewA
 
           <View className="mb-8">
             <View className="flex-row items-center ml-2 mb-4">
-              <Text className="text-gray text-p font-medium mr-[22px]">12:00</Text>
+              <Text className="text-gray text-p font-pretendardMedium mr-[22px]">12:00</Text>
               <View className="w-[6px] h-[6px] bg-borderGray rounded-full mr-3" />
               <Text className="text-gray text-p">츠키지 시장 점심</Text>
             </View>
             <View className="flex-row items-center ml-2">
-              <Text className="text-gray text-p font-medium mr-[22px]">14:30</Text>
+              <Text className="text-gray text-p font-pretendardMedium mr-[22px]">14:30</Text>
               <View className="w-[6px] h-[6px] bg-borderGray rounded-full mr-3" />
               <Text className="text-gray text-p">시부야 스크램블 교차로</Text>
             </View>

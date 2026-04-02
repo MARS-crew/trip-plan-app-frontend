@@ -138,7 +138,7 @@ const HomeScreen: React.FC = () => {
 
         <View className="mt-6 mb-6">
           <View className="px-4 mb-2">
-            <Text className="text-h1 font-semibold text-black mb-[2px]">추천 여행지</Text>
+            <Text className="text-h1 font-pretendardSemiBold text-black mb-[2px]">추천 여행지</Text>
             <Text className="text-p text-gray">지금 떠나기 좋은 여행지를 모았어요</Text>
           </View>
 
@@ -161,8 +161,8 @@ const HomeScreen: React.FC = () => {
                   <View className="h-40 relative">
                     <Image source={item.imageUrl} className="w-full h-full" resizeMode="cover" />
                     <View className="absolute bottom-3 left-4">
-                      <Text className="text-white text-h2 font-semibold">{item.title}</Text>
-                      <Text className="text-white text-p font-semibold mt-1">{item.country}</Text>
+                      <Text className="text-white text-h2 font-pretendardSemiBold">{item.title}</Text>
+                      <Text className="text-white text-p font-pretendardSemiBold mt-1">{item.country}</Text>
                     </View>
                   </View>
 

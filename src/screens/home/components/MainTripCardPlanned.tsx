@@ -25,7 +25,7 @@ const MainTripCardPlanned: React.FC<MainTripCardPlannedProps> = ({ onOpenTripSch
               <MainPlaneIcon width={14} height={14} />
               <Text className="ml-[6px] text-white text-p">다가오는 여행</Text>
             </View>
-            <Text className="text-white text-h1 font-bold mb-1">도쿄 여행</Text>
+            <Text className="text-white text-h1 font-pretendardBold mb-1">도쿄 여행</Text>
             <View className="flex-row items-center">
               <DateIcon width={12} height={12} />
               <Text className="ml-[6px] text-white text-p">3/23 - 3/28</Text>
