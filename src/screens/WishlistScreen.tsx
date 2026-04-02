@@ -521,6 +521,7 @@ const WishlistScreen: React.FC = () => {
           isVisible={showAddModal}
           onClose={() => setShowAddModal(false)}
           title="위시리스트의 장소를 추가할까요?"
+          showCloseButton={true}
           icon={<RouteIcon />}
           buttonContainerClass="flex-col space-y-3"
           primaryLabel="AI 추천 일정짜기"
@@ -542,6 +543,7 @@ const WishlistScreen: React.FC = () => {
           isVisible={showExitModal}
           onClose={() => setShowExitModal(false)}
           title={`현재 페이지를 나가면\n작성한 내용이 사라집니다.\n정말 나가시겠습니까?`}
+          showCloseButton={false}
           icon={<AlertIcon />}
           buttonContainerClass="flex-row-reverse gap-x-3"
           primaryLabel="머무르기"
