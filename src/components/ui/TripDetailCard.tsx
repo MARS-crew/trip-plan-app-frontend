@@ -38,11 +38,11 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
       <View className="flex-row items-start justify-between">
         <View className="flex-1 flex-row items-start">
           <View className="mr-3 h-7 w-7 items-center justify-center rounded-full bg-main">
-            <Text className="text-h3 font-semibold text-white">{order}</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-white">{order}</Text>
           </View>
 
           <View className="flex-1">
-            <Text className="text-h3 font-semibold text-black">{title}</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-black">{title}</Text>
 
             <View className="mt-[2px] flex-row items-center">
               <MarkerGrayIcon width={12} height={12} />
@@ -54,7 +54,7 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
         </View>
 
         <View className="justify-between py-[13px] items-end">
-          <Text className="text-p font-bold text-main">{startTime}</Text>
+          <Text className="text-p font-pretendardBold text-main">{startTime}</Text>
           <Text className="mt-1 text-p text-gray">{endTime}</Text>
         </View>
       </View>

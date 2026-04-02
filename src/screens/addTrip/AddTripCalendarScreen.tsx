@@ -160,7 +160,7 @@ const AddTripCalendarScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackArrow className="h-5 w-5" />
         </TouchableOpacity>
-        <Text className="ml-4 text-h font-bold text-black">
+        <Text className="ml-4 text-h font-pretendardBold text-black">
           여행지 추가
         </Text>
       </View>
@@ -327,7 +327,7 @@ const AddTripCalendarScreen: React.FC = () => {
                 borderWidth: 1,
                 borderColor: isButtonEnabled ? COLORS.main : COLORS.buttonDisabled,
               }}>
-              <Text className="text-h3 font-semibold text-white">날짜 등록</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-white">날짜 등록</Text>
             </TouchableOpacity>
           </View>
         </View>

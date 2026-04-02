@@ -39,7 +39,7 @@ const DaySection = ({
   return (
     <View className="bg-screenBackground pt-[19px] pb-3">
       <View className="flex-row items-center justify-between px-4">
-        <Text className="text-h3 font-semibold">{dayLabel}</Text>
+        <Text className="text-h3 font-pretendardSemiBold">{dayLabel}</Text>
         {showMapIcon && <Map2Icon width={20} height={20} />}
       </View>
 

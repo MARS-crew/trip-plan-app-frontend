@@ -52,7 +52,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
   return (
     <View className="mt-6">
       <ContentContainer className="px-6 py-6">
-        <Text className="mb-4 text-h3 font-semibold text-black">계정 정보</Text>
+        <Text className="mb-4 text-h3 font-pretendardSemiBold text-black">계정 정보</Text>
 
         <View className="mb-4 flex-row items-end gap-2" onLayout={onIdLayout}>
           <View className="flex-1">

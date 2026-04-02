@@ -25,7 +25,7 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
         <LabeledInput
           label="인증번호"
           containerClassName="flex-1 mb-0"
-          className={`h-[46px] px-2 rounded-xl border text-p1 font-Regular text-black ${
+          className={`h-[46px] px-2 rounded-xl border text-p1 font-pretendardRegular text-black ${
             isCodeError ? 'border-statusError' : 'border-borderGray'
           }`}
           placeholder="6자리 인증번호"
@@ -49,7 +49,7 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
       </View>
 
       {isCodeError ? (
-        <Text className="mt-2 text-p font-Regular text-statusError">
+        <Text className="mt-2 text-p font-pretendardRegular text-statusError">
           인증번호가 올바르지 않습니다.
         </Text>
       ) : null}

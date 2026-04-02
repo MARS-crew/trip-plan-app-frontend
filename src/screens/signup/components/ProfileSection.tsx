@@ -39,7 +39,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
   return (
     <View className={`mt-5 ${showCountryPicker ? 'z-20' : ''}`}>
       <ContentContainer className="px-6 py-6">
-        <Text className="mb-4 text-h3 font-semibold text-black">개인 정보</Text>
+        <Text className="mb-4 text-h3 font-pretendardSemiBold text-black">개인 정보</Text>
 
         <View onLayout={onNameLayout}>
           <LabeledInput
@@ -121,7 +121,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
 
         <View className="relative mb-4" onLayout={onCountryLayout}>
           <View className="mb-2 flex-row">
-            <Text className="text-h3 font-semibold text-black">국가 </Text>
+            <Text className="text-h3 font-pretendardSemiBold text-black">국가 </Text>
             <Text className="text-p1 text-statusError">*</Text>
           </View>
           <Pressable

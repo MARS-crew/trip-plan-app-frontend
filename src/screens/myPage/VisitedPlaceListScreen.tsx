@@ -88,12 +88,12 @@ const VisitedPlaceListScreen: React.FC = () => {
 							className="ml-2 mr-1 h-10 w-10 items-start justify-center">
 							<BackArrow width={20} height={20} />
 						</TouchableOpacity>
-						<Text className="text-h font-bold text-black">방문한 장소 리스트</Text>
+						<Text className="text-h font-pretendardBold text-black">방문한 장소 리스트</Text>
 					</View>
 
 					{groupedByDate.map(([date, items]) => (
 						<View key={date} className="mt-4">
-							<Text className="mb-2 text-p1 font-medium text-gray">{date}</Text>
+							<Text className="mb-2 text-p1 font-pretendardMedium text-gray">{date}</Text>
 
 							<View className="gap-3">
 								{items.map(item => (
@@ -107,7 +107,7 @@ const VisitedPlaceListScreen: React.FC = () => {
 											<View className="flex-1 ml-3 pt-5">
 												<View className="flex-row items-start justify-between">
 													<View className="flex-1 pr-2">
-														<Text className="text-h3 font-semibold text-black">{item.title}</Text>
+														<Text className="text-h3 font-pretendardSemiBold text-black">{item.title}</Text>
 														<View className="mt-1 flex-row items-center">
 															<MarkerGrayIcon width={12} height={12} />
 															<Text className="mb-2 ml-1 mt-1 text-p text-gray">{item.location}</Text>
@@ -134,7 +134,7 @@ const VisitedPlaceListScreen: React.FC = () => {
 											<TouchableOpacity
 												activeOpacity={0.85}
 												className="h-11 items-center justify-center rounded-lg border border-borderGray bg-inputBackground">
-												<Text className="text-center text-p3 font-semibold text-black">{item.reviewCta}</Text>
+												<Text className="text-center text-p3 font-pretendardSemiBold text-black">{item.reviewCta}</Text>
 											</TouchableOpacity>
 										</View>
 									</View>

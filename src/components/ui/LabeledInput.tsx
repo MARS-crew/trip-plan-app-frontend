@@ -27,7 +27,7 @@ export const LabeledInput: React.FC<LabeledInputProps> = ({
   return (
     <View className={containerClassName}>
       <View className="flex-row mb-2">
-        <Text className="text-h3 font-semibold text-black">{label} </Text>
+        <Text className="text-h3 font-pretendardSemiBold text-black">{label} </Text>
         {required && <Text className="text-p1 text-statusError">*</Text>}
       </View>
       <TextInput

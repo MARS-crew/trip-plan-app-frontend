@@ -12,7 +12,7 @@ import {
 import { Shadow } from 'react-native-shadow-2';
 import LinearGradient from 'react-native-linear-gradient';
 
-import { MarkerGrayIcon, ScheduleIcon, VectorGrayIcon } from '@/assets/icons';
+import { DateIcon, MarkerGrayIcon, VectorGrayIcon } from '@/assets/icons';
 import { COLORS } from '@/constants';
 import { TripStatusChip } from '@/components/ui';
 
@@ -83,11 +83,10 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
               </View>
             ) : null}
             <View className="absolute bottom-[14px] left-3">
-              <Text className="text-h1 text-white font-bold mb-1">도쿄</Text>
+              <Text className="text-h1 text-white font-pretendardBold mb-1">도쿄</Text>
               <View className="flex-row items-center">
-                <ScheduleIcon width={12} height={12} />
-                <Text className="text-p text-white font-regular ml-1">일정</Text>
-                <Text className="text-p text-white font-regular ml-[2px]">2026.02.28 ~ 2026.03.03</Text>
+                <DateIcon width={12} height={12} />
+                <Text className="text-p text-white font-pretendardRegular ml-[2px]">2026.02.28 - 2026.03.03</Text>
               </View>
             </View>
           </View>
@@ -120,9 +119,12 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
           <TouchableOpacity activeOpacity={0.9} onPress={(): void => onCardPress(cardIndex)}>
             <View className={`${expandedCardIndex === cardIndex ? 'border-b border-chip' : 'rounded-b-lg'}`}>
               <View className="p-4 flex-row items-center">
-                <MarkerGrayIcon />
-                <Text className="text-p text-gray font-regular ml-1">5개의 일정</Text>
-                <Text className="text-p text-gray font-regular ml-3">4일간</Text>
+                <MarkerGrayIcon 
+                  width={14}
+                  height={14}
+                />
+                <Text className="text-p text-gray font-pretendardRegular ml-1">5개의 일정</Text>
+                <Text className="text-p text-gray font-pretendardRegular ml-3">4일간</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -143,7 +145,10 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
                 style={{ zIndex: 2, opacity: canScrollLeft ? 1 : 0.4 }}
               >
                 <View style={{ transform: [{ rotate: '180deg' }] }}>
-                  <VectorGrayIcon />
+                  <VectorGrayIcon
+                    width={16}
+                    height={16}
+                  />
                 </View>
               </TouchableOpacity>
               {scrollPosition > 0 ? (
@@ -183,7 +188,7 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
                       backgroundColor: isSelected ? 'rgba(223, 108, 32, 0.102)' : 'transparent',
                     }}
                   >
-                    <Text className="text-p1 font-medium" style={{ color: isSelected ? COLORS.main : COLORS.gray }}>
+                    <Text className="text-p1 font-pretendardMedium" style={{ color: isSelected ? COLORS.main : COLORS.gray }}>
                       {item.date}({item.day})
                     </Text>
                   </TouchableOpacity>

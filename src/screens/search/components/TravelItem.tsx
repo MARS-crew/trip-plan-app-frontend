@@ -37,7 +37,7 @@ export const TravelItem = React.memo<TravelItemProps>(({ item, onPress }) => {
               <Text className="text-p">{item.rating.toFixed(1)}</Text>
               <Text className="text-p text-gray">({item.reviewCount.toLocaleString()})</Text>
             </View>
-            <Text className="text-h3 font-semibold mb-0.5">{item.name}</Text>
+            <Text className="text-h3 font-pretendardSemiBold mb-0.5">{item.name}</Text>
             <View className="flex-row gap-1 items-center mb-1.5">
               <MarkerGrayIcon width={12} height={12} />
               <Text className="text-p text-gray">{item.location}</Text>

@@ -67,10 +67,10 @@ const NotificationSettingsScreen: React.FC = () => {
             className="ml-2 mr-1 h-10 w-10 items-start justify-center">
             <BackArrow width={20} height={20} />
           </TouchableOpacity>
-          <Text className="text-xl font-bold text-left text-black">알림 설정</Text>
+          <Text className="text-xl font-pretendardBold text-left text-black">알림 설정</Text>
         </View>
 
-        <Text className="ml-1 mt-6 text-xs font-semibold text-left text-black">푸시 알림</Text>
+        <Text className="ml-1 mt-6 text-xs font-pretendardSemiBold text-left text-black">푸시 알림</Text>
 
         <View className="mt-3 overflow-hidden rounded-2xl border border-borderGray bg-white">
           <View className="flex-row items-center justify-between px-4 py-4">
@@ -80,7 +80,7 @@ const NotificationSettingsScreen: React.FC = () => {
               </View>
 
               <View className="ml-3">
-                <Text className="text-sm font-medium text-left text-black">푸시 알림</Text>
+                <Text className="text-sm font-pretendardMedium text-left text-black">푸시 알림</Text>
                 <Text className="mt-0.5 text-p text-black">일정, 날씨 관련 알림</Text>
               </View>
             </View>
@@ -96,7 +96,7 @@ const NotificationSettingsScreen: React.FC = () => {
                 </View>
 
                 <View className="ml-3">
-                  <Text className="text-sm font-medium text-left text-black">야간 푸시 알림 동의</Text>
+                  <Text className="text-sm font-pretendardMedium text-left text-black">야간 푸시 알림 동의</Text>
                   <Text className="mt-0.5 text-p text-black">야간 중 푸시 알림</Text>
                 </View>
               </View>

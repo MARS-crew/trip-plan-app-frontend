@@ -59,6 +59,7 @@ export const WishModal = React.memo<WishModalProps>(
                             {/* 아이콘 영역 */}
                             {icon && <View className={`${ModalIcon}`}>{icon}</View>}
 
+
                             {/* X 버튼 */}
                             {showCloseButton ?
                                 <Pressable onPress={onClose} className='absolute top-4 right-4 x-6 y-6'>
@@ -66,9 +67,10 @@ export const WishModal = React.memo<WishModalProps>(
                                 </Pressable> : null
                             }
                             {/* 타이틀 영역 */}
-                            <Text className={`text-h2 font-semibold text-center text-black ${primaryTitleTextClass}`}>
+                            <Text className={`text-h2 font-pretendardSemiBold text-center text-black ${primaryTitleTextClass}`}>
                                 {title}
                             </Text>
+
 
                             {/* 버튼 영역: 외부에서 주입한 클래스에 따라 가로/세로 결정 */}
                             <View className={`w-full ${buttonContainerClass}`}>
@@ -78,7 +80,7 @@ export const WishModal = React.memo<WishModalProps>(
                                     onPress={onPrimaryPress}
                                     className={` flex-row justify-center items-center rounded-lg  ${primaryBtnClass}`}
                                 >{primaryIcon && <View className="mr-2">{primaryIcon}</View>}
-                                    <Text className={`text-center font-semibold text-p1 ${primaryTextClass}`}>
+                                    <Text className={`text-center font-pretendardSemiBold text-p1 ${primaryTextClass}`}>
                                         {primaryLabel}
                                     </Text>
                                 </Pressable>
@@ -88,10 +90,11 @@ export const WishModal = React.memo<WishModalProps>(
                                     onPress={onSecondaryPress}
                                     className={` rounded-lg  ${secondaryBtnClass}`}
                                 >
-                                    <Text className={`text-center font-semibold text-p1 ${secondaryTextClass}`}>
+                                    <Text className={`text-center font-pretendardSemiBold text-p1 ${secondaryTextClass}`}>
                                         {secondaryLabel}
                                     </Text>
                                 </Pressable>
+
 
                             </View>
                         </View>

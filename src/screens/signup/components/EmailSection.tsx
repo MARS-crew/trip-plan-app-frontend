@@ -42,7 +42,7 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
   return (
     <View className="mt-5">
       <ContentContainer className="px-6 py-6">
-        <Text className="mb-4 text-h3 font-semibold text-black">이메일 인증</Text>
+        <Text className="mb-4 text-h3 font-pretendardSemiBold text-black">이메일 인증</Text>
 
         <View className="mb-2 flex-row items-end gap-2" onLayout={onEmailLayout}>
           <View className={`flex-1 ${isCodeVerified ? 'opacity-50' : ''}`}>

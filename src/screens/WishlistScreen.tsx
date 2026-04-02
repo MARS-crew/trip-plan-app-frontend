@@ -256,7 +256,7 @@ const WishlistScreen: React.FC = () => {
       case 'trending':
         return (
           <>
-            <View><Text className="text-h2 font-semibold">현재 핫한 장소</Text></View>
+            <View><Text className="text-h2 font-pretendardSemiBold">현재 핫한 장소</Text></View>
             <View className="mt-4">
               {TRENDING_PLACES.map((place) => (
                 <PlaceCard
@@ -308,7 +308,7 @@ const WishlistScreen: React.FC = () => {
 
         return (
           <>
-            <View><Text className="text-h2 font-semibold">현재 핫한 장소</Text></View>
+            <View><Text className="text-h2 font-pretendardSemiBold">현재 핫한 장소</Text></View>
             <View className="mt-4">
               {TRENDING_PLACES.map((place) => (
                 <PlaceCard
@@ -327,8 +327,8 @@ const WishlistScreen: React.FC = () => {
         return (
           <View className="py-4 mr-[1px] items-center">
             <View className="mt-20"><EmptyLocation /></View>
-            <View className="mt-4"><Text className="text-h2 font-semibold">저장한 장소가 없어요</Text></View>
-            <View className="mt-1"><Text className="text-p1 text-gray font-medium">마음에 드는 장소를 저장해주세요.</Text></View>
+            <View className="mt-4"><Text className="text-h2 font-pretendardSemiBold">저장한 장소가 없어요</Text></View>
+            <View className="mt-1"><Text className="text-p1 text-gray font-pretendardMedium">마음에 드는 장소를 저장해주세요.</Text></View>
           </View>
         );
       //위시리스트 데이터 없을 경우
@@ -336,8 +336,8 @@ const WishlistScreen: React.FC = () => {
         return (
           <View className="py-4 mr-[1px] items-center">
             <View className="mt-20"><EmptyWish /></View>
-            <View className="mt-4"><Text className="text-h2 font-semibold">위시리스트에 장소가 없어요</Text></View>
-            <View className="mt-1"><Text className="text-p1 text-gray font-medium">가고싶은 장소를 위시리스트에 추가해주세요.</Text></View>
+            <View className="mt-4"><Text className="text-h2 font-pretendardSemiBold">위시리스트에 장소가 없어요</Text></View>
+            <View className="mt-1"><Text className="text-p1 text-gray font-pretendardMedium">가고싶은 장소를 위시리스트에 추가해주세요.</Text></View>
           </View>
         );
       default:
@@ -384,7 +384,7 @@ const WishlistScreen: React.FC = () => {
             {/* 2. 검색 입력창 */}
 
             <TextInput
-              className="flex-1  text-h3 font-regular pr-12 text-black"
+              className="flex-1  text-h3 font-pretendardRegular pr-12 text-black"
               placeholder="희망하는 관광지를 검색하세요"
               placeholderTextColor={COLORS.gray}
               onFocus={() => setIsSearchFocused(true)}

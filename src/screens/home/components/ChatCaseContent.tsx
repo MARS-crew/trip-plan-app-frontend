@@ -27,7 +27,7 @@ export const ChatCaseContent: React.FC<ChatCaseContentProps> = ({ currentCaseInd
             className="bg-main px-4 py-3"
             style={{ borderRadius: CHAT_CASE_CARD_RADIUS }}
           >
-            <Text className="text-p1 text-white font-medium">겨울에 가기 좋은 여행지 추천해줘</Text>
+            <Text className="text-p1 text-white font-pretendardMedium">겨울에 가기 좋은 여행지 추천해줘</Text>
           </View>
         </View>
 
@@ -45,7 +45,7 @@ export const ChatCaseContent: React.FC<ChatCaseContentProps> = ({ currentCaseInd
           >
             <Image source={AI_CHAT_IMAGE} resizeMode="cover" className="mt-3 mb-2 w-full rounded-[16px]" />
 
-            <Text className="text-p1 text-black font-medium">
+            <Text className="text-p1 text-black font-pretendardMedium">
               겨울에 가기 좋은 여행지를 찾는다면 삿포로를 추천해요.
               {'\n'}
               도시 전체가 새하얀 설경으로 변해 로맨틱한 분위기를 즐길 수 있고, 2월에는 세계적으로
@@ -59,7 +59,7 @@ export const ChatCaseContent: React.FC<ChatCaseContentProps> = ({ currentCaseInd
               className="mt-4 mb-3 h-12 bg-main items-center justify-center"
               style={{ borderRadius: CHAT_CASE_CARD_RADIUS }}
             >
-              <Text className="text-h3 text-white font-semibold">상세보기</Text>
+              <Text className="text-h3 text-white font-pretendardSemiBold">상세보기</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -75,7 +75,7 @@ export const ChatCaseContent: React.FC<ChatCaseContentProps> = ({ currentCaseInd
             className="bg-main px-4 py-3"
             style={{ borderRadius: CHAT_CASE_CARD_RADIUS }}
           >
-            <Text className="text-p1 text-white font-medium">겨울에 가기 좋은 여행지 추천해줘</Text>
+            <Text className="text-p1 text-white font-pretendardMedium">겨울에 가기 좋은 여행지 추천해줘</Text>
           </View>
         </View>
 
@@ -91,7 +91,7 @@ export const ChatCaseContent: React.FC<ChatCaseContentProps> = ({ currentCaseInd
             className="self-start max-w-[80%] bg-chatHeaderCircleBackground px-3 py-3"
             style={{ marginLeft: CHAT_PROFILE_TO_BUBBLE_GAP, borderRadius: CHAT_CASE_CARD_RADIUS }}
           >
-            <Text className="text-p1 text-black font-medium">삿포로를 추천해요.</Text>
+            <Text className="text-p1 text-black font-pretendardMedium">삿포로를 추천해요.</Text>
           </View>
         </View>
       </View>
@@ -106,8 +106,8 @@ export const ChatCaseContent: React.FC<ChatCaseContentProps> = ({ currentCaseInd
       >
         <AirplaneIcon width={64} height={64} />
       </View>
-      <Text className="mt-4 text-h1 font-bold">안녕하세요!</Text>
-      <Text className="mt-[6px] text-p1 text-gray font-medium">여행 계획을 도와드릴게요.</Text>
+      <Text className="mt-4 text-h1 font-pretendardBold">안녕하세요!</Text>
+      <Text className="mt-[6px] text-p1 text-gray font-pretendardMedium">여행 계획을 도와드릴게요.</Text>
     </View>
   );
 };
