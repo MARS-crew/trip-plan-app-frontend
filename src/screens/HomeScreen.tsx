@@ -201,7 +201,7 @@ const HomeScreen: React.FC = () => {
               <RobotIcon width={20} height={20} />
             </View>
             <View className="ml-[7px]">
-              <Text className="text-h3 text-black font-semibold">Pli AI</Text>
+              <Text className="text-h3 text-black font-pretendardSemiBold">Pli AI</Text>
               <Text className="text-p text-gray">여행 계획을 도와드려요</Text>
             </View>
           </View>

@@ -42,7 +42,7 @@ export const PlaceCard = React.memo<PlaceCardProps>(
                                 />
                             </View>
                             <View className="flex-1 ml-3 pr-5">
-                                <Text className="text-h3 text-black font-semibold">{place.title}</Text>
+                                <Text className="text-h3 text-black font-pretendardSemiBold">{place.title}</Text>
                                 <View className="mt-[2px]">
                                     <Text className="text-p text-gray" numberOfLines={2}>{place.description}</Text>
                                 </View>
@@ -75,15 +75,15 @@ export const PlaceCard = React.memo<PlaceCardProps>(
                             />
                         </View>
                         <View className="flex-1 ml-3 pr-8">
-                            <Text className="text-h3 text-black font-semibold">{place.title}</Text>
+                            <Text className="text-h3 text-black font-pretendardSemiBold">{place.title}</Text>
                             <View className="flex-row mt-1">
                                 <View className="w-3 h-3 top-[3px] mr-1">
                                     <PlaceIcon />
                                 </View>
-                                <Text className="text-p text-gray font-regular">{place.location}</Text>
+                                <Text className="text-p text-gray font-pretendardRegular">{place.location}</Text>
                             </View>
                             <View className="mt-2">
-                                <Text className="text-p text-gray font-regular" numberOfLines={2}>{place.description}</Text>
+                                <Text className="text-p text-gray font-pretendardRegular" numberOfLines={2}>{place.description}</Text>
                             </View>
                         </View>
                         <TouchableOpacity

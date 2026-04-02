@@ -23,7 +23,7 @@ export const MarketingConsentScreen: React.FC = () => {
                 {/* 주황색 동그라미 */}
                 <View className="w-[6px] h-[6px] mt-[8px] mr-3.5 rounded-full bg-main " />
                 {/* 텍스트 */}
-                <Text className="flex-1 text-p1 text-zero font-medium ">
+                <Text className="flex-1 text-p1 text-zero font-pretendardMedium ">
                     {item}
                 </Text>
             </View>
@@ -40,17 +40,17 @@ export const MarketingConsentScreen: React.FC = () => {
 
                 {/* 인트로 */}
                 <View className="mb-6">
-                    <Text className="text-h2 font-semibold text-black mb-3">
+                    <Text className="text-h2 font-pretendardSemiBold text-black mb-3">
                         마케팅 정보 수신 동의
                     </Text>
-                    <Text className="text-p1 text-gray font-regular">
+                    <Text className="text-p1 text-gray font-pretendardRegular">
                         본 앱은 이용자에게 다양한 혜택 및 서비스 정보를 제공하기 위해 마케팅 정보를 발송할 수 있습니다. 아래 내용을 확인하시고 동의 여부를 선택해주시기 바랍니다.
                     </Text>
                 </View>
 
                 {/* 1. 수집하는 개인정보 항목 */}
                 <View className="mb-6">
-                    <Text className="text-h3 font-semibold text-black mb-3">
+                    <Text className="text-h3 font-pretendardSemiBold text-black mb-3">
                         1. 수집 및 이용 목적
                     </Text>
 
@@ -60,7 +60,7 @@ export const MarketingConsentScreen: React.FC = () => {
 
                 {/* 2. 개인정보 수집 및 이용 목적 */}
                 <View className="mb-6">
-                    <Text className="text-h3 font-semibold text-black mb-3">
+                    <Text className="text-h3 font-pretendardSemiBold text-black mb-3">
                         2. 수신 방법
                     </Text>
 
@@ -70,20 +70,20 @@ export const MarketingConsentScreen: React.FC = () => {
 
                 {/* 3. 개인정보 보유 및 이용 기간 */}
                 <View className="mb-6">
-                    <Text className="text-h3 font-semibold text-black mb-2">
+                    <Text className="text-h3 font-pretendardSemiBold text-black mb-2">
                         3. 보유 및 이용 기간
                     </Text>
-                    <Text className="text-p1 text-gray font-medium">
+                    <Text className="text-p1 text-gray font-pretendardMedium">
                         마케팅 정보 수신 동의일로부터 회원 탈퇴 시 또는 동의 철회 시까지 보유 및 이용됩니다.
                     </Text>
                 </View>
 
                 {/* 4. 동의 거부 권리 안내 */}
                 <View className="mb-10">
-                    <Text className="text-h3 font-semibold text-black mb-2">
+                    <Text className="text-h3 font-pretendardSemiBold text-black mb-2">
                         4. 동의 거부에 따른 안내
                     </Text>
-                    <Text className="text-p1 text-gray font-regular">
+                    <Text className="text-p1 text-gray font-pretendardRegular">
                         이용자는 마케팅 정보 수신 동의를 거부할 권리가 있습니다. 단, 동의하지 않을 경우 이벤트, 혜택, 프로모션, 광고성 푸시 알림 및 안내 메일 등 마케팅 정보 수신이 제한될 수 있습니다
                     </Text>
                 </View>

@@ -52,7 +52,7 @@ const KebabMenuSheet = ({ isVisible, translateY, onClose }: KebabMenuSheetProps)
             <View className="mr-3">
               <KebabEditIcon />
             </View>
-            <Text className="text-h3 font-semibold text-black">제목 변경</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-black">제목 변경</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -62,7 +62,7 @@ const KebabMenuSheet = ({ isVisible, translateY, onClose }: KebabMenuSheetProps)
             <View className="mr-3">
               <KebabCalIcon />
             </View>
-            <Text className="text-h3 font-semibold text-black">날짜 변경</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-black">날짜 변경</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -72,7 +72,7 @@ const KebabMenuSheet = ({ isVisible, translateY, onClose }: KebabMenuSheetProps)
             <View className="mr-3">
               <KebabShareIcon />
             </View>
-            <Text className="text-h3 font-semibold text-black">공유</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-black">공유</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -82,7 +82,7 @@ const KebabMenuSheet = ({ isVisible, translateY, onClose }: KebabMenuSheetProps)
             <View className="mr-3">
               <KebabTrashIcon />
             </View>
-            <Text className="text-h3 font-semibold text-black">삭제</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-black">삭제</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>

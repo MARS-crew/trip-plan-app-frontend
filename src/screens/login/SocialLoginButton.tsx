@@ -23,7 +23,7 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
 			accessibilityLabel={label}>
 			<View className="flex-row items-center justify-center">
 				<View className="mr-3">{icon}</View>
-				<Text className={`text-p1 font-medium fontfamily-No ${textClassName}`}>{label}</Text>
+				<Text className={`text-p1 font-pretendardMedium fontfamily-No ${textClassName}`}>{label}</Text>
 			</View>
 		</Pressable>
 	);

@@ -15,6 +15,7 @@ export { default as GoogleIcon } from './googleicon.svg';
 export { default as LeftArrowIcon } from './leftarrow.svg';
 export { default as ShareIcon } from './share.svg';
 export { default as SaveIcon } from './save.svg';
+export { default as ActiveBookmarkIcon } from './active-bookmark.svg';
 export { default as StarIcon } from './star.svg';
 export { default as ScheduleIcon } from './schedule.svg';
 export { default as MarkerIcon } from './marker.svg';
@@ -78,6 +79,7 @@ export { default as InputSearchIcon } from './inputsearch.svg';
 export { default as TimeB } from './timeB.svg';
 export { default as CheckedCircleIcon } from './checkedcircle.svg';
 export { default as UncheckedCircleIcon } from './uncheckedcircle.svg';
+export { default as DateIcon } from './date.svg';
 export { default as X } from './x.svg';
 export { default as RobotIcon } from './robot.svg';
 export { default as SendIcon } from './send.svg';
@@ -88,7 +90,6 @@ export { default as StarOffIconV2 } from './StarOffV2.svg';
 export { default as ActiveStar } from './active-star.svg';
 export { default as BackArrowGray } from './backarrowgray.svg';
 export { default as MapMarker } from './mapmarker.svg';
-
 // 타입 정의
 export interface IconProps {
   fill?: string;

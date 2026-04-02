@@ -51,7 +51,7 @@ const Header = ({ onPressKebab }: HeaderProps) => {
       </View>
 
       <View className="absolute bottom-[19px] left-4">
-        <Text className="mb-[6px] text-title font-bold text-white">도쿄 여행</Text>
+        <Text className="mb-[6px] text-title font-pretendardBold text-white">도쿄 여행</Text>
         <View className="flex-row items-center">
           <CalendarIcon width={16} height={16} />
           <Text className="ml-[6px] text-p text-white">2026.02.28 - 2026.03.03</Text>

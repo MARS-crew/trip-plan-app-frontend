@@ -57,7 +57,7 @@ const TripCard = ({
 
         {/*City*/}
           <View className="absolute bottom-5 left-4">
-            <Text className="ml-[1.2px] text-h1 font-bold text-white">{city}</Text>
+            <Text className="ml-[1.2px] text-h1 font-pretendardBold text-white">{city}</Text>
 
         {/*Date*/}
             <View className="flex-row items-center">

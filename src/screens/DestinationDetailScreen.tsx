@@ -6,11 +6,12 @@ import type { RouteProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { IconButton, ReviewCard } from '@/screens/destinationDetail/components';
+import { IconButton, InfoTabContent, ReviewCard } from '@/screens/destinationDetail/components';
 import { Chip, TabNavigation, ContentContainer } from '@/components/ui';
 import {
   LeftArrowIcon,
   SaveIcon,
+  ActiveBookmarkIcon,
   ShareIcon,
   StarIcon,
   ScheduleIcon,
@@ -19,10 +20,6 @@ import {
   ReviewIcon,
   ActiveInfoIcon,
   ActiveReviewIcon,
-  TimeIcon,
-  AddressIcon,
-  PlaceIcon,
-  VectorIcon,
 } from '@/assets/icons';
 import type { RootTabParamList, SearchStackParamList } from '@/navigation/types';
 
@@ -48,6 +45,7 @@ const DestinationDetailScreen: React.FC = () => {
 
   // Hooks
   const [activeTab, setActiveTab] = React.useState('info');
+  const [isBookmarked, setIsBookmarked] = React.useState(false);
 
   const handleGoBack = useCallback((): void => {
     if (origin === 'bookmark') {
@@ -68,7 +66,7 @@ const DestinationDetailScreen: React.FC = () => {
   }, [navigation, origin]);
 
   const handleSave = useCallback((): void => {
-    // TODO: 저장 기능 구현
+    setIsBookmarked((prevState) => !prevState);
   }, []);
 
   const handleShare = useCallback((): void => {
@@ -118,12 +116,14 @@ const DestinationDetailScreen: React.FC = () => {
           {/* 오른쪽: 저장, 공유 버튼 */}
           <View className="absolute right-4 top-4 flex-row">
             <IconButton
+              iconSize={24}
               className="mr-2"
-              icon={SaveIcon}
+              icon={isBookmarked ? ActiveBookmarkIcon : SaveIcon}
               onPress={handleSave}
               accessibilityLabel="저장"
             />
             <IconButton
+              iconSize={16}
               icon={ShareIcon}
               onPress={handleShare}
               accessibilityLabel="공유"
@@ -132,7 +132,7 @@ const DestinationDetailScreen: React.FC = () => {
 
           {/* 좌측 하단: 위치 정보 */}
           <View className="absolute left-4 bottom-[19px]">
-            <Text className="text-title text-white font-bold mb-[7px]">센소지 아사쿠사</Text>
+            <Text className="text-title text-white font-pretendardBold mb-[7px]">센소지 아사쿠사</Text>
             <View className="flex-row items-center">
               <MarkerIcon />
               <Text className="text-p text-white ml-[6px]">도쿄, 일본</Text>
@@ -143,8 +143,8 @@ const DestinationDetailScreen: React.FC = () => {
           <View className="mt-7 px-4 flex-row items-center justify-between">
             <View className="flex-row items-center">
               <StarIcon />
-              <Text className="text-h2 ml-1 font-bold">4.6</Text>
-              <Text className="text-p text-gray ml-3 font-medium">리뷰 56,789개</Text>
+              <Text className="text-h2 ml-1 font-pretendardBold">4.6</Text>
+              <Text className="text-p1 text-gray ml-3 font-pretendardMedium">리뷰 56,789개</Text>
             </View>
 
             <TouchableOpacity
@@ -163,7 +163,7 @@ const DestinationDetailScreen: React.FC = () => {
           </View>
 
           {/* 탭 네비게이션 */}
-          <View className="mt-9 px-4 mb-5">
+          <View className="mt-[34px] px-4 mb-5">
             <TabNavigation
               tabs={tabs}
               activeTabId={activeTab}
@@ -174,140 +174,46 @@ const DestinationDetailScreen: React.FC = () => {
           {/* 컨텐츠 영역 */}
           <View className="px-4">
             {activeTab === 'info' ? (
-              <>
-                <ContentContainer className="p-4">
-                  <Text className="text-h3 font-semibold mb-2">소개</Text>
-                  <Text className="text-p text-gray font-medium">
-                    도쿄에서 가장 오래된 불교 사원으로, 웅장한 카미나리몬과 나카미세 거리가 유명합니다.
-                  </Text>
-                </ContentContainer>
-            <View className="mt-5">
-              <ContentContainer className="w-[181px]">
-                <View className="flex-row items-center ml-4 mr-[44px] mt-[14px] mb-[14px]">
-                  <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center">
-                    <TimeIcon />
-                  </View>
-                  <View className="ml-[13px]">
-                    <Text className="text-p text-gray">영업시간</Text>
-                    <View className="mt-1">
-                      <Text className="text-p text-black">06:00 - 17:00</Text>
-                    </View>
-                  </View>
-                </View>
-              </ContentContainer>
-            </View>
-            <View className="mt-5">
-              <ContentContainer>
-                <View className="flex-row items-center ml-4 mt-[14px] mb-[14px]">
-                  <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center">
-                    <AddressIcon />
-                  </View>
-                  <View className="ml-[13px]">
-                    <Text className="text-p text-gray">주소</Text>
-                    <View className="mt-1">
-                      <Text className="text-p text-black">2 Chrome-3-1 Asakusa, Taito City, Tokyo</Text>
-                    </View>
-                  </View>
-                </View>
-              </ContentContainer>
-            </View>
-            <View className="mt-5">
-              <Text className="text-h3 text-black font-semibold">주변 추천 장소</Text>
-            </View>
-            <View className="mt-3">
-              <ContentContainer>
-                <View className="flex-row items-center justify-between ml-4 my-3">
-                  <View className="flex-row items-center">
-                    <View className="w-9 h-9 bg-chip rounded-lg items-center justify-center">
-                      <PlaceIcon />
-                    </View>
-                    <View className="ml-3">
-                      <Text className="text-p1 text-black font-medium">도쿄 스카이트리</Text>
-                    </View>
-                  </View>
-                  <View className="mr-4">
-                    <VectorIcon />
-                  </View>
-                </View>
-              </ContentContainer>
-            </View>
-            <View className="mt-2">
-              <ContentContainer>
-                <View className="flex-row items-center justify-between ml-4 my-3">
-                  <View className="flex-row items-center">
-                    <View className="w-9 h-9 bg-chip rounded-lg items-center justify-center">
-                      <PlaceIcon />
-                    </View>
-                    <View className="ml-3">
-                      <Text className="text-p1 text-black font-medium">우에노 공원</Text>
-                    </View>
-                  </View>
-                  <View className="mr-4">
-                    <VectorIcon />
-                  </View>
-                </View>
-              </ContentContainer>
-            </View>
-            <View className="mt-2 mb-[26px]">
-              <ContentContainer>
-                <View className="flex-row items-center justify-between ml-4 my-3">
-                  <View className="flex-row items-center">
-                    <View className="w-9 h-9 bg-chip rounded-lg items-center justify-center">
-                      <PlaceIcon />
-                    </View>
-                    <View className="ml-3">
-                      <Text className="text-p1 text-black font-medium">아메요코 시장</Text>
-                    </View>
-                  </View>
-                  <View className="mr-4">
-                    <VectorIcon />
-                  </View>
-                </View>
-              </ContentContainer>
-            </View>
-              </>
+              <InfoTabContent />
             ) : (
-              // TODO: 리뷰 탭 컨텐츠 구현 필요
               <>
-              <View className="mb-4">
-                <ContentContainer>
-                  <View className="flex-row p-4 pb-6">
-                  {/* 왼쪽: 별점 평균 */}
-                    <View className="flex-row shrink-0 items-center gap-2">
-                      <StarIcon width={20} height={20} />
-                      <Text className="text-2xl font-medium text-black">4.6</Text>
-                    </View>
-                    
-                    {/* 오른쪽: 분포 바 */}
-                    <View className="flex-1 gap-1">
-                      {ratings.map((item) => (
-                        <View key={item.label} className="flex-row items-center gap-2">
-                          <Text className="w-7 text-p1 text-right text-black">{item.label}</Text>
-                          <View className="flex-1 h-2 bg-background rounded-sm overflow-hidden">
-                            <View
-                              className="h-2 rounded-sm bg-main"
-                              style={{ width: `${(item.count / maxCount) * 100}%` }}
-                            />
+                <View className="mb-4">
+                  <ContentContainer>
+                    <View className="flex-row p-4 pb-6">
+                      <View className="flex-row shrink-0 items-center gap-2">
+                        <StarIcon width={20} height={20} />
+                        <Text className="text-2xl font-pretendardMedium text-black">4.6</Text>
+                      </View>
+
+                      <View className="flex-1 gap-1">
+                        {ratings.map((item) => (
+                          <View key={item.label} className="flex-row items-center gap-2">
+                            <Text className="w-7 text-p1 text-right text-black">{item.label}</Text>
+                            <View className="flex-1 h-2 bg-background rounded-sm overflow-hidden">
+                              <View
+                                className="h-2 rounded-sm bg-main"
+                                style={{ width: `${(item.count / maxCount) * 100}%` }}
+                              />
+                            </View>
+                            <Text className="w-12 text-left text-p leading-none text-gray">
+                              {item.count.toLocaleString()}
+                            </Text>
                           </View>
-                          <Text className="w-12 text-left text-p leading-none text-gray">
-                            {item.count.toLocaleString()}
-                          </Text>
-                        </View>
-                      ))}
+                        ))}
+                      </View>
                     </View>
-                  </View>
-                </ContentContainer>
-              </View>
-              <ReviewCard
-                profileName="사랑스런그녀"
-                visitDt="2025.11.03"
-                scope={4}
-                content="도시 한 가운데에 있는 사원이라니 즐길거리가 많아 좋았습니다! 근처에 음식점이나 길거리 음식이 많이 판매하고 있어 관광 후 배를 채우기 좋았어요!"
-                imageList={[
-                  'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400',
-                  'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400',
-                ]}
-              />
+                  </ContentContainer>
+                </View>
+                <ReviewCard
+                  profileName="사랑스런그녀"
+                  visitDt="2025.11.03"
+                  scope={4}
+                  content="도시 한 가운데에 있는 사원이라니 즐길거리가 많아 좋았습니다! 근처에 음식점이나 길거리 음식이 많이 판매하고 있어 관광 후 배를 채우기 좋았어요!"
+                  imageList={[
+                    'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400',
+                    'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400',
+                  ]}
+                />
               </>
             )}
           </View>

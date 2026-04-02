@@ -59,7 +59,7 @@ const CardContextMenu = ({ card, opacity, topOffset, onClose }: CardContextMenuP
               <View className="mr-3 h-[32px] w-[32px] items-center justify-center rounded-[8px] bg-chip">
                 <KebabEditIcon />
               </View>
-              <Text className="text-h3 font-semibold text-black">편집</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">편집</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -69,7 +69,7 @@ const CardContextMenu = ({ card, opacity, topOffset, onClose }: CardContextMenuP
               <View className="mr-3 h-[32px] w-[32px] items-center justify-center rounded-[8px] bg-chip">
                 <KebabMapIcon />
               </View>
-              <Text className="text-h3 font-semibold text-black">길찾기</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">길찾기</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -79,7 +79,7 @@ const CardContextMenu = ({ card, opacity, topOffset, onClose }: CardContextMenuP
               <View className="mr-3 h-[32px] w-[32px] items-center justify-center rounded-[8px] bg-chip">
                 <KebabTrashIcon />
               </View>
-              <Text className="text-h3 font-semibold text-black">삭제</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">삭제</Text>
             </TouchableOpacity>
           </View>
         </View>

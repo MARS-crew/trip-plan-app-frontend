@@ -101,7 +101,7 @@ const CustomTabBarButton: React.FC<CustomTabBarButtonProps> = ({
       <View className="items-center justify-center">
         <Text
           numberOfLines={1}
-          className={`text-[10px] font-medium text-center ${isActive ? 'text-main' : 'text-gray'}`}
+          className={`text-[10px] font-pretendardMedium text-center ${isActive ? 'text-main' : 'text-gray'}`}
           style={{
             includeFontPadding: false,
             textAlignVertical: 'center',

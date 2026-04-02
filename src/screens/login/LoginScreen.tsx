@@ -68,7 +68,7 @@ const LoginScreen: React.FC = () => {
 					<View className="items-center px-5 pt-5 pb-8">
 						<View className="mt-8 items-center">
 							<AppLogoIcon width={64} height={96} />
-							<Text className="mt-4 text-p1 font-medium text-gray">똑똑한 여행의 시작 여행추천 AI</Text>
+							<Text className="mt-4 text-p1 font-pretendardMedium text-gray">똑똑한 여행의 시작 여행추천 AI</Text>
 						</View>
 
 						<View 
