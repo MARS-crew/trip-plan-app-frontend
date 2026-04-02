@@ -62,7 +62,7 @@ const IndexMarker = ({ index, day, size = 28, selected = false, color }: IndexMa
           ]}
         >
           <Text
-            className={`font-bold text-p text-white ${
+            className={`font-pretendardBold text-p text-white ${
               label.length >= 2 ? 'leading-[18px]' : 'leading-[20px]'}`}>
             {label}
           </Text>

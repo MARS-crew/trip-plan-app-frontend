@@ -2,20 +2,22 @@ import { COLORS, TRIP_DAY_COLOR_PALETTE } from '@/constants/colors';
 import type { DayGroup, RoutePoint } from './types';
 
 export const groupRoutePointsByDay = (points: RoutePoint[]): DayGroup[] => {
-  const grouped = points.reduce<Record<number, RoutePoint[]>>((acc, point) => {
-    if (!acc[point.day]) {
-      acc[point.day] = [];
+  const pointsByDay = points.reduce<Record<number, RoutePoint[]>>((groupedPoints, routePoint) => {
+    if (!groupedPoints[routePoint.day]) {
+      groupedPoints[routePoint.day] = [];
     }
-    acc[point.day].push(point);
-    return acc;
+    groupedPoints[routePoint.day].push(routePoint);
+    return groupedPoints;
   }, {});
 
-  return Object.entries(grouped)
-    .map(([day, dayPoints]) => ({
-      day: Number(day),
-      points: [...dayPoints].sort((a, b) => a.order - b.order),
+  return Object.entries(pointsByDay)
+    .map(([dayKey, pointsForDay]) => ({
+      day: Number(dayKey),
+      points: [...pointsForDay].sort(
+        (leftPoint, rightPoint) => leftPoint.order - rightPoint.order,
+      ),
     }))
-    .sort((a, b) => a.day - b.day);
+    .sort((leftDayGroup, rightDayGroup) => leftDayGroup.day - rightDayGroup.day);
 };
 
 export const createDayColorMap = (dayGroups: DayGroup[]): Record<number, string> => {

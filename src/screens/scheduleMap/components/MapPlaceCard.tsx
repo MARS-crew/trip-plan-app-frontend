@@ -26,18 +26,26 @@ const MapPlaceCard: React.FC<MapPlaceCardProps> = ({
         elevation: 2,
       }}
     >
-      <View className="h-[112px] flex-row items-center pr-4">
+      <View className="h-[112px] flex-row pr-4">
         <View className="h-28 w-28 shrink-0 overflow-hidden rounded-l-lg">
           <Image source={place.image} className="h-full w-full" resizeMode="cover" />
         </View>
 
-        <View className="ml-3 flex-1 pr-3">
-          <Text className="text-h3 font-semibold text-black" numberOfLines={1}>
+        <View className="ml-3 h-full flex-1 pt-4 pb-3">
+          <Text
+            className="text-h3 font-pretendardBold text-black"
+            numberOfLines={1}
+            style={{ includeFontPadding: false }}
+          >
             {place.title}
           </Text>
 
           <View className="mt-1 flex-row items-center">
-            <Text className="text-p text-gray w-[172px]" numberOfLines={2}>
+            <Text
+              className="text-p text-gray w-[172px] h-[32px]"
+              numberOfLines={2}
+              style={{ includeFontPadding: false }}
+            >
               {place.placeCardDescription}
             </Text>
           </View>
@@ -48,7 +56,7 @@ const MapPlaceCard: React.FC<MapPlaceCardProps> = ({
                 <CategoryChip
                   key={category}
                   label={category}
-                  className="mt-1 mr-1 rounded-2xl px-2 py-[2px]"
+                  className="mr-1 rounded-2xl px-2 py-[2px]"
                 />
               ))}
             </View>
@@ -59,7 +67,7 @@ const MapPlaceCard: React.FC<MapPlaceCardProps> = ({
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onPressAction}
-            className="px-3 h-[36px] w-[36px] items-center justify-center rounded-[6px] bg-main">
+            className="self-center px-3 h-[36px] w-[36px] items-center justify-center rounded-[6px] bg-main">
             <ScheduleIcon width={16} height={16} />
           </TouchableOpacity>
         )}

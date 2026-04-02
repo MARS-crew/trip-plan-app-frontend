@@ -241,7 +241,7 @@ const AddScheduleScreen = () => {
         <View className="mt-6 self-center w-full rounded-[8px] border border-borderGray bg-white px-6 py-6">
           <View>
             <View className="mb-2 flex-row items-center">
-              <Text className="text-h3 font-semibold text-black">일정명</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">일정명</Text>
               <Text className="ml-[2px] text-h3 text-statusError">*</Text>
             </View>
             <TextInput
@@ -256,7 +256,7 @@ const AddScheduleScreen = () => {
 
           <View className="mt-4">
             <View className="mb-2 flex-row items-center">
-              <Text className="text-h3 font-semibold text-black">날짜</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">날짜</Text>
               <Text className="ml-[2px] text-h3 text-statusError">*</Text>
             </View>
             <TouchableOpacity
@@ -272,7 +272,7 @@ const AddScheduleScreen = () => {
           </View>
 
           <View className="mt-4">
-            <Text className="mb-2 text-h3 font-semibold text-black">시간</Text>
+            <Text className="mb-2 text-h3 font-pretendardSemiBold text-black">시간</Text>
             <View className="flex-row gap-2">
               <TouchableOpacity
                 activeOpacity={0.8}
@@ -299,7 +299,7 @@ const AddScheduleScreen = () => {
           </View>
 
           <View className="mt-[14px]">
-            <Text className="mb-2 text-h3 font-semibold text-black">장소</Text>
+            <Text className="mb-2 text-h3 font-pretendardSemiBold text-black">장소</Text>
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={handleNavigateToAddCalendarMap}
@@ -312,7 +312,7 @@ const AddScheduleScreen = () => {
           </View>
 
           <View className="mt-4">
-            <Text className="mb-2 text-h3 font-semibold text-black">메모</Text>
+            <Text className="mb-2 text-h3 font-pretendardSemiBold text-black">메모</Text>
             <TextInput
               value={formValues.memo}
               onChangeText={(value) => handleChangeText('memo', value)}
@@ -332,7 +332,7 @@ const AddScheduleScreen = () => {
             activeOpacity={0.8}
             className="h-[44px] w-full items-center justify-center rounded-[8px] bg-main"
           >
-            <Text className="text-h3 font-semibold text-white">등록하기</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-white">등록하기</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -356,12 +356,12 @@ const AddScheduleScreen = () => {
                 <Text className="text-p1 text-gray">취소</Text>
               </TouchableOpacity>
 
-              <Text className="text-h3 font-semibold text-black">
+              <Text className="text-h3 font-pretendardSemiBold text-black">
                 {pickerMode === 'date' ? '날짜 선택' : '시간 선택'}
               </Text>
 
               <TouchableOpacity onPress={handleConfirm}>
-                <Text className="text-p1 font-semibold text-main">완료</Text>
+                <Text className="text-p1 font-pretendardSemiBold text-main">완료</Text>
               </TouchableOpacity>
             </View>
 

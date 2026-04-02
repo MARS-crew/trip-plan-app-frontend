@@ -344,7 +344,10 @@ const ScheduleMapScreen: React.FC = () => {
         >
           <View className="h-[160px] w-full items-center px-4 py-6">
             {mapPlaceCardPoint && (
-              <MapPlaceCard place={mapPlaceCardPoint} onPressAction={() => {}} />
+              <MapPlaceCard
+                place={mapPlaceCardPoint}
+                onPressAction={() => navigation.navigate('AddSchedule')}
+              />
             )}
           </View>
         </View>
