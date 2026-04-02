@@ -77,7 +77,7 @@ export const PlaceCard = React.memo<PlaceCardProps>(
                         <View className="flex-1 ml-3 pr-8">
                             <Text className="text-h3 text-black font-pretendardSemiBold">{place.title}</Text>
                             <View className="flex-row mt-1">
-                                <View className="w-3 h-3 top-[3px] mr-1">
+                                <View className="w-3 h-3 top-[2px] mr-1">
                                     <PlaceIcon />
                                 </View>
                                 <Text className="text-p text-gray font-pretendardRegular">{place.location}</Text>
