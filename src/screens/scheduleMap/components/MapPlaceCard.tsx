@@ -1,6 +1,9 @@
 import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScheduleIcon } from '@/assets/icons';
+import type { RootStackParamList } from '@/navigation/types';
 import { CategoryChip } from '@/screens/wishList/components';
 import type { RoutePoint } from '../types';
 
@@ -15,6 +18,8 @@ const MapPlaceCard: React.FC<MapPlaceCardProps> = ({
   showAction = true,
   onPressAction,
 }) => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <View
       className="h-[112px] w-full rounded-[8px] border border-borderGray bg-white"
@@ -66,7 +71,7 @@ const MapPlaceCard: React.FC<MapPlaceCardProps> = ({
         {showAction && (
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={onPressAction}
+            onPress={onPressAction ?? (() => navigation.navigate('AddSchedule'))}
             className="self-center px-3 h-[36px] w-[36px] items-center justify-center rounded-[6px] bg-main">
             <ScheduleIcon width={16} height={16} />
           </TouchableOpacity>

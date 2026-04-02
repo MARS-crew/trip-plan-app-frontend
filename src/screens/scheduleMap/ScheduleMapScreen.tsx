@@ -344,10 +344,7 @@ const ScheduleMapScreen: React.FC = () => {
         >
           <View className="h-[160px] w-full items-center px-4 py-6">
             {mapPlaceCardPoint && (
-              <MapPlaceCard
-                place={mapPlaceCardPoint}
-                onPressAction={() => navigation.navigate('AddSchedule')}
-              />
+              <MapPlaceCard place={mapPlaceCardPoint} />
             )}
           </View>
         </View>
@@ -408,7 +405,12 @@ const ScheduleMapScreen: React.FC = () => {
                   isCurrentSchedule={showTravelLogAction}
                   actionLayout="fullWidth"
                   actionLabel="여행지 기록하기"
-                  onPressAction={() => {}}
+                  onPressAction={() =>
+                    navigation.navigate('MainTabs' as never, {
+                      screen: 'Search',
+                      params: { screen: 'ReviewWrite' },
+                    } as never)
+                  }
                   accentColor={selectedDayColor}
                 />
               )}
