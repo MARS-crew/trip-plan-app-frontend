@@ -16,7 +16,7 @@ export const CategoryChip = React.memo<CategoryChipProps>(({ category, onPress }
         distance={2}
         startColor="rgba(0,0,0,0.1)"
         style={{
-          borderRadius: 8,
+          borderRadius: 12,
           width: '100%',
         }}
         stretch>
