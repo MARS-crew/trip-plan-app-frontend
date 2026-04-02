@@ -1,11 +1,13 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { Shadow } from 'react-native-shadow-2';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { SearchStackParamList } from '@/navigation/types';
 
 import { InputSearchIcon } from '@/assets/icons';
+import { COLORS } from '@/constants/colors';
 import { SearchList } from './search/components/SearchList';
 import { PopularList } from './search/components/PopularList';
 import { CategoryChip } from './search/components/CategoryChip';
@@ -93,15 +95,25 @@ const SearchScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const [query, setQuery] = useState('');
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setQuery('');
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   const handleSearch = useCallback(() => {
     const trimmed = query.trim();
     if (!trimmed) return;
     navigation.navigate('SearchResult', { query: trimmed });
   }, [navigation, query]);
 
-  const handleNavigate = useCallback((keyword: string) => {
-    navigation.navigate('SearchResult', { query: keyword });
-  }, [navigation]);
+  const handleNavigate = useCallback(
+    (keyword: string) => {
+      navigation.navigate('SearchResult', { query: keyword });
+    },
+    [navigation],
+  );
 
   // 렌더링
   return (
@@ -117,8 +129,9 @@ const SearchScreen: React.FC = () => {
                 <InputSearchIcon />
               </View>
               <TextInput
-                className="flex-1 px-4"
+                className="flex-1 pl-3 pr-4"
                 placeholder="여행지, 맛집, 숙소를 검색해보세요"
+                placeholderTextColor={COLORS.gray}
                 value={query}
                 onChangeText={setQuery}
                 onSubmitEditing={handleSearch}
@@ -139,7 +152,7 @@ const SearchScreen: React.FC = () => {
             <View className="">
               <View className="flex-row justify-between mb-4">
                 <Text className="text-h3 font-pretendardSemiBold">최근 검색</Text>
-                <Text className="text-p">전체 삭제</Text>
+                <Text className="text-p text-gray">전체 삭제</Text>
               </View>
               <View>
                 {searchList.map((item, index) => (
@@ -149,11 +162,18 @@ const SearchScreen: React.FC = () => {
             </View>
             <View className="">
               <Text className="text-h3 font-pretendardSemiBold mb-3">인기 검색어</Text>
-              <View className="bg-white rounded-xl px-4 mb-6">
-                {popularSearch.map((item, index) => (
-                  <PopularList key={index} index={index} item={item} onPress={handleNavigate} />
-                ))}
-              </View>
+              <Shadow
+                distance={2}
+                startColor="rgba(0,0,0,0.1)"
+                style={{ borderRadius: 12 }}
+                containerStyle={{ marginBottom: 24 }}
+                stretch>
+                <View className="bg-white rounded-xl">
+                  {popularSearch.map((item, index) => (
+                    <PopularList key={index} index={index} item={item} onPress={handleNavigate} />
+                  ))}
+                </View>
+              </Shadow>
             </View>
           </View>
         </View>

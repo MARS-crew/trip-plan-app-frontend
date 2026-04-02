@@ -48,7 +48,7 @@ const SearchResultScreen: React.FC = () => {
           </View>
           <TextInput className="flex-1 px-4" value={query} editable={false} />
           <TouchableOpacity className="pr-4" onPress={() => navigation.goBack()}>
-            <X />
+            <X width={16} height={16} />
           </TouchableOpacity>
         </View>
       </View>
