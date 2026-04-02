@@ -1,7 +1,7 @@
 import { StarIcon, StarOffIcon } from '@/assets';
 import { ContentContainer } from '@/components/ui';
 import React from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, ScrollView, Text, View } from 'react-native';
 
 // ============ Types ============
 export interface ReviewCardProps {
@@ -52,11 +52,20 @@ export const ReviewCard = React.memo<ReviewCardProps>(
 
             {/* 이미지 리스트 */}
             {imageList?.length ? (
-              <View className="flex-row gap-2 mt-2">
-                {imageList.slice(0, 3).map((uri, idx) => (
-                  <Image key={`${uri}-${idx}`} source={{ uri }} className="w-28 h-28 rounded-lg" />
-                ))}
-              </View>
+              <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mt-2"
+              contentContainerStyle={{ gap: 4 }}
+            >
+              {imageList.slice(0, 3).map((uri, idx) => (
+                <Image
+                  key={`${uri}-${idx}`}
+                  source={{ uri }}
+                  className="w-28 h-28 rounded-lg"
+                />
+              ))}
+            </ScrollView>
             ) : null}
           </View>
         </ContentContainer>
