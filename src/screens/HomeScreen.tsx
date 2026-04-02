@@ -9,9 +9,8 @@ import type { HomeStackParamList } from '@/navigation';
 import type { RootStackParamList } from '@/navigation';
 import Animated, { useSharedValue, withTiming, useAnimatedStyle, interpolate } from 'react-native-reanimated';
 import CustomBottomSheet from '@/components/ui/CustomBottomSheet';
-import { ContentContainer } from '@/components/ui';
-import Chip from '@/components/ui/Chip';
-import { RobotIcon, SendIcon, X, NoticeIcon, NoticeDotIcon, LogoIcon, LogoLetter, ChatIcon } from '@/assets/icons';
+import { ContentContainer, MainRecChip } from '@/components/ui';
+import { RobotIcon, SendIcon, X, NoticeIcon, LogoIcon, LogoLetter, ChatIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
 import { ChatCaseContent, MainTripCard } from '@/screens/home/components';
 import {
@@ -110,14 +109,19 @@ const HomeScreen: React.FC = () => {
       </Animated.View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="px-6 py-4 flex-row justify-between items-center">
+        <View className="px-4 py-4 flex-row justify-between items-center">
           <View className="flex-row items-center">
             <LogoIcon width={38} height={38} />
             <LogoLetter width={65} height={32} />
           </View>
           <ContentContainer className="px-[10px] py-[10px] rounded-xl">
             <Pressable onPress={handleNavigateToDetail} className="items-center justify-center">
-              {hasNotification ? <NoticeDotIcon width={20} height={20} /> : <NoticeIcon width={20} height={20} />}
+              <View className="relative">
+                <NoticeIcon width={20} height={20} />
+                {hasNotification && (
+                  <View className="absolute right-[-1px] top-[-1px] h-2 w-2 rounded-full bg-statusError" />
+                )}
+              </View>
             </Pressable>
           </ContentContainer>
         </View>
@@ -133,7 +137,7 @@ const HomeScreen: React.FC = () => {
         </View>
 
         <View className="mt-6 mb-6">
-          <View className="px-4 mb-4">
+          <View className="px-4 mb-2">
             <Text className="text-h1 font-semibold text-black mb-[2px]">추천 여행지</Text>
             <Text className="text-p text-gray">지금 떠나기 좋은 여행지를 모았어요</Text>
           </View>
@@ -141,7 +145,7 @@ const HomeScreen: React.FC = () => {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12, gap: 16 }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, gap: 16 }}
           >
             {RECOMMENDED_DESTINATIONS.map((item) => (
               <Shadow
@@ -166,9 +170,9 @@ const HomeScreen: React.FC = () => {
                     <Text className="text-gray text-p mb-4" numberOfLines={2}>
                       {item.description}
                     </Text>
-                    <View className="flex-row gap-[6px]">
+                    <View className="flex-row">
                       {item.tags.map((tag, index) => (
-                        <Chip key={index} label={tag} />
+                        <MainRecChip key={`${item.id}-${tag}-${index}`} label={tag} className={'mr-[6px]'} />
                       ))}
                     </View>
                   </View>

@@ -6,11 +6,12 @@ import { Shadow } from 'react-native-shadow-2';
 export interface ContentContainerProps {
   children: React.ReactNode;
   className?: string;
+  shadowBorderRadius?: number;
 }
 
 // ============ Component ============
 export const ContentContainer = React.memo<ContentContainerProps>(
-  ({ children, className }) => {
+  ({ children, className, shadowBorderRadius = 8 }) => {
     // 파생 값
     const { widthClass, otherClasses } = useMemo(() => {
       if (!className) return { widthClass: null, otherClasses: undefined };
@@ -38,7 +39,7 @@ export const ContentContainer = React.memo<ContentContainerProps>(
           offset={[0, 0]}
           paintInside={false}
           containerStyle={{ width: widthClass ? undefined : '100%', alignSelf: 'stretch' }}
-          style={{ borderRadius: 8, width: widthClass ? undefined : '100%' }}>
+          style={{ borderRadius: shadowBorderRadius, width: widthClass ? undefined : '100%' }}>
           <View className={`bg-white rounded-lg ${otherClasses ?? ''}`}>
             {children}
           </View>

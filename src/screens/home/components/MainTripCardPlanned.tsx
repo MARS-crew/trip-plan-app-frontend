@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
-import { CalendarIcon, MainPlaneIcon, VectorGrayIcon } from '@/assets/icons';
+import { DateIcon, MainPlaneIcon, VectorGrayIcon } from '@/assets/icons';
 
 interface MainTripCardPlannedProps {
   onOpenTripSchedule: () => void;
@@ -27,7 +27,7 @@ const MainTripCardPlanned: React.FC<MainTripCardPlannedProps> = ({ onOpenTripSch
             </View>
             <Text className="text-white text-h1 font-bold mb-1">도쿄 여행</Text>
             <View className="flex-row items-center">
-              <CalendarIcon width={12} height={12} />
+              <DateIcon width={12} height={12} />
               <Text className="ml-[6px] text-white text-p">3/23 - 3/28</Text>
             </View>
           </View>

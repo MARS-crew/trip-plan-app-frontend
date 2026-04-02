@@ -42,7 +42,7 @@ const MainTripCardInProgress: React.FC<MainTripCardInProgressProps> = ({ onViewA
                 <Text className="text-gray text-p font-medium">11:00</Text>
               </View>
               <View className="flex-1">
-                <Text className="text-black text-p1 font-semibold mb-1">아사쿠사 센소지</Text>
+                <Text className="text-black text-p1 font-semibold mb-[2px]">아사쿠사 센소지</Text>
                 <View className="flex-row items-center mb-1">
                   <MarkerGrayIcon width={12} height={12} />
                   <Text className="text-gray text-p ml-1">아사쿠사, 도쿄</Text>
