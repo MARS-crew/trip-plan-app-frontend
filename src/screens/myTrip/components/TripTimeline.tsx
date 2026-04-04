@@ -136,7 +136,7 @@ const TripTimeline: React.FC<TripTimelineProps> = ({ items }) => {
               </View>
             </View>
 
-            <View className="ml-1 flex-1 self-start rounded-[8px] bg-[#F4F0EC80] px-4 py-3">
+            <View className="ml-1 flex-1 self-start rounded-[8px] bg-[#F4F0EC80] px-3 py-[10px]">
               <Text className="text-h3 font-pretendardSemiBold text-black">{item.title}</Text>
 
               <View className="mt-[2px] flex-row items-center">
