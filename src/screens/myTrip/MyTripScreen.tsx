@@ -122,7 +122,7 @@ const MyTripScreen: React.FC = () => {
         <View className="flex-row items-start justify-between">
           <View>
             <Text className="text-h font-pretendardBold text-black">내여행</Text>
-            <Text className="mt-1 text-p text-gray">{filteredTripCardItems.length}개의 여행이 있어요</Text>
+            <Text className="text-p text-gray">{filteredTripCardItems.length}개의 여행이 있어요</Text>
           </View>
 
           <TouchableOpacity
@@ -136,48 +136,53 @@ const MyTripScreen: React.FC = () => {
         </View>
 
         {/* Chip */}
-        <View className="mt-7 flex-row">
+        <View className="mt-4 flex-row">
           <Chip
             label="전체"
             onPress={() => setSelectedChip('전체')}
             isSelected={selectedChip === '전체'}
-            className="mr-2"
+            className="mr-2 px-4 py-2"
           />
           <Chip
             label="예정된 여행"
             onPress={() => setSelectedChip('예정된 여행')}
             isSelected={selectedChip === '예정된 여행'}
-            className="mr-2"
+            className="mr-2 px-4 py-2"
           />
           <Chip
             label="지난 여행"
             onPress={() => setSelectedChip('지난 여행')}
             isSelected={selectedChip === '지난 여행'}
+            className="mr-2 px-4 py-2"
           />
         </View>
 
         {/* TripCard */}
         {filteredTripCardItems.length === 0 ? (
-          <View className="mt-6">
+          <View className="mt-4">
             <EmptyMapScreen />
           </View>
         ) : (
-          filteredTripCardItems.map((tripCardItem) => (
-            <TripCard
+          filteredTripCardItems.map((tripCardItem, index) => (
+            <View
               key={tripCardItem.id}
-              city={tripCardItem.city}
-              dateText={tripCardItem.dateText}
-              scheduleText={tripCardItem.scheduleText}
-              scheduleCountText={tripCardItem.scheduleCountText}
-              imageSource={tripCardItem.imageSource}
-              status={tripCardItem.status}
-              isOpen={openCardId === tripCardItem.id}
-              onToggle={() =>
-                setOpenCardId((prev) => (prev === tripCardItem.id ? null : tripCardItem.id))
-              }
+              style={{ zIndex: filteredTripCardItems.length - index }}
             >
-              <TripTimeline items={timelineItems} />
-            </TripCard>
+              <TripCard
+                city={tripCardItem.city}
+                dateText={tripCardItem.dateText}
+                scheduleText={tripCardItem.scheduleText}
+                scheduleCountText={tripCardItem.scheduleCountText}
+                imageSource={tripCardItem.imageSource}
+                status={tripCardItem.status}
+                isOpen={openCardId === tripCardItem.id}
+                onToggle={() =>
+                  setOpenCardId((prev) => (prev === tripCardItem.id ? null : tripCardItem.id))
+                }
+              >
+                <TripTimeline items={timelineItems} />
+              </TripCard>
+            </View>
           ))
         )}
       </View>
