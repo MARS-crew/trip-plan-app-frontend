@@ -29,7 +29,7 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
   startTime,
   endTime,
   isCurrentSchedule = false,
-  currentStatusText = '현재 진행되는 일정입니다',
+  currentStatusText = '현재 진행 중인 일정입니다',
   actionLabel = '방문지 저장',
   onPressAction,
   actionLayout = 'inline',
@@ -65,7 +65,7 @@ const navigation = useNavigation<TripDetailNavigation>();
 
         <View className="justify-between py-[13px] items-end">
           <Text className="text-p font-pretendardBold" style={{ color: accentColor }}>{startTime}</Text>
-          <Text className="mt-1 text-p text-gray">{endTime}</Text>
+          <Text className="mt-[2px] text-p text-gray">{endTime}</Text>
         </View>
       </View>
 
@@ -88,10 +88,15 @@ const navigation = useNavigation<TripDetailNavigation>();
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => navigation.navigate('ScheduleMap')}
-              className="h-[36px] w-[75px] items-center justify-center rounded-[6px]"
+              className="h-[36px] flex-row items-center justify-center rounded-[6px] p-[10px]"
               style={{ backgroundColor: accentColor }}
             >
-              <Text className="text-p text-white">{actionLabel}</Text>
+              <Text
+                className="text-p text-center text-white"
+                style={{ includeFontPadding: false, textAlignVertical: 'center' }}
+              >
+                {actionLabel}
+              </Text>
             </TouchableOpacity>
           </View>
         )
