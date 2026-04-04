@@ -306,22 +306,22 @@ const AddTripCalendarScreen: React.FC = () => {
         </View>
 
         {/* ==================== 날짜 등록 버튼 ==================== */}
-        <View className="absolute bottom-5 left-0 right-0 px-4 pb-10 pt-3">
+        <View className="absolute bottom-0 left-0 right-0 px-4 py-4 mb-4">
           <View
-            className="h-[44px] w-[370px] rounded-[4px]"
+            className="h-[44px] w-full rounded-[4px]"
             style={{
               backgroundColor: COLORS.screenBackground,
               shadowColor: '#000',
-              shadowOffset: { width: 1, height: 1 },
-              shadowOpacity: 0.1,
-              shadowRadius: 1,
-              elevation: 4,
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.06,
+              shadowRadius: 6,
+              elevation: 2,
             }}>
             <TouchableOpacity
               activeOpacity={0.8}
               disabled={!isButtonEnabled}
               onPress={() => navigation.navigate('WishlistScreen')}
-              className="h-[44px] w-[370px] items-center justify-center rounded-[4px]"
+              className="h-[44px] w-full items-center justify-center rounded-[4px]"
               style={{
                 backgroundColor: isButtonEnabled ? COLORS.main : COLORS.buttonDisabledOverlay,
                 borderWidth: 1,
