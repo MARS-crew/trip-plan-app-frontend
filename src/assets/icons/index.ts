@@ -56,6 +56,7 @@ export { default as KebabShareIcon } from './kebabshare.svg';
 export { default as KebabTrashIcon } from './kebabtrash.svg';
 export { default as KebabMapIcon } from './kebabmap.svg';
 export { default as PlusGrayIcon } from './plusgray.svg';
+export { default as CalendarWhiteIcon } from './calendarwhite.svg';
 
 
 export { default as SearchingIcon } from './searching.svg';
@@ -90,6 +91,7 @@ export { default as StarOffIconV2 } from './StarOffV2.svg';
 export { default as ActiveStar } from './active-star.svg';
 export { default as BackArrowGray } from './backarrowgray.svg';
 export { default as MapMarker } from './mapmarker.svg';
+
 // 타입 정의
 export interface IconProps {
   fill?: string;
