@@ -21,15 +21,37 @@ const cardStyle = {
 const ProfileEditScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const [email, setEmail] = React.useState('');
+  const [emailError, setEmailError] = React.useState('');
   const [isCodeSent, setIsCodeSent] = React.useState(false);
   const [verificationCode, setVerificationCode] = React.useState('');
   const [isCodeVerified, setIsCodeVerified] = React.useState(false);
 
+  const isValidEmail = React.useCallback((value: string) => {
+    const trimmed = value.trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+  }, []);
+
+  const handleChangeEmail = React.useCallback((value: string) => {
+    setEmail(value);
+    if (emailError) {
+      setEmailError('');
+    }
+  }, [emailError]);
+
   const handlePressSendCode = React.useCallback(() => {
+    if (!isValidEmail(email)) {
+      setEmailError('이메일 형식이 올바르지 않습니다. pli@email.com 형식으로\n입력해주세요.');
+      setIsCodeSent(false);
+      setIsCodeVerified(false);
+      setVerificationCode('');
+      return;
+    }
+
+    setEmailError('');
     setIsCodeSent(true);
     setIsCodeVerified(false);
     setVerificationCode('');
-  }, []);
+  }, [email, isValidEmail]);
 
   const handleChangeVerificationCode = React.useCallback((value: string) => {
     const digitsOnly = value.replace(/[^0-9]/g, '').slice(0, 6);
@@ -75,7 +97,7 @@ const ProfileEditScreen: React.FC = () => {
             <View className="mt-2 flex-row items-center">
               <TextInput
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={handleChangeEmail}
                 placeholder="example@gmail.com"
                 placeholderTextColor={COLORS.gray}
                 keyboardType="email-address"
@@ -90,6 +112,10 @@ const ProfileEditScreen: React.FC = () => {
                 <Text className="text-p text-gray">{isCodeSent ? '재전송' : '인증번호 발송'}</Text>
               </TouchableOpacity>
             </View>
+
+            {emailError ? (
+              <Text className="mt-2 text-p text-statusError">{emailError}</Text>
+            ) : null}
 
             {isCodeSent && (
               <>
