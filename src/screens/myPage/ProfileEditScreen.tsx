@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/navigation/types';
-import BackArrow from '@/assets/icons/backArrow.svg';
+import { TopBar } from '@/components/ui';
 import { COLORS } from '@/constants';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -74,15 +74,7 @@ const ProfileEditScreen: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <View className="h-14 flex-row items-center px-4">
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={navigation.goBack}
-          className="mr-1 ml-1 h-10 w-10 items-start justify-center">
-          <BackArrow width={20} height={20} />
-        </TouchableOpacity>
-        <Text className="text-h font-pretendardBold text-black">프로필 수정</Text>
-      </View>
+      <TopBar title="프로필 수정" onPress={navigation.goBack} className="px-4" />
 
       <View className="px-4 pt-3">
         <View className="rounded-lg border border-borderGray bg-white px-6 pb-4 pt-6" style={cardStyle}>
