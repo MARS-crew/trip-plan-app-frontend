@@ -104,7 +104,8 @@ export const CustomBottomSheet = ({
           borderTopLeftRadius: cornerRadius ?? 16,
           borderTopRightRadius: cornerRadius ?? 16,
           overflow: 'hidden',
-
+          zIndex: 20,
+          elevation: 20,
         },
         animatedStyle,
       ]}

@@ -26,6 +26,7 @@ const MINUTES = Array.from({ length: 60 }, (_, i) => i);
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const getDaysInMonth = (year: number, month: number) => new Date(year, month, 0).getDate();
+const getStartOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
 interface SpinnerColumnProps {
   items: number[];
@@ -143,6 +144,53 @@ interface FormValues {
 
 type PickerMode = 'date' | 'startTime' | 'endTime' | null;
 
+const clampDateToToday = (dateValue: DateValue | null, today: Date): DateValue => {
+  if (!dateValue) {
+    return {
+      year: today.getFullYear(),
+      month: today.getMonth() + 1,
+      day: today.getDate(),
+    };
+  }
+
+  const selectedDate = new Date(dateValue.year, dateValue.month - 1, dateValue.day);
+  const todayStart = getStartOfDay(today);
+
+  if (selectedDate < todayStart) {
+    return {
+      year: today.getFullYear(),
+      month: today.getMonth() + 1,
+      day: today.getDate(),
+    };
+  }
+
+  return dateValue;
+};
+
+const getDatePickerOptions = (today: Date, year: number, month: number, day: number) => {
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth() + 1;
+  const todayDay = today.getDate();
+
+  const years = YEARS.filter((y) => y >= todayYear);
+  const selectedYear = years.includes(year) ? year : years[0];
+
+  const months = selectedYear === todayYear ? MONTHS.filter((m) => m >= todayMonth) : MONTHS;
+  const selectedMonth = months.includes(month) ? month : months[0];
+
+  const daysInMonth = Array.from(
+    { length: getDaysInMonth(selectedYear, selectedMonth) },
+    (_, i) => i + 1,
+  );
+  const days =
+    selectedYear === todayYear && selectedMonth === todayMonth
+      ? daysInMonth.filter((d) => d >= todayDay)
+      : daysInMonth;
+  const selectedDay = days.includes(day) ? day : days[0];
+
+  return { years, months, days, selectedYear, selectedMonth, selectedDay };
+};
+
 const AddScheduleScreen = () => {
   const navigation = useNavigation();
   const today = new Date();
@@ -170,8 +218,6 @@ const AddScheduleScreen = () => {
   const [tempHour, setTempHour] = useState(9);
   const [tempMinute, setTempMinute] = useState(0);
 
-  const days = Array.from({ length: getDaysInMonth(tempYear, tempMonth) }, (_, i) => i + 1);
-
   const handleChangeText = useCallback((field: 'title' | 'location' | 'memo', value: string) => {
     setFormValues((prev) => ({
       ...prev,
@@ -180,10 +226,10 @@ const AddScheduleScreen = () => {
   }, []);
 
   const openDatePicker = () => {
-    const currentDate = formValues.date;
-    setTempYear(currentDate?.year ?? today.getFullYear());
-    setTempMonth(currentDate?.month ?? today.getMonth() + 1);
-    setTempDay(currentDate?.day ?? today.getDate());
+    const safeDate = clampDateToToday(formValues.date, today);
+    setTempYear(safeDate.year);
+    setTempMonth(safeDate.month);
+    setTempDay(safeDate.day);
     setPickerMode('date');
   };
 
@@ -194,15 +240,23 @@ const AddScheduleScreen = () => {
     setPickerMode(mode);
   };
 
+  const {
+    years: availableYears,
+    months: availableMonths,
+    days: availableDays,
+    selectedYear,
+    selectedMonth,
+    selectedDay,
+  } = getDatePickerOptions(today, tempYear, tempMonth, tempDay);
+
   const handleConfirm = () => {
     if (pickerMode === 'date') {
-      const clampedDay = Math.min(tempDay, getDaysInMonth(tempYear, tempMonth));
       setFormValues((prev) => ({
         ...prev,
         date: {
-          year: tempYear,
-          month: tempMonth,
-          day: clampedDay,
+          year: selectedYear,
+          month: selectedMonth,
+          day: selectedDay,
         },
       }));
     }
@@ -222,18 +276,19 @@ const AddScheduleScreen = () => {
 
   const dateLabel = formValues.date
     ? `${formValues.date.year}-${pad(formValues.date.month)}-${pad(formValues.date.day)}`
-    : '날짜를 선택해주세요.';
+    : '날짜';
 
   const timeLabel = (timeValue: TimeValue | null, placeholder: string) => {
     return timeValue ? `${pad(timeValue.hour)}:${pad(timeValue.minute)}` : placeholder;
   };
+  const isSubmitEnabled = formValues.title.trim().length > 0 && formValues.date !== null;
 
   return (
-    <SafeAreaView className="flex-1 bg-screenBackground mx-4" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <TopBar title="일정 추가" onPress={() => navigation.goBack()} />
 
       <ScrollView
-        className="flex-1"
+        className="flex-1 px-4"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
         keyboardShouldPersistTaps="handled"
@@ -247,7 +302,7 @@ const AddScheduleScreen = () => {
             <TextInput
               value={formValues.title}
               onChangeText={(value) => handleChangeText('title', value)}
-              placeholder="일정명을 입력해주세요."
+              placeholder="일정명"
               placeholderTextColor={COLORS.gray}
               className="h-[46px] w-full rounded-[12px] border border-borderGray bg-screenBackground px-4 text-h3 text-black"
               maxLength={30}
@@ -298,7 +353,7 @@ const AddScheduleScreen = () => {
             </View>
           </View>
 
-          <View className="mt-[14px]">
+          <View className="mt-4">
             <Text className="mb-2 text-h3 font-pretendardSemiBold text-black">장소</Text>
             <TouchableOpacity
               activeOpacity={0.8}
@@ -311,7 +366,7 @@ const AddScheduleScreen = () => {
             </TouchableOpacity>
           </View>
 
-          <View className="mt-4">
+          <View className="mt-4 mb-[14px]">
             <Text className="mb-2 text-h3 font-pretendardSemiBold text-black">메모</Text>
             <TextInput
               value={formValues.memo}
@@ -328,9 +383,11 @@ const AddScheduleScreen = () => {
 
         <View className="mt-6 items-center">
           <TouchableOpacity
+            disabled={!isSubmitEnabled}
             onPress={handleNavigateToTripDetail}
             activeOpacity={0.8}
-            className="h-[44px] w-full items-center justify-center rounded-[8px] bg-main"
+            className="h-[44px] w-full items-center justify-center rounded-[8px]"
+            style={{ backgroundColor: isSubmitEnabled ? COLORS.main : '#DF6C2080' }}
           >
             <Text className="text-h3 font-pretendardSemiBold text-white">등록하기</Text>
           </TouchableOpacity>
@@ -368,24 +425,24 @@ const AddScheduleScreen = () => {
             {pickerMode === 'date' ? (
               <View style={{ flexDirection: 'row', height: ITEM_HEIGHT * VISIBLE_ITEMS }}>
                 <SpinnerColumn
-                  items={YEARS}
-                  selectedIndex={YEARS.indexOf(tempYear)}
-                  onSelect={(index) => setTempYear(YEARS[index])}
+                  items={availableYears}
+                  selectedIndex={availableYears.indexOf(selectedYear)}
+                  onSelect={(index) => setTempYear(availableYears[index])}
                   format={(n) => `${n}년`}
                 />
                 <SpinnerColumn
-                  items={MONTHS}
-                  selectedIndex={MONTHS.indexOf(tempMonth)}
-                  onSelect={(index) => setTempMonth(MONTHS[index])}
+                  items={availableMonths}
+                  selectedIndex={availableMonths.indexOf(selectedMonth)}
+                  onSelect={(index) => setTempMonth(availableMonths[index])}
                   format={(n) => `${pad(n)}월`}
                 />
                 <SpinnerColumn
-                  items={days}
+                  items={availableDays}
                   selectedIndex={Math.min(
-                    days.indexOf(tempDay) >= 0 ? days.indexOf(tempDay) : 0,
-                    days.length - 1,
+                    availableDays.indexOf(selectedDay) >= 0 ? availableDays.indexOf(selectedDay) : 0,
+                    availableDays.length - 1,
                   )}
-                  onSelect={(index) => setTempDay(days[index])}
+                  onSelect={(index) => setTempDay(availableDays[index])}
                   format={(n) => `${pad(n)}일`}
                 />
               </View>
