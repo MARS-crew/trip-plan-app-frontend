@@ -6,6 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 import { CalendarList, LocaleConfig } from 'react-native-calendars';
 
+import { TopBar } from '@/components'
 import { BackArrow } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
 
@@ -156,14 +157,7 @@ const AddTripCalendarScreen: React.FC = () => {
   // ==================== 렌더링 ====================
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <View className="h-14 flex-row items-center pl-6">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BackArrow className="h-5 w-5" />
-        </TouchableOpacity>
-        <Text className="ml-4 text-h font-bold text-black">
-          여행지 추가
-        </Text>
-      </View>
+      <TopBar title="여행지 추가" onPress={() => navigation.goBack()} />
 
       {/* ==================== 달력 List ==================== */}
       <View className="flex-1 border-t border-borderGray bg-screenBackground">
@@ -306,28 +300,28 @@ const AddTripCalendarScreen: React.FC = () => {
         </View>
 
         {/* ==================== 날짜 등록 버튼 ==================== */}
-        <View className="absolute bottom-5 left-0 right-0 px-4 pb-10 pt-3">
+        <View className="absolute bottom-0 left-0 right-0 px-4 py-4 mb-4">
           <View
-            className="h-[44px] w-[370px] rounded-[4px]"
+            className="h-[44px] w-full rounded-[4px]"
             style={{
               backgroundColor: COLORS.screenBackground,
               shadowColor: '#000',
-              shadowOffset: { width: 1, height: 1 },
-              shadowOpacity: 0.1,
-              shadowRadius: 1,
-              elevation: 4,
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.06,
+              shadowRadius: 6,
+              elevation: 2,
             }}>
             <TouchableOpacity
               activeOpacity={0.8}
               disabled={!isButtonEnabled}
               onPress={() => navigation.navigate('WishlistScreen')}
-              className="h-[44px] w-[370px] items-center justify-center rounded-[4px]"
+              className="h-[44px] w-full items-center justify-center rounded-[4px]"
               style={{
                 backgroundColor: isButtonEnabled ? COLORS.main : COLORS.buttonDisabledOverlay,
                 borderWidth: 1,
                 borderColor: isButtonEnabled ? COLORS.main : COLORS.buttonDisabled,
               }}>
-              <Text className="text-h3 font-semibold text-white">날짜 등록</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-white">날짜 등록</Text>
             </TouchableOpacity>
           </View>
         </View>

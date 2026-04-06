@@ -76,14 +76,14 @@ const FindIdScreen: React.FC = () => {
             disabled={isSubmitDisabled}
             accessibilityRole="button"
             accessibilityLabel="아이디 찾기">
-            <Text className="text-h3 font-semibold text-white">아이디 찾기</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-white">아이디 찾기</Text>
           </TouchableOpacity>
 
           {foundId !== null && (
             <View className="mt-4 rounded-lg bg-main/10 px-4 py-4">
               <Text className="mb-2 text-p1 text-black">
                 {'등록된 아이디: '}
-                <Text className="font-bold text-main">{foundId}</Text>
+                <Text className="font-pretendardBold text-main">{foundId}</Text>
               </Text>
               <TouchableOpacity
                 onPress={handleNavigateToLogin}

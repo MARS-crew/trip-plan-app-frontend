@@ -54,11 +54,11 @@ const HomeScreen: React.FC = () => {
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <View className="flex-1 items-center justify-center">
-        <Text className="text-h1 font-bold text-black">홈</Text>
+        <Text className="text-h1 font-pretendardBold text-black">홈</Text>
         <TouchableOpacity
           onPress={handleNavigateToDetail}
           className="bg-main px-6 py-3 rounded-lg">
-          <Text className="text-white font-semibold">알림 리스트</Text>
+          <Text className="text-white font-pretendardSemiBold">알림 리스트</Text>
         </TouchableOpacity>
       </View>
 
@@ -86,7 +86,7 @@ const HomeScreen: React.FC = () => {
         onPress={handleOpenChat}
         className="absolute bottom-6 right-6 bg-main rounded-full px-5 py-4"
       >
-        <Text className="text-white font-semibold">채팅</Text>
+        <Text className="text-white font-pretendardSemiBold">채팅</Text>
       </TouchableOpacity>
 
       {/* 채팅 바텀시트 */}
@@ -109,7 +109,7 @@ const HomeScreen: React.FC = () => {
               <RobotIcon width={20} height={20} />
             </View>
             <View className="ml-[7px]">
-              <Text className="text-h3 text-black font-semibold">Pli AI</Text>
+              <Text className="text-h3 text-black font-pretendardSemiBold">Pli AI</Text>
               <Text className="text-p text-gray">여행 계획을 도와드려요</Text>
             </View>
           </View>

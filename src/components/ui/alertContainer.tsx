@@ -21,18 +21,19 @@ export const AlertContainer = ( alert :AlertProps) => {
 
       {/* 텍스트 컨텐츠 영역 */}
       <View className="flex-1">
-        <View className="flex-row justify-between items-center mb-1">
-          <Text className="text-h3 font-bold text-black leading-tight">
-            {alert.title}
-          </Text>
-          <Text className="text-gray text-p">
+        <View className="flex-row items-start">
+          <View className="flex-1 mr-2">
+            <Text className="text-h3 font-pretendardBold text-black leading-tight">
+              {alert.title}
+            </Text>
+            <Text className="text-p1 text-gray leading-relaxed mt-1">
+              {alert.contentInfo}
+            </Text>
+          </View>
+          <Text className="text-gray text-p shrink-0">
             {alert.time}
           </Text>
         </View>
-        
-        <Text className="text-p1 text-gray leading-relaxed">
-        {alert.contentInfo}
-        </Text>
       </View>
     </View>
   );

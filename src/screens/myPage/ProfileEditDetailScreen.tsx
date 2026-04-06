@@ -56,15 +56,15 @@ const ProfileEditDetailScreen: React.FC = () => {
           className="mr-1 ml-1 h-10 w-10 items-start justify-center">
           <BackArrow width={20} height={20} />
         </TouchableOpacity>
-        <Text className="text-h font-bold text-black">프로필 수정</Text>
+        <Text className="text-h font-pretendardBold text-black">프로필 수정</Text>
       </View>
 
       <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
         <View className="mt-3 rounded-lg bg-white px-6 pb-6 pt-6" style={cardStyle}>
-          <Text className="text-h3 font-semibold text-black">계정 정보</Text>
+          <Text className="text-h3 font-pretendardSemiBold text-black">계정 정보</Text>
 
           <View className="mt-4">
-            <Text className="text-h3 font-semibold text-black">닉네임</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-black">닉네임</Text>
             <TextInput
               value={nickname}
               onChangeText={setNickname}
@@ -74,8 +74,8 @@ const ProfileEditDetailScreen: React.FC = () => {
 
           <View className="mt-4">
             <View className="flex-row items-center">
-              <Text className="text-h3 font-semibold text-black">비밀번호</Text>
-              <Text className="ml-0.5 text-p1 font-medium text-statusError">*</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">비밀번호</Text>
+              <Text className="ml-0.5 text-p1 font-pretendardMedium text-statusError">*</Text>
             </View>
             <TextInput
               value={password}
@@ -89,8 +89,8 @@ const ProfileEditDetailScreen: React.FC = () => {
 
           <View className="mt-4">
             <View className="flex-row items-center">
-              <Text className="text-h3 font-semibold text-black">비밀번호 확인</Text>
-              <Text className="ml-0.5 text-p1 font-medium text-statusError">*</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">비밀번호 확인</Text>
+              <Text className="ml-0.5 text-p1 font-pretendardMedium text-statusError">*</Text>
             </View>
             <TextInput
               value={passwordConfirm}
@@ -107,10 +107,10 @@ const ProfileEditDetailScreen: React.FC = () => {
         </View>
 
         <View className="mt-5 rounded-lg bg-white px-6 pb-6 pt-6" style={cardStyle}>
-          <Text className="text-h3 font-semibold text-black">개인 정보</Text>
+          <Text className="text-h3 font-pretendardSemiBold text-black">개인 정보</Text>
 
           <View className="mt-4">
-            <Text className="text-h3 font-semibold text-black">이름</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-black">이름</Text>
             <TextInput
               value="최혜림"
               editable={false}
@@ -120,8 +120,8 @@ const ProfileEditDetailScreen: React.FC = () => {
 
           <View className="mt-4">
             <View className="flex-row items-center">
-              <Text className="text-h3 font-semibold text-black">생년월일</Text>
-              <Text className="ml-0.5 text-p1 font-medium text-statusError">*</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">생년월일</Text>
+              <Text className="ml-0.5 text-p1 font-pretendardMedium text-statusError">*</Text>
             </View>
             <TextInput
               value={birthDate}
@@ -132,8 +132,8 @@ const ProfileEditDetailScreen: React.FC = () => {
 
           <View className="mt-4">
             <View className="flex-row items-center">
-              <Text className="text-h3 font-semibold text-black">성별</Text>
-              <Text className="ml-0.5 text-p1 font-medium text-statusError">*</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">성별</Text>
+              <Text className="ml-0.5 text-p1 font-pretendardMedium text-statusError">*</Text>
             </View>
             <View className="mt-2 flex-row justify-between">
               {(['남성', '여성', '기타'] as GenderType[]).map(option => {
@@ -144,7 +144,7 @@ const ProfileEditDetailScreen: React.FC = () => {
                     activeOpacity={0.85}
                     onPress={() => setGender(option)}
                     className={`h-[46px] w-[31%] items-center justify-center rounded-xl border ${isActive ? 'border-main bg-main/10' : 'border-borderGray bg-white'}`}>
-                    <Text className={`text-p1 font-medium ${isActive ? 'text-main' : 'text-gray'}`}>{option}</Text>
+                    <Text className={`text-p1 font-pretendardMedium ${isActive ? 'text-main' : 'text-gray'}`}>{option}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -153,8 +153,8 @@ const ProfileEditDetailScreen: React.FC = () => {
 
           <View className={`relative mt-4 ${showCountryPicker ? 'z-20 mb-60' : ''}`}>
             <View className="flex-row items-center">
-              <Text className="text-h3 font-semibold text-black">국가</Text>
-              <Text className="ml-0.5 text-p1 font-medium text-statusError">*</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">국가</Text>
+              <Text className="ml-0.5 text-p1 font-pretendardMedium text-statusError">*</Text>
             </View>
 
             <Pressable
@@ -196,7 +196,7 @@ const ProfileEditDetailScreen: React.FC = () => {
           activeOpacity={0.85}
           onPress={handleSubmitProfileEdit}
           className="mt-5 mb-16 h-11 items-center justify-center rounded-lg bg-main">
-          <Text className="text-p1 font-semibold text-white">수정하기</Text>
+          <Text className="text-p1 font-pretendardSemiBold text-white">수정하기</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

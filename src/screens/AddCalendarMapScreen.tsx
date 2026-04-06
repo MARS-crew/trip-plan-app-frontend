@@ -137,7 +137,7 @@ const AddCalendarMapScreen: React.FC = () => {
           disabled={!selectedPlace}
           className="h-[44px] items-center justify-center rounded-[8px] bg-main"
         >
-          <Text className="text-white font-semibold">등록하기</Text>
+          <Text className="text-white font-pretendardSemiBold">등록하기</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

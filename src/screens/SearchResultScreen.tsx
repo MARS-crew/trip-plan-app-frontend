@@ -40,7 +40,7 @@ const SearchResultScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <View className="px-4">
         <View className="h-14 justify-center">
-          <Text className="text-h font-bold">검색</Text>
+          <Text className="text-h font-pretendardBold">검색</Text>
         </View>
         <View className="h-[46px] bg-white border border-borderGray rounded-xl flex-row items-center mb-3">
           <View className="w-4 h-4 ml-4">
@@ -48,7 +48,7 @@ const SearchResultScreen: React.FC = () => {
           </View>
           <TextInput className="flex-1 px-4" value={query} editable={false} />
           <TouchableOpacity className="pr-4" onPress={() => navigation.goBack()}>
-            <X />
+            <X width={16} height={16} />
           </TouchableOpacity>
         </View>
       </View>

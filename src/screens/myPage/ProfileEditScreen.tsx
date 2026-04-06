@@ -81,7 +81,7 @@ const ProfileEditScreen: React.FC = () => {
           className="mr-1 ml-1 h-10 w-10 items-start justify-center">
           <BackArrow width={20} height={20} />
         </TouchableOpacity>
-        <Text className="text-h font-bold text-black">프로필 수정</Text>
+        <Text className="text-h font-pretendardBold text-black">프로필 수정</Text>
       </View>
 
       <View className="px-4 pt-3">
@@ -90,8 +90,8 @@ const ProfileEditScreen: React.FC = () => {
 
           <View className="mt-6">
             <View className="flex-row items-center">
-              <Text className="text-h3 font-semibold text-black">이메일</Text>
-              <Text className="text-p1 font-medium text-statusError">*</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">이메일</Text>
+              <Text className="text-p1 font-pretendardMedium text-statusError">*</Text>
             </View>
 
             <View className="mt-2 flex-row items-center">
@@ -123,8 +123,8 @@ const ProfileEditScreen: React.FC = () => {
 
                 <View className="mt-4">
                   <View className="flex-row items-center">
-                    <Text className="text-h3 font-semibold text-black">인증번호</Text>
-                    <Text className="text-p1 font-medium text-statusError">*</Text>
+                    <Text className="text-h3 font-pretendardSemiBold text-black">인증번호</Text>
+                    <Text className="text-p1 font-pretendardMedium text-statusError">*</Text>
                   </View>
 
                   <View className="mt-2 flex-row items-center">
@@ -154,7 +154,7 @@ const ProfileEditScreen: React.FC = () => {
             activeOpacity={0.85}
             onPress={handleMoveToProfileEdit}
             className={`mt-4 h-11 items-center justify-center rounded-lg ${isCodeVerified ? 'bg-main' : 'bg-main/50'}`}>
-            <Text className="text-p1 font-semibold text-white">프로필 수정으로 이동</Text>
+            <Text className="text-p1 font-pretendardSemiBold text-white">프로필 수정으로 이동</Text>
           </TouchableOpacity>
         </View>
       </View>
