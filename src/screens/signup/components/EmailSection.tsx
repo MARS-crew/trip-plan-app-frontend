@@ -6,7 +6,7 @@ import type { SignUpFormData } from './signup.types';
 
 interface EmailSectionProps {
   formData: SignUpFormData;
-  isCodeVerified: boolean;
+  isEmailVerified: boolean;
   isEmailError: boolean;
   isEmailSent: boolean;
   isCodeError: boolean;
@@ -23,7 +23,7 @@ interface EmailSectionProps {
 
 export const EmailSection: React.FC<EmailSectionProps> = ({
   formData,
-  isCodeVerified,
+  isEmailVerified,
   isEmailError,
   isEmailSent,
   isCodeError,
@@ -45,19 +45,18 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
         <Text className="mb-4 text-h3 font-pretendardSemiBold text-black">이메일 인증</Text>
 
         <View className="mb-2 flex-row items-end gap-2" onLayout={onEmailLayout}>
-          <View className={`flex-1 ${isCodeVerified ? 'opacity-50' : ''}`}>
+          <View className={`flex-1 ${isEmailVerified ? 'opacity-50' : ''}`}>
             <LabeledInput
               label="이메일"
               required={true}
               placeholder="example@gmail.com"
               value={formData.email}
               onChangeText={onChangeEmail}
-              editable={!isCodeVerified}
+              editable={!isEmailVerified}
               inputClassName={
-                (showFieldErrors && (formData.email.trim().length === 0 || !isCodeVerified)) ||
-                isEmailError
+                (showFieldErrors && formData.email.trim().length === 0) || isEmailError
                   ? 'border-statusError'
-                  : isEmailSent || isCodeVerified
+                  : isEmailSent || isEmailVerified
                   ? 'bg-emailBackground'
                   : ''
               }
@@ -68,15 +67,15 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
           </View>
           <Pressable
             onPress={onSendVerification}
-            disabled={!canSendCode || isCodeVerified}
+            disabled={!canSendCode || isEmailVerified}
             className={`h-[46px] items-center justify-center rounded-xl border border-borderGray bg-white ${
               isResend ? 'px-[38px]' : 'px-5'
-            } ${isCodeVerified ? 'opacity-50' : ''}`}>
+            } ${isEmailVerified ? 'opacity-50' : ''}`}>
             <Text className="text-p text-gray">{sendCodeButtonText}</Text>
           </Pressable>
         </View>
 
-        {isCodeVerified ? (
+        {isEmailVerified ? (
           <Text className="mt-2 mb-4 text-p text-statusSuccess">이메일 인증이 완료되었습니다</Text>
         ) : isEmailSent ? (
           <Text className="mt-2 mb-4 text-p text-statusSuccess">
