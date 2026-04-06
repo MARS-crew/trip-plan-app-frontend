@@ -149,6 +149,9 @@ const AddScheduleScreen = () => {
   const handleNavigateToTripDetail = () => {
       navigation.navigate('TripDetail')
       };
+  const handleNavigateToAddCalendarMap = () => {
+      navigation.navigate('AddCalendarMapScreen')
+      };
 
   const [formValues, setFormValues] = useState<FormValues>({
     title: '',
@@ -297,14 +300,15 @@ const AddScheduleScreen = () => {
 
           <View className="mt-[14px]">
             <Text className="mb-2 text-h3 font-pretendardSemiBold text-black">장소</Text>
-            <TextInput
-              value={formValues.location}
-              onChangeText={(value) => handleChangeText('location', value)}
-              placeholder="장소를 입력해주세요"
-              placeholderTextColor={COLORS.gray}
-              className="h-[46px] w-full rounded-[12px] border border-borderGray bg-screenBackground px-4 text-h3 text-black"
-              maxLength={30}
-            />
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleNavigateToAddCalendarMap}
+              className="h-[46px] w-full justify-center rounded-[12px] border border-borderGray bg-screenBackground px-4"
+            >
+              <Text className='text-h3 text-gray'>
+                {formValues.location || '장소를 입력해주세요'}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <View className="mt-4">

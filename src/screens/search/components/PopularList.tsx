@@ -11,9 +11,12 @@ export interface PopularListProps {
 // ============ Component ============
 export const PopularList = React.memo<PopularListProps>(({ index, item, onPress }) => {
   return (
-    <TouchableOpacity key={index} onPress={() => onPress?.(item)} activeOpacity={0.7}>
-      {index > 0 && <View className="h-[1px] bg-chip -mx-4" />}
-      <View className="h-12 w-full flex-row items-center gap-3">
+    <TouchableOpacity
+      className={`h-12 pl-4 flex justify-center ${index > 0 ? 'border-t border-t-chip' : ''}`}
+      key={index}
+      onPress={() => onPress?.(item)}
+      activeOpacity={0.7}>
+      <View className="w-full flex-row items-center gap-3">
         <View className="h-6 w-6 rounded-md bg-serve flex items-center justify-center">
           <Text className="text-xs font-pretendardBold text-main">{index + 1}</Text>
         </View>
