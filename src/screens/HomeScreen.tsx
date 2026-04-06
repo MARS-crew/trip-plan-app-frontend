@@ -1,16 +1,18 @@
-import { useNavigation } from '@react-navigation/native';
+﻿import { useNavigation } from '@react-navigation/native';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, Pressable, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable, TextInput, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Shadow } from 'react-native-shadow-2';
 import type { HomeStackParamList } from '@/navigation';
 import type { RootStackParamList } from '@/navigation';
 import Animated, { useSharedValue, withTiming, useAnimatedStyle, interpolate } from 'react-native-reanimated';
 import CustomBottomSheet from '@/components/ui/CustomBottomSheet';
-import { RobotIcon, SendIcon, X } from '@/assets/icons';
+import { ContentContainer, MainRecChip } from '@/components/ui';
+import { RobotIcon, SendIcon, X, NoticeIcon, LogoIcon, LogoLetter, ChatIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
-import { ChatCaseContent } from '@/screens/home/components';
+import { ChatCaseContent, MainTripCard } from '@/screens/home/components';
 import {
   CHAT_HEADER_HEIGHT,
   CHAT_INPUT_BOTTOM_SPACING,
@@ -19,11 +21,29 @@ import {
   CHAT_SHEET_HEIGHT,
 } from '@/screens/home/constants';
 
-// ============ Types ============
 type NavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<HomeStackParamList>,
   NativeStackNavigationProp<RootStackParamList>
 >;
+
+const RECOMMENDED_DESTINATIONS = [
+  {
+    id: '1',
+    title: '제주도',
+    country: '한국',
+    description: '아름다운 자연과 독특한 문화가 있는 한국의 보석 같은 섬',
+    imageUrl: require('@/assets/images/mainjeju.png'),
+    tags: ['자연', '맛집', '자연'],
+  },
+  {
+    id: '2',
+    title: '제주도',
+    country: '한국',
+    description: '아름다운 자연과 독특한 문화가 있는 한국의 보석 같은 섬',
+    imageUrl: require('@/assets/images/mainjeju.png'),
+    tags: ['자연', '맛집'],
+  },
+];
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -31,10 +51,26 @@ const HomeScreen: React.FC = () => {
   const SNAP_MIN = CHAT_SHEET_HEIGHT;
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatCaseOrder, setChatCaseOrder] = useState(-1);
+  const [hasPlannedTrip, setHasPlannedTrip] = useState(false);
+  const [isInTripScheduleView, setIsInTripScheduleView] = useState(false);
   const currentCaseIndex = chatCaseOrder < 0 ? 0 : chatCaseOrder;
+  const hasNotification = true;
 
   const handleNavigateToDetail = useCallback(() => {
     navigation.navigate('Alert');
+  }, [navigation]);
+
+  const handleNavigateToAddTrip = useCallback(() => {
+    setHasPlannedTrip(true);
+    setIsInTripScheduleView(false);
+  }, []);
+
+  const handleOpenTripSchedule = useCallback(() => {
+    setIsInTripScheduleView(true);
+  }, []);
+
+  const handleNavigateToMyTrip = useCallback(() => {
+    navigation.navigate('MainTabs', { screen: 'MyTrip' });
   }, [navigation]);
 
   const handleOpenChat = useCallback(() => {
@@ -47,22 +83,12 @@ const HomeScreen: React.FC = () => {
   }, [translateY, SNAP_MIN]);
 
   const backdropStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(translateY.value, [0, SNAP_MIN], [1, 0]);
+    const opacity = interpolate(translateY.value, [0, SNAP_MIN], [0.3, 0]);
     return { opacity };
   }, [translateY, SNAP_MIN]);
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <View className="flex-1 items-center justify-center">
-        <Text className="text-h1 font-pretendardBold text-black">홈</Text>
-        <TouchableOpacity
-          onPress={handleNavigateToDetail}
-          className="bg-main px-6 py-3 rounded-lg">
-          <Text className="text-white font-pretendardSemiBold">알림 리스트</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* 배경 오버레이 */}
       <Animated.View
         pointerEvents={isChatOpen ? 'auto' : 'none'}
         style={[
@@ -73,6 +99,8 @@ const HomeScreen: React.FC = () => {
             right: 0,
             bottom: 0,
             backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            zIndex: 10,
+            elevation: 10,
           },
           backdropStyle,
         ]}
@@ -80,16 +108,85 @@ const HomeScreen: React.FC = () => {
         <Pressable style={{ flex: 1 }} onPress={handleCloseChat} />
       </Animated.View>
 
-      {/* 채팅 플로팅 버튼 */}
-      {/* TODO: 재원님 여기 만드시면 돼요 */}
-      <TouchableOpacity
-        onPress={handleOpenChat}
-        className="absolute bottom-6 right-6 bg-main rounded-full px-5 py-4"
-      >
-        <Text className="text-white font-pretendardSemiBold">채팅</Text>
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="px-4 py-4 flex-row justify-between items-center">
+          <View className="flex-row items-center">
+            <LogoIcon width={38} height={38} />
+            <LogoLetter width={65} height={32} />
+          </View>
+          <ContentContainer className="px-[10px] py-[10px] rounded-xl">
+            <Pressable onPress={handleNavigateToDetail} className="items-center justify-center">
+              <View className="relative">
+                <NoticeIcon width={20} height={20} />
+                {hasNotification && (
+                  <View className="absolute right-[-1px] top-[-1px] h-2 w-2 rounded-full bg-statusError" />
+                )}
+              </View>
+            </Pressable>
+          </ContentContainer>
+        </View>
+
+        <View className="mx-4 mt-4">
+          <MainTripCard
+            hasPlannedTrip={hasPlannedTrip}
+            isInTripScheduleView={isInTripScheduleView}
+            onAddTrip={handleNavigateToAddTrip}
+            onOpenTripSchedule={handleOpenTripSchedule}
+            onViewAllSchedule={handleNavigateToMyTrip}
+          />
+        </View>
+
+        <View className="mt-6 mb-6">
+          <View className="px-4 mb-2">
+            <Text className="text-h1 font-pretendardSemiBold text-black mb-[2px]">추천 여행지</Text>
+            <Text className="text-p text-gray">지금 떠나기 좋은 여행지를 모았어요</Text>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, gap: 16 }}
+          >
+            {RECOMMENDED_DESTINATIONS.map((item) => (
+              <Shadow
+                key={item.id}
+                distance={10}
+                offset={[0, 0]}
+                startColor="#00000025"
+                endColor="#00000000"
+                paintInside={false}
+                style={{ borderRadius: 8, width: 260 }}
+              >
+                <TouchableOpacity className="rounded-lg overflow-hidden bg-white">
+                  <View className="h-40 relative">
+                    <Image source={item.imageUrl} className="w-full h-full" resizeMode="cover" />
+                    <View className="absolute bottom-3 left-4">
+                      <Text className="text-white text-h2 font-pretendardSemiBold">{item.title}</Text>
+                      <Text className="text-white text-p font-pretendardSemiBold mt-1">{item.country}</Text>
+                    </View>
+                  </View>
+
+                  <View className="p-4">
+                    <Text className="text-gray text-p mb-4" numberOfLines={2}>
+                      {item.description}
+                    </Text>
+                    <View className="flex-row">
+                      {item.tags.map((tag, index) => (
+                        <MainRecChip key={`${item.id}-${tag}-${index}`} label={tag} className={'mr-[6px]'} />
+                      ))}
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              </Shadow>
+            ))}
+          </ScrollView>
+        </View>
+      </ScrollView>
+
+      <TouchableOpacity onPress={handleOpenChat} className="absolute bottom-4 right-4 bg-main rounded-full px-4 py-4">
+        <ChatIcon width={24} height={24} />
       </TouchableOpacity>
 
-      {/* 채팅 바텀시트 */}
       <CustomBottomSheet
         translateY={translateY}
         height={CHAT_SHEET_HEIGHT}
@@ -99,7 +196,6 @@ const HomeScreen: React.FC = () => {
         onStateChange={setIsChatOpen}
         showIndicator={false}
       >
-        {/* 바텀시트 헤더 */}
         <View
           className="absolute top-0 left-0 right-0 bg-white px-4 flex-row items-center justify-center"
           style={{ height: CHAT_HEADER_HEIGHT }}
@@ -123,16 +219,10 @@ const HomeScreen: React.FC = () => {
           <View className="absolute bottom-0 left-0 right-0 h-px bg-borderGray" />
         </View>
 
-        {/* 헤더 아래 콘텐츠 영역 */}
         <View className="flex-1" style={{ marginTop: CHAT_HEADER_HEIGHT }}>
-          {/* 케이스별 콘텐츠 */}
           <ChatCaseContent currentCaseIndex={currentCaseIndex} />
 
-          {/* 하단 입력창 */}
-          <View
-            className="absolute left-0 right-0 px-4 flex-row items-center"
-            style={{ bottom: CHAT_INPUT_BOTTOM_SPACING }}
-          >
+          <View className="absolute left-0 right-0 px-4 flex-row items-center" style={{ bottom: CHAT_INPUT_BOTTOM_SPACING }}>
             <TextInput
               placeholder="AI에게 질문해보세요"
               placeholderTextColor={COLORS.gray}
@@ -151,5 +241,6 @@ const HomeScreen: React.FC = () => {
     </SafeAreaView>
   );
 };
+
 export default HomeScreen;
 export { HomeScreen };
