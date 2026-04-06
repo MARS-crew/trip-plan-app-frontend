@@ -176,6 +176,7 @@ const MyTripScreen: React.FC = () => {
                 imageSource={tripCardItem.imageSource}
                 status={tripCardItem.status}
                 isOpen={openCardId === tripCardItem.id}
+                onImagePress={() => navigation.navigate('TripDetail')}
                 onToggle={() =>
                   setOpenCardId((prev) => (prev === tripCardItem.id ? null : tripCardItem.id))
                 }

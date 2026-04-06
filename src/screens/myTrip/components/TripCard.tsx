@@ -18,6 +18,7 @@ export interface TripCardProps {
   status: 'traveling' | 'scheduled' | 'completed';
   isOpen: boolean;
   onToggle: () => void;
+  onImagePress?: () => void;
   children?: React.ReactNode;
 }
 
@@ -30,6 +31,7 @@ const TripCard = ({
   status,
   isOpen,
   onToggle,
+  onImagePress,
   children,
 }: TripCardProps) => {
 
@@ -45,27 +47,29 @@ const TripCard = ({
       }}
     >
       <View className="overflow-hidden rounded-[8px]">
-        <View className="relative">
-          <Image source={imageSource} className="h-[144px] w-full" resizeMode="cover" />
+        <Pressable onPress={onImagePress}>
+          <View className="relative">
+            <Image source={imageSource} className="h-[144px] w-full" resizeMode="cover" />
 
-          <View pointerEvents="none"/>
+            <View pointerEvents="none"/>
 
-        {/*TripStatusChip*/}
-          <View className="absolute top-[13px] left-[15px]">
-            <TripStatusChip status={status} />
-          </View>
+          {/*TripStatusChip*/}
+            <View className="absolute top-[13px] left-[15px]">
+              <TripStatusChip status={status} />
+            </View>
 
-        {/*City*/}
-          <View className="absolute bottom-3 left-3">
-            <Text className="text-h1 font-pretendardBold text-white">{city}</Text>
+          {/*City*/}
+            <View className="absolute bottom-3 left-3">
+              <Text className="text-h1 font-pretendardBold text-white">{city}</Text>
 
-        {/*Date*/}
-            <View className="flex-row items-center">
-              <CalendarWhiteIcon width={14} height={14}/>
-              <Text className="px-1 text-p1 text-white">{dateText}</Text>
+          {/*Date*/}
+              <View className="flex-row items-center">
+                <CalendarWhiteIcon width={14} height={14}/>
+                <Text className="px-1 text-p1 text-white">{dateText}</Text>
+              </View>
             </View>
           </View>
-        </View>
+        </Pressable>
 
         {/*schedule*/}
         <Pressable onPress={onToggle}>
