@@ -123,7 +123,7 @@ const AccountSettingsScreen: React.FC = () => {
           activeOpacity={1}
           className="mt-6 rounded-lg border border-withdrawDanger bg-withdrawBg px-4 py-4">
           <View className="flex-row items-center">
-            <SecessionIcon width={24} height={24} />
+            <SecessionIcon width={20} height={20} />
             <Text className="ml-2 text-h2 font-pretendardSemiBold text-statusError">회원 탈퇴</Text>
           </View>
 
