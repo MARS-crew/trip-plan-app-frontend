@@ -121,11 +121,11 @@ const SearchScreen: React.FC = () => {
       <ScrollView keyboardShouldPersistTaps="handled">
         <View className="flex-1 px-4">
           <View className="h-14 justify-center">
-            <Text className="text-h font-pretendardBold">검색</Text>
+            <Text className="font-pretendardBold text-h">검색</Text>
           </View>
           <View className="gap-6">
-            <View className="h-[46px] bg-white border border-borderGray rounded-xl flex-row items-center">
-              <View className="w-4 h-4 ml-4">
+            <View className="h-[46px] flex-row items-center rounded-xl border border-borderGray bg-white">
+              <View className="ml-4 h-4 w-4">
                 <InputSearchIcon />
               </View>
               <TextInput
@@ -139,19 +139,19 @@ const SearchScreen: React.FC = () => {
               />
             </View>
             <View>
-              <Text className="text-h3 font-pretendardSemiBold mb-3">카테고리</Text>
+              <Text className="mb-3 font-pretendardSemiBold text-h3">카테고리</Text>
 
               <View className="flex-row flex-wrap justify-between">
                 {category.flat().map((item) => (
-                  <View key={item} className="w-[32%] mb-2">
+                  <View key={item} className="mb-2 w-[32%]">
                     <CategoryChip category={item} onPress={handleNavigate} />
                   </View>
                 ))}
               </View>
             </View>
             <View className="">
-              <View className="flex-row justify-between mb-4">
-                <Text className="text-h3 font-pretendardSemiBold">최근 검색</Text>
+              <View className="mb-4 flex-row justify-between">
+                <Text className="font-pretendardSemiBold text-h3">최근 검색</Text>
                 <Text className="text-p text-gray">전체 삭제</Text>
               </View>
               <View>
@@ -161,14 +161,14 @@ const SearchScreen: React.FC = () => {
               </View>
             </View>
             <View className="">
-              <Text className="text-h3 font-pretendardSemiBold mb-3">인기 검색어</Text>
+              <Text className="mb-3 font-pretendardSemiBold text-h3">인기 검색어</Text>
               <Shadow
                 distance={2}
                 startColor="rgba(0,0,0,0.1)"
                 style={{ borderRadius: 12 }}
                 containerStyle={{ marginBottom: 24 }}
                 stretch>
-                <View className="bg-white rounded-xl">
+                <View className="rounded-xl bg-white">
                   {popularSearch.map((item, index) => (
                     <PopularList key={index} index={index} item={item} onPress={handleNavigate} />
                   ))}
