@@ -1,10 +1,14 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import {
   KeyboardAvoidingView,
+  Modal,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
   ScrollView,
+  useWindowDimensions,
   View,
   Text,
-  Pressable,
   TouchableOpacity,
   type LayoutChangeEvent,
 } from 'react-native';
@@ -13,9 +17,11 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { TopBar } from '@/components';
+import { COLORS } from '@/constants/colors';
+import { ContentContainer, LabeledInput } from '@/components/ui';
+import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
 import {
   AccountSection,
-  ProfileSection,
   EmailSection,
   TermsSection,
   type SignUpFormData,
@@ -39,19 +45,131 @@ type RequiredFieldKey =
   | 'country'
   | 'email';
 type SectionKey = 'account' | 'profile' | 'email';
+type CountryDropdownLayout = {
+  left: number;
+  top: number;
+  width: number;
+  maxHeight: number;
+};
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-const COUNTRIES = ['대한민국', '미국', '일본', '중국', '영국', '프랑스', '독일'] as const;
+const COUNTRIES = ['대한민국', '미국', '일본', '중국', '영국', '프랑스', '독일', '캐나다', '호주'] as const;
 
 const DUPLICATE_ACCOUNT_IDS = ['admin', 'test1234', 'tripplan'];
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TEMP_VERIFICATION_CODE = '123456';
 
+// DatePicker Constants
+const ITEM_HEIGHT = 44;
+const VISIBLE_ITEMS = 5;
+const CURRENT_YEAR = new Date().getFullYear();
+const YEARS = Array.from({ length: 100 }, (_, i) => CURRENT_YEAR - i);
+const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
+const COUNTRY_PICKER_MAX_HEIGHT = 274;
+
+const pad = (n: number) => String(n).padStart(2, '0');
+const getDaysInMonth = (year: number, month: number) => new Date(year, month, 0).getDate();
+
+interface SpinnerColumnProps {
+  items: number[];
+  selectedIndex: number;
+  onSelect: (index: number) => void;
+  format?: (n: number) => string;
+}
+
+const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
+  items,
+  selectedIndex,
+  onSelect,
+  format = (n) => String(n),
+}) => {
+  const scrollRef = useRef<ScrollView>(null);
+
+  const handleScrollEnd = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const offsetY = e.nativeEvent.contentOffset.y;
+      const index = Math.round(offsetY / ITEM_HEIGHT);
+      const clamped = Math.max(0, Math.min(index, items.length - 1));
+      onSelect(clamped);
+      scrollRef.current?.scrollTo({ y: clamped * ITEM_HEIGHT, animated: true });
+    },
+    [items.length, onSelect],
+  );
+
+  return (
+    <View style={{ flex: 1, height: ITEM_HEIGHT * VISIBLE_ITEMS }}>
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: ITEM_HEIGHT * 2,
+          left: 8,
+          right: 8,
+          height: 1,
+          backgroundColor: COLORS.main,
+          zIndex: 1,
+        }}
+      />
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: ITEM_HEIGHT * 3,
+          left: 8,
+          right: 8,
+          height: 1,
+          backgroundColor: COLORS.inputBackground,
+          zIndex: 1,
+        }}
+      />
+      <ScrollView
+        ref={scrollRef}
+        showsVerticalScrollIndicator={false}
+        snapToInterval={ITEM_HEIGHT}
+        decelerationRate="fast"
+        contentOffset={{ x: 0, y: selectedIndex * ITEM_HEIGHT }}
+        contentContainerStyle={{
+          paddingTop: ITEM_HEIGHT * 2,
+          paddingBottom: ITEM_HEIGHT * 2,
+        }}
+        onMomentumScrollEnd={handleScrollEnd}
+        onScrollEndDrag={handleScrollEnd}
+      >
+        {items.map((item, idx) => {
+          const isSelected = idx === selectedIndex;
+
+          return (
+            <View
+              key={item}
+              style={{
+                height: ITEM_HEIGHT,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 15,
+                  fontWeight: isSelected ? '600' : '400',
+                  color: isSelected ? COLORS.black : COLORS.gray,
+                }}
+              >
+                {format(item)}
+              </Text>
+            </View>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+};
+
 // ============ Component ============
 const SignUpScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   // 1. Hooks
   const [formData, setFormData] = useState<SignUpFormData>({
@@ -79,9 +197,21 @@ const SignUpScreen: React.FC = () => {
   const [emailStatus, setEmailStatus] = useState<EmailStatus>('none');
   const [codeStatus, setCodeStatus] = useState<CodeStatus>('none');
   const [isCodeFieldVisible, setIsCodeFieldVisible] = useState<boolean>(false);
+  const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false);
   const [showFieldErrors, setShowFieldErrors] = useState<boolean>(false);
   const [showTermsError, setShowTermsError] = useState<boolean>(false);
+  const [isBirthDatePickerVisible, setIsBirthDatePickerVisible] = useState<boolean>(false);
+  const [tempYear, setTempYear] = useState<number>(new Date().getFullYear());
+  const [tempMonth, setTempMonth] = useState<number>(new Date().getMonth() + 1);
+  const [tempDay, setTempDay] = useState<number>(new Date().getDate());
+  const [countryDropdownLayout, setCountryDropdownLayout] = useState<CountryDropdownLayout>({
+    left: 16,
+    top: 0,
+    width: 0,
+    maxHeight: COUNTRY_PICKER_MAX_HEIGHT,
+  });
   const scrollViewRef = useRef<ScrollView | null>(null);
+  const countryTriggerRef = useRef<View | null>(null);
   const fieldPositionsRef = useRef<Partial<Record<RequiredFieldKey, number>>>({});
   const sectionYRef = useRef<Record<SectionKey, number>>({
     account: 0,
@@ -105,9 +235,13 @@ const SignUpScreen: React.FC = () => {
   const isEmailSent = emailStatus === 'sent';
   const isEmailError = emailStatus === 'error';
   const isCodeError = codeStatus === 'error';
-  const isCodeVerified = codeStatus === 'success';
   const canSendCode = formData.email.trim().length > 0;
-  const sendCodeButtonText = isCodeFieldVisible || isCodeVerified ? '재전송' : '인증번호 발송';
+  const sendCodeButtonText = isCodeFieldVisible || isEmailVerified ? '재전송' : '인증번호 발송';
+
+  const days = useMemo(
+    () => Array.from({ length: getDaysInMonth(tempYear, tempMonth) }, (_, i) => i + 1),
+    [tempYear, tempMonth],
+  );
 
   let idMessage = '';
   let idMessageClass = 'text-transparent';
@@ -149,7 +283,7 @@ const SignUpScreen: React.FC = () => {
     if (formData.birthDate.trim().length === 0) return 'birthDate';
     if (formData.gender.length === 0) return 'gender';
     if (formData.country.length === 0) return 'country';
-    if (formData.email.trim().length === 0 || !isCodeVerified) return 'email';
+    if (formData.email.trim().length === 0 || !isEmailVerified) return 'email';
     return null;
   }, [
     formData.accountId,
@@ -164,7 +298,7 @@ const SignUpScreen: React.FC = () => {
     isIdVerified,
     isPasswordValid,
     isPasswordMatched,
-    isCodeVerified,
+    isEmailVerified,
   ]);
 
   // 콜백 functions
@@ -193,6 +327,7 @@ const SignUpScreen: React.FC = () => {
     setEmailStatus('none');
     setCodeStatus('none');
     setIsCodeFieldVisible(false);
+    setIsEmailVerified(false);
   }, []);
 
   const handleSendVerification = useCallback(() => {
@@ -203,12 +338,14 @@ const SignUpScreen: React.FC = () => {
       setEmailStatus('error');
       setIsCodeFieldVisible(false);
       setCodeStatus('none');
+      setIsEmailVerified(false);
       return;
     }
 
     setEmailStatus('sent');
     setIsCodeFieldVisible(true);
     setCodeStatus('none');
+    setIsEmailVerified(false);
     setFormData((prev) => ({
       ...prev,
       verificationCode: '',
@@ -221,6 +358,7 @@ const SignUpScreen: React.FC = () => {
       formData.verificationCode.trim() === TEMP_VERIFICATION_CODE;
 
     setCodeStatus(isVerified ? 'success' : 'error');
+    setIsEmailVerified(isVerified);
 
     if (isVerified) {
       setIsCodeFieldVisible(false);
@@ -308,19 +446,70 @@ const SignUpScreen: React.FC = () => {
     [handleFormChange],
   );
 
-  const handleChangeBirthDate = useCallback(
-    (text: string) => handleFormChange('birthDate', text),
-    [handleFormChange],
-  );
+  const openBirthDatePicker = useCallback(() => {
+    const parsed = /^(\d{4})-(\d{2})-(\d{2})$/.exec(formData.birthDate.trim());
+    const now = new Date();
+
+    if (parsed) {
+      const parsedYear = Math.min(Number(parsed[1]), CURRENT_YEAR);
+      const parsedMonth = Number(parsed[2]);
+      const parsedDay = Number(parsed[3]);
+
+      setTempYear(parsedYear);
+      setTempMonth(parsedMonth);
+      setTempDay(Math.min(parsedDay, getDaysInMonth(parsedYear, parsedMonth)));
+    } else {
+      setTempYear(now.getFullYear());
+      setTempMonth(now.getMonth() + 1);
+      setTempDay(now.getDate());
+    }
+
+    setIsBirthDatePickerVisible(true);
+  }, [formData.birthDate]);
+
+  const handleConfirmBirthDate = useCallback(() => {
+    const clampedDay = Math.min(tempDay, getDaysInMonth(tempYear, tempMonth));
+    const nextBirthDate = `${tempYear}-${pad(tempMonth)}-${pad(clampedDay)}`;
+
+    setFormData((prev) => ({
+      ...prev,
+      birthDate: nextBirthDate,
+    }));
+    setIsBirthDatePickerVisible(false);
+  }, [tempDay, tempMonth, tempYear]);
 
   const handleChangeCode = useCallback(
     (text: string) => handleFormChange('verificationCode', text),
     [handleFormChange],
   );
 
+  const openCountryPicker = useCallback(() => {
+    countryTriggerRef.current?.measureInWindow((x, y, width, height) => {
+      const horizontalMargin = 16;
+      const left = Math.max(horizontalMargin, Math.min(x, windowWidth - horizontalMargin - width));
+      const top = y + height + 7;
+      const availableHeight = Math.max(140, windowHeight - top - 16);
+
+      setCountryDropdownLayout({
+        left,
+        top,
+        width,
+        maxHeight: Math.min(COUNTRY_PICKER_MAX_HEIGHT, availableHeight),
+      });
+      setShowCountryPicker(true);
+    });
+  }, [windowHeight, windowWidth]);
+
   const handleToggleCountryPicker = useCallback(() => {
-    setShowCountryPicker((prev) => !prev);
-  }, []);
+    if (showCountryPicker) {
+      setShowCountryPicker(false);
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      openCountryPicker();
+    });
+  }, [openCountryPicker, showCountryPicker]);
 
   const handleSignUp = useCallback(() => {
     const firstInvalidField = getFirstInvalidField();
@@ -370,6 +559,7 @@ const SignUpScreen: React.FC = () => {
 
         <ScrollView
           ref={scrollViewRef}
+          scrollEnabled={!showCountryPicker}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
           <View onLayout={registerSectionY('account')}>
@@ -397,28 +587,124 @@ const SignUpScreen: React.FC = () => {
             />
           </View>
 
-          <View onLayout={registerSectionY('profile')}>
-            <ProfileSection
-              formData={formData}
-              countries={COUNTRIES}
-              showCountryPicker={showCountryPicker}
-              showFieldErrors={showFieldErrors}
-              onChangeName={handleChangeName}
-              onChangeBirthDate={handleChangeBirthDate}
-              onSelectGender={handleGenderSelect}
-              onToggleCountryPicker={handleToggleCountryPicker}
-              onSelectCountry={handleCountrySelect}
-              onNameLayout={registerFieldPosition('name', 'profile')}
-              onBirthDateLayout={registerFieldPosition('birthDate', 'profile')}
-              onGenderLayout={registerFieldPosition('gender', 'profile')}
-              onCountryLayout={registerFieldPosition('country', 'profile')}
-            />
+          <View onLayout={registerSectionY('profile')} className="mt-5">
+            <ContentContainer className="px-6 py-6">
+              <Text className="mb-4 text-h3 font-pretendardSemiBold text-black">개인 정보</Text>
+
+              <View onLayout={registerFieldPosition('name', 'profile')}>
+                <LabeledInput
+                  label="이름"
+                  required={true}
+                  placeholder="이름을 입력하세요"
+                  value={formData.name}
+                  onChangeText={handleChangeName}
+                  inputClassName={
+                    showFieldErrors && formData.name.trim().length === 0 ? 'border-statusError' : ''
+                  }
+                  containerClassName="mb-4"
+                />
+              </View>
+
+              <View onLayout={registerFieldPosition('birthDate', 'profile')}>
+                <View className="mb-4">
+                  <View className="mb-2 flex-row">
+                    <Text className="text-h3 font-pretendardSemiBold text-black">생년월일 </Text>
+                    <Text className="text-p1 text-statusError">*</Text>
+                  </View>
+                  <Pressable
+                    onPress={openBirthDatePicker}
+                    className={`h-[46px] w-full flex-row items-center rounded-xl border bg-inputBackground px-3 ${
+                      showFieldErrors && formData.birthDate.trim().length === 0
+                        ? 'border-statusError'
+                        : 'border-borderGray'
+                    }`}>
+                    <Text className={`flex-1 text-p1 ${formData.birthDate ? 'text-black' : 'text-gray'}`}>
+                      {formData.birthDate || '생년월일을 선택해주세요'}
+                    </Text>
+                    <DownDropdownIcon width={16} height={16} />
+                  </Pressable>
+                </View>
+              </View>
+
+              <View className="mb-4" onLayout={registerFieldPosition('gender', 'profile')}>
+                <View className="mb-2 flex-row">
+                  <Text className="text-h3 text-black">성별 </Text>
+                  <Text className="text-p1 text-statusError">*</Text>
+                </View>
+                <View className="flex-row gap-2">
+                  <Pressable
+                    onPress={() => handleGenderSelect('male')}
+                    className={`h-[46px] flex-1 items-center justify-center rounded-xl border ${
+                      formData.gender === 'male'
+                        ? 'border-main bg-serve'
+                        : showFieldErrors && formData.gender.length === 0
+                        ? 'border-statusError bg-white'
+                        : 'border-borderGray bg-white'
+                    }`}>
+                    <Text className={`text-p1 ${formData.gender === 'male' ? 'text-main' : 'text-gray'}`}>
+                      남성
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => handleGenderSelect('female')}
+                    className={`h-[46px] flex-1 items-center justify-center rounded-xl border ${
+                      formData.gender === 'female'
+                        ? 'border-main bg-serve'
+                        : showFieldErrors && formData.gender.length === 0
+                        ? 'border-statusError bg-white'
+                        : 'border-borderGray bg-white'
+                    }`}>
+                    <Text className={`text-p1 ${formData.gender === 'female' ? 'text-main' : 'text-gray'}`}>
+                      여성
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => handleGenderSelect('other')}
+                    className={`h-[46px] flex-1 items-center justify-center rounded-xl border ${
+                      formData.gender === 'other'
+                        ? 'border-main bg-serve'
+                        : showFieldErrors && formData.gender.length === 0
+                        ? 'border-statusError bg-white'
+                        : 'border-borderGray bg-white'
+                    }`}>
+                    <Text className={`text-p1 ${formData.gender === 'other' ? 'text-main' : 'text-gray'}`}>
+                      기타
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+
+              <View className="mb-4" onLayout={registerFieldPosition('country', 'profile')}>
+                <View className="mb-2 flex-row">
+                  <Text className="text-h3 font-pretendardSemiBold text-black">국가 </Text>
+                  <Text className="text-p1 text-statusError">*</Text>
+                </View>
+                <View ref={countryTriggerRef} collapsable={false}>
+                  <Pressable
+                    onPress={handleToggleCountryPicker}
+                    className={`h-[46px] w-full flex-row items-center rounded-xl border bg-inputBackground px-3 ${
+                      showFieldErrors && formData.country.length === 0
+                        ? 'border-statusError'
+                        : 'border-borderGray'
+                    }`}>
+                    <Text className={`flex-1 text-p1 ${formData.country ? 'text-black' : 'text-gray'}`}>
+                      {formData.country || '국가 / 지역'}
+                    </Text>
+                    {showCountryPicker ? (
+                      <UpDropdownIcon width={16} height={16} />
+                    ) : (
+                      <DownDropdownIcon width={16} height={16} />
+                    )}
+                  </Pressable>
+                </View>
+              </View>
+            </ContentContainer>
           </View>
 
           <View onLayout={registerSectionY('email')}>
             <EmailSection
               formData={formData}
-              isCodeVerified={isCodeVerified}
+              isEmailVerified={isEmailVerified}
               isEmailError={isEmailError}
               isEmailSent={isEmailSent}
               isCodeError={isCodeError}
@@ -459,6 +745,112 @@ const SignUpScreen: React.FC = () => {
             </Text>
           </Pressable>
         </ScrollView>
+
+        <Modal
+          visible={showCountryPicker}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowCountryPicker(false)}
+        >
+          <View style={{ flex: 1 }}>
+            <Pressable
+              style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
+              onPress={() => setShowCountryPicker(false)}
+            />
+
+            <View pointerEvents="box-none" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
+              <View
+                className="rounded-xl border border-borderGray bg-white"
+                style={{
+                  position: 'absolute',
+                  left: countryDropdownLayout.left,
+                  top: countryDropdownLayout.top,
+                  width: countryDropdownLayout.width,
+                  maxHeight: countryDropdownLayout.maxHeight,
+                }}
+              >
+                <ScrollView
+                  showsVerticalScrollIndicator
+                  scrollEnabled={true}
+                  contentContainerStyle={{ paddingVertical: 6 }}
+                >
+                  {COUNTRIES.map((country, index) => {
+                    const isSelectedCountry = formData.country === country;
+                    const isLastItem = index === COUNTRIES.length - 1;
+
+                    return (
+                      <Pressable
+                        key={country}
+                        onPress={() => handleCountrySelect(country)}
+                        className={`mx-[6px] rounded-lg px-3 py-[9px] ${isLastItem ? '' : 'mb-1 '}${
+                          isSelectedCountry ? 'bg-statusSuccess' : 'bg-white'
+                        }`}
+                      >
+                        <Text className={`text-p ${isSelectedCountry ? 'text-white' : 'text-black'}`}>
+                          {country}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+
+        <Modal
+          visible={isBirthDatePickerVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setIsBirthDatePickerVisible(false)}
+          statusBarTranslucent
+        >
+          <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+            <Pressable
+              style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}
+              onPress={() => setIsBirthDatePickerVisible(false)}
+            />
+
+            <View className="rounded-t-[16px] bg-white px-6 pb-10 pt-4">
+              <View className="mb-4 flex-row items-center justify-between">
+                <TouchableOpacity onPress={() => setIsBirthDatePickerVisible(false)}>
+                  <Text className="text-p1 text-gray">취소</Text>
+                </TouchableOpacity>
+
+                <Text className="text-h3 font-pretendardSemiBold text-black">생년월일 선택</Text>
+
+                <TouchableOpacity onPress={handleConfirmBirthDate}>
+                  <Text className="text-p1 font-pretendardSemiBold text-main">완료</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={{ flexDirection: 'row', height: ITEM_HEIGHT * VISIBLE_ITEMS }}>
+                <SpinnerColumn
+                  items={YEARS}
+                  selectedIndex={Math.max(0, YEARS.indexOf(tempYear))}
+                  onSelect={(index) => setTempYear(YEARS[index])}
+                  format={(n) => `${n}년`}
+                />
+                <SpinnerColumn
+                  items={MONTHS}
+                  selectedIndex={Math.max(0, MONTHS.indexOf(tempMonth))}
+                  onSelect={(index) => setTempMonth(MONTHS[index])}
+                  format={(n) => `${pad(n)}월`}
+                />
+                <SpinnerColumn
+                  items={days}
+                  selectedIndex={Math.min(
+                    days.indexOf(tempDay) >= 0 ? days.indexOf(tempDay) : 0,
+                    days.length - 1,
+                  )}
+                  onSelect={(index) => setTempDay(days[index])}
+                  format={(n) => `${pad(n)}일`}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
