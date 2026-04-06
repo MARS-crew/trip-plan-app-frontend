@@ -3,7 +3,7 @@ import { Animated, TouchableOpacity, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import BackArrow from '@/assets/icons/backArrow.svg';
+import { TopBar } from '@/components/ui';
 import BellIcon from '@/assets/icons/bell.svg';
 import Time2Icon from '@/assets/icons/time2.svg';
 import { COLORS } from '@/constants';
@@ -60,15 +60,7 @@ const NotificationSettingsScreen: React.FC = () => {
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <View className="px-4 pt-2">
-        <View className="flex-row items-center">
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={navigation.goBack}
-            className="ml-2 mr-1 h-10 w-10 items-start justify-center">
-            <BackArrow width={20} height={20} />
-          </TouchableOpacity>
-          <Text className="text-xl font-pretendardBold text-left text-black">알림 설정</Text>
-        </View>
+        <TopBar title="알림 설정" onPress={navigation.goBack} className="px-2" />
 
         <Text className="ml-1 mt-6 text-xs font-pretendardSemiBold text-left text-black">푸시 알림</Text>
 
