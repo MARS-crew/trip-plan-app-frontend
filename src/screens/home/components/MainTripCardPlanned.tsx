@@ -38,7 +38,7 @@ const MainTripCardPlanned: React.FC<MainTripCardPlannedProps> = ({ onOpenTripSch
             <Text className="text-gray text-p">5개의 일정이 계획되었어요</Text>
             <TouchableOpacity
               onPress={onOpenTripSchedule}
-              className="px-3 py-2 border border-borderGray rounded-xl flex-row items-center">
+              className="px-3 py-2 border border-borderGray rounded-lg flex-row items-center">
               <Text className="text-black text-p mr-2">일정 보기</Text>
               <VectorGrayIcon width={16} height={16} />
             </TouchableOpacity>

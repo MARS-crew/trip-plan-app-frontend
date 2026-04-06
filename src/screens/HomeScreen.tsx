@@ -9,7 +9,7 @@ import type { HomeStackParamList } from '@/navigation';
 import type { RootStackParamList } from '@/navigation';
 import Animated, { useSharedValue, withTiming, useAnimatedStyle, interpolate } from 'react-native-reanimated';
 import CustomBottomSheet from '@/components/ui/CustomBottomSheet';
-import { ContentContainer, MainRecChip } from '@/components/ui';
+import { MainRecChip } from '@/components/ui';
 import { RobotIcon, SendIcon, X, NoticeIcon, LogoIcon, LogoLetter, ChatIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
 import { ChatCaseContent, MainTripCard } from '@/screens/home/components';
@@ -114,16 +114,18 @@ const HomeScreen: React.FC = () => {
             <LogoIcon width={38} height={38} />
             <LogoLetter width={65} height={32} />
           </View>
-          <ContentContainer className="px-[10px] py-[10px] rounded-xl">
-            <Pressable onPress={handleNavigateToDetail} className="items-center justify-center">
-              <View className="relative">
-                <NoticeIcon width={20} height={20} />
-                {hasNotification && (
-                  <View className="absolute right-[-1px] top-[-1px] h-2 w-2 rounded-full bg-statusError" />
-                )}
-              </View>
-            </Pressable>
-          </ContentContainer>
+          <Shadow distance={2} startColor="#00000025" endColor="#00000000" offset={[0, 0]} paintInside={false} style={{ borderRadius: 12 }}>
+            <View className="bg-white rounded-xl px-[10px] py-[10px]">
+              <Pressable onPress={handleNavigateToDetail} className="items-center justify-center">
+                <View className="relative">
+                  <NoticeIcon width={20} height={20} />
+                  {hasNotification && (
+                    <View className="absolute right-[-1px] top-[-1px] h-2 w-2 rounded-full bg-statusError" />
+                  )}
+                </View>
+              </Pressable>
+            </View>
+          </Shadow>
         </View>
 
         <View className="mx-4 mt-4">
