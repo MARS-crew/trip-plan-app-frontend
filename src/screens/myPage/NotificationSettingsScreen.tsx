@@ -59,10 +59,9 @@ const NotificationSettingsScreen: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <View className="px-4 pt-2">
-        <TopBar title="알림 설정" onPress={navigation.goBack} className="px-2" />
-
-        <Text className="ml-1 mt-6 text-xs font-pretendardSemiBold text-left text-black">푸시 알림</Text>
+      <TopBar title="알림 설정" onPress={navigation.goBack} />
+      <View className="px-4">
+        <Text className="ml-1 mt-2 text-xs font-pretendardSemiBold text-left text-black">푸시 알림</Text>
 
         <View className="mt-3 overflow-hidden rounded-2xl border border-borderGray bg-white">
           <View className="flex-row items-center justify-between px-4 py-4">
