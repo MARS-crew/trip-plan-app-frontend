@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
@@ -21,10 +21,13 @@ const CATEGORIES = [
   { id: 'nature', label: '자연' },
 ] as const;
 
+type CategoryId = (typeof CATEGORIES)[number]['id'];
+type PlaceCategoryId = Exclude<CategoryId, 'all'>;
+
 interface BookmarkedPlace {
   id: string;
   title: string;
-  category: string;
+  categoryId: PlaceCategoryId;
   region: string;
   rating: number;
 }
@@ -33,39 +36,40 @@ const DUMMY_PLACES: BookmarkedPlace[] = [
   {
     id: '1',
     title: '센소지 아사쿠사',
-    category: '관광지',
+    categoryId: 'landmark',
     region: '도쿄, 일본',
     rating: 4.6,
   },
   {
     id: '2',
-    title: '센소지 아사쿠사',
-    category: '관광지',
-    region: '도쿄, 일본',
-    rating: 4.6,
+    title: '스시 사토',
+    categoryId: 'restaurant',
+    region: '오사카, 일본',
+    rating: 4.7,
   },
   {
     id: '3',
-    title: '센소지 아사쿠사',
-    category: '관광지',
-    region: '도쿄, 일본',
-    rating: 4.6,
+    title: '오션뷰 리조트',
+    categoryId: 'accommodation',
+    region: '제주, 한국',
+    rating: 4.8,
   },
   {
     id: '4',
-    title: '센소지 아사쿠사',
-    category: '관광지',
-    region: '도쿄, 일본',
-    rating: 4.6,
+    title: '에메랄드 비치',
+    categoryId: 'beach',
+    region: '세부, 필리핀',
+    rating: 4.5,
   },
 ];
 
 interface PlaceCardProps {
   place: BookmarkedPlace;
+  categoryLabel: string;
   onPress: () => void;
 }
 
-const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
+const PlaceCard: React.FC<PlaceCardProps> = ({ place, categoryLabel, onPress }) => {
   return (
     <TouchableOpacity
       activeOpacity={0.9}
@@ -88,7 +92,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
 
         {/* 북마크 아이콘 */}
         <TouchableOpacity
-          className="absolute top-2 right-2 w-7 h-7 rounded-full justify-center items-center"
+          className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full justify-center items-center"
           style={{ backgroundColor: 'rgba(79, 79, 79, 0.8)' }}
           onPress={() => console.log('북마크 버튼 클릭:', place.id)}
           activeOpacity={0.7}>
@@ -97,7 +101,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
 
         {/* 제목 + 위치 오버레이 */}
         <View className="absolute bottom-0 left-0 right-0 px-2.5 pb-2">
-          <Text className="mb-0.5 font-pretendardRegular text-sm font-pretendardSemiBold text-white">
+          <Text className="mb-0.5 text-sm font-pretendardSemiBold text-white">
             {place.title}
           </Text>
           <View className="flex-row items-center">
@@ -112,7 +116,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
       {/* 정보 섹션 */}
       <View className="flex-row items-center justify-between bg-white px-2.5 py-1.5">
         <Chip
-          label={place.category}
+          label={categoryLabel}
           className="h-5 rounded-full bg-chip px-2.5 py-0.5"
         />
         <View className="flex-row items-center">
@@ -128,9 +132,22 @@ type BookmarkNavigationProp = BottomTabNavigationProp<RootTabParamList, 'Bookmar
 
 const BookmarkScreen: React.FC = () => {
   const navigation = useNavigation<BookmarkNavigationProp>();
-  const [selectedCategory, setSelectedCategory] = useState<(typeof CATEGORIES)[number]['id']>('all');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all');
 
-  const handleCategoryPress = (categoryId: (typeof CATEGORIES)[number]['id']) => {
+  const filteredPlaces = useMemo(() => {
+    if (selectedCategory === 'all') {
+      return DUMMY_PLACES;
+    }
+
+    return DUMMY_PLACES.filter((place) => place.categoryId === selectedCategory);
+  }, [selectedCategory]);
+
+  const getCategoryLabel = useCallback((categoryId: PlaceCategoryId): string => {
+    const category = CATEGORIES.find((item) => item.id === categoryId);
+    return category?.label ?? '기타';
+  }, []);
+
+  const handleCategoryPress = (categoryId: CategoryId) => {
     setSelectedCategory(categoryId);
   };
 
@@ -148,9 +165,11 @@ const BookmarkScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}>
         <View className="pb-5 pt-1">
         {/* 헤더 */}
-        <View className="px-4 pb-3 pt-4">
-          <Text className="mb-1 font-pretendardRegular text-h font-pretendardBold text-black">저장된 장소</Text>
-          <Text className="font-pretendardRegular text-sm font-pretendardMedium text-gray">4개의 장소를 저장했어요</Text>
+        <View className="px-4 pb-4 pt-4">
+          <Text className="mb-1 text-h font-pretendardBold text-black">저장된 장소</Text>
+          <Text className="text-sm font-pretendardMedium text-gray">
+            {filteredPlaces.length}개의 장소를 표시 중이에요
+          </Text>
         </View>
 
         {/* 필터 탭 */}
@@ -178,13 +197,25 @@ const BookmarkScreen: React.FC = () => {
 
         {/* 카드 그리드 */}
         <View className="px-4">
-          <View className="flex-row flex-wrap justify-between">
-            {DUMMY_PLACES.map((place) => (
-              <View key={place.id} className="mb-2 w-[48.8%]">
-                <PlaceCard place={place} onPress={() => handlePlacePress(place.id)} />
-              </View>
-            ))}
-          </View>
+          {filteredPlaces.length > 0 ? (
+            <View className="flex-row flex-wrap justify-between">
+              {filteredPlaces.map((place) => (
+                <View key={place.id} className="mb-2 w-[48.8%]">
+                  <PlaceCard
+                    place={place}
+                    categoryLabel={getCategoryLabel(place.categoryId)}
+                    onPress={() => handlePlacePress(place.id)}
+                  />
+                </View>
+              ))}
+            </View>
+          ) : (
+            <View className="items-center rounded-xl bg-chip px-4 py-10">
+              <Text className="font-pretendardRegular text-sm text-gray">
+                선택한 카테고리에 저장된 장소가 없어요.
+              </Text>
+            </View>
+          )}
         </View>
         </View>
       </ScrollView>
