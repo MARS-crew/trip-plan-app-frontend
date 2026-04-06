@@ -5,7 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 import { COLORS } from '@/constants';
-import BackArrow from '@/assets/icons/backArrow.svg';
+import { TopBar } from '@/components/ui';
+import LocationOrangeIcon from '@/assets/icons/location_orange.svg';
 import MarkerGrayIcon from '@/assets/icons/marker-gray.svg';
 import VectorGrayIcon from '@/assets/icons/vectorgray.svg';
 
@@ -18,6 +19,7 @@ interface VisitedPlaceItem {
 	location: string;
 	tags: string[];
 	reviewCta: string;
+	hasReview: boolean;
 	imageSource: number;
 }
 
@@ -29,6 +31,7 @@ const visitedPlaces: VisitedPlaceItem[] = [
 		location: '도쿄, 일본',
 		tags: ['관광지', '문화', '역사'],
 		reviewCta: '리뷰 확인하기',
+		hasReview: true,
 		imageSource: require('@/assets/images/thumnail.png'),
 	},
 	{
@@ -38,6 +41,7 @@ const visitedPlaces: VisitedPlaceItem[] = [
 		location: '도쿄, 일본',
 		tags: ['관광지', '문화', '역사'],
 		reviewCta: '리뷰 쓰기',
+		hasReview: false,
 		imageSource: require('@/assets/images/thumnail.png'),
 	},
 	{
@@ -47,6 +51,7 @@ const visitedPlaces: VisitedPlaceItem[] = [
 		location: '도쿄, 일본',
 		tags: ['관광지', '문화', '역사'],
 		reviewCta: '리뷰 쓰기',
+		hasReview: false,
 		imageSource: require('@/assets/images/thumnail.png'),
 	},
 ];
@@ -54,8 +59,8 @@ const visitedPlaces: VisitedPlaceItem[] = [
 const cardStyle = {
 	shadowColor: COLORS.black,
 	shadowOffset: { width: 0, height: 0 },
-	shadowOpacity: 0.25,
-	shadowRadius: 2,
+	shadowOpacity: 0.08,
+	shadowRadius: 1.5,
 	elevation: 1,
 };
 
@@ -77,20 +82,39 @@ const VisitedPlaceListScreen: React.FC = () => {
 		return Array.from(map.entries());
 	}, []);
 
+	const handleReviewPress = React.useCallback(
+		(item: VisitedPlaceItem): void => {
+			if (item.hasReview) {
+				navigation.navigate('MainTabs', { screen: 'Search', params: { screen: 'DestinationDetail', params: { destinationId: item.id, initialTab: 'review' } } } as never);
+			} else {
+				navigation.navigate('MainTabs', { screen: 'Search', params: { screen: 'ReviewWrite' } } as never);
+			}
+		},
+		[navigation],
+	);
+
+	if (visitedPlaces.length === 0) {
+		return (
+			<SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
+				<TopBar title="방문한 장소 리스트" onPress={navigation.goBack} />
+				<View className="flex-1 items-center justify-center">
+					<View className="h-16 w-16 items-center justify-center rounded-2xl bg-contentBackground">
+						<LocationOrangeIcon width={28} height={28} />
+					</View>
+					<Text className="mt-4 text-h2 font-pretendardSemiBold text-black">방문한 장소가 없습니다</Text>
+					<Text className="mt-1 text-p1 font-pretendardMedium text-gray">
+						여행을 떠나보세요! 분명 좋은 일이 있을 거예요.
+					</Text>
+				</View>
+			</SafeAreaView>
+		);
+	}
+
 	return (
 		<SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
+			<TopBar title="방문한 장소 리스트" onPress={navigation.goBack} />
 			<ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
 				<View className="px-4 pb-8">
-					<View className="flex-row h-14 items-center">
-						<TouchableOpacity
-							activeOpacity={0.8}
-							onPress={navigation.goBack}
-							className="ml-2 mr-1 h-10 w-10 items-start justify-center">
-							<BackArrow width={20} height={20} />
-						</TouchableOpacity>
-						<Text className="text-h font-pretendardBold text-black">방문한 장소 리스트</Text>
-					</View>
-
 					{groupedByDate.map(([date, items]) => (
 						<View key={date} className="mt-4">
 							<Text className="mb-2 text-p1 font-pretendardMedium text-gray">{date}</Text>
@@ -101,18 +125,21 @@ const VisitedPlaceListScreen: React.FC = () => {
 										key={item.id}
 										className="overflow-hidden rounded-lg bg-white"
 										style={cardStyle}>
-										<View className="flex-row px-3 py-3">
+										<TouchableOpacity
+										activeOpacity={0.8}
+										onPress={() => navigation.navigate('MainTabs', { screen: 'Search', params: { screen: 'DestinationDetail', params: { destinationId: item.id } } } as never)}
+										className="flex-row px-3 py-3">
 											<Image source={item.imageSource} className="h-28 w-28 rounded-lg" resizeMode="cover" />
 
-											<View className="flex-1 ml-3 pt-5">
-												<View className="flex-row items-start justify-between">
+											<View className="ml-3 flex-1 justify-center">
+												<View className="flex-row items-center justify-between">
 													<View className="flex-1 pr-2">
 														<Text className="text-h3 font-pretendardSemiBold text-black">{item.title}</Text>
-														<View className="mt-1 flex-row items-center">
+														<View className="flex-row items-center" style={{ marginTop: 2 }}>
 															<MarkerGrayIcon width={12} height={12} />
-															<Text className="mb-2 ml-1 mt-1 text-p text-gray">{item.location}</Text>
+															<Text className="ml-1 text-p text-gray">{item.location}</Text>
 														</View>
-														<View className="mt-2 flex-row gap-1.5">
+														<View className="flex-row gap-1.5" style={{ marginTop: 6 }}>
 															{item.tags.map(tag => (
 																<View key={`${item.id}-${tag}`} className="rounded-2xl bg-chip px-2 py-0.5">
 																	<Text className="text-p text-gray">{tag}</Text>
@@ -121,18 +148,17 @@ const VisitedPlaceListScreen: React.FC = () => {
 														</View>
 													</View>
 
-													<View className="pt-[21px]">
-														<VectorGrayIcon width={14} height={14} />
-													</View>
+													<VectorGrayIcon width={14} height={14} />
 												</View>
 											</View>
-										</View>
+										</TouchableOpacity>
 
 										<View className="h-px bg-chip" />
 
 										<View className="p-3">
 											<TouchableOpacity
 												activeOpacity={0.85}
+												onPress={() => handleReviewPress(item)}
 												className="h-11 items-center justify-center rounded-lg border border-borderGray bg-inputBackground">
 												<Text className="text-center text-p3 font-pretendardSemiBold text-black">{item.reviewCta}</Text>
 											</TouchableOpacity>
