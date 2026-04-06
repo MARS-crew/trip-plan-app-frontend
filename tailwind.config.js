@@ -49,6 +49,10 @@ module.exports = {
       colors,
       fontFamily: {
         sans: ['Pretendard', 'System'],
+        pretendardRegular: ['Pretendard-Regular', 'System'],
+        pretendardMedium: ['Pretendard-Medium', 'System'],
+        pretendardSemiBold: ['Pretendard-SemiBold', 'System'],
+        pretendardBold: ['Pretendard-Bold', 'System'],
       },
       fontSize,
       boxShadow: {

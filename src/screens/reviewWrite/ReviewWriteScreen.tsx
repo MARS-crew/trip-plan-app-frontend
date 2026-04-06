@@ -130,7 +130,7 @@ const ReviewWriteScreen = ({
         <TopBar title="리뷰 작성" onPress={() => navigation.goBack()} />
           {/* Content */}
           <View className="flex-1 px-5 pt-8 pb-6">
-            <Text className="mb-4 text-center text-h1 font-bold text-black">
+            <Text className="mb-4 text-center text-h1 font-pretendardBold text-black">
               {placeName}
             </Text>
 
@@ -187,7 +187,7 @@ const ReviewWriteScreen = ({
               accessibilityRole="button"
               accessibilityLabel="리뷰 등록하기"
             >
-              <Text className="text-center text-h3 font-medium tracking-wide text-white">
+              <Text className="text-center text-h3 font-pretendardMedium tracking-wide text-white">
                 등록하기
               </Text>
             </Pressable>

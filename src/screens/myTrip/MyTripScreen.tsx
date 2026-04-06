@@ -121,7 +121,7 @@ const MyTripScreen: React.FC = () => {
         <View className="flex-1 bg-screenBackground px-5 py-6">
         <View className="flex-row items-start justify-between">
           <View>
-            <Text className="text-h font-bold text-black">내여행</Text>
+            <Text className="text-h font-pretendardBold text-black">내여행</Text>
             <Text className="mt-1 text-p text-gray">{filteredTripCardItems.length}개의 여행이 있어요</Text>
           </View>
 

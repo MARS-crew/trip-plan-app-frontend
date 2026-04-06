@@ -35,7 +35,7 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
         <LabeledInput
           label="이메일"
           containerClassName="flex-1 mb-0"
-          className={`h-[46px] px-2 rounded-xl border text-p1 font-Regular text-black ${
+          className={`h-[46px] px-2 rounded-xl border text-p1 font-pretendardRegular text-black ${
             isEmailError
               ? 'bg-inputBackground border-statusError'
               : isEmailSent
@@ -60,22 +60,22 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
           disabled={!canSendCode}
           accessibilityRole="button"
           accessibilityLabel="인증번호 발송">
-          <Text className="text-p font-Regular text-gray">{sendCodeButtonText}</Text>
+          <Text className="text-p font-pretendardRegular text-gray">{sendCodeButtonText}</Text>
         </TouchableOpacity>
       </View>
 
       {isCodeVerified ? (
-        <Text className="mt-2 text-p font-Regular text-statusSuccess">
+        <Text className="mt-2 text-p font-pretendardRegular text-statusSuccess">
           이메일 인증이 완료되었습니다
         </Text>
       ) : isEmailSent ? (
-        <Text className="mt-2 text-p font-Regular text-statusSuccess">
+        <Text className="mt-2 text-p font-pretendardRegular text-statusSuccess">
           인증번호가 발송되었습니다. 이메일을 확인해주세요.
         </Text>
       ) : null}
 
       {isEmailError ? (
-        <Text className="mt-2 text-p font-Regular text-statusError">
+        <Text className="mt-2 text-p font-pretendardRegular text-statusError">
           가입된 이메일이 없습니다.
         </Text>
       ) : null}

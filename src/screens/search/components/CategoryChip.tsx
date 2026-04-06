@@ -16,7 +16,7 @@ export const CategoryChip = React.memo<CategoryChipProps>(({ category, onPress }
         distance={2}
         startColor="rgba(0,0,0,0.1)"
         style={{
-          borderRadius: 8,
+          borderRadius: 12,
           width: '100%',
         }}
         stretch>
@@ -25,7 +25,7 @@ export const CategoryChip = React.memo<CategoryChipProps>(({ category, onPress }
           onPress={() => onPress?.(category)}
           activeOpacity={0.7}
         >
-          <Text className="text-sm font-medium">{category}</Text>
+          <Text className="text-sm font-pretendardMedium">{category}</Text>
         </TouchableOpacity>
       </Shadow>
     </View>

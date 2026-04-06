@@ -450,7 +450,7 @@ const SignUpScreen: React.FC = () => {
           <TouchableOpacity
             onPress={handleSignUp}
             className="mt-5 h-11 items-center justify-center rounded-lg bg-main">
-            <Text className="text-h3 font-semibold text-white">가입하기</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-white">가입하기</Text>
           </TouchableOpacity>
 
           <Pressable onPress={() => navigation.navigate('Login')} className="mt-5">

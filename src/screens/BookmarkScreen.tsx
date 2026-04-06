@@ -97,12 +97,12 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
 
         {/* 제목 + 위치 오버레이 */}
         <View className="absolute bottom-0 left-0 right-0 px-2.5 pb-2">
-          <Text className="mb-0.5 font-Pretendard text-sm font-semibold text-white">
+          <Text className="mb-0.5 font-pretendardRegular text-sm font-pretendardSemiBold text-white">
             {place.title}
           </Text>
           <View className="flex-row items-center">
             <Location width={10} height={10} className="mr-1" />
-            <Text className="font-Pretendard text-xs text-white">
+            <Text className="font-pretendardRegular text-xs text-white">
               {place.region}
             </Text>
           </View>
@@ -117,7 +117,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
         />
         <View className="flex-row items-center">
           <StarIcon width={12} height={12} className="mr-0.5" />
-          <Text className="font-Pretendard text-xs text-black">{place.rating}</Text>
+          <Text className="font-pretendardRegular text-xs text-black">{place.rating}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -149,8 +149,8 @@ const BookmarkScreen: React.FC = () => {
         <View className="pb-5 pt-1">
         {/* 헤더 */}
         <View className="px-4 pb-3 pt-4">
-          <Text className="mb-1 font-Pretendard text-h font-bold text-black">저장된 장소</Text>
-          <Text className="font-Pretendard text-sm font-medium text-gray">4개의 장소를 저장했어요</Text>
+          <Text className="mb-1 font-pretendardRegular text-h font-pretendardBold text-black">저장된 장소</Text>
+          <Text className="font-pretendardRegular text-sm font-pretendardMedium text-gray">4개의 장소를 저장했어요</Text>
         </View>
 
         {/* 필터 탭 */}
@@ -167,7 +167,7 @@ const BookmarkScreen: React.FC = () => {
                   onPress={() => handleCategoryPress(cat.id)}
                   activeOpacity={0.8}
                   className={`h-8 rounded-2xl px-4 py-2 ${isSelected ? 'bg-main' : 'bg-chip'}`}>
-                  <Text className={`font-Pretendard text-xs ${isSelected ? 'text-white' : 'text-gray'}`}>
+                  <Text className={`font-pretendardRegular text-xs ${isSelected ? 'text-white' : 'text-gray'}`}>
                     {cat.label}
                   </Text>
                 </TouchableOpacity>

@@ -19,8 +19,8 @@ export const SelectTripHeader: React.FC<SelectTripHeaderProps> = ({ onPress }) =
         <BackArrow accessibilityLabel="뒤로가기" />
       </Pressable>
       <View className="ml-5">
-        <Text className="text-h font-bold text-black">추가할 여행 선택</Text>
-        <Text className="text-p text-gray font-regular">2개의 여행이 있어요</Text>
+        <Text className="text-h font-pretendardBold text-black">추가할 여행 선택</Text>
+        <Text className="text-p text-gray font-pretendardRegular">2개의 여행이 있어요</Text>
       </View>
     </View>
   );

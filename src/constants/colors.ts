@@ -31,6 +31,23 @@ export const COLORS = {
   withdrawBg: '#FFF5F5',
 } as const;
 
+
+// 일정 지도 페이지 핀 전용 색상
+export const TRIP_DAY_COLOR_PALETTE = [
+  '#FB2C36',
+  '#FD9A00',
+  '#EFB100',
+  '#7CCF00',
+  '#00C951',
+  '#00BC7D',
+  '#00BBA7',
+  '#00B8DB',
+  '#00A6F4',
+  '#2B7FFF',
+  '#615FFF',
+  '#8E51FF',
+] as const;
+
 // 네비게이션바 전용 색상 상수
 export const COLOR_VALUES = {
   main: COLORS.main,
