@@ -1,11 +1,14 @@
-import {View, Text} from "react-native"
+import React from 'react';
+import { View, Text } from 'react-native';
 
-const test = () => {
-  const data: any = null
+const TestGemini = (): React.JSX.Element => {
+  const data: string | null = null;
 
   return (
-    <View style={{ margin: 13 }}>
+    <View className="m-3">
       <Text>test</Text>
     </View>
-  )
-}
+  );
+};
+
+export default TestGemini;
