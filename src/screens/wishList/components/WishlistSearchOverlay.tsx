@@ -20,17 +20,15 @@ export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
 
     return (
       <ScrollView
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 40 }}>
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'white',
-          }}
-        />
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 40,
+          backgroundColor: 'white',
+        }}>
         <View className="px-4">
           <View className="h-14 mb-3" />
           {places.map((place) => (
