@@ -1,41 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { COLORS } from '../constants/colors';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 const TestGemini = (): React.JSX.Element => {
   const [count, setCount] = useState(0);
-  const [loaded, setLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     if (count > 0) {
-      setLoaded(true);
+      setIsLoaded(true);
     }
-  }, []);
+  }, [count]);
 
-  const onClick = () => {
+  const handleClick = () => {
     setCount(count + 1);
   };
 
   return (
-    <View style={styles.container}>
-      {loaded && <Text style={{ color: '#30A69A' }}>로드됨</Text>}
-      <Text style={{ color: '#FF0000' }}>count: {count}</Text>
-      <TouchableOpacity onPress={onClick} style={styles.button}>
-        <Text style={{ color: COLORS.white }}>증가</Text>
+    <View className="flex-1 p-3">
+      {isLoaded && <Text className="text-teal-500">로드됨</Text>}
+      <Text className="text-red-500">count: {count}</Text>
+      <TouchableOpacity onPress={handleClick} className="bg-blue-500 p-2">
+        <Text className="text-white">증가</Text>
       </TouchableOpacity>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 13,
-  },
-  button: {
-    backgroundColor: '#3B82F6',
-    padding: 8,
-  },
-});
 
 export default TestGemini;
