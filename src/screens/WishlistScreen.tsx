@@ -1,18 +1,26 @@
 import React, { useCallback, useRef, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Pressable, Keyboard } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { SearchArrowIcon, SearchingIcon, MyLocation, WishStar } from '@/assets/icons';
-import { SearchContainer } from '@/components/ui';
+import { MyLocation, WishStar } from '@/assets/icons';
 import { WishModal } from './wishList/components/WishModal';
 import type { RootStackParamList } from '@/navigation/types';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { useState } from "react";
+import { useState } from 'react';
 import { RouteIcon, AlertIcon } from '@/assets/icons';
-import { COLORS } from '@/constants';
 import { BackHandler } from 'react-native';
-import { CategoryChip, PlaceCard, PlaceCardProps, WishTabSave, WishTabTrending, WishTabWishlist, WishlistBottomSheet } from '@/screens/wishList/components';
+import {
+  CategoryChip,
+  PlaceCard,
+  PlaceCardProps,
+  WishTabSave,
+  WishTabTrending,
+  WishTabWishlist,
+  WishlistBottomSheet,
+  WishlistSearchBar,
+  WishlistSearchOverlay,
+} from '@/screens/wishList/components';
 import type { WishlistBottomSheetTabId } from '@/screens/wishList/components';
 import Animated, {
   useSharedValue,
@@ -179,26 +187,33 @@ const WishlistScreen: React.FC = () => {
   const showAddModalRef = useRef(false);
   const showExitModalRef = useRef(false);
 
-  useEffect(() => { showAddModalRef.current = showAddModal; }, [showAddModal]);
-  useEffect(() => { showExitModalRef.current = showExitModal; }, [showExitModal]);
+  useEffect(() => {
+    showAddModalRef.current = showAddModal;
+  }, [showAddModal]);
+  useEffect(() => {
+    showExitModalRef.current = showExitModal;
+  }, [showExitModal]);
   useEffect(() => {
     isTrendingTabSV.value = selectedCategory === 'trending';
   }, [isTrendingTabSV, selectedCategory]);
   // 바텀시트 애니메이션 함수
-  const animateSheetTo = useCallback((targetY: number) => {
-    const currentY = translateY.value;
-    const distance = Math.abs(targetY - currentY);
-    const isMovingDown = targetY > currentY;
+  const animateSheetTo = useCallback(
+    (targetY: number) => {
+      const currentY = translateY.value;
+      const distance = Math.abs(targetY - currentY);
+      const isMovingDown = targetY > currentY;
 
-    if (isMovingDown) {
-      const duration = Math.max(260, Math.min(620, distance * 0.95));
-      translateY.value = withTiming(targetY, { duration, easing: Easing.out(Easing.cubic) });
-    } else {
-      const duration = Math.max(240, Math.min(700, distance * 1.02));
-      translateY.value = withTiming(targetY, { duration, easing: Easing.out(Easing.cubic) });
-    }
-    setIsSheetExpanded(targetY !== SNAP_LOW);
-  }, [SNAP_LOW, translateY]);
+      if (isMovingDown) {
+        const duration = Math.max(260, Math.min(620, distance * 0.95));
+        translateY.value = withTiming(targetY, { duration, easing: Easing.out(Easing.cubic) });
+      } else {
+        const duration = Math.max(240, Math.min(700, distance * 1.02));
+        translateY.value = withTiming(targetY, { duration, easing: Easing.out(Easing.cubic) });
+      }
+      setIsSheetExpanded(targetY !== SNAP_LOW);
+    },
+    [SNAP_LOW, translateY],
+  );
   // 바텀시트 상태 변화 핸들러
   const handleSheetChange = useCallback((expanded: boolean) => {
     setIsSheetExpanded(expanded);
@@ -214,8 +229,17 @@ const WishlistScreen: React.FC = () => {
     setIsSearchFocused(false);
     Keyboard.dismiss();
   }, []);
-  // 뒤로가기 버튼 핸들러 → 모달 열기
-  const handleGoBack = useCallback(() => setShowExitModal(true), []);
+  const handleSearchInputBlur = useCallback(() => {
+    Keyboard.dismiss();
+  }, []);
+  // 뒤로가기 버튼 핸들러: 검색 중이면 검색 종료, 그 외에는 모달 열기
+  const handleGoBack = useCallback(() => {
+    if (isSearchFocused) {
+      handleSearchBlur();
+      return;
+    }
+    setShowExitModal(true);
+  }, [isSearchFocused, handleSearchBlur]);
   // AI 추천 일정짜기 버튼 핸들러 → TripDetail로 이동 + 모달 닫기
   const handleAiPlan = useCallback(() => {
     navigation.navigate('TripDetail');
@@ -234,22 +258,13 @@ const WishlistScreen: React.FC = () => {
   }, [animateSheetTo, isSheetExpanded, SNAP_LOW]);
 
   // 좋아요 토글 핸들러 + 상태 조회 함수 (탭별)
-  const handleToggleSaved = useCallback(
-    (id: string) => toggleLike('saved', id),
-    [toggleLike],
-  );
+  const handleToggleSaved = useCallback((id: string) => toggleLike('saved', id), [toggleLike]);
   const handleToggleWishlist = useCallback(
     (id: string) => toggleLike('wishlist', id),
     [toggleLike],
   );
-  const isSavedLiked = useCallback(
-    (id: string) => isLikedInTab('saved', id),
-    [isLikedInTab],
-  );
-  const isWishlistLiked = useCallback(
-    (id: string) => isLikedInTab('wishlist', id),
-    [isLikedInTab],
-  );
+  const isSavedLiked = useCallback((id: string) => isLikedInTab('saved', id), [isLikedInTab]);
+  const isWishlistLiked = useCallback((id: string) => isLikedInTab('wishlist', id), [isLikedInTab]);
   // 탭 변경 시 바텀시트 애니메이션
   useEffect(() => {
     if (isInitialTabEffect.current) {
@@ -272,12 +287,7 @@ const WishlistScreen: React.FC = () => {
   // 바텀시트 애니메이션 스타일
   const mapUIAnimatedStyle = useAnimatedStyle(() => {
     'worklet';
-    const opacity = interpolate(
-      translateY.value,
-      [SNAP_LOW - 5, SNAP_LOW],
-      [0, 1],
-      'clamp',
-    );
+    const opacity = interpolate(translateY.value, [SNAP_LOW - 5, SNAP_LOW], [0, 1], 'clamp');
     return { opacity, pointerEvents: opacity < 0.1 ? 'none' : 'auto' };
   });
   //  뒤로가기 버튼 핸들링 + 모달 상태 초기화
@@ -292,13 +302,24 @@ const WishlistScreen: React.FC = () => {
 
       const backAction = () => {
         if (showExitModalRef.current || showAddModalRef.current) return true;
+        if (isSearchFocused) {
+          handleSearchBlur();
+          return true;
+        }
         setShowExitModal(true);
         return true;
       };
 
       const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
       return () => backHandler.remove();
-    }, [selectedCategory, SNAP_TRENDING, animateSheetTo, translateY]),
+    }, [
+      selectedCategory,
+      SNAP_TRENDING,
+      animateSheetTo,
+      translateY,
+      isSearchFocused,
+      handleSearchBlur,
+    ]),
   );
 
   //탭 컨텐츠
@@ -355,33 +376,21 @@ const WishlistScreen: React.FC = () => {
           onPress={handleMapPress}
         />
 
-        <Pressable className="absolute top-[5px] left-4 right-4 z-50" onPress={focusSearchInput}>
-          <SearchContainer>
-            <TouchableOpacity onPress={handleGoBack} className="ml-4 mr-2">
-              <SearchArrowIcon />
-            </TouchableOpacity>
-            <TextInput
-              ref={searchInputRef}
-              className="flex-1 text-h3 font-pretendardRegular pr-12 text-black"
-              placeholder="희망하는 관광지를 검색하세요"
-              placeholderTextColor={COLORS.gray}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              onFocus={handleSearchFocus}
-              onBlur={handleSearchBlur}
-            />
-            <TouchableOpacity className="absolute right-4">
-              <SearchingIcon />
-            </TouchableOpacity>
-          </SearchContainer>
-        </Pressable>
+        <WishlistSearchBar
+          searchInputRef={searchInputRef}
+          searchQuery={searchQuery}
+          onChangeText={setSearchQuery}
+          onFocus={handleSearchFocus}
+          onBlur={handleSearchInputBlur}
+          onFocusInput={focusSearchInput}
+          onPressBack={handleGoBack}
+        />
 
         <Animated.View
           style={[
             mapUIAnimatedStyle,
             { position: 'absolute', bottom: SEARCH_BUTTON_BOTTOM, left: 0, right: 0, zIndex: 20 },
-          ]}
-        >
+          ]}>
           <View className="items-center">
             <CategoryChip
               label="현 지도에서 검색"
@@ -391,7 +400,11 @@ const WishlistScreen: React.FC = () => {
             />
           </View>
           <View className="absolute right-4 bottom-2">
-            <Shadow distance={4} startColor="#00000015" offset={[0, 2]} style={{ borderRadius: 100 }}>
+            <Shadow
+              distance={4}
+              startColor="#00000015"
+              offset={[0, 2]}
+              style={{ borderRadius: 100 }}>
               <TouchableOpacity className="items-center justify-center w-7 h-7 bg-white rounded-full">
                 <MyLocation />
               </TouchableOpacity>
@@ -410,35 +423,13 @@ const WishlistScreen: React.FC = () => {
           renderTabContent={renderTabContent}
         />
 
-        {/* 검색 포커스 오버레이 */}
-        {isSearchFocused && (
-          <View
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 40 }}
-          >
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={handleSearchBlur}
-              style={{
-                position: 'absolute',
-                top: 0, left: 0, right: 0, bottom: 0,
-                backgroundColor: 'white',
-              }}
-            />
-            <View className="px-4">
-              <View className="h-14 mb-3" />
-              {SEARCH_PLACES.map((place) => (
-                <PlaceCard
-                  key={`${selectedCategory}-${place.id}`}
-                  place={place}
-                  isLiked={selectedCategory === 'trending' ? false : isLikedInTab(selectedCategory, place.id)}
-                  onToggleLike={(id) => {
-                    if (selectedCategory !== 'trending') toggleLike(selectedCategory, id);
-                  }}
-                />
-              ))}
-            </View>
-          </View>
-        )}
+        <WishlistSearchOverlay
+          isVisible={isSearchFocused}
+          selectedCategory={selectedCategory}
+          places={SEARCH_PLACES}
+          isLiked={(id) => isLikedInTab('wishlist', id)}
+          onToggleLike={(id) => toggleLike('wishlist', id)}
+        />
 
         {/* 완료 모달 */}
         <WishModal
