@@ -1,0 +1,12 @@
+code_review:
+  enabled: true
+  comment_severity_threshold: MEDIUM
+  tone: friendly-but-direct
+  verbosity: concise
+
+  guidance:
+    - 리뷰는 친절하지만 핵심은 명확하게 전달한다
+    - 필요할 경우 가벼운 이모지 사용은 허용한다 👍
+    - 잘 작성된 코드는 간단히 칭찬한다
+    - PR 요약은 너무 딱딱하지 않게, 자연스럽고 약간의 재미 요소를 포함할 수 있다
+    - 다만 과도한 농담이나 밈 사용은 지양한다

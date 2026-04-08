@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { launchImageLibrary } from 'react-native-image-picker';
 
+import { TopBar } from '@/components';
 import { COLORS } from '@/constants';
+import type { RootStackParamList } from '@/navigation/types';
 import {
     CameraIcon,
     RightArrowIcon,
@@ -17,29 +20,42 @@ type AddTripNavigation = NativeStackNavigationProp<RootStackParamList,'AddTripSc
 const AddTripScreen: React.FC = () => {
   const navigation = useNavigation<AddTripNavigation>();
   const [tripName, setTripName] = useState('');
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+
+  const handlePickTripImage = async () => {
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      selectionLimit: 1,
+      quality: 0.9,
+    });
+
+    setSelectedImageUri(result.assets?.[0]?.uri ?? null);
+  };
+
 
   return (
       <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-          <View className="flex-row items-center h-14 pl-6">
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <BackArrow className='w-5 h-5'/>
-            </TouchableOpacity>
-            <Text numberOfLines={1} className="ml-4 text-h font-pretendardBold text-black">여행지 추가</Text>
-          </View>
+      <TopBar title="일정 추가" onPress={() => navigation.goBack()} />
 
         <View className="flex-1 bg-screenBackground px-8">
           <View className="flex-1 items-center pt-[140px]">
             <View className="relative">
               <Image
-                source={require('../../assets/images/thumnail3.png')}
+                source={
+                  selectedImageUri
+                    ? { uri: selectedImageUri }
+                    : require('../../assets/images/thumnail3.png')
+                }
                 className="h-[140px] w-[140px] rounded-[20px]"
                 resizeMode="cover"
               />
 
               <TouchableOpacity
                 activeOpacity={0.8}
-                className="absolute bottom-2 right-2 h-[32px] w-[32px] items-center justify-center rounded-full">
-              <CameraIcon width={32} height={32}/>
+                onPress={handlePickTripImage}
+                className="absolute bottom-[6px] right-[6px] h-[32px] w-[32px] items-center justify-center rounded-full"
+                style={{ backgroundColor: '#251D18CC' }}>
+              <CameraIcon width={16} height={16}/>
               </TouchableOpacity>
             </View>
 

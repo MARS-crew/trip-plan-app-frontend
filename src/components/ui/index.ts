@@ -3,6 +3,8 @@ export { NavigationBar } from './NavigationBar';
 export type { NavigationBarProps } from './NavigationBar';
 export { Chip } from './Chip';
 export type { ChipProps } from './Chip';
+export { MainRecChip } from './MainRecChip';
+export type { MainRecChipProps } from './MainRecChip';
 
 export { TabNavigation } from './TabNavigation';
 export type { TabNavigationProps, TabItem } from './TabNavigation';

@@ -27,7 +27,7 @@ const colors = {
   errmassage: '#FF4444',
   kakaoYellow: '#FEE500',
   naverGreen: '#03A94D',
-
+  greenstate: '#27C840',
   errormessage: '#FF4444',
 
 };
@@ -58,6 +58,7 @@ module.exports = {
       boxShadow: {
         card: '0 0 3px rgba(0,0,0,0.15)',
         logincard: '0 0 5px rgba(0,0,0,0.25)',
+        recommended: '0 0 10px rgba(0,0,0,0.25)',
       },
     },
   },
