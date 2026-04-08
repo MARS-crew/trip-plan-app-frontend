@@ -11,7 +11,7 @@ import { getRecentSearches } from '@/services';
 import { SearchList } from '@/screens/search/components/SearchList';
 import { PopularList } from '@/screens/search/components/PopularList';
 import { CategoryChip } from '@/screens/search/components/CategoryChip';
-import type { GetRecentSearch } from '@/types/research';
+import type { GetRecentSearch } from '@/types/search';
 
 // dummy data
 const popularSearch = [
@@ -103,9 +103,13 @@ const SearchScreen: React.FC = () => {
                 <Text className="text-p text-gray">전체 삭제</Text>
               </View>
               <View>
-                {recentSearches.map(({ recentSearchId, keyword }) => (
-                  <SearchList key={recentSearchId} item={keyword} onPress={handleNavigate} />
-                ))}
+                {recentSearches.length === 0 ? (
+                  <Text className="py-4 text-center text-p text-gray">최근 검색어가 없습니다</Text>
+                ) : (
+                  recentSearches.map(({ recentSearchId, keyword }) => (
+                    <SearchList key={recentSearchId} item={keyword} onPress={handleNavigate} />
+                  ))
+                )}
               </View>
             </View>
             <View>
