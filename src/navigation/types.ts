@@ -11,7 +11,7 @@ export type SearchStackParamList = {
 export type RootTabParamList = {
   Home: undefined;
   Search: NavigatorScreenParams<SearchStackParamList> | undefined;
-  Map: undefined;
+  MyTrip: undefined;
   Bookmark: undefined;
   MyPage: undefined;
 };
