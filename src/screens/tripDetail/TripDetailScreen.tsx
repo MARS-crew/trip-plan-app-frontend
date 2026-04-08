@@ -37,10 +37,10 @@ const day1Cards = [
 ];
 
 const DAY_SECTIONS = [
-  { dayLabel: '1일차 / 02/28', cards: day1Cards, showMapIcon: true },
-  { dayLabel: '2일차 / 03/01', cards: [], showMapIcon: false },
-  { dayLabel: '3일차 / 03/02', cards: [], showMapIcon: false },
-  { dayLabel: '4일차 / 03/03', cards: [], showMapIcon: false },
+  { dayLabel: '1일차 / 02.28', cards: day1Cards, showMapIcon: true },
+  { dayLabel: '2일차 / 03.01', cards: [], showMapIcon: false },
+  { dayLabel: '3일차 / 03.02', cards: [], showMapIcon: false },
+  { dayLabel: '4일차 / 03.03', cards: [], showMapIcon: false },
 ];
 
 const TripDetailScreen: React.FC = () => {

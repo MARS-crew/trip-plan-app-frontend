@@ -14,7 +14,7 @@ import Exchange2Icon from '@/assets/icons/exchange2.svg';
 import BellIcon from '@/assets/icons/bell.svg';
 import LogoutIcon from '@/assets/icons/logout.svg';
 import SettingIcon from '@/assets/icons/setting.svg';
-import EarthIcon from '@/assets/icons/earth.svg';
+import EarthIcon from '@/assets/icons/earth1.svg';
 import { COLORS } from '@/constants';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -115,11 +115,11 @@ const SettingItemIcon: React.FC<{ type: SettingItem['type'] }> = ({ type }) => {
 };
 
 const cardStyle = {
-  shadowColor: COLORS.black,
+  shadowColor: COLORS.borderGray,
   shadowOffset: { width: 0, height: 0 },
   shadowOpacity: 0.08,
   shadowRadius: 1.5,
-  elevation: 1,
+  elevation: 0,
 };
 
 const RATE_KRW_TO_JPY = '1 KRW = 0.110000 JPY';
@@ -163,6 +163,8 @@ const MyPageScreen: React.FC = () => {
   const rightCurrencyLabel = isKrwToJpy ? '일본 엔' : '대한민국 원';
   const topAmount = isKrwToJpy ? krwAmount : jpyAmount;
   const bottomAmount = isKrwToJpy ? jpyAmount : krwAmount;
+  const topSymbolSpacingClass = topCurrencyCode === 'KRW' ? 'mr-[8px]' : 'mr-[15px]';
+  const bottomSymbolSpacingClass = bottomCurrencyCode === 'KRW' ? 'mr-[8px]' : 'mr-[15px]';
   const handleTopAmountChange = isKrwToJpy
     ? handleAmountChange(setKrwAmount)
     : handleAmountChange(setJpyAmount);
@@ -249,11 +251,13 @@ const MyPageScreen: React.FC = () => {
                   <Text className="text-h2 font-pretendardBold text-main">t</Text>
                 </View>
                 <View>
-                  <Text className="text-h2 font-pretendardSemiBold text-black">여행자</Text>
+                  <Text className="text-h1 font-pretendardSemiBold text-black">여행자</Text>
                   <Text className="mt-0.5 text-p1 text-black">travel@gmail.com</Text>
-                  <View className="mt-1 flex-row items-center">
-                    <EarthIcon width={12} height={12} />
-                    <Text className="ml-1 text-p text-locationTeal">현재 위치: 일본</Text>
+                  <View className="mt-1 h-4 flex-row items-center">
+                    <View className="h-4 w-3 mt-0.5 items-center justify-center">
+                      <EarthIcon width={12} height={12} />
+                    </View>
+                    <Text className="ml-1 text-p leading-4 text-statusSuccess">현재 위치: 일본</Text>
                   </View>
                 </View>
               </View>
@@ -299,8 +303,8 @@ const MyPageScreen: React.FC = () => {
                 className={`px-4 py-3 ${index !== phrases.length - 1 ? 'border-b border-borderGray' : ''}`}>
                 <Text className="text-h2 font-pretendardBold text-black">{phrase.japanese}</Text>
                 <View className="mt-0.5 flex-row items-center">
-                  <Text className="text-p1 text-gray">{phrase.koreanPronunciation}</Text>
-                  <Text className="ml-2 text-p1 text-main">{phrase.meaning}</Text>
+                  <Text className="text-p text-gray">{phrase.koreanPronunciation}</Text>
+                  <Text className="ml-2 text-p text-main">{phrase.meaning}</Text>
                 </View>
               </View>
             ))}
@@ -320,7 +324,7 @@ const MyPageScreen: React.FC = () => {
             <View className="mt-3 rounded-xl bg-chip px-4 py-3.5">
               <Text className="text-p1 text-gray">{topCurrencyCode}</Text>
               <View className="mt-1 flex-row items-center">
-                <Text className="mr-1 text-h1 font-pretendardBold text-black">{topCurrencySymbol}</Text>
+                <Text className={`${topSymbolSpacingClass} text-h1 font-pretendardBold text-black`}>{topCurrencySymbol}</Text>
                 <TextInput
                   value={topAmount}
                   onChangeText={handleTopAmountChange}
@@ -342,7 +346,7 @@ const MyPageScreen: React.FC = () => {
             <View className="rounded-xl bg-chip px-4 py-3.5">
               <Text className="text-p1 text-gray">{bottomCurrencyCode}</Text>
               <View className="mt-1 flex-row items-center">
-                <Text className="mr-1 text-h1 font-pretendardBold text-main">{bottomCurrencySymbol}</Text>
+                <Text className={`${bottomSymbolSpacingClass} text-h1 font-pretendardBold text-main`}>{bottomCurrencySymbol}</Text>
                 <TextInput
                   value={bottomAmount}
                   onChangeText={handleBottomAmountChange}
@@ -353,7 +357,7 @@ const MyPageScreen: React.FC = () => {
             </View>
           </View>
 
-          <Text className="mt-5 ml-1 text-p1 font-pretendardSemiBold text-gray">계정</Text>
+          <Text className="mt-5 ml-1 text-xs font-pretendardSemiBold text-gray">계정</Text>
 
           <View
             className="mt-2 overflow-hidden rounded-lg border border-subtleBorder bg-white"

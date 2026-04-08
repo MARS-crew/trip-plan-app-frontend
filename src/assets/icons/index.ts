@@ -5,6 +5,8 @@ export { default as MapIcon } from './map.svg';
 export { default as BookmarkIcon } from './bookmark.svg';
 export { default as MyPageIcon } from './mypage.svg';
 export { default as AppLogoIcon } from './logo.svg';
+export { default as LogoIcon } from './logoicon.svg';
+export { default as LogoLetter } from './logoletter.svg';
 export { default as KakaoIcon } from './kakaoicon.svg';
 export { default as NaverIcon } from './navericon.svg';
 export { default as GoogleIcon } from './googleicon.svg';
@@ -44,6 +46,7 @@ export { default as WeatherInfoIcon } from './weather-info.svg';
 export { default as BackArrow } from './backArrow.svg';
 export { default as CameraIcon } from './camera.svg';
 export { default as RightArrowIcon } from './rightarrow.svg';
+export { default as RightArrow2Icon } from './rightarrow2.svg';
 export { default as WishIcon } from './wish.svg';
 export { default as KebabMenuIcon } from './kebabmenu.svg';
 export { default as Map2Icon } from './map2.svg';
@@ -53,6 +56,7 @@ export { default as KebabShareIcon } from './kebabshare.svg';
 export { default as KebabTrashIcon } from './kebabtrash.svg';
 export { default as KebabMapIcon } from './kebabmap.svg';
 export { default as PlusGrayIcon } from './plusgray.svg';
+export { default as CalendarWhiteIcon } from './calendarwhite.svg';
 
 
 export { default as SearchingIcon } from './searching.svg';
@@ -65,6 +69,10 @@ export { default as MyLocation } from './mylocation.svg';
 export { default as EmptyLocation } from './emptylocation.svg';
 export { default as EmptyWish } from './emptywish.svg';
 export { default as AlertIcon } from './alert.svg';
+export { default as NoticeIcon } from './notice.svg';
+export { default as NoticeDotIcon } from './noticedot.svg';
+export { default as ChatIcon } from './chat.svg';
+export { default as MainPlaneIcon } from './mainplane.svg';
 export { default as RouteIcon } from './route.svg';
 export { default as WishStar } from './wishstar.svg';
 
@@ -83,6 +91,7 @@ export { default as StarOffIconV2 } from './StarOffV2.svg';
 export { default as ActiveStar } from './active-star.svg';
 export { default as BackArrowGray } from './backarrowgray.svg';
 export { default as MapMarker } from './mapmarker.svg';
+
 // 타입 정의
 export interface IconProps {
   fill?: string;

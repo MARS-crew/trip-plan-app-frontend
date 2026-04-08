@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/navigation/types';
-import BackArrow from '@/assets/icons/backArrow.svg';
+import { TopBar } from '@/components/ui';
 import { COLORS } from '@/constants';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -21,15 +21,37 @@ const cardStyle = {
 const ProfileEditScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const [email, setEmail] = React.useState('');
+  const [emailError, setEmailError] = React.useState('');
   const [isCodeSent, setIsCodeSent] = React.useState(false);
   const [verificationCode, setVerificationCode] = React.useState('');
   const [isCodeVerified, setIsCodeVerified] = React.useState(false);
 
+  const isValidEmail = React.useCallback((value: string) => {
+    const trimmed = value.trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+  }, []);
+
+  const handleChangeEmail = React.useCallback((value: string) => {
+    setEmail(value);
+    if (emailError) {
+      setEmailError('');
+    }
+  }, [emailError]);
+
   const handlePressSendCode = React.useCallback(() => {
+    if (!isValidEmail(email)) {
+      setEmailError('이메일 형식이 올바르지 않습니다. pli@email.com 형식으로\n입력해주세요.');
+      setIsCodeSent(false);
+      setIsCodeVerified(false);
+      setVerificationCode('');
+      return;
+    }
+
+    setEmailError('');
     setIsCodeSent(true);
     setIsCodeVerified(false);
     setVerificationCode('');
-  }, []);
+  }, [email, isValidEmail]);
 
   const handleChangeVerificationCode = React.useCallback((value: string) => {
     const digitsOnly = value.replace(/[^0-9]/g, '').slice(0, 6);
@@ -52,15 +74,7 @@ const ProfileEditScreen: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <View className="h-14 flex-row items-center px-4">
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={navigation.goBack}
-          className="mr-1 ml-1 h-10 w-10 items-start justify-center">
-          <BackArrow width={20} height={20} />
-        </TouchableOpacity>
-        <Text className="text-h font-pretendardBold text-black">프로필 수정</Text>
-      </View>
+      <TopBar title="프로필 수정" onPress={navigation.goBack} className="px-4" />
 
       <View className="px-4 pt-3">
         <View className="rounded-lg border border-borderGray bg-white px-6 pb-4 pt-6" style={cardStyle}>
@@ -75,7 +89,7 @@ const ProfileEditScreen: React.FC = () => {
             <View className="mt-2 flex-row items-center">
               <TextInput
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={handleChangeEmail}
                 placeholder="example@gmail.com"
                 placeholderTextColor={COLORS.gray}
                 keyboardType="email-address"
@@ -90,6 +104,10 @@ const ProfileEditScreen: React.FC = () => {
                 <Text className="text-p text-gray">{isCodeSent ? '재전송' : '인증번호 발송'}</Text>
               </TouchableOpacity>
             </View>
+
+            {emailError ? (
+              <Text className="mt-2 text-p text-statusError">{emailError}</Text>
+            ) : null}
 
             {isCodeSent && (
               <>

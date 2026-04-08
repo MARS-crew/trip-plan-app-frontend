@@ -26,7 +26,7 @@ export const Chip = React.memo<ChipProps>(
           accessibilityRole="button"
           accessibilityLabel={label}
           accessibilityState={{ selected: isSelected }}>
-          <Text className={`text-p ${isSelected ? 'text-white' : 'text-black'}`}>{label}</Text>
+          <Text className={`text-p ${isSelected ? 'text-white' : 'text-gray'}`}>{label}</Text>
         </Pressable>
       );
     }
@@ -35,7 +35,7 @@ export const Chip = React.memo<ChipProps>(
       <View
         className={`px-4 py-[6px] rounded-2xl ${isSelected ? 'bg-main' : 'bg-chip'} ${className ?? ''}`}
         accessibilityLabel={label}>
-        <Text className={`text-p ${isSelected ? 'text-white' : 'text-black'}`}>{label}</Text>
+        <Text className={`text-p ${isSelected ? 'text-white' : 'text-gray'}`}>{label}</Text>
       </View>
     );
   },
