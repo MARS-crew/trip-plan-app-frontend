@@ -29,7 +29,7 @@ const colors = {
   naverGreen: '#03A94D',
   greenstate: '#27C840',
   errormessage: '#FF4444',
-
+  bookmarkBackground: '#4F4F4F',
 };
 
 const fontSize = {
