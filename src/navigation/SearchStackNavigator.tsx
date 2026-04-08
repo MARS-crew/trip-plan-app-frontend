@@ -6,15 +6,7 @@ import SearchResultScreen from '@/screens/SearchResultScreen';
 import DestinationDetailScreen from '@/screens/DestinationDetailScreen';
 import SelectTripScreen from '@/screens/SelectTripScreen';
 import ReviewWriteScreen from '@/screens/reviewWrite/ReviewWriteScreen';
-
-// ============ Types ============
-export type SearchStackParamList = {
-  SearchMain: undefined;
-  SearchResult: { query: string };
-  DestinationDetail: { destinationId: string; origin?: 'search' | 'bookmark'; initialTab?: 'info' | 'review' };
-  SelectTrip: undefined;
-  ReviewWrite : undefined;
-};
+import type { SearchStackParamList } from '@/navigation/types';
 
 // ============ Constants ============
 const Stack = createNativeStackNavigator<SearchStackParamList>();
