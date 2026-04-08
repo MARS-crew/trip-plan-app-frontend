@@ -3,7 +3,6 @@ import { Modal, TextInput, TouchableOpacity, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import BackArrow from '@/assets/icons/backArrow.svg';
 import NicknameIcon from '@/assets/icons/nickname.svg';
 import EmailIcon from '@/assets/icons/email.svg';
 import CalendarIcon from '@/assets/icons/calendar.svg';
@@ -11,6 +10,7 @@ import GenderIcon from '@/assets/icons/gender.svg';
 import EarthIcon from '@/assets/icons/earth.svg';
 import SecessionIcon from '@/assets/icons/secession.svg';
 import { COLORS } from '@/constants';
+import { TopBar } from '@/components/ui';
 import type { RootStackParamList } from '@/navigation';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -88,18 +88,9 @@ const AccountSettingsScreen: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <View className="px-4 pt-2">
-        <View className="flex-row items-center">
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={navigation.goBack}
-            className="mr-1 ml-2 h-10 w-10 items-start justify-center">
-            <BackArrow width={20} height={20} />
-          </TouchableOpacity>
-          <Text className="text-h font-pretendardBold text-black">계정 설정</Text>
-        </View>
-
-        <Text className="ml-2 mt-9 text-p1 font-pretendardSemiBold text-black">프로필 설정</Text>
+      <TopBar title="계정 설정" onPress={navigation.goBack} />
+      <View className="px-4">
+        <Text className="ml-2 mt-5 text-p1 font-pretendardSemiBold text-black">프로필 설정</Text>
 
         <View className="mt-3 overflow-hidden rounded-lg border border-borderGray bg-white">
           {profileItems.map((item, index) => (
@@ -124,7 +115,7 @@ const AccountSettingsScreen: React.FC = () => {
           activeOpacity={1}
           className="mt-6 rounded-lg border border-withdrawDanger bg-withdrawBg px-4 py-4">
           <View className="flex-row items-center">
-            <SecessionIcon width={24} height={24} />
+            <SecessionIcon width={20} height={20} />
             <Text className="ml-2 text-h2 font-pretendardSemiBold text-statusError">회원 탈퇴</Text>
           </View>
 

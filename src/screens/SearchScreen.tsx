@@ -1,21 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { View, Text, TextInput, ScrollView } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { SearchStackParamList } from '@/navigation/types';
-
 import { InputSearchIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
-import { SearchList } from './search/components/SearchList';
-import { PopularList } from './search/components/PopularList';
-import { CategoryChip } from './search/components/CategoryChip';
-import { TravelItem } from './search/components/TravelItem';
-import { TravelItemData } from './search/types';
+import { getRecentSearches } from '@/services';
+import { SearchList } from '@/screens/search/components/SearchList';
+import { PopularList } from '@/screens/search/components/PopularList';
+import { CategoryChip } from '@/screens/search/components/CategoryChip';
+import type { GetRecentSearch } from '@/types/search';
 
-// 예제값
-const searchList = ['도쿄 맛집', '발리 숙소', '유럽 여행 코스', '제주도 카페'];
+// dummy data
 const popularSearch = [
   '오사카 벚꽃',
   '다낭 리조트',
@@ -30,63 +28,6 @@ const category = [
   ['해변', '자연', '문화'],
 ];
 
-export const travelDummyData: TravelItemData[] = [
-  {
-    id: '1',
-    name: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    rating: 4.6,
-    reviewCount: 56789,
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: '2',
-    name: '도톤보리',
-    location: '오사카, 일본',
-    rating: 4.5,
-    reviewCount: 43210,
-    categories: ['맛집', '관광지'],
-    image: require('@/assets/images/thumnail2.png'),
-  },
-  {
-    id: '3',
-    name: '후쿠오카 야타이',
-    location: '후쿠오카, 일본',
-    rating: 4.3,
-    reviewCount: 12034,
-    categories: ['맛집', '문화'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: '4',
-    name: '다낭 미케 비치',
-    location: '다낭, 베트남',
-    rating: 4.7,
-    reviewCount: 31500,
-    categories: ['해변', '자연'],
-    image: require('@/assets/images/thumnail2.png'),
-  },
-  {
-    id: '5',
-    name: '방콕 왕궁',
-    location: '방콕, 태국',
-    rating: 4.4,
-    reviewCount: 28900,
-    categories: ['관광지', '역사', '문화'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: '6',
-    name: '발리 우붓',
-    location: '발리, 인도네시아',
-    rating: 4.8,
-    reviewCount: 67890,
-    categories: ['자연', '문화', '숙소'],
-    image: require('@/assets/images/thumnail2.png'),
-  },
-];
-
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<SearchStackParamList>;
 
@@ -94,13 +35,20 @@ type NavigationProp = NativeStackNavigationProp<SearchStackParamList>;
 const SearchScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const [query, setQuery] = useState('');
+  const [recentSearches, setRecentSearches] = useState<GetRecentSearch[]>([]);
+
+  const fetchRecentSearches = useCallback(async () => {
+    const data = await getRecentSearches();
+    setRecentSearches(data);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setQuery('');
+      fetchRecentSearches();
     });
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, fetchRecentSearches]);
 
   const handleSearch = useCallback(() => {
     const trimmed = query.trim();
@@ -149,18 +97,22 @@ const SearchScreen: React.FC = () => {
                 ))}
               </View>
             </View>
-            <View className="">
+            <View>
               <View className="mb-4 flex-row justify-between">
                 <Text className="font-pretendardSemiBold text-h3">최근 검색</Text>
                 <Text className="text-p text-gray">전체 삭제</Text>
               </View>
               <View>
-                {searchList.map((item, index) => (
-                  <SearchList key={index} item={item} onPress={handleNavigate} />
-                ))}
+                {recentSearches.length === 0 ? (
+                  <Text className="py-4 text-center text-p text-gray">최근 검색어가 없습니다</Text>
+                ) : (
+                  recentSearches.map(({ recentSearchId, keyword }) => (
+                    <SearchList key={recentSearchId} item={keyword} onPress={handleNavigate} />
+                  ))
+                )}
               </View>
             </View>
-            <View className="">
+            <View>
               <Text className="mb-3 font-pretendardSemiBold text-h3">인기 검색어</Text>
               <Shadow
                 distance={2}
