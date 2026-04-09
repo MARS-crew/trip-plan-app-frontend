@@ -1,7 +1,7 @@
-﻿import React, { useCallback, useEffect, useState } from 'react';
+﻿import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ScrollView, TouchableOpacity, View, Text, TextInput } from 'react-native';
+import { Alert, ScrollView, TouchableOpacity, View, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { RootStackParamList } from '@/navigation';
 import BookmarkIcon from '@/assets/icons/bookmark.svg';
@@ -45,7 +45,12 @@ interface SettingItem {
 const getStats = (data: GetMyPageData | null): StatItem[] => [
   { id: 'trip-count', label: '여행 횟수', value: data?.tripCount ?? 0, type: 'map' },
   { id: 'saved-place', label: '저장된 장소', value: data?.savedPlaceCount ?? 0, type: 'bookmark' },
-  { id: 'visited-place', label: '방문한 장소', value: data?.visitedPlaceCount ?? 0, type: 'marker' },
+  {
+    id: 'visited-place',
+    label: '방문한 장소',
+    value: data?.visitedPlaceCount ?? 0,
+    type: 'marker',
+  },
 ];
 
 const phrases: PhraseItem[] = [
@@ -150,12 +155,15 @@ const MyPageScreen: React.FC = () => {
       setMyPageData(data);
     } catch (error) {
       console.error('fetchMyPage Error:', error);
+      Alert.alert('오류', '마이페이지 정보를 불러오지 못했습니다.');
     }
   }, []);
 
   useEffect(() => {
     fetchMyPage();
   }, [fetchMyPage]);
+
+  const stats = useMemo(() => getStats(myPageData), [myPageData]);
 
   const handleAmountChange = useCallback(
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
@@ -166,7 +174,7 @@ const MyPageScreen: React.FC = () => {
   );
 
   const handleSwapExchange = useCallback((): void => {
-    setIsKrwToJpy(prev => !prev);
+    setIsKrwToJpy((prev) => !prev);
     setKrwAmount(jpyAmount);
     setJpyAmount(krwAmount);
   }, [krwAmount, jpyAmount]);
@@ -256,7 +264,7 @@ const MyPageScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-4 pb-[33px]">
-          <Text className="mt-3.5 text-h font-pretendardBold text-black">마이페이지</Text>
+          <Text className="mt-3.5 font-pretendardBold text-h text-black">마이페이지</Text>
 
           <View
             className="mt-3.5 rounded-lg border border-subtleBorder bg-white p-4"
@@ -264,20 +272,22 @@ const MyPageScreen: React.FC = () => {
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
                 <View className="mr-3 h-16 w-16 items-center justify-center rounded-full bg-contentBackground">
-                  <Text className="text-h2 font-pretendardBold text-main">
+                  <Text className="font-pretendardBold text-h2 text-main">
                     {myPageData?.nickname?.charAt(0) ?? ''}
                   </Text>
                 </View>
                 <View>
-                  <Text className="text-h1 font-pretendardSemiBold text-black">
+                  <Text className="font-pretendardSemiBold text-h1 text-black">
                     {myPageData?.nickname ?? ''}
                   </Text>
                   <Text className="mt-0.5 text-p1 text-black">{myPageData?.email ?? ''}</Text>
                   <View className="mt-1 h-4 flex-row items-center">
-                    <View className="h-4 w-3 mt-0.5 items-center justify-center">
+                    <View className="mt-0.5 h-4 w-3 items-center justify-center">
                       <EarthIcon width={12} height={12} />
                     </View>
-                    <Text className="ml-1 text-p leading-4 text-statusSuccess">현재 위치: 일본</Text>
+                    <Text className="ml-1 text-p leading-4 text-statusSuccess">
+                      현재 위치: 일본
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -286,13 +296,13 @@ const MyPageScreen: React.FC = () => {
                 onPress={handleNavigateToProfileEdit}
                 activeOpacity={0.8}
                 className="rounded-lg bg-chip px-3 py-1.5">
-                <Text className="text-p font-pretendardMedium text-black">편집</Text>
+                <Text className="font-pretendardMedium text-p text-black">편집</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           <View className="mt-4 flex-row justify-between">
-            {getStats(myPageData).map(item => (
+            {stats.map((item) => (
               <TouchableOpacity
                 key={item.id}
                 activeOpacity={item.type === 'marker' ? 0.8 : 1}
@@ -302,16 +312,18 @@ const MyPageScreen: React.FC = () => {
                 style={cardStyle}>
                 <View className="items-center">
                   <StatIcon type={item.type} />
-                  <Text className="mt-2 text-h1 font-pretendardBold text-black">{item.value}</Text>
+                  <Text className="mt-2 font-pretendardBold text-h1 text-black">{item.value}</Text>
                   <Text className="mt-0.5 text-p text-gray">{item.label}</Text>
                 </View>
               </TouchableOpacity>
             ))}
           </View>
 
-          <View className="mt-5 ml-1 flex-row items-center">
+          <View className="ml-1 mt-5 flex-row items-center">
             <JapanLanguageIcon width={16} height={16} />
-            <Text className="ml-1.5 text-h3 font-pretendardSemiBold text-black">일본 기본 회화</Text>
+            <Text className="ml-1.5 font-pretendardSemiBold text-h3 text-black">
+              일본 기본 회화
+            </Text>
           </View>
 
           <View
@@ -321,7 +333,7 @@ const MyPageScreen: React.FC = () => {
               <View
                 key={phrase.id}
                 className={`px-4 py-3 ${index !== phrases.length - 1 ? 'border-b border-borderGray' : ''}`}>
-                <Text className="text-h2 font-pretendardBold text-black">{phrase.japanese}</Text>
+                <Text className="font-pretendardBold text-h2 text-black">{phrase.japanese}</Text>
                 <View className="mt-0.5 flex-row items-center">
                   <Text className="text-p text-gray">{phrase.koreanPronunciation}</Text>
                   <Text className="ml-2 text-p text-main">{phrase.meaning}</Text>
@@ -330,26 +342,30 @@ const MyPageScreen: React.FC = () => {
             ))}
           </View>
 
-          <View className="mt-5 ml-1 flex-row items-center">
+          <View className="ml-1 mt-5 flex-row items-center">
             <ExchangeIcon width={16} height={16} />
-            <Text className="ml-1.5 text-h3 font-pretendardSemiBold text-black">환율 계산기</Text>
+            <Text className="ml-1.5 font-pretendardSemiBold text-h3 text-black">환율 계산기</Text>
           </View>
 
-          <View className="mt-2 rounded-lg border border-subtleBorder bg-white p-4" style={cardStyle}>
+          <View
+            className="mt-2 rounded-lg border border-subtleBorder bg-white p-4"
+            style={cardStyle}>
             <View className="flex-row items-center justify-between">
-              <Text className="text-p text-xs text-left text-gray">{exchangeRateText}</Text>
+              <Text className="text-left text-p text-xs text-gray">{exchangeRateText}</Text>
               <Text className="text-p text-gray">{rightCurrencyLabel}</Text>
             </View>
 
             <View className="mt-3 rounded-xl bg-chip px-4 py-3.5">
               <Text className="text-p1 text-gray">{topCurrencyCode}</Text>
               <View className="mt-1 flex-row items-center">
-                <Text className={`${topSymbolSpacingClass} text-h1 font-pretendardBold text-black`}>{topCurrencySymbol}</Text>
+                <Text className={`${topSymbolSpacingClass} font-pretendardBold text-h1 text-black`}>
+                  {topCurrencySymbol}
+                </Text>
                 <TextInput
                   value={topAmount}
                   onChangeText={handleTopAmountChange}
                   keyboardType="number-pad"
-                  className="flex-1 p-0 text-h1 font-pretendardBold text-black"
+                  className="flex-1 p-0 font-pretendardBold text-h1 text-black"
                 />
               </View>
             </View>
@@ -366,18 +382,21 @@ const MyPageScreen: React.FC = () => {
             <View className="rounded-xl bg-chip px-4 py-3.5">
               <Text className="text-p1 text-gray">{bottomCurrencyCode}</Text>
               <View className="mt-1 flex-row items-center">
-                <Text className={`${bottomSymbolSpacingClass} text-h1 font-pretendardBold text-main`}>{bottomCurrencySymbol}</Text>
+                <Text
+                  className={`${bottomSymbolSpacingClass} font-pretendardBold text-h1 text-main`}>
+                  {bottomCurrencySymbol}
+                </Text>
                 <TextInput
                   value={bottomAmount}
                   onChangeText={handleBottomAmountChange}
                   keyboardType="number-pad"
-                  className="flex-1 p-0 text-h1 font-pretendardBold text-main"
+                  className="flex-1 p-0 font-pretendardBold text-h1 text-main"
                 />
               </View>
             </View>
           </View>
 
-          <Text className="mt-5 ml-1 text-xs font-pretendardSemiBold text-gray">계정</Text>
+          <Text className="ml-1 mt-5 font-pretendardSemiBold text-xs text-gray">계정</Text>
 
           <View
             className="mt-2 overflow-hidden rounded-lg border border-subtleBorder bg-white"
@@ -397,7 +416,7 @@ const MyPageScreen: React.FC = () => {
                     <SettingItemIcon type={item.type} />
                   </View>
                   <View className="ml-3">
-                    <Text className="text-h3 font-pretendardSemiBold text-black">{item.title}</Text>
+                    <Text className="font-pretendardSemiBold text-h3 text-black">{item.title}</Text>
                     <Text className="mt-0.5 text-p1 text-gray">{item.description}</Text>
                   </View>
                 </View>
@@ -410,14 +429,12 @@ const MyPageScreen: React.FC = () => {
           <TouchableOpacity activeOpacity={0.8} className="mt-[35px] items-center">
             <View className="flex-row items-center">
               <LogoutIcon width={16} height={16} />
-              <Text className="ml-1.5 text-xs font-pretendardMedium text-logoutRed">로그아웃</Text>
+              <Text className="ml-1.5 font-pretendardMedium text-xs text-logoutRed">로그아웃</Text>
             </View>
           </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
-
-    
   );
 };
 
