@@ -54,22 +54,26 @@ const MyTripScreen: React.FC = () => {
     return tripCardItems.filter((tripCardItem) => tripCardItem.status === 'completed');
   }, [selectedChip, tripCardItems]);
 
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchMyTrips = async (): Promise<void> => {
-      const trips = await getMyTrips();
-      if (!mounted) return;
-      setTripCardItems(trips.map(mapTripToCardViewModel));
+  const fetchMyTrips = useCallback(async (signal?: AbortSignal): Promise<void> => {
+    setIsLoading(true);
+    const result = await getMyTrips({ signal });
+    if (signal?.aborted || result.error === 'REQUEST_ABORTED') return;
+    if (result.error) {
       setIsLoading(false);
-    };
+      return;
+    }
+    setTripCardItems(result.data.map(mapTripToCardViewModel));
+    setIsLoading(false);
+  }, []);
 
-    fetchMyTrips();
+  useEffect(() => {
+    const abortController = new AbortController();
+    fetchMyTrips(abortController.signal);
 
     return () => {
-      mounted = false;
+      abortController.abort();
     };
-  }, []);
+  }, [fetchMyTrips]);
 
   // Hooks
   const handleNavigateToDetail = useCallback(() => {
