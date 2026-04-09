@@ -4,19 +4,15 @@ import type { BaseResponse } from '@/types';
 import type { GetRecentSearch, GetRecentSearchData } from '@/types/search';
 
 export const deleteRecentSearch = async (recentSearchId: number): Promise<void> => {
-  try {
-    const response = await fetch(
-      `${Config.API_BASE_URL}/api/v1/search/recent-searches/${recentSearchId}`,
-      {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
-      },
-    );
-    if (!response.ok) {
-      throw new Error('최근 검색어 삭제 실패');
-    }
-  } catch (error) {
-    console.error('deleteRecentSearch Error:', error);
+  const response = await fetch(
+    `${Config.API_BASE_URL}/api/v1/search/recent-searches/${recentSearchId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+    },
+  );
+  if (!response.ok) {
+    throw new Error('최근 검색어 삭제 실패');
   }
 };
 
@@ -32,6 +28,6 @@ export const getRecentSearches = async (): Promise<GetRecentSearch[]> => {
     return json.data?.recentSearches ?? [];
   } catch (error) {
     console.error('getRecentSearches Error:', error);
-    return [];
+    throw error;
   }
 };

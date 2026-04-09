@@ -38,8 +38,12 @@ const SearchScreen: React.FC = () => {
   const [recentSearches, setRecentSearches] = useState<GetRecentSearch[]>([]);
 
   const fetchRecentSearches = useCallback(async () => {
-    const data = await getRecentSearches();
-    setRecentSearches(data);
+    try {
+      const data = await getRecentSearches();
+      setRecentSearches(data);
+    } catch (error) {
+      console.error('fetchRecentSearches Error:', error);
+    }
   }, []);
 
   useEffect(() => {
@@ -51,8 +55,12 @@ const SearchScreen: React.FC = () => {
   }, [navigation, fetchRecentSearches]);
 
   const handleDelete = useCallback(async (recentSearchId: number) => {
-    await deleteRecentSearch(recentSearchId);
-    setRecentSearches(prev => prev.filter(s => s.recentSearchId !== recentSearchId));
+    try {
+      await deleteRecentSearch(recentSearchId);
+      setRecentSearches(prev => prev.filter(s => s.recentSearchId !== recentSearchId));
+    } catch (error) {
+      console.error('handleDelete Error:', error);
+    }
   }, []);
 
   const handleSearch = useCallback(() => {
