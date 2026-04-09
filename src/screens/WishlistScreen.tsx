@@ -25,7 +25,6 @@ import type { WishlistBottomSheetTabId } from '@/screens/wishList/components';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  useAnimatedReaction,
   interpolate,
   withTiming,
   Easing,
@@ -150,12 +149,11 @@ const WishlistScreen: React.FC = () => {
   const SECOND_SNAP_VISIBLE_HEIGHT = 310;
   const INITIAL_CATEGORY: TabId = 'trending';
   const SNAP_LOW = SHEET_HEIGHT - 28;
-  const SNAP_FULL = 0;
+  const SNAP_FULL = 15;
   const SNAP_TRENDING = SHEET_HEIGHT - SECOND_SNAP_VISIBLE_HEIGHT;
   const SEARCH_BUTTON_BOTTOM = BOTTOM_SHEET_MIN_HEIGHT + 10;
 
   const translateY = useSharedValue(SNAP_LOW);
-  const isTrendingTabSV = useSharedValue(INITIAL_CATEGORY === 'trending');
 
   const [likedIdsByTab, setLikedIdsByTab] = useState<Record<LikeTabId, Set<string>>>(() => ({
     saved: new Set<string>(),
@@ -193,9 +191,6 @@ const WishlistScreen: React.FC = () => {
   useEffect(() => {
     showExitModalRef.current = showExitModal;
   }, [showExitModal]);
-  useEffect(() => {
-    isTrendingTabSV.value = selectedCategory === 'trending';
-  }, [isTrendingTabSV, selectedCategory]);
   // 바텀시트 애니메이션 함수
   const animateSheetTo = useCallback(
     (targetY: number) => {
@@ -274,16 +269,6 @@ const WishlistScreen: React.FC = () => {
     const targetY = selectedCategory === 'trending' ? SNAP_TRENDING : SNAP_FULL;
     animateSheetTo(targetY);
   }, [selectedCategory, animateSheetTo, SNAP_TRENDING, SNAP_FULL]);
-
-  useAnimatedReaction(
-    () => ({ y: translateY.value, isTrending: isTrendingTabSV.value }),
-    ({ y, isTrending }, prev) => {
-      const isMovingUp = y < (prev?.y ?? y);
-      if (isTrending && isMovingUp && y < SNAP_TRENDING) {
-        translateY.value = SNAP_TRENDING;
-      }
-    },
-  );
   // 바텀시트 애니메이션 스타일
   const mapUIAnimatedStyle = useAnimatedStyle(() => {
     'worklet';
@@ -326,7 +311,12 @@ const WishlistScreen: React.FC = () => {
   const renderTabContent = () => {
     switch (selectedCategory) {
       case 'trending':
-        return <WishTabTrending places={TRENDING_PLACES} />;
+        return (
+          <WishTabTrending
+            places={TRENDING_PLACES}
+            onToggleLike={(id) => toggleLike('wishlist', id)}
+          />
+        );
       case 'saved':
         return (
           <WishTabSave
@@ -396,16 +386,16 @@ const WishlistScreen: React.FC = () => {
               label="현 지도에서 검색"
               isSelected={true}
               textClassName="text-p1"
-              className="px-[29px] py-[10px] rounded-full"
+              className="rounded-full px-[29px] py-[10px]"
             />
           </View>
-          <View className="absolute right-4 bottom-2">
+          <View className="absolute bottom-2 right-4">
             <Shadow
               distance={4}
               startColor="#00000015"
               offset={[0, 2]}
               style={{ borderRadius: 100 }}>
-              <TouchableOpacity className="items-center justify-center w-7 h-7 bg-white rounded-full">
+              <TouchableOpacity className="h-7 w-7 items-center justify-center rounded-full bg-white">
                 <MyLocation />
               </TouchableOpacity>
             </Shadow>
@@ -427,8 +417,12 @@ const WishlistScreen: React.FC = () => {
           isVisible={isSearchFocused}
           selectedCategory={selectedCategory}
           places={SEARCH_PLACES}
-          isLiked={(id) => isLikedInTab('wishlist', id)}
-          onToggleLike={(id) => toggleLike('wishlist', id)}
+          isLiked={(id) =>
+            isLikedInTab(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
+          }
+          onToggleLike={(id) =>
+            toggleLike(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
+          }
         />
 
         {/* 완료 모달 */}

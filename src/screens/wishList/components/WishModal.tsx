@@ -28,22 +28,22 @@ export const WishModal = React.memo<WishModalProps>(
     return (
       <Modal transparent visible={isVisible} animationType="fade" onRequestClose={onClose}>
         <Pressable
-          className="flex-1 justify-center  items-center px-4 bg-black/20"
+          className="flex-1 items-center justify-center bg-black/20 px-4"
           onPress={onClose}>
           <Pressable onPress={(e) => e.stopPropagation()} className="w-full">
-            <View className={`items-center w-full p-4 bg-white rounded-xl  ${ModalContainer}`}>
+            <View className={`w-full items-center rounded-xl bg-white p-4 ${ModalContainer}`}>
               {/* 아이콘 영역 */}
               {icon && <View className={`${ModalIcon}`}>{icon}</View>}
 
               {/* X 버튼 */}
               {showCloseButton ? (
-                <Pressable onPress={onClose} className="absolute top-4 right-4 x-6 y-6">
+                <Pressable onPress={onClose} className="absolute right-4 top-4 h-6 w-6">
                   <X width={24} height={24} />
                 </Pressable>
               ) : null}
               {/* 타이틀 영역 */}
               <Text
-                className={`text-h2 font-pretendardSemiBold text-center text-black ${primaryTitleTextClass}`}>
+                className={`text-center font-pretendardSemiBold text-h2 text-black ${primaryTitleTextClass}`}>
                 {title}
               </Text>
 
@@ -52,7 +52,7 @@ export const WishModal = React.memo<WishModalProps>(
                 {/* Primary 버튼 */}
                 <Pressable
                   onPress={onPrimaryPress}
-                  className={` flex-row justify-center items-center rounded-lg  ${primaryBtnClass}`}>
+                  className={`flex-row items-center justify-center rounded-lg ${primaryBtnClass}`}>
                   {primaryIcon && <View className="mr-2">{primaryIcon}</View>}
                   <Text
                     className={`text-center font-pretendardSemiBold text-p1 ${primaryTextClass}`}>
@@ -61,9 +61,7 @@ export const WishModal = React.memo<WishModalProps>(
                 </Pressable>
 
                 {/* Secondary 버튼 */}
-                <Pressable
-                  onPress={onSecondaryPress}
-                  className={` rounded-lg  ${secondaryBtnClass}`}>
+                <Pressable onPress={onSecondaryPress} className={`rounded-lg ${secondaryBtnClass}`}>
                   <Text
                     className={`text-center font-pretendardSemiBold text-p1 ${secondaryTextClass}`}>
                     {secondaryLabel}
