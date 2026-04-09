@@ -122,8 +122,11 @@ const cardStyle = {
   elevation: 0,
 };
 
-const RATE_KRW_TO_JPY = '1 KRW = 0.110000 JPY';
-const RATE_JPY_TO_KRW = '1 JPY = 9.090909 KRW';
+const KRW_TO_JPY_RATE = 0.11;
+const JPY_TO_KRW_RATE = 9.090909;
+
+const RATE_KRW_TO_JPY = `1 KRW = ${KRW_TO_JPY_RATE.toFixed(6)} JPY`;
+const RATE_JPY_TO_KRW = `1 JPY = ${JPY_TO_KRW_RATE.toFixed(6)} KRW`;
 
 const formatAmountWithCommas = (input: string): string => {
   const digitsOnly = input.replace(/\D/g, '');
@@ -135,25 +138,39 @@ const formatAmountWithCommas = (input: string): string => {
   return normalized.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
+const parseAmount = (formatted: string): number => {
+  const digits = formatted.replace(/\D/g, '');
+  return digits ? Number(digits) : 0;
+};
+
+const convertCurrency = (amount: number, rate: number): string => {
+  const result = Math.round(amount * rate);
+  return formatAmountWithCommas(String(result));
+};
+
 const MyPageScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const [krwAmount, setKrwAmount] = React.useState<string>('10,000');
   const [jpyAmount, setJpyAmount] = React.useState<string>('1,100');
   const [isKrwToJpy, setIsKrwToJpy] = React.useState<boolean>(true);
 
-  const handleAmountChange = React.useCallback(
-    (setter: React.Dispatch<React.SetStateAction<string>>) =>
-      (text: string): void => {
-        setter(formatAmountWithCommas(text));
-      },
-    [],
-  );
+  const handleKrwChange = React.useCallback((text: string): void => {
+    const formatted = formatAmountWithCommas(text);
+    setKrwAmount(formatted);
+    const amount = parseAmount(text);
+    setJpyAmount(amount ? convertCurrency(amount, KRW_TO_JPY_RATE) : '');
+  }, []);
+
+  const handleJpyChange = React.useCallback((text: string): void => {
+    const formatted = formatAmountWithCommas(text);
+    setJpyAmount(formatted);
+    const amount = parseAmount(text);
+    setKrwAmount(amount ? convertCurrency(amount, JPY_TO_KRW_RATE) : '');
+  }, []);
 
   const handleSwapExchange = React.useCallback((): void => {
     setIsKrwToJpy(prev => !prev);
-    setKrwAmount(jpyAmount);
-    setJpyAmount(krwAmount);
-  }, [krwAmount, jpyAmount]);
+  }, []);
 
   const topCurrencyCode = isKrwToJpy ? 'KRW' : 'JPY';
   const bottomCurrencyCode = isKrwToJpy ? 'JPY' : 'KRW';
@@ -165,12 +182,8 @@ const MyPageScreen: React.FC = () => {
   const bottomAmount = isKrwToJpy ? jpyAmount : krwAmount;
   const topSymbolSpacingClass = topCurrencyCode === 'KRW' ? 'mr-[8px]' : 'mr-[15px]';
   const bottomSymbolSpacingClass = bottomCurrencyCode === 'KRW' ? 'mr-[8px]' : 'mr-[15px]';
-  const handleTopAmountChange = isKrwToJpy
-    ? handleAmountChange(setKrwAmount)
-    : handleAmountChange(setJpyAmount);
-  const handleBottomAmountChange = isKrwToJpy
-    ? handleAmountChange(setJpyAmount)
-    : handleAmountChange(setKrwAmount);
+  const handleTopAmountChange = isKrwToJpy ? handleKrwChange : handleJpyChange;
+  const handleBottomAmountChange = isKrwToJpy ? handleJpyChange : handleKrwChange;
 
   const handleNavigateToPrivacy = (): void => {
     navigation.navigate('PrivacyPolicyScreen');
