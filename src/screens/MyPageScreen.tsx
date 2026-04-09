@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScrollView, TouchableOpacity, View, Text, TextInput } from 'react-native';
@@ -16,6 +16,8 @@ import LogoutIcon from '@/assets/icons/logout.svg';
 import SettingIcon from '@/assets/icons/setting.svg';
 import EarthIcon from '@/assets/icons/earth1.svg';
 import { COLORS } from '@/constants';
+import { getMyPage } from '@/services';
+import type { GetMyPageData } from '@/types/mypage';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -40,10 +42,10 @@ interface SettingItem {
   type: 'account' | 'notification';
 }
 
-const stats: StatItem[] = [
-  { id: 'trip-count', label: '여행 횟수', value: 12, type: 'map' },
-  { id: 'saved-place', label: '저장된 장소', value: 12, type: 'bookmark' },
-  { id: 'visited-place', label: '방문한 장소', value: 12, type: 'marker' },
+const getStats = (data: GetMyPageData | null): StatItem[] => [
+  { id: 'trip-count', label: '여행 횟수', value: data?.tripCount ?? 0, type: 'map' },
+  { id: 'saved-place', label: '저장된 장소', value: data?.savedPlaceCount ?? 0, type: 'bookmark' },
+  { id: 'visited-place', label: '방문한 장소', value: data?.visitedPlaceCount ?? 0, type: 'marker' },
 ];
 
 const phrases: PhraseItem[] = [
@@ -137,11 +139,25 @@ const formatAmountWithCommas = (input: string): string => {
 
 const MyPageScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
-  const [krwAmount, setKrwAmount] = React.useState<string>('10,000');
-  const [jpyAmount, setJpyAmount] = React.useState<string>('1,100');
-  const [isKrwToJpy, setIsKrwToJpy] = React.useState<boolean>(true);
+  const [myPageData, setMyPageData] = useState<GetMyPageData | null>(null);
+  const [krwAmount, setKrwAmount] = useState<string>('10,000');
+  const [jpyAmount, setJpyAmount] = useState<string>('1,100');
+  const [isKrwToJpy, setIsKrwToJpy] = useState<boolean>(true);
 
-  const handleAmountChange = React.useCallback(
+  const fetchMyPage = useCallback(async () => {
+    try {
+      const data = await getMyPage();
+      setMyPageData(data);
+    } catch (error) {
+      console.error('fetchMyPage Error:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchMyPage();
+  }, [fetchMyPage]);
+
+  const handleAmountChange = useCallback(
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
       (text: string): void => {
         setter(formatAmountWithCommas(text));
@@ -149,7 +165,7 @@ const MyPageScreen: React.FC = () => {
     [],
   );
 
-  const handleSwapExchange = React.useCallback((): void => {
+  const handleSwapExchange = useCallback((): void => {
     setIsKrwToJpy(prev => !prev);
     setKrwAmount(jpyAmount);
     setJpyAmount(krwAmount);
@@ -248,11 +264,15 @@ const MyPageScreen: React.FC = () => {
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
                 <View className="mr-3 h-16 w-16 items-center justify-center rounded-full bg-contentBackground">
-                  <Text className="text-h2 font-pretendardBold text-main">t</Text>
+                  <Text className="text-h2 font-pretendardBold text-main">
+                    {myPageData?.nickname?.charAt(0) ?? ''}
+                  </Text>
                 </View>
                 <View>
-                  <Text className="text-h1 font-pretendardSemiBold text-black">여행자</Text>
-                  <Text className="mt-0.5 text-p1 text-black">travel@gmail.com</Text>
+                  <Text className="text-h1 font-pretendardSemiBold text-black">
+                    {myPageData?.nickname ?? ''}
+                  </Text>
+                  <Text className="mt-0.5 text-p1 text-black">{myPageData?.email ?? ''}</Text>
                   <View className="mt-1 h-4 flex-row items-center">
                     <View className="h-4 w-3 mt-0.5 items-center justify-center">
                       <EarthIcon width={12} height={12} />
@@ -272,7 +292,7 @@ const MyPageScreen: React.FC = () => {
           </View>
 
           <View className="mt-4 flex-row justify-between">
-            {stats.map(item => (
+            {getStats(myPageData).map(item => (
               <TouchableOpacity
                 key={item.id}
                 activeOpacity={item.type === 'marker' ? 0.8 : 1}
