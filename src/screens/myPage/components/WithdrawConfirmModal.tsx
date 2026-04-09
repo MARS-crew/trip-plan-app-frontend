@@ -16,20 +16,20 @@ const WithdrawConfirmModal: React.FC<WithdrawConfirmModalProps> = ({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View className="flex-1 items-center justify-center bg-black/25 px-4">
-        <View className="w-full rounded-xl bg-white px-4 pb-4 pt-5" style={{ maxWidth: 370 }}>
+        <View className="w-full rounded-xl bg-white px-4 pb-4 pt-5" style={{ maxWidth: 380 }}>
           <View className="items-center">
             <SecessionIcon width={24} height={24} />
-            <Text className="mt-3 text-left text-h2 font-pretendardSemiBold text-black">
+            <Text className="mt-4 text-left font-pretendardSemiBold text-h2 text-black">
               서비스에서 탈퇴하시겠습니까?
             </Text>
           </View>
 
-          <View className="mt-8 flex-row justify-between">
+          <View className="mt-9 flex-row justify-between">
             <TouchableOpacity
               activeOpacity={0.85}
               onPress={onConfirm}
               className="w-[48%] rounded-lg bg-chip py-3">
-              <Text className="text-center text-sm text-h3 font-pretendardSemiBold text-gray">
+              <Text className="text-center font-pretendardSemiBold text-h3 text-sm text-gray">
                 예
               </Text>
             </TouchableOpacity>
@@ -37,7 +37,7 @@ const WithdrawConfirmModal: React.FC<WithdrawConfirmModalProps> = ({
               activeOpacity={0.85}
               onPress={onClose}
               className="w-[48%] rounded-lg bg-main py-3">
-              <Text className="text-center text-sm text-h3 font-pretendardSemiBold text-white">
+              <Text className="text-center font-pretendardSemiBold text-h3 text-sm text-white">
                 취소
               </Text>
             </TouchableOpacity>

@@ -38,22 +38,27 @@ const WithdrawReasonModal: React.FC<WithdrawReasonModalProps> = ({
     setSelectedReason(reason);
   }, []);
 
+  const handleBack = React.useCallback((): void => {
+    setOtherReason('');
+    onBack();
+  }, [onBack]);
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View className="flex-1 items-center justify-center bg-black/25 px-4">
         <View
-          className={`w-full rounded-xl bg-white px-6 pb-5 pt-6 ${
+          className={`w-full rounded-xl bg-white px-6 pt-6 ${
             isOtherReasonSelected ? 'h-[479px]' : 'h-[343px]'
           }`}
-          style={{ maxWidth: 370 }}>
+          style={{ maxWidth: 380 }}>
           <View>
             <SecessionIcon width={24} height={24} />
           </View>
 
-          <Text className="mt-[15px] w-full text-base font-pretendardSemiBold text-black">
+          <Text className="mt-[15px] w-full font-pretendardSemiBold text-base text-black">
             회원 탈퇴를 원하시는 이유를 선택해주세요.
           </Text>
-          <Text className="mt-1 w-full text-sm font-pretendardMedium leading-6 text-gray">
+          <Text className="mt-1 w-full font-pretendardMedium text-sm leading-5 text-gray">
             서비스에 만족을 드리지 못해 죄송합니다.{'\n'}
             탈퇴 사유를 남겨주시면 서비스 개선에 더욱 힘쓰겠습니다.
           </Text>
@@ -75,7 +80,7 @@ const WithdrawReasonModal: React.FC<WithdrawReasonModalProps> = ({
                       <View className="h-[11px] w-[11px] rounded-full bg-main" />
                     ) : null}
                   </View>
-                  <Text className="ml-3 text-sm font-pretendardMedium text-gray">
+                  <Text className="ml-3 font-pretendardMedium text-sm text-gray">
                     {reason.label}
                   </Text>
                 </TouchableOpacity>
@@ -84,32 +89,34 @@ const WithdrawReasonModal: React.FC<WithdrawReasonModalProps> = ({
           </View>
 
           {selectedReason === 'other' ? (
-            <TextInput
-              value={otherReason}
-              onChangeText={setOtherReason}
-              placeholder="탈퇴 사유를 입력해주세요"
-              placeholderTextColor={COLORS.gray}
-              multiline
-              textAlignVertical="top"
-              className="mt-0.5 h-32 w-full rounded-xl border border-borderGray bg-inputBackground px-3 py-3 text-sm text-black"
-            />
+            <View className="mt-0.5 items-end">
+              <TextInput
+                value={otherReason}
+                onChangeText={setOtherReason}
+                placeholder="탈퇴 사유를 입력해주세요"
+                placeholderTextColor={COLORS.gray}
+                multiline
+                textAlignVertical="top"
+                className="h-32 w-[308px] rounded-xl border border-borderGray bg-inputBackground px-3 py-3 text-sm text-black"
+              />
+            </View>
           ) : null}
 
           <View
-            className={`-mx-2 flex-row gap-3 ${isOtherReasonSelected ? 'mt-2' : 'mt-auto'}`}>
+            className={`-mx-6 flex-row justify-between px-4 ${isOtherReasonSelected ? 'mt-6' : 'mt-4'}`}>
             <TouchableOpacity
               activeOpacity={0.85}
               onPress={onWithdraw}
-              className="h-11 flex-1 items-center justify-center rounded-lg bg-chip">
-              <Text className="text-center text-sm font-pretendardSemiBold text-gray">
+              className="w-[48%] rounded-lg bg-chip py-3">
+              <Text className="text-center font-pretendardSemiBold text-sm text-gray">
                 탈퇴 하기
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.85}
-              onPress={onBack}
-              className="h-11 flex-1 items-center justify-center rounded-lg bg-main">
-              <Text className="text-center text-sm font-pretendardSemiBold text-white">이전</Text>
+              onPress={handleBack}
+              className="w-[48%] rounded-lg bg-main py-3">
+              <Text className="text-center font-pretendardSemiBold text-sm text-white">이전</Text>
             </TouchableOpacity>
           </View>
         </View>
