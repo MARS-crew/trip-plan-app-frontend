@@ -13,7 +13,7 @@ const WishlistBottomSheetComponent: React.FC<WishlistBottomSheetProps> = ({
   onSelectCategory,
   onPressComplete,
   renderTabContent,
-  sheetHeight,
+
 }) => {
   const insets = useSafeAreaInsets();
   return (
@@ -21,7 +21,7 @@ const WishlistBottomSheetComponent: React.FC<WishlistBottomSheetProps> = ({
       translateY={translateY}
       onStateChange={onStateChange}
       maxTopSnap={maxTopSnap}
-      height={sheetHeight}>
+    >
       <View className="mt-5 flex-row items-center justify-between px-4">
         <View className="flex-row">
           {tabs.map((tab) => (
