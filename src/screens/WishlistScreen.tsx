@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Keyboard } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, Keyboard, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -181,6 +181,9 @@ const WishlistScreen: React.FC = () => {
   const [isSheetExpanded, setIsSheetExpanded] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<TextInput>(null);
+  const refocusRafRef = useRef<number | null>(null);
+  const isSearchFocusedRef = useRef(false);
+  const isKeyboardVisibleRef = useRef(false);
   const isInitialTabEffect = useRef(true);
   const showAddModalRef = useRef(false);
   const showExitModalRef = useRef(false);
@@ -191,6 +194,35 @@ const WishlistScreen: React.FC = () => {
   useEffect(() => {
     showExitModalRef.current = showExitModal;
   }, [showExitModal]);
+
+  useEffect(() => {
+    isSearchFocusedRef.current = isSearchFocused;
+  }, [isSearchFocused]);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => {
+      isKeyboardVisibleRef.current = true;
+    });
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      isKeyboardVisibleRef.current = false;
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  const clearPendingRefocus = useCallback(() => {
+    if (refocusRafRef.current !== null) {
+      cancelAnimationFrame(refocusRafRef.current);
+      refocusRafRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => clearPendingRefocus();
+  }, [clearPendingRefocus]);
   // 바텀시트 애니메이션 함수
   const animateSheetTo = useCallback(
     (targetY: number) => {
@@ -215,17 +247,40 @@ const WishlistScreen: React.FC = () => {
   }, []);
   // 검색 입력창에 포커스 주기
   const focusSearchInput = useCallback(() => {
-    searchInputRef.current?.focus();
-  }, []);
+    const input = searchInputRef.current;
+    if (!input) return;
+
+    clearPendingRefocus();
+
+    if (Platform.OS === 'android' && input.isFocused()) {
+      if (isKeyboardVisibleRef.current) return;
+      input.blur();
+      refocusRafRef.current = requestAnimationFrame(() => {
+        refocusRafRef.current = null;
+        if (!isSearchFocusedRef.current) return;
+        input.focus();
+      });
+      return;
+    }
+
+    input.focus();
+  }, [clearPendingRefocus]);
   // 검색 입력창에 포커스 될 때 → 검색어 상태 업데이트 + 키보드 올리기
-  const handleSearchFocus = useCallback(() => setIsSearchFocused(true), []);
+  const handleSearchFocus = useCallback(() => {
+    isSearchFocusedRef.current = true;
+    setIsSearchFocused(true);
+  }, []);
   // 검색 입력창에서 포커스 벗어날 때 → 검색어 초기화 + 키보드 내리기
   const handleSearchBlur = useCallback(() => {
+    clearPendingRefocus();
+    isSearchFocusedRef.current = false;
+    isKeyboardVisibleRef.current = false;
+    searchInputRef.current?.blur();
     setIsSearchFocused(false);
     Keyboard.dismiss();
-  }, []);
+  }, [clearPendingRefocus]);
   const handleSearchInputBlur = useCallback(() => {
-    Keyboard.dismiss();
+    // Intentionally keep search mode active; only hide keyboard on blur.
   }, []);
   // 뒤로가기 버튼 핸들러: 검색 중이면 검색 종료, 그 외에는 모달 열기
   const handleGoBack = useCallback(() => {

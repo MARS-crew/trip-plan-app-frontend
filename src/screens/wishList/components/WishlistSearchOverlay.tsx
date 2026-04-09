@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, View } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import PlaceCard from './PlaceCard';
 import type { PlaceCardProps, WishlistBottomSheetTabId } from '@/screens/wishList/components';
@@ -16,10 +16,28 @@ interface WishlistSearchOverlayProps {
 export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
   ({ isVisible, selectedCategory, places, isLiked, onToggleLike }) => {
     const animatedOpacity = useSharedValue(isVisible ? 1 : 0);
+    const [keyboardHeight, setKeyboardHeight] = React.useState(0);
 
     React.useEffect(() => {
       animatedOpacity.value = withTiming(isVisible ? 1 : 0, { duration: 180 });
     }, [animatedOpacity, isVisible]);
+
+    React.useEffect(() => {
+      const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+      const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+      const showSub = Keyboard.addListener(showEvent, (event) => {
+        setKeyboardHeight(event.endCoordinates.height);
+      });
+      const hideSub = Keyboard.addListener(hideEvent, () => {
+        setKeyboardHeight(0);
+      });
+
+      return () => {
+        showSub.remove();
+        hideSub.remove();
+      };
+    }, []);
 
     const animatedStyle = useAnimatedStyle(() => ({
       opacity: animatedOpacity.value,
@@ -40,19 +58,25 @@ export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
           },
           animatedStyle,
         ]}>
-        <ScrollView>
-          <View className="px-4">
-            <View className="mb-3 h-14" />
-            {places.map((place) => (
-              <PlaceCard
-                key={`${selectedCategory}-${place.id}`}
-                place={place}
-                isLiked={isLiked(place.id)}
-                onToggleLike={onToggleLike}
-              />
-            ))}
-          </View>
-        </ScrollView>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ paddingBottom: keyboardHeight + 12 }}>
+            <View className="px-4">
+              <View className="mb-3 h-14" />
+              {places.map((place) => (
+                <PlaceCard
+                  key={`${selectedCategory}-${place.id}`}
+                  place={place}
+                  isLiked={isLiked(place.id)}
+                  onToggleLike={onToggleLike}
+                />
+              ))}
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </Animated.View>
     );
   },
