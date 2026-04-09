@@ -149,7 +149,7 @@ const WishlistScreen: React.FC = () => {
   const SECOND_SNAP_VISIBLE_HEIGHT = 310;
   const INITIAL_CATEGORY: TabId = 'trending';
   const SNAP_LOW = SHEET_HEIGHT - 28;
-  const SNAP_FULL = 15;
+  const SNAP_FULL = 35;
   const SNAP_TRENDING = SHEET_HEIGHT - SECOND_SNAP_VISIBLE_HEIGHT;
   const SEARCH_BUTTON_BOTTOM = BOTTOM_SHEET_MIN_HEIGHT + 10;
 
@@ -460,7 +460,7 @@ const WishlistScreen: React.FC = () => {
         <WishlistBottomSheet
           translateY={translateY}
           onStateChange={handleSheetChange}
-          maxTopSnap={selectedCategory === 'trending' ? SNAP_TRENDING : 0}
+          maxTopSnap={selectedCategory === 'trending' ? SNAP_TRENDING : SNAP_FULL}
           tabs={TABS}
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
