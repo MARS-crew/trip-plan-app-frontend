@@ -35,6 +35,7 @@ export interface PlaceCardProps {
 
 export interface WishTabTrendingProps {
   places: WishPlace[];
+  onToggleLike: (id: string) => void;
 }
 
 export interface WishTabSaveProps {
