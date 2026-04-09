@@ -38,18 +38,26 @@ const WithdrawReasonModal: React.FC<WithdrawReasonModalProps> = ({
     setSelectedReason(reason);
   }, []);
 
-  const handleBack = React.useCallback((): void => {
+  const resetState = React.useCallback((): void => {
+    setSelectedReason(null);
     setOtherReason('');
+  }, []);
+
+  const handleBack = React.useCallback((): void => {
+    resetState();
     onBack();
-  }, [onBack]);
+  }, [resetState, onBack]);
+
+  const handleClose = React.useCallback((): void => {
+    resetState();
+    onClose();
+  }, [resetState, onClose]);
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
       <View className="flex-1 items-center justify-center bg-black/25 px-4">
         <View
-          className={`w-full rounded-xl bg-white px-6 pt-6 ${
-            isOtherReasonSelected ? 'h-[479px]' : 'h-[343px]'
-          }`}
+          className="w-full rounded-xl bg-white px-6 pt-6 pb-5"
           style={{ maxWidth: 380 }}>
           <View>
             <SecessionIcon width={24} height={24} />
