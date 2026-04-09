@@ -456,7 +456,7 @@ const WishlistScreen: React.FC = () => {
             </Shadow>
           </View>
         </Animated.View>
-
+        {!isSearchFocused && (
         <WishlistBottomSheet
           translateY={translateY}
           onStateChange={handleSheetChange}
@@ -467,7 +467,8 @@ const WishlistScreen: React.FC = () => {
           onPressComplete={handleComplete}
           renderTabContent={renderTabContent}
         />
-
+        )}
+        {isSearchFocused && (
         <WishlistSearchOverlay
           isVisible={isSearchFocused}
           selectedCategory={selectedCategory}
@@ -479,7 +480,7 @@ const WishlistScreen: React.FC = () => {
             toggleLike(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
           }
         />
-
+        )}
         {/* 완료 모달 */}
         <WishModal
           isVisible={showAddModal}
