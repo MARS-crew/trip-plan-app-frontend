@@ -3,7 +3,7 @@ import type { NavigatorScreenParams } from '@react-navigation/native';
 export type SearchStackParamList = {
   SearchMain: undefined;
   SearchResult: { query: string };
-  DestinationDetail: { destinationId: string; origin?: 'search' | 'bookmark' };
+  DestinationDetail: { destinationId: string; origin?: 'search' | 'bookmark'; initialTab?: 'info' | 'review' };
   SelectTrip: undefined;
   ReviewWrite: undefined;
 };

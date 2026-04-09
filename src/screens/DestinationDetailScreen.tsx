@@ -42,9 +42,10 @@ const DestinationDetailScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const { params } = useRoute<DetailRouteProp>();
   const origin = params?.origin ?? 'search';
+  const initialTab = params?.initialTab ?? 'info';
 
   // Hooks
-  const [activeTab, setActiveTab] = React.useState('info');
+  const [activeTab, setActiveTab] = React.useState(initialTab);
   const [isBookmarked, setIsBookmarked] = React.useState(false);
 
   const handleGoBack = useCallback((): void => {
