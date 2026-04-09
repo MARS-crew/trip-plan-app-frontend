@@ -1,26 +1,11 @@
 import React from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View, type ImageSourcePropType } from 'react-native';
 
 import { TripStatusChip } from '@/components/ui';
-import {
-  PlaceIcon,
-  CalendarWhiteIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-} from '@/assets/icons';
+import { PlaceIcon, CalendarWhiteIcon, ChevronDownIcon, ChevronUpIcon } from '@/assets/icons';
+import type { TripCardProps } from '@/screens/myTrip/type';
 
-export interface TripCardProps {
-  city: string;
-  dateText: string;
-  scheduleText: string;
-  scheduleCountText: string;
-  imageSource: any;
-  status: 'traveling' | 'scheduled' | 'completed';
-  isOpen: boolean;
-  onToggle: () => void;
-  onImagePress?: () => void;
-  children?: React.ReactNode;
-}
+const FALLBACK_IMAGE: ImageSourcePropType = require('@/assets/images/thumnail2.png');
 
 const TripCard = ({
   city,
@@ -34,37 +19,41 @@ const TripCard = ({
   onImagePress,
   children,
 }: TripCardProps) => {
+  const [resolvedImageSource, setResolvedImageSource] = React.useState<ImageSourcePropType>(
+    imageSource || FALLBACK_IMAGE,
+  );
+  React.useEffect(() => {
+    setResolvedImageSource(imageSource || FALLBACK_IMAGE);
+  }, [imageSource]);
+
+  const hasDetails = React.Children.count(children) > 0;
 
   return (
-    <View
-      className="mt-6 rounded-[8px] bg-white"
-      style={{
-        shadowColor: 'rgba(0, 0, 0, 0.25)',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3,
-        elevation: 3,
-      }}
-    >
+    <View className="mt-6 rounded-[8px] bg-white">
       <View className="overflow-hidden rounded-[8px]">
         <Pressable onPress={onImagePress}>
           <View className="relative">
-            <Image source={imageSource} className="h-[144px] w-full" resizeMode="cover" />
+            <Image
+              source={resolvedImageSource}
+              className="h-[144px] w-full"
+              resizeMode="cover"
+              onError={() => setResolvedImageSource(FALLBACK_IMAGE)}
+            />
 
-            <View pointerEvents="none"/>
+            <View pointerEvents="none" />
 
-          {/*TripStatusChip*/}
-            <View className="absolute top-[13px] left-[15px]">
+            {/*TripStatusChip*/}
+            <View className="absolute left-[15px] top-[13px]">
               <TripStatusChip status={status} />
             </View>
 
-          {/*City*/}
+            {/*City*/}
             <View className="absolute bottom-3 left-3">
-              <Text className="text-h1 font-pretendardBold text-white">{city}</Text>
+              <Text className="font-pretendardBold text-h1 text-white">{city}</Text>
 
-          {/*Date*/}
+              {/*Date*/}
               <View className="flex-row items-center">
-                <CalendarWhiteIcon width={14} height={14}/>
+                <CalendarWhiteIcon width={14} height={14} />
                 <Text className="px-1 text-p1 text-white">{dateText}</Text>
               </View>
             </View>
@@ -72,7 +61,7 @@ const TripCard = ({
         </Pressable>
 
         {/*schedule*/}
-        <Pressable onPress={onToggle}>
+        <Pressable onPress={onToggle} disabled={!hasDetails}>
           <View className="flex-row items-center justify-between px-4 py-3">
             <View className="flex-row items-center">
               <PlaceIcon width={14} height={14} />
@@ -81,21 +70,21 @@ const TripCard = ({
             </View>
 
             {/*Toggle*/}
-            <View className="flex-row items-center">
-              <Text className="text-p text-main">
-                {isOpen ? '일정 접기 ' : '전체 보기 '}
-              </Text>
+            {hasDetails ? (
+              <View className="flex-row items-center">
+                <Text className="text-p text-main">{isOpen ? '일정 접기 ' : '전체 보기 '}</Text>
 
-              {isOpen ? (
-                <ChevronUpIcon width={14} height={14} />
-              ) : (
-                <ChevronDownIcon width={14} height={14} />
-              )}
-            </View>
+                {isOpen ? (
+                  <ChevronUpIcon width={14} height={14} />
+                ) : (
+                  <ChevronDownIcon width={14} height={14} />
+                )}
+              </View>
+            ) : null}
           </View>
         </Pressable>
 
-        {isOpen && <View className="border-t border-chip px-4 py-4">{children}</View>}
+        {isOpen && hasDetails && <View className="border-t border-chip px-4 py-4">{children}</View>}
       </View>
     </View>
   );
