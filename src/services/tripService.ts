@@ -48,11 +48,7 @@ export const getMyTrips = async ({
     }
 
     const headers: Record<string, string> = { Accept: '*/*' };
-    const normalizedToken = tempToken;
-
-    if (normalizedToken) {
-      headers.Authorization = `Bearer ${normalizedToken}`;
-    }
+    headers.Authorization = `Bearer ${tempToken}`;
     if (!headers.Authorization) {
       console.error('[tripService] errorCode=TOKEN_INVALID_FORMAT');
       return { data: [], error: 'TOKEN_INVALID_FORMAT' };
@@ -61,7 +57,7 @@ export const getMyTrips = async ({
     const requestUrl =
       filterStatus === 'ALL'
         ? `${apiBaseUrl}/api/v1/trips/filter`
-        : `${apiBaseUrl}/api/v1/trips/filter?tripStatus=${encodeURIComponent(filterStatus)}&status=${encodeURIComponent(filterStatus)}`;
+        : `${apiBaseUrl}/api/v1/trips/filter?tripStatus=${encodeURIComponent(filterStatus)}`;
     const response = await fetch(requestUrl, {
       headers,
       signal,
