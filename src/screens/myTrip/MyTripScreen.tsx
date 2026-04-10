@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -10,15 +10,20 @@ import type { RootStackParamList } from '@/navigation/types';
 import { EmptyMapScreen } from '@/screens/myTrip';
 import TripCard from '@/screens/myTrip/components/TripCard';
 import type { TripCardStatus, TripCardViewModel, TripFilter } from '@/screens/myTrip/type';
-import { getMyTrips, type MyTripItem } from '@/services';
+import { getMyTrips, type MyTripItem, type TripFilterStatus } from '@/services';
 
 type MyTripNavigation = NativeStackNavigationProp<RootStackParamList>;
 
 const TRIP_FILTERS: TripFilter[] = ['전체', '예정된 여행', '지난 여행'];
+const CHIP_TO_FILTER_STATUS: Record<TripFilter, TripFilterStatus> = {
+  '전체': 'ALL',
+  '예정된 여행': 'UPCOMING',
+  '지난 여행': 'PAST',
+};
 
 const mapTripStatus = (status: MyTripItem['tripStatus']): TripCardStatus => {
   if (status === 'ONGOING') return 'traveling';
-  if (status === 'COMPLETED') return 'completed';
+  if (status === 'COMPLETED' || status === 'PAST') return 'completed';
   return 'scheduled';
 };
 
@@ -35,6 +40,14 @@ const mapTripToCardViewModel = (trip: MyTripItem): TripCardViewModel => ({
   status: mapTripStatus(trip.tripStatus),
 });
 
+const filterTripsByChip = (trips: MyTripItem[], chip: TripFilter): MyTripItem[] => {
+  if (chip === '전체') return trips;
+  if (chip === '예정된 여행') {
+    return trips.filter((trip) => trip.tripStatus === 'PLANNED' || trip.tripStatus === 'UPCOMING');
+  }
+  return trips.filter((trip) => trip.tripStatus === 'COMPLETED' || trip.tripStatus === 'PAST');
+};
+
 const MyTripScreen: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState<TripFilter>('전체');
   const [openCardId, setOpenCardId] = useState<number | null>(null);
@@ -42,29 +55,18 @@ const MyTripScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigation = useNavigation<MyTripNavigation>();
 
-  const filteredTripCardItems = useMemo(() => {
-    if (selectedChip === '전체') {
-      return tripCardItems;
-    }
-
-    if (selectedChip === '예정된 여행') {
-      return tripCardItems.filter((tripCardItem) => tripCardItem.status === 'scheduled');
-    }
-
-    return tripCardItems.filter((tripCardItem) => tripCardItem.status === 'completed');
-  }, [selectedChip, tripCardItems]);
-
   const fetchMyTrips = useCallback(async (signal?: AbortSignal): Promise<void> => {
     setIsLoading(true);
-    const result = await getMyTrips({ signal });
+    const result = await getMyTrips({ filterStatus: CHIP_TO_FILTER_STATUS[selectedChip], signal });
     if (signal?.aborted || result.error === 'REQUEST_ABORTED') return;
     if (result.error) {
       setIsLoading(false);
       return;
     }
-    setTripCardItems(result.data.map(mapTripToCardViewModel));
+    const filteredTrips = filterTripsByChip(result.data, selectedChip);
+    setTripCardItems(filteredTrips.map(mapTripToCardViewModel));
     setIsLoading(false);
-  }, []);
+  }, [selectedChip]);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -88,7 +90,7 @@ const MyTripScreen: React.FC = () => {
             <View>
               <Text className="font-pretendardBold text-h text-black">내여행</Text>
               <Text className="text-p text-gray">
-                {filteredTripCardItems.length}개의 여행이 있어요
+                {tripCardItems.length}개의 여행이 있어요
               </Text>
             </View>
 
@@ -115,12 +117,12 @@ const MyTripScreen: React.FC = () => {
           </View>
 
           {/* TripCard */}
-          {!isLoading && filteredTripCardItems.length === 0 ? (
+          {!isLoading && tripCardItems.length === 0 ? (
             <View className="mt-4">
               <EmptyMapScreen />
             </View>
           ) : (
-            filteredTripCardItems.map((tripCardItem) => (
+            tripCardItems.map((tripCardItem) => (
               <View key={tripCardItem.id}>
                 <TripCard
                   city={tripCardItem.city}

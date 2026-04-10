@@ -1,7 +1,8 @@
 import type { BaseResponse } from '@/types';
 import { getEnvConfig } from '@/config/env';
 
-export type TripStatus = 'ONGOING' | 'UPCOMING' | 'COMPLETED';
+export type TripStatus = 'ONGOING' | 'UPCOMING' | 'PLANNED' | 'COMPLETED' | 'PAST';
+export type TripFilterStatus = 'ALL' | 'UPCOMING' | 'PAST';
 
 export interface MyTripItem {
   tripId: number;
@@ -26,10 +27,12 @@ export interface GetMyTripsResult {
 }
 
 interface GetMyTripsOptions {
+  filterStatus?: TripFilterStatus;
   signal?: AbortSignal;
 }
 
 export const getMyTrips = async ({
+  filterStatus = 'ALL',
   signal,
 }: GetMyTripsOptions = {}): Promise<GetMyTripsResult> => {
   try {
@@ -55,7 +58,10 @@ export const getMyTrips = async ({
       return { data: [], error: 'TOKEN_INVALID_FORMAT' };
     }
 
-    const requestUrl = `${apiBaseUrl}/api/v1/trips`;
+    const requestUrl =
+      filterStatus === 'ALL'
+        ? `${apiBaseUrl}/api/v1/trips/filter`
+        : `${apiBaseUrl}/api/v1/trips/filter?tripStatus=${encodeURIComponent(filterStatus)}&status=${encodeURIComponent(filterStatus)}`;
     const response = await fetch(requestUrl, {
       headers,
       signal,
