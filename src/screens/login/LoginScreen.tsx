@@ -173,7 +173,7 @@ const LoginScreen: React.FC = () => {
               />
 
               {hasLoginWarning && (
-                <Text className="mt-3 text-p text-main">{loginWarningMessage}</Text>
+                <Text className="mt-3 text-p text-errmassage">{loginWarningMessage}</Text>
               )}
 
               <TouchableOpacity
