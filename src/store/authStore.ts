@@ -28,16 +28,20 @@ const readTokensSecurely = async (): Promise<AuthTokens | null> => {
     return null;
   }
 
-  const parsed = JSON.parse(credentials.password) as Partial<AuthTokens>;
+  try {
+    const parsed = JSON.parse(credentials.password) as Partial<AuthTokens>;
 
-  if (!parsed.accessToken || !parsed.refreshToken) {
+    if (!parsed.accessToken || !parsed.refreshToken) {
+      return null;
+    }
+
+    return {
+      accessToken: parsed.accessToken,
+      refreshToken: parsed.refreshToken,
+    };
+  } catch {
     return null;
   }
-
-  return {
-    accessToken: parsed.accessToken,
-    refreshToken: parsed.refreshToken,
-  };
 };
 
 const clearTokensSecurely = async (): Promise<void> => {
@@ -90,7 +94,7 @@ export const useAuthStore = create<AuthState>()(
         const tokens = await readTokensSecurely();
 
         if (!tokens) {
-          set({ accessToken: null, refreshToken: null, isAuthenticated: false });
+          set({ accessToken: null, refreshToken: null, user: null, isAuthenticated: false });
           return;
         }
 
@@ -118,5 +122,3 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
-
-void useAuthStore.getState().hydrateAuth();
