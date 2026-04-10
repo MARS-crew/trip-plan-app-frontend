@@ -33,9 +33,7 @@ const TripTimeline: React.FC<TripTimelineProps> = ({ items }) => {
   }, []);
 
   const handlePressNext = useCallback(() => {
-    setSelectedDateIndex((prev) =>
-      prev < dateItems.length - 1 ? prev + 1 : prev,
-    );
+    setSelectedDateIndex((prev) => (prev < dateItems.length - 1 ? prev + 1 : prev));
   }, [dateItems.length]);
 
   return (
@@ -44,7 +42,7 @@ const TripTimeline: React.FC<TripTimelineProps> = ({ items }) => {
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={handlePressPrev}
-          className=" h-6 w-2 items-center justify-center">
+          className="h-6 w-2 items-center justify-center">
           <VectorLeftIcon />
         </TouchableOpacity>
 
@@ -114,7 +112,7 @@ const TripTimeline: React.FC<TripTimelineProps> = ({ items }) => {
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={handlePressNext}
-          className=" h-6 w-2 items-center justify-center">
+          className="h-6 w-2 items-center justify-center">
           <VectorIcon />
         </TouchableOpacity>
       </View>
@@ -128,16 +126,18 @@ const TripTimeline: React.FC<TripTimelineProps> = ({ items }) => {
           <View key={item.id} className={`${isLast ? '' : 'mb-4'} flex-row items-start`}>
             <View className="w-[58px] items-center">
               <View className="h-[58px] w-[58px] rounded-[8px] bg-[#DF6C201A] py-3">
-                <Text className="text-center text-p font-pretendardBold text-main">{item.startTime}</Text>
+                <Text className="text-center font-pretendardBold text-p text-main">
+                  {item.startTime}
+                </Text>
                 <View className="items-center">
-                  <View className="border-t border-[#E5E0DC] w-4" />
+                  <View className="w-4 border-t border-[#E5E0DC]" />
                 </View>
                 <Text className="text-center text-p text-gray">{item.endTime}</Text>
               </View>
             </View>
 
             <View className="ml-3 flex-1 self-start rounded-[8px] bg-[#F4F0EC80] px-4 py-[10px]">
-              <Text className="text-h3 font-pretendardSemiBold text-black">{item.title}</Text>
+              <Text className="font-pretendardSemiBold text-h3 text-black">{item.title}</Text>
 
               <View className="mt-[2px] flex-row items-center">
                 <PlaceIcon width={12} height={12} />
