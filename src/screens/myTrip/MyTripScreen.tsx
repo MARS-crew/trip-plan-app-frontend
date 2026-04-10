@@ -120,8 +120,8 @@ const MyTripScreen: React.FC = () => {
               <EmptyMapScreen />
             </View>
           ) : (
-            filteredTripCardItems.map((tripCardItem, index) => (
-              <View key={tripCardItem.id} style={{ zIndex: filteredTripCardItems.length - index }}>
+            filteredTripCardItems.map((tripCardItem) => (
+              <View key={tripCardItem.id}>
                 <TripCard
                   city={tripCardItem.city}
                   dateText={tripCardItem.dateText}

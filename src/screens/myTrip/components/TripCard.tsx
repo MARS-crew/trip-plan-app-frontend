@@ -29,7 +29,15 @@ const TripCard = ({
   const hasDetails = React.Children.count(children) > 0;
 
   return (
-    <View className="mt-6 rounded-[8px] bg-white">
+    <View
+      className="mt-6 rounded-[8px] bg-white shadow-sm shadow-black/10"
+      style={{
+        shadowColor: '#000000',
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 2,
+      }}>
       <View className="overflow-hidden rounded-[8px]">
         <Pressable onPress={onImagePress}>
           <View className="relative">
