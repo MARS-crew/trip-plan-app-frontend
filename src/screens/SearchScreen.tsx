@@ -7,7 +7,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { SearchStackParamList } from '@/navigation/types';
 import { InputSearchIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
-import { getRecentSearches } from '@/services';
+import { getRecentSearches, deleteRecentSearch } from '@/services';
 import { SearchList } from '@/screens/search/components/SearchList';
 import { PopularList } from '@/screens/search/components/PopularList';
 import { CategoryChip } from '@/screens/search/components/CategoryChip';
@@ -38,8 +38,12 @@ const SearchScreen: React.FC = () => {
   const [recentSearches, setRecentSearches] = useState<GetRecentSearch[]>([]);
 
   const fetchRecentSearches = useCallback(async () => {
-    const data = await getRecentSearches();
-    setRecentSearches(data);
+    try {
+      const data = await getRecentSearches();
+      setRecentSearches(data);
+    } catch (error) {
+      console.error('fetchRecentSearches Error:', error);
+    }
   }, []);
 
   useEffect(() => {
@@ -49,6 +53,15 @@ const SearchScreen: React.FC = () => {
     });
     return unsubscribe;
   }, [navigation, fetchRecentSearches]);
+
+  const handleDelete = useCallback(async (recentSearchId: number) => {
+    try {
+      await deleteRecentSearch(recentSearchId);
+      setRecentSearches(prev => prev.filter(s => s.recentSearchId !== recentSearchId));
+    } catch (error) {
+      console.error('handleDelete Error:', error);
+    }
+  }, []);
 
   const handleSearch = useCallback(() => {
     const trimmed = query.trim();
@@ -107,7 +120,12 @@ const SearchScreen: React.FC = () => {
                   <Text className="py-4 text-center text-p text-gray">최근 검색어가 없습니다</Text>
                 ) : (
                   recentSearches.map(({ recentSearchId, keyword }) => (
-                    <SearchList key={recentSearchId} item={keyword} onPress={handleNavigate} />
+                    <SearchList
+                      key={recentSearchId}
+                      item={keyword}
+                      onPress={handleNavigate}
+                      onDelete={() => handleDelete(recentSearchId)}
+                    />
                   ))
                 )}
               </View>
