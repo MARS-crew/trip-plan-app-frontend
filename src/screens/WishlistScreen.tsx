@@ -105,6 +105,7 @@ const WishlistScreen: React.FC = () => {
   const route = useRoute();
   const navigation = useNavigation<NavigationProp>();
   const translateY = useSharedValue(SNAP_LOW);
+  const tripId = (route.params as { tripId?: number })?.tripId ?? 5;
 
   const [savedPlaces, setSavedPlaces] = useState<PlaceCardProps['place'][]>([]);
   const [wishlistPlaces, setWishlistPlaces] = useState<PlaceCardProps['place'][]>([]);
@@ -115,12 +116,10 @@ const WishlistScreen: React.FC = () => {
     saved: new Set<string>(),
     wishlist: new Set<string>(),
   }));
-
   useEffect(() => {
     const loadPlaceSelection = async () => {
       try {
         setLoading(true);
-        const tripId = (route.params as any)?.tripId ?? 5;
         const response = await getPlaceSelection(tripId);
 
         const convertedSavedPlaces = response.data.savedPlaces.map(convertPlaceDataToWishPlace);
@@ -130,24 +129,27 @@ const WishlistScreen: React.FC = () => {
 
         setSavedPlaces(convertedSavedPlaces);
         setWishlistPlaces(convertedWishlistPlaces);
-        setLikedIdsByTab((prev) => ({
-          ...prev,
+        setLikedIdsByTab({
+          saved: new Set<string>(),
           wishlist: new Set(convertedWishlistPlaces.map((place) => place.id)),
-        }));
+        });
         setError(null);
       } catch (err) {
         console.error('Failed to load place selection:', err);
         setError(err instanceof Error ? err.message : '장소 데이터 로드 실패');
         setSavedPlaces([]);
         setWishlistPlaces([]);
-        setLikedIdsByTab((prev) => ({ ...prev, wishlist: new Set<string>() }));
+        setLikedIdsByTab({
+          saved: new Set<string>(),
+          wishlist: new Set<string>(),
+        });
       } finally {
         setLoading(false);
       }
     };
 
     loadPlaceSelection();
-  }, [route.params]);
+  }, [tripId]);
 
   const toggleLike = useCallback((tab: LikeTabId, id: string) => {
     setLikedIdsByTab((prev) => {
@@ -361,22 +363,6 @@ const WishlistScreen: React.FC = () => {
           />
         );
       case 'saved':
-        if (loading) {
-          return (
-            <View className="flex-1 items-center justify-center">
-              <ActivityIndicator size="large" color="#FF6B6B" />
-            </View>
-          );
-        }
-
-        if (error) {
-          return (
-            <View className="flex-1 items-center justify-center p-4">
-              <Text className="text-center text-gray">{error}</Text>
-            </View>
-          );
-        }
-
         return (
           <WishTabSave
             places={savedPlaces}
@@ -385,22 +371,6 @@ const WishlistScreen: React.FC = () => {
           />
         );
       case 'wishlist':
-        if (loading) {
-          return (
-            <View className="flex-1 items-center justify-center">
-              <ActivityIndicator size="large" color="#FF6B6B" />
-            </View>
-          );
-        }
-
-        if (error) {
-          return (
-            <View className="flex-1 items-center justify-center p-4">
-              <Text className="text-center text-gray">{error}</Text>
-            </View>
-          );
-        }
-
         return (
           <WishTabWishlist
             places={wishlistPlaces}
