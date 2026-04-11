@@ -1,5 +1,14 @@
-import React, { useCallback, useRef, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Keyboard, Platform } from 'react-native';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  Keyboard,
+  Platform,
+  PermissionsAndroid,
+  Alert,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -7,7 +16,6 @@ import { MyLocation, WishStar } from '@/assets/icons';
 import { WishModal } from './wishList/components/WishModal';
 import type { RootStackParamList } from '@/navigation/types';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { useState } from 'react';
 import { RouteIcon, AlertIcon } from '@/assets/icons';
 import { BackHandler } from 'react-native';
 import {
@@ -22,6 +30,7 @@ import {
   WishlistSearchOverlay,
 } from '@/screens/wishList/components';
 import type { WishlistBottomSheetTabId } from '@/screens/wishList/components';
+import type { LikedIdsByTab, LikeTabId, LocationCoords, WishlistTabConfig } from '@/types/wishlist';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -34,7 +43,6 @@ import { Shadow } from 'react-native-shadow-2';
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type TabId = WishlistBottomSheetTabId;
-type LikeTabId = Exclude<TabId, 'trending'>;
 //더미 데이터 - 실제 API 연동 시 제거 예정
 const TRENDING_PLACES: PlaceCardProps['place'][] = [
   {
@@ -136,14 +144,14 @@ const SEARCH_PLACES: PlaceCardProps['place'][] = [
   },
 ];
 
-const TABS: { id: TabId; label: string }[] = [
+const TABS: WishlistTabConfig[] = [
   { id: 'trending', label: '실시간 추천' },
   { id: 'saved', label: '저장된 장소' },
   { id: 'wishlist', label: '위시 리스트' },
 ];
 
 // 바텀시트 스냅 포인트
-const WishlistScreen: React.FC = () => {
+const WishlistScreen: React.FC = (): React.JSX.Element => {
   const BOTTOM_SHEET_MIN_HEIGHT = 28;
   const SHEET_HEIGHT = 654;
   const SECOND_SNAP_VISIBLE_HEIGHT = 310;
@@ -155,12 +163,12 @@ const WishlistScreen: React.FC = () => {
 
   const translateY = useSharedValue(SNAP_LOW);
 
-  const [likedIdsByTab, setLikedIdsByTab] = useState<Record<LikeTabId, Set<string>>>(() => ({
+  const [likedIdsByTab, setLikedIdsByTab] = useState<LikedIdsByTab>(() => ({
     saved: new Set<string>(),
     wishlist: new Set(WISHLIST_PLACES.map((place) => place.id)),
   }));
 
-  const toggleLike = useCallback((tab: LikeTabId, id: string) => {
+  const toggleLike = useCallback((tab: LikeTabId, id: string): void => {
     setLikedIdsByTab((prev) => {
       const next = new Set(prev[tab]);
       next.has(id) ? next.delete(id) : next.add(id);
@@ -169,7 +177,7 @@ const WishlistScreen: React.FC = () => {
   }, []);
 
   const isLikedInTab = useCallback(
-    (tab: LikeTabId, id: string) => likedIdsByTab[tab].has(id),
+    (tab: LikeTabId, id: string): boolean => likedIdsByTab[tab].has(id),
     [likedIdsByTab],
   );
 
@@ -187,7 +195,8 @@ const WishlistScreen: React.FC = () => {
   const isInitialTabEffect = useRef(true);
   const showAddModalRef = useRef(false);
   const showExitModalRef = useRef(false);
-
+  const mapRef = useRef<MapView>(null);
+  const currentLocationRef = useRef<LocationCoords | null>(null);
   useEffect(() => {
     showAddModalRef.current = showAddModal;
   }, [showAddModal]);
@@ -213,7 +222,7 @@ const WishlistScreen: React.FC = () => {
     };
   }, []);
 
-  const clearPendingRefocus = useCallback(() => {
+  const clearPendingRefocus = useCallback((): void => {
     if (refocusRafRef.current !== null) {
       cancelAnimationFrame(refocusRafRef.current);
       refocusRafRef.current = null;
@@ -222,10 +231,9 @@ const WishlistScreen: React.FC = () => {
 
   useEffect(() => {
     return () => clearPendingRefocus();
-  }, [clearPendingRefocus]);
-  // 바텀시트 애니메이션 함수
+  }, [clearPendingRefocus]); // 바텀시트 애니메이션 함수
   const animateSheetTo = useCallback(
-    (targetY: number) => {
+    (targetY: number): void => {
       const currentY = translateY.value;
       const distance = Math.abs(targetY - currentY);
       const isMovingDown = targetY > currentY;
@@ -240,13 +248,11 @@ const WishlistScreen: React.FC = () => {
       setIsSheetExpanded(targetY !== SNAP_LOW);
     },
     [SNAP_LOW, translateY],
-  );
-  // 바텀시트 상태 변화 핸들러
-  const handleSheetChange = useCallback((expanded: boolean) => {
+  ); // 바텀시트 상태 변화 핸들러
+  const handleSheetChange = useCallback((expanded: boolean): void => {
     setIsSheetExpanded(expanded);
-  }, []);
-  // 검색 입력창에 포커스 주기
-  const focusSearchInput = useCallback(() => {
+  }, []); // 검색 입력창에 포커스 주기
+  const focusSearchInput = useCallback((): void => {
     const input = searchInputRef.current;
     if (!input) return;
 
@@ -264,14 +270,12 @@ const WishlistScreen: React.FC = () => {
     }
 
     input.focus();
-  }, [clearPendingRefocus]);
-  // 검색 입력창에 포커스 될 때 → 검색어 상태 업데이트 + 키보드 올리기
-  const handleSearchFocus = useCallback(() => {
+  }, [clearPendingRefocus]); // 검색 입력창에 포커스 될 때 → 검색어 상태 업데이트 + 키보드 올리기
+  const handleSearchFocus = useCallback((): void => {
     isSearchFocusedRef.current = true;
     setIsSearchFocused(true);
-  }, []);
-  // 검색 입력창에서 포커스 벗어날 때 → 검색어 초기화 + 키보드 내리기
-  const handleSearchBlur = useCallback(() => {
+  }, []); // 검색 입력창에서 포커스 벗어날 때 → 검색어 초기화 + 키보드 내리기
+  const handleSearchBlur = useCallback((): void => {
     clearPendingRefocus();
     isSearchFocusedRef.current = false;
     isKeyboardVisibleRef.current = false;
@@ -279,43 +283,45 @@ const WishlistScreen: React.FC = () => {
     setIsSearchFocused(false);
     Keyboard.dismiss();
   }, [clearPendingRefocus]);
-  const handleSearchInputBlur = useCallback(() => {
+  const handleSearchInputBlur = useCallback((): void => {
     // Intentionally keep search mode active; only hide keyboard on blur.
-  }, []);
-  // 뒤로가기 버튼 핸들러: 검색 중이면 검색 종료, 그 외에는 모달 열기
-  const handleGoBack = useCallback(() => {
+  }, []); // 뒤로가기 버튼 핸들러: 검색 중이면 검색 종료, 그 외에는 모달 열기
+  const handleGoBack = useCallback((): void => {
     if (isSearchFocused) {
       handleSearchBlur();
       return;
     }
     setShowExitModal(true);
-  }, [isSearchFocused, handleSearchBlur]);
-  // AI 추천 일정짜기 버튼 핸들러 → TripDetail로 이동 + 모달 닫기
-  const handleAiPlan = useCallback(() => {
+  }, [isSearchFocused, handleSearchBlur]); // AI 추천 일정짜기 버튼 핸들러 → TripDetail로 이동 + 모달 닫기
+  const handleAiPlan = useCallback((): void => {
     navigation.navigate('TripDetail');
     setShowAddModal(false);
-  }, [navigation]);
-  // 직접 일정짜기 버튼 핸들러 → TripDetail로 이동 + 모달 닫기
-  const handleManualPlan = useCallback(() => {
+  }, [navigation]); // 직접 일정짜기 버튼 핸들러 → TripDetail로 이동 + 모달 닫기
+  const handleManualPlan = useCallback((): void => {
     navigation.navigate('TripDetail');
     setShowAddModal(false);
-  }, [navigation]);
-  // 완료 버튼 핸들러 → 모달 열기
-  const handleComplete = useCallback(() => setShowAddModal(true), []);
-  // 지도 영역 누르면 바텀시트 내려가기
-  const handleMapPress = useCallback(() => {
+  }, [navigation]); // 완료 버튼 핸들러 → 모달 열기
+  const handleComplete = useCallback((): void => setShowAddModal(true), []); // 지도 영역 누르면 바텀시트 내려가기
+  const handleMapPress = useCallback((): void => {
     if (isSheetExpanded) animateSheetTo(SNAP_LOW);
-  }, [animateSheetTo, isSheetExpanded, SNAP_LOW]);
+  }, [animateSheetTo, isSheetExpanded, SNAP_LOW]); // 좋아요 토글 핸들러 + 상태 조회 함수 (탭별)
 
-  // 좋아요 토글 핸들러 + 상태 조회 함수 (탭별)
-  const handleToggleSaved = useCallback((id: string) => toggleLike('saved', id), [toggleLike]);
-  const handleToggleWishlist = useCallback(
-    (id: string) => toggleLike('wishlist', id),
+  const handleToggleSaved = useCallback(
+    (id: string): void => toggleLike('saved', id),
     [toggleLike],
   );
-  const isSavedLiked = useCallback((id: string) => isLikedInTab('saved', id), [isLikedInTab]);
-  const isWishlistLiked = useCallback((id: string) => isLikedInTab('wishlist', id), [isLikedInTab]);
-  // 탭 변경 시 바텀시트 애니메이션
+  const handleToggleWishlist = useCallback(
+    (id: string): void => toggleLike('wishlist', id),
+    [toggleLike],
+  );
+  const isSavedLiked = useCallback(
+    (id: string): boolean => isLikedInTab('saved', id),
+    [isLikedInTab],
+  );
+  const isWishlistLiked = useCallback(
+    (id: string): boolean => isLikedInTab('wishlist', id),
+    [isLikedInTab],
+  ); // 탭 변경 시 바텀시트 애니메이션
   useEffect(() => {
     if (isInitialTabEffect.current) {
       isInitialTabEffect.current = false;
@@ -323,14 +329,12 @@ const WishlistScreen: React.FC = () => {
     }
     const targetY = selectedCategory === 'trending' ? SNAP_TRENDING : SNAP_FULL;
     animateSheetTo(targetY);
-  }, [selectedCategory, animateSheetTo, SNAP_TRENDING, SNAP_FULL]);
-  // 바텀시트 애니메이션 스타일
+  }, [selectedCategory, animateSheetTo, SNAP_TRENDING, SNAP_FULL]); // 바텀시트 애니메이션 스타일
   const mapUIAnimatedStyle = useAnimatedStyle(() => {
     'worklet';
     const opacity = interpolate(translateY.value, [SNAP_LOW - 5, SNAP_LOW], [0, 1], 'clamp');
     return { opacity, pointerEvents: opacity < 0.1 ? 'none' : 'auto' };
-  });
-  //  뒤로가기 버튼 핸들링 + 모달 상태 초기화
+  }); //  뒤로가기 버튼 핸들링 + 모달 상태 초기화
   useFocusEffect(
     useCallback(() => {
       setShowAddModal(false);
@@ -340,7 +344,7 @@ const WishlistScreen: React.FC = () => {
         animateSheetTo(SNAP_TRENDING);
       }
 
-      const backAction = () => {
+      const backAction = (): boolean => {
         if (showExitModalRef.current || showAddModalRef.current) return true;
         if (isSearchFocused) {
           handleSearchBlur();
@@ -361,9 +365,49 @@ const WishlistScreen: React.FC = () => {
       handleSearchBlur,
     ]),
   );
+  const handleUserLocationChange: NonNullable<
+    React.ComponentProps<typeof MapView>['onUserLocationChange']
+  > = useCallback((event) => {
+    const coords = event.nativeEvent.coordinate;
+    if (!coords) return;
+    currentLocationRef.current = {
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+    };
+  }, []);
 
-  //탭 컨텐츠
-  const renderTabContent = () => {
+  const moveToCurrentLocation = async (): Promise<void> => {
+    // 1. 안드로이드 권한 확인 및 요청
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        );
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('위치 권한 거부됨');
+          return;
+        }
+      } catch (err) {
+        console.warn(err);
+        return;
+      }
+    } // 2. 이미 지도가 파악한 위치(currentLocation)가 있다면 해당 위치로 이동
+
+   if (currentLocationRef.current) {
+      mapRef.current?.animateToRegion(
+        {
+          latitude: currentLocationRef.current.latitude,
+          longitude: currentLocationRef.current.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        1000,
+      );
+    } else {
+      Alert.alert('위치 확인 중', '현재 위치를 수신하고 있습니다. 잠시 후 다시 시도해주세요.');
+    }
+  }; //탭 컨텐츠
+  const renderTabContent = (): React.ReactNode => {
     switch (selectedCategory) {
       case 'trending':
         return (
@@ -397,8 +441,12 @@ const WishlistScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top', 'bottom']}>
       <View className="flex-1">
         <MapView
+          ref={mapRef} // 2. ref 연결
           provider={PROVIDER_GOOGLE}
           style={{ flex: 1 }}
+          showsUserLocation={true} // 내 위치 파란 점 표시
+          showsMyLocationButton={false} // 구글 기본 버튼은 숨김 (커스텀 버튼 사용)
+          onUserLocationChange={handleUserLocationChange}
           initialRegion={{
             latitude: 37.482476,
             longitude: 126.941574,
@@ -406,7 +454,6 @@ const WishlistScreen: React.FC = () => {
             longitudeDelta: 0.0421,
           }}
         />
-
         {/* 지도 영역 누르면 바텀시트 내려가기 */}
         <TouchableOpacity
           style={{
@@ -420,7 +467,6 @@ const WishlistScreen: React.FC = () => {
           activeOpacity={1}
           onPress={handleMapPress}
         />
-
         <WishlistSearchBar
           searchInputRef={searchInputRef}
           searchQuery={searchQuery}
@@ -430,7 +476,6 @@ const WishlistScreen: React.FC = () => {
           onFocusInput={focusSearchInput}
           onPressBack={handleGoBack}
         />
-
         <Animated.View
           style={[
             mapUIAnimatedStyle,
@@ -450,36 +495,40 @@ const WishlistScreen: React.FC = () => {
               startColor="#00000015"
               offset={[0, 2]}
               style={{ borderRadius: 100 }}>
-              <TouchableOpacity className="h-7 w-7 items-center justify-center rounded-full bg-white">
+              <TouchableOpacity
+                className="h-7 w-7 items-center justify-center rounded-full bg-white"
+                onPress={moveToCurrentLocation}>
                 <MyLocation />
               </TouchableOpacity>
             </Shadow>
           </View>
         </Animated.View>
+
         {!isSearchFocused && (
-        <WishlistBottomSheet
-          translateY={translateY}
-          onStateChange={handleSheetChange}
-          maxTopSnap={selectedCategory === 'trending' ? SNAP_TRENDING : SNAP_FULL}
-          tabs={TABS}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-          onPressComplete={handleComplete}
-          renderTabContent={renderTabContent}
-        />
+          <WishlistBottomSheet
+            translateY={translateY}
+            onStateChange={handleSheetChange}
+            maxTopSnap={selectedCategory === 'trending' ? SNAP_TRENDING : SNAP_FULL}
+            tabs={TABS}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            onPressComplete={handleComplete}
+            renderTabContent={renderTabContent}
+          />
         )}
+
         {isSearchFocused && (
-        <WishlistSearchOverlay
-          isVisible={isSearchFocused}
-          selectedCategory={selectedCategory}
-          places={SEARCH_PLACES}
-          isLiked={(id) =>
-            isLikedInTab(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
-          }
-          onToggleLike={(id) =>
-            toggleLike(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
-          }
-        />
+          <WishlistSearchOverlay
+            isVisible={isSearchFocused}
+            selectedCategory={selectedCategory}
+            places={SEARCH_PLACES}
+            isLiked={(id) =>
+              isLikedInTab(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
+            }
+            onToggleLike={(id) =>
+              toggleLike(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
+            }
+          />
         )}
         {/* 완료 모달 */}
         <WishModal
@@ -502,7 +551,6 @@ const WishlistScreen: React.FC = () => {
           onPrimaryPress={handleAiPlan}
           onSecondaryPress={handleManualPlan}
         />
-
         {/* 뒤로가기 모달 */}
         <WishModal
           isVisible={showExitModal}
