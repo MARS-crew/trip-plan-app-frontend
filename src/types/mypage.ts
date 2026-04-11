@@ -15,3 +15,23 @@ export interface GetProfileData {
   name: string;
   nickname: string;
 }
+
+export type PapagoTargetLang =
+  | 'en'
+  | 'ja'
+  | 'zh-CN'
+  | 'zh-TW'
+  | 'vi'
+  | 'th'
+  | 'id'
+  | 'fr'
+  | 'es'
+  | 'ru'
+  | 'de'
+  | 'it';
+
+export interface GetPapagoPhrase {
+  originalText: string;
+  translatedText: string;
+  targetLang: PapagoTargetLang;
+}
