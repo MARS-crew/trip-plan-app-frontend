@@ -16,7 +16,7 @@ WishlistPlaceItem.displayName = 'WishlistPlaceItem';
 
 // 빈 상태 — 변하지 않으므로 memo로 완전히 고정
 const WishlistEmptyState = React.memo(() => (
-  <View className="mr-[1px] items-center py-4">
+  <View className="mx-[1px] items-center py-4">
     <View className="mt-20">
       <EmptyWish />
     </View>
@@ -35,7 +35,7 @@ export const WishTabWishlist = React.memo<WishTabWishlistProps>(
     }
 
     return (
-      <View className="mr-[1px] py-4">
+      <View className="mx-[1px] py-4">
         {places.map((item) => (
           <WishlistPlaceItem
             key={`wishlist-${item.id}`}

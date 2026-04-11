@@ -14,7 +14,7 @@ const SavePlaceItem = React.memo<{
 SavePlaceItem.displayName = 'SavePlaceItem';
 // 빈 상태 — 변하지 않으므로 memo로 완전히 고정
 const WishSaveEmptyState = React.memo(() => (
-  <View className="mr-[1px] items-center py-4">
+  <View className="mx-[1px] items-center py-4">
     <View className="mt-20">
       <EmptyLocation />
     </View>
@@ -36,7 +36,7 @@ export const WishTabSave = React.memo<WishTabSaveProps>(({ places, isLiked, onTo
   }
 
   return (
-    <View className="mr-[1px] py-4">
+    <View className="mx-[1px] py-4">
       {places.map((item) => (
         <SavePlaceItem
           key={`saved-${item.id}`}

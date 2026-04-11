@@ -17,7 +17,7 @@ export const WishTabTrending = React.memo<WishTabTrendingProps>(({ places, onTog
       <View>
         <Text className="font-pretendardSemiBold text-h2">현재 핫한 장소</Text>
       </View>
-      <View className="mr-[1px] py-4">
+      <View className="mx-[1px] py-4">
         {places.map((item) => (
           <TrendingPlaceItem key={`trending-${item.id}`} item={item} onToggleLike={onToggleLike} />
         ))}
