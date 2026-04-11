@@ -196,7 +196,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   const showAddModalRef = useRef(false);
   const showExitModalRef = useRef(false);
   const mapRef = useRef<MapView>(null);
-  const [currentLocation, setCurrentLocation] = useState<LocationCoords | null>(null);
+  const currentLocationRef = useRef<LocationCoords | null>(null);
   useEffect(() => {
     showAddModalRef.current = showAddModal;
   }, [showAddModal]);
@@ -370,11 +370,10 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   > = useCallback((event) => {
     const coords = event.nativeEvent.coordinate;
     if (!coords) return;
-
-    setCurrentLocation({
+    currentLocationRef.current = {
       latitude: coords.latitude,
       longitude: coords.longitude,
-    });
+    };
   }, []);
 
   const moveToCurrentLocation = async (): Promise<void> => {
@@ -394,11 +393,11 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       }
     } // 2. 이미 지도가 파악한 위치(currentLocation)가 있다면 해당 위치로 이동
 
-    if (currentLocation) {
+   if (currentLocationRef.current) {
       mapRef.current?.animateToRegion(
         {
-          latitude: currentLocation.latitude,
-          longitude: currentLocation.longitude,
+          latitude: currentLocationRef.current.latitude,
+          longitude: currentLocationRef.current.longitude,
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         },
