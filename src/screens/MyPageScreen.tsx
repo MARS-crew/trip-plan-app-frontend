@@ -157,15 +157,13 @@ const MyPageScreen: React.FC = () => {
   const handleKrwChange = React.useCallback((text: string): void => {
     const formatted = formatAmountWithCommas(text);
     setKrwAmount(formatted);
-    const amount = parseAmount(text);
-    setJpyAmount(amount ? convertCurrency(amount, KRW_TO_JPY_RATE) : '');
+    setJpyAmount(formatted ? convertCurrency(parseAmount(formatted), KRW_TO_JPY_RATE) : '');
   }, []);
 
   const handleJpyChange = React.useCallback((text: string): void => {
     const formatted = formatAmountWithCommas(text);
     setJpyAmount(formatted);
-    const amount = parseAmount(text);
-    setKrwAmount(amount ? convertCurrency(amount, JPY_TO_KRW_RATE) : '');
+    setKrwAmount(formatted ? convertCurrency(parseAmount(formatted), JPY_TO_KRW_RATE) : '');
   }, []);
 
   const handleSwapExchange = React.useCallback((): void => {
