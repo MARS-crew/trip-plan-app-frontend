@@ -15,18 +15,17 @@ export const checkDuplicateUserId = async (userId: string): Promise<boolean> => 
     method: 'GET',
   });
 
+  // 409 Conflict: 중복된 아이디
   if (response.status === 409) {
     return true;
   }
 
-  if (response.status === 404) {
-    return false;
-  }
-
+  // 200 OK: 사용 가능한 아이디
   if (response.ok) {
     return false;
   }
 
+  // 그 외 상태 코드는 에러로 처리
   try {
     const body: BaseResponse<CheckIdErrorBody> = await response.json();
     throw new Error(body.message || '아이디 중복 확인 실패');

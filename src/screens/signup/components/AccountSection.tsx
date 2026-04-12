@@ -6,7 +6,7 @@ import type { SignUpFormData } from './signup.types';
 
 interface AccountSectionProps {
   formData: SignUpFormData;
-  idCheckStatus: 'idle' | 'available' | 'duplicate';
+  idCheckStatus: 'idle' | 'available' | 'duplicate' | 'error';
   idMessage: string;
   idMessageClass: string;
   idInputClass: string;
@@ -69,6 +69,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
               inputClassName={
                 !dismissedFieldErrors.accountId &&
                 (idCheckStatus === 'duplicate' ||
+                  idCheckStatus === 'error' ||
                   (showFieldErrors && (formData.accountId.trim().length === 0 || !isIdVerified)))
                   ? 'border-statusError'
                   : idInputClass

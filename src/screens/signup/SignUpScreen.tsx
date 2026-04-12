@@ -34,7 +34,7 @@ import { checkDuplicateUserId } from '@/services';
 type EmailStatus = 'none' | 'sent' | 'error';
 type CodeStatus = 'none' | 'success' | 'error';
 
-type IdCheckStatus = 'idle' | 'available' | 'duplicate';
+type IdCheckStatus = 'idle' | 'available' | 'duplicate' | 'error';
 type RequiredFieldKey =
   | 'accountId'
   | 'nickname'
@@ -267,6 +267,9 @@ const SignUpScreen: React.FC = () => {
   } else if (idCheckStatus === 'duplicate') {
     idMessage = '중복된 아이디입니다.';
     idMessageClass = 'text-statusError';
+  } else if (idCheckStatus === 'error') {
+    idMessage = '아이디 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.';
+    idMessageClass = 'text-statusError';
   }
 
   const registerSectionY = useCallback(
@@ -390,7 +393,7 @@ const SignUpScreen: React.FC = () => {
       setIdCheckStatus(isDuplicate ? 'duplicate' : 'available');
     } catch (error) {
       console.error('handleCheckId Error:', error);
-      setIdCheckStatus('idle');
+      setIdCheckStatus('error');
     }
   }, [formData.accountId]);
 
