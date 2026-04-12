@@ -9,14 +9,27 @@ import { Chip } from '@/components/ui';
 import type { RootStackParamList } from '@/navigation/types';
 import { EmptyMapScreen } from '@/screens/myTrip';
 import TripCard from '@/screens/myTrip/components/TripCard';
-import type { TripCardStatus, TripCardViewModel, TripFilter } from '@/screens/myTrip/type';
-import { getMyTrips, type MyTripItem, type TripFilterStatus } from '@/services';
+import TripTimeline from '@/screens/myTrip/components/TripTimeline';
+import type {
+  TripCardStatus,
+  TripCardViewModel,
+  TripFilter,
+  TripTimelineDateOption,
+  TripTimelineItem,
+} from '@/screens/myTrip/type';
+import {
+  getMyTrips,
+  getTripSchedulesByDate,
+  type MyTripItem,
+  type TripFilterStatus,
+  type TripSchedulesByDateData,
+} from '@/services';
 
 type MyTripNavigation = NativeStackNavigationProp<RootStackParamList>;
 
 const TRIP_FILTERS: TripFilter[] = ['전체', '예정된 여행', '지난 여행'];
 const CHIP_TO_FILTER_STATUS: Record<TripFilter, TripFilterStatus> = {
-  '전체': 'ALL',
+  전체: 'ALL',
   '예정된 여행': 'UPCOMING',
   '지난 여행': 'PAST',
 };
@@ -33,6 +46,7 @@ const formatDateText = (startDate: string, endDate: string): string =>
 const mapTripToCardViewModel = (trip: MyTripItem): TripCardViewModel => ({
   id: trip.tripId,
   city: trip.title,
+  startDate: trip.startDate,
   dateText: formatDateText(trip.startDate, trip.endDate),
   scheduleText: String(trip.scheduleCount),
   scheduleCountText: String(trip.tripDayCount),
@@ -48,25 +62,121 @@ const filterTripsByChip = (trips: MyTripItem[], chip: TripFilter): MyTripItem[] 
   return trips.filter((trip) => trip.tripStatus === 'COMPLETED' || trip.tripStatus === 'PAST');
 };
 
+type TripTimelineStateItem = {
+  selectedDate: string;
+  dateOptions: TripTimelineDateOption[];
+  items: TripTimelineItem[];
+  isLoading: boolean;
+};
+
+const mapSchedulesToTimelineItems = (
+  schedules: TripSchedulesByDateData['schedules'],
+): TripTimelineItem[] =>
+  schedules.map((schedule) => ({
+    id: String(schedule.tripScheduleId),
+    startTime: schedule.startTime,
+    endTime: schedule.endTime,
+    title: schedule.title,
+    location: schedule.placeName || schedule.address,
+    description: schedule.memo,
+  }));
+
 const MyTripScreen: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState<TripFilter>('전체');
   const [openCardId, setOpenCardId] = useState<number | null>(null);
   const [tripCardItems, setTripCardItems] = useState<TripCardViewModel[]>([]);
+  const [tripTimelineByCardId, setTripTimelineByCardId] = useState<
+    Record<number, TripTimelineStateItem>
+  >({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigation = useNavigation<MyTripNavigation>();
 
-  const fetchMyTrips = useCallback(async (signal?: AbortSignal): Promise<void> => {
-    setIsLoading(true);
-    const result = await getMyTrips({ filterStatus: CHIP_TO_FILTER_STATUS[selectedChip], signal });
-    if (signal?.aborted || result.error === 'REQUEST_ABORTED') return;
-    if (result.error) {
+  const fetchMyTrips = useCallback(
+    async (signal?: AbortSignal): Promise<void> => {
+      setIsLoading(true);
+      const result = await getMyTrips({
+        filterStatus: CHIP_TO_FILTER_STATUS[selectedChip],
+        signal,
+      });
+      if (signal?.aborted || result.error === 'REQUEST_ABORTED') return;
+      if (result.error) {
+        setIsLoading(false);
+        return;
+      }
+      const filteredTrips = filterTripsByChip(result.data, selectedChip);
+      setTripCardItems(filteredTrips.map(mapTripToCardViewModel));
+      setOpenCardId(null);
       setIsLoading(false);
-      return;
-    }
-    const filteredTrips = filterTripsByChip(result.data, selectedChip);
-    setTripCardItems(filteredTrips.map(mapTripToCardViewModel));
-    setIsLoading(false);
-  }, [selectedChip]);
+    },
+    [selectedChip],
+  );
+
+  const fetchTripTimeline = useCallback(
+    async (tripId: number, targetDate: string, signal?: AbortSignal): Promise<void> => {
+      setTripTimelineByCardId((prev) => {
+        const current = prev[tripId];
+        return {
+          ...prev,
+          [tripId]: {
+            selectedDate: targetDate,
+            dateOptions: current?.dateOptions ?? [],
+            items: current?.items ?? [],
+            isLoading: true,
+          },
+        };
+      });
+
+      const result = await getTripSchedulesByDate({ tripId, targetDate, signal });
+      if (signal?.aborted || result.error === 'REQUEST_ABORTED') return;
+      if (result.error || !result.data) {
+        setTripTimelineByCardId((prev) => ({
+          ...prev,
+          [tripId]: {
+            selectedDate: targetDate,
+            dateOptions: prev[tripId]?.dateOptions ?? [],
+            items: [],
+            isLoading: false,
+          },
+        }));
+        return;
+      }
+      const scheduleData = result.data;
+
+      setTripTimelineByCardId((prev) => ({
+        ...prev,
+        [tripId]: {
+          selectedDate: scheduleData.selectedDate,
+          dateOptions: scheduleData.dateOptions,
+          items: mapSchedulesToTimelineItems(scheduleData.schedules),
+          isLoading: false,
+        },
+      }));
+    },
+    [],
+  );
+
+  const handleToggleTripCard = useCallback(
+    (tripCardItem: TripCardViewModel) => {
+      const isAlreadyOpen = openCardId === tripCardItem.id;
+      if (isAlreadyOpen) {
+        setOpenCardId(null);
+        return;
+      }
+
+      setOpenCardId(tripCardItem.id);
+      const timelineState = tripTimelineByCardId[tripCardItem.id];
+      const targetDate = timelineState?.selectedDate || tripCardItem.startDate;
+      fetchTripTimeline(tripCardItem.id, targetDate);
+    },
+    [fetchTripTimeline, openCardId, tripTimelineByCardId],
+  );
+
+  const handleSelectTimelineDate = useCallback(
+    (tripId: number, targetDate: string) => {
+      fetchTripTimeline(tripId, targetDate);
+    },
+    [fetchTripTimeline],
+  );
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -89,9 +199,7 @@ const MyTripScreen: React.FC = () => {
           <View className="flex-row items-start justify-between">
             <View>
               <Text className="font-pretendardBold text-h text-black">내여행</Text>
-              <Text className="text-p text-gray">
-                {tripCardItems.length}개의 여행이 있어요
-              </Text>
+              <Text className="text-p text-gray">{tripCardItems.length}개의 여행이 있어요</Text>
             </View>
 
             <TouchableOpacity
@@ -133,10 +241,19 @@ const MyTripScreen: React.FC = () => {
                   status={tripCardItem.status}
                   isOpen={openCardId === tripCardItem.id}
                   onImagePress={() => navigation.navigate('TripDetail')}
-                  onToggle={() =>
-                    setOpenCardId((prev) => (prev === tripCardItem.id ? null : tripCardItem.id))
-                  }
-                />
+                  onToggle={() => handleToggleTripCard(tripCardItem)}>
+                  <TripTimeline
+                    dateOptions={tripTimelineByCardId[tripCardItem.id]?.dateOptions ?? []}
+                    selectedDate={
+                      tripTimelineByCardId[tripCardItem.id]?.selectedDate ?? tripCardItem.startDate
+                    }
+                    onSelectDate={(targetDate) =>
+                      handleSelectTimelineDate(tripCardItem.id, targetDate)
+                    }
+                    items={tripTimelineByCardId[tripCardItem.id]?.items ?? []}
+                    isLoading={tripTimelineByCardId[tripCardItem.id]?.isLoading ?? false}
+                  />
+                </TripCard>
               </View>
             ))
           )}
