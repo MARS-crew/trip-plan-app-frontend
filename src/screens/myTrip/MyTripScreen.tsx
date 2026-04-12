@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -7,7 +7,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PlusIcon } from '@/assets/icons';
 import { Chip } from '@/components/ui';
 import type { RootStackParamList } from '@/navigation/types';
-import { EmptyMapScreen } from '@/screens/myTrip';
+import EmptyMapScreen from './EmptyMapScreen';
 import TripCard from '@/screens/myTrip/components/TripCard';
 import TripTimeline from '@/screens/myTrip/components/TripTimeline';
 import type {
@@ -90,6 +90,7 @@ const MyTripScreen: React.FC = () => {
   >({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigation = useNavigation<MyTripNavigation>();
+  const timelineAbortControllerRef = useRef<AbortController | null>(null);
 
   const fetchMyTrips = useCallback(
     async (signal?: AbortSignal): Promise<void> => {
@@ -112,7 +113,11 @@ const MyTripScreen: React.FC = () => {
   );
 
   const fetchTripTimeline = useCallback(
-    async (tripId: number, targetDate: string, signal?: AbortSignal): Promise<void> => {
+    async (tripId: number, targetDate: string): Promise<void> => {
+      timelineAbortControllerRef.current?.abort();
+      const abortController = new AbortController();
+      timelineAbortControllerRef.current = abortController;
+
       setTripTimelineByCardId((prev) => {
         const current = prev[tripId];
         return {
@@ -126,8 +131,12 @@ const MyTripScreen: React.FC = () => {
         };
       });
 
-      const result = await getTripSchedulesByDate({ tripId, targetDate, signal });
-      if (signal?.aborted || result.error === 'REQUEST_ABORTED') return;
+      const result = await getTripSchedulesByDate({
+        tripId,
+        targetDate,
+        signal: abortController.signal,
+      });
+      if (abortController.signal.aborted || result.error === 'REQUEST_ABORTED') return;
       if (result.error || !result.data) {
         setTripTimelineByCardId((prev) => ({
           ...prev,
@@ -184,6 +193,7 @@ const MyTripScreen: React.FC = () => {
 
     return () => {
       abortController.abort();
+      timelineAbortControllerRef.current?.abort();
     };
   }, [fetchMyTrips]);
 
