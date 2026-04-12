@@ -11,6 +11,9 @@ interface AccountSectionProps {
   idMessageClass: string;
   idInputClass: string;
   showFieldErrors: boolean;
+  dismissedFieldErrors: Partial<
+    Record<'accountId' | 'nickname' | 'password' | 'passwordConfirm', boolean>
+  >;
   isIdVerified: boolean;
   isPasswordValid: boolean;
   isPasswordMatched: boolean;
@@ -34,6 +37,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
   idMessageClass,
   idInputClass,
   showFieldErrors,
+  dismissedFieldErrors,
   isIdVerified,
   isPasswordValid,
   isPasswordMatched,
@@ -52,9 +56,9 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
   return (
     <View className="mt-6">
       <ContentContainer className="px-6 py-6">
-        <Text className="mb-4 text-h3 font-pretendardSemiBold text-black">계정 정보</Text>
+        <Text className="mb-4 font-pretendardSemiBold text-h3 text-black">계정 정보</Text>
 
-        <View className="mb-4 flex-row items-end gap-2" onLayout={onIdLayout}>
+        <View className="flex-row items-end gap-2" onLayout={onIdLayout}>
           <View className="flex-1">
             <LabeledInput
               label="아이디"
@@ -63,7 +67,9 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
               value={formData.accountId}
               onChangeText={onChangeId}
               inputClassName={
-                showFieldErrors && (formData.accountId.trim().length === 0 || !isIdVerified)
+                !dismissedFieldErrors.accountId &&
+                (idCheckStatus === 'duplicate' ||
+                  (showFieldErrors && (formData.accountId.trim().length === 0 || !isIdVerified)))
                   ? 'border-statusError'
                   : idInputClass
               }
@@ -75,16 +81,16 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
           </View>
           <Pressable
             onPress={onCheckId}
-            className="h-[46px] px-4 items-center justify-center rounded-xl border border-borderGray bg-white">
+            className="h-[46px] items-center justify-center rounded-xl border border-borderGray bg-white px-4">
             <Text className="text-p text-gray">중복 확인</Text>
           </Pressable>
         </View>
 
         {idCheckStatus !== 'idle' && (
-          <Text className={`mt-2 mb-4 text-p ${idMessageClass}`}>{idMessage}</Text>
+          <Text className={`mt-2 text-p ${idMessageClass}`}>{idMessage}</Text>
         )}
 
-        <View onLayout={onNicknameLayout}>
+        <View onLayout={onNicknameLayout} className="mt-4">
           <LabeledInput
             label="닉네임"
             required={true}
@@ -92,7 +98,11 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
             value={formData.nickname}
             onChangeText={onChangeNickname}
             inputClassName={
-              showFieldErrors && formData.nickname.trim().length === 0 ? 'border-statusError' : ''
+              !dismissedFieldErrors.nickname &&
+              showFieldErrors &&
+              formData.nickname.trim().length === 0
+                ? 'border-statusError'
+                : ''
             }
             containerClassName="mb-4"
           />
@@ -106,7 +116,9 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
             value={formData.password}
             onChangeText={onChangePassword}
             inputClassName={
-              showFieldErrors && (formData.password.trim().length === 0 || !isPasswordValid)
+              !dismissedFieldErrors.password &&
+              showFieldErrors &&
+              (formData.password.trim().length === 0 || !isPasswordValid)
                 ? 'border-statusError'
                 : passwordInputClassName
             }
@@ -129,6 +141,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
             value={formData.passwordConfirm}
             onChangeText={onChangePasswordConfirm}
             inputClassName={
+              !dismissedFieldErrors.passwordConfirm &&
               showFieldErrors &&
               (formData.passwordConfirm.trim().length === 0 || !isPasswordMatched)
                 ? 'border-statusError'
@@ -138,7 +151,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
             containerClassName=""
           />
           {formData.passwordConfirm.length > 0 && !isPasswordMatched && (
-            <Text className="mt-2 mb-5 text-p text-statusError">비밀번호가 일치하지 않습니다.</Text>
+            <Text className="mb-5 mt-2 text-p text-statusError">비밀번호가 일치하지 않습니다.</Text>
           )}
         </View>
       </ContentContainer>
