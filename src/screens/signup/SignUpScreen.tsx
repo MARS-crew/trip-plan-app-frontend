@@ -24,6 +24,7 @@ import {
   AccountSection,
   EmailSection,
   TermsSection,
+  type AccountFieldKey,
   type SignUpFormData,
   type TermsAgreement,
 } from './components';
@@ -45,7 +46,6 @@ type RequiredFieldKey =
   | 'gender'
   | 'country'
   | 'email';
-type AccountFieldKey = 'accountId' | 'nickname' | 'password' | 'passwordConfirm';
 type SectionKey = 'account' | 'profile' | 'email';
 type CountryDropdownLayout = {
   left: number;
@@ -414,36 +414,33 @@ const SignUpScreen: React.FC = () => {
 
   const handleTermsChange = useCallback(
     (field: keyof TermsAgreement, value: boolean) => {
-      let nextServiceTerms = termsAgreement.serviceTerms;
+      let nextTermsAgreement: TermsAgreement;
 
       if (field === 'allTerms') {
-        nextServiceTerms = value;
-        setTermsAgreement({
+        nextTermsAgreement = {
           allTerms: value,
           serviceTerms: value,
           privacyPolicy: value,
           marketingConsent: value,
-        });
+        };
       } else {
-        setTermsAgreement((prev) => {
-          const updatedTerms = { ...prev, [field]: value };
-          nextServiceTerms = updatedTerms.serviceTerms;
-          const allTermsChecked =
-            updatedTerms.serviceTerms &&
-            updatedTerms.privacyPolicy &&
-            updatedTerms.marketingConsent;
-          return {
-            ...updatedTerms,
-            allTerms: allTermsChecked,
-          };
-        });
+        const updatedTerms = { ...termsAgreement, [field]: value };
+        const allTermsChecked =
+          updatedTerms.serviceTerms && updatedTerms.privacyPolicy && updatedTerms.marketingConsent;
+
+        nextTermsAgreement = {
+          ...updatedTerms,
+          allTerms: allTermsChecked,
+        };
       }
 
-      if (nextServiceTerms) {
+      setTermsAgreement(nextTermsAgreement);
+
+      if (nextTermsAgreement.serviceTerms) {
         setShowTermsError(false);
       }
     },
-    [termsAgreement.serviceTerms],
+    [termsAgreement],
   );
 
   const handleChangeId = useCallback(

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, type LayoutChangeEvent } from 'react-native';
 
 import { ContentContainer, LabeledInput } from '@/components/ui';
-import type { SignUpFormData } from './signup.types';
+import type { AccountFieldKey, SignUpFormData } from './signup.types';
 
 interface AccountSectionProps {
   formData: SignUpFormData;
@@ -11,9 +11,7 @@ interface AccountSectionProps {
   idMessageClass: string;
   idInputClass: string;
   showFieldErrors: boolean;
-  dismissedFieldErrors: Partial<
-    Record<'accountId' | 'nickname' | 'password' | 'passwordConfirm', boolean>
-  >;
+  dismissedFieldErrors: Partial<Record<AccountFieldKey, boolean>>;
   isIdVerified: boolean;
   isPasswordValid: boolean;
   isPasswordMatched: boolean;
