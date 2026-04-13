@@ -3,24 +3,15 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
-import type { TripDetailCardProps } from '@/components/ui/TripDetailCard';
 import TripDetailCard from '@/components/ui/TripDetailCard';
 import { Map2Icon, PlusGrayIcon } from '@/assets/icons';
-import { COLORS } from '@/constants/colors';
+import { getTripDayColor } from '@/screens/scheduleMap/utils';
+import type { DaySectionProps } from '../type';
 
-type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetailScreen'>;
-
-type CardItem = Pick<TripDetailCardProps, 'id' | 'order' | 'title' | 'location' | 'description' | 'startTime' | 'endTime' | 'isCurrentSchedule'>;
-
-interface DaySectionProps {
-  dayLabel: string;
-  cards?: CardItem[];
-  showMapIcon?: boolean;
-  onPressCard: (id: number, yOffset: number) => void;
-  onPressAction: (id: number) => void;
-}
+type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetail'>;
 
 const DaySection = ({
+  dayNo,
   dayLabel,
   cards = [],
   showMapIcon = false,
@@ -57,6 +48,7 @@ const DaySection = ({
           className="mt-[12px] px-4">
           <TripDetailCard
             {...card}
+            accentColor={getTripDayColor(dayNo)}
             onPressAction={() => onPressAction(card.id)}
             onPressCard={() => handlePressCard(card.id)}
           />
@@ -67,8 +59,7 @@ const DaySection = ({
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => navigation.navigate('AddSchedule')}
-            style={{ borderStyle: 'dashed', borderWidth: 1, borderColor: COLORS.borderGray, }}
-            className="h-[50px] w-full flex-row items-center justify-center rounded-[8px] border">
+          className="h-[50px] w-full flex-row items-center justify-center rounded-[8px] border border-borderGray border-dashed">
           <PlusGrayIcon />
           <Text className="ml-[2px] text-p1 text-gray">일정 추가하기</Text>
         </TouchableOpacity>

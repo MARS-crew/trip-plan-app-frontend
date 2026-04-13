@@ -250,7 +250,7 @@ const MyTripScreen: React.FC = () => {
                   imageSource={tripCardItem.imageSource}
                   status={tripCardItem.status}
                   isOpen={openCardId === tripCardItem.id}
-                  onImagePress={() => navigation.navigate('TripDetail')}
+                  onImagePress={() => navigation.navigate('TripDetail', { tripId: tripCardItem.id })}
                   onToggle={() => handleToggleTripCard(tripCardItem)}>
                   <TripTimeline
                     dateOptions={tripTimelineByCardId[tripCardItem.id]?.dateOptions ?? []}

@@ -4,20 +4,22 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 import { WishIcon, LeftArrowIcon, KebabMenuIcon, CalendarWhiteIcon } from '@/assets/icons';
+import type { HeaderProps } from '../type';
 
-type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetailScreen'>;
+type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetail'>;
 
-interface HeaderProps {
-  onPressKebab: () => void;
-}
-
-const Header = ({ onPressKebab }: HeaderProps) => {
+const Header = ({
+  onPressKebab,
+  title,
+  dateText,
+  imageUrl,
+}: HeaderProps) => {
   const navigation = useNavigation<TripDetailNavigation>();
 
   return (
     <View className="relative w-full">
       <Image
-        source={require('@/assets/images/thumnail.png')}
+        source={imageUrl ? { uri: imageUrl } : require('@/assets/images/thumnail.png')}
         className="h-[181px] w-full"
         resizeMode="cover"
       />
@@ -51,10 +53,10 @@ const Header = ({ onPressKebab }: HeaderProps) => {
       </View>
 
       <View className="absolute bottom-[19px] left-4">
-        <Text className="mb-[6px] text-title font-pretendardBold text-white">도쿄 여행</Text>
+        <Text className="mb-[6px] font-pretendardBold text-title text-white">{title ?? ''}</Text>
         <View className="flex-row items-center">
           <CalendarWhiteIcon width={16} height={16} />
-          <Text className="ml-[6px] text-p text-white">2026.02.28 - 2026.03.03</Text>
+          <Text className="ml-[6px] text-p text-white">{dateText ?? ''}</Text>
         </View>
       </View>
     </View>
@@ -62,4 +64,3 @@ const Header = ({ onPressKebab }: HeaderProps) => {
 };
 
 export default Header;
-
