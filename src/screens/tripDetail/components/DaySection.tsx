@@ -6,7 +6,7 @@ import type { RootStackParamList } from '@/navigation/types';
 import TripDetailCard from '@/components/ui/TripDetailCard';
 import { Map2Icon, PlusGrayIcon } from '@/assets/icons';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
-import type { DaySectionProps } from '../type';
+import type { DaySectionProps } from '@/types/tripDetail.types';
 
 type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetail'>;
 

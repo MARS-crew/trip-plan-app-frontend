@@ -3,7 +3,7 @@ import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import TripDetailCard from '@/components/ui/TripDetailCard';
 import { KebabEditIcon, KebabMapIcon, KebabTrashIcon } from '@/assets/icons';
-import type { CardContextMenuProps } from '../type';
+import type { CardContextMenuProps } from '@/types/tripDetail.types';
 
 const CardContextMenu = ({ card, opacity, topOffset, accentColor, onClose }: CardContextMenuProps) => {
   const backdropStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));

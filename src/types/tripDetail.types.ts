@@ -66,3 +66,13 @@ export interface KebabMenuSheetProps {
   translateY: SharedValue<number>;
   onClose: () => void;
 }
+
+export interface GetTripSchedulesResult {
+  data: unknown;
+  error: string | null;
+}
+
+export interface GetTripSchedulesOptions {
+  tripId: number;
+  signal?: AbortSignal;
+}

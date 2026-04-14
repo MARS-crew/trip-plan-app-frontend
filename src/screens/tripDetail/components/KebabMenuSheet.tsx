@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import { KebabEditIcon, KebabCalIcon, KebabShareIcon, KebabTrashIcon } from '@/assets/icons';
-import type { KebabMenuSheetProps } from '../type';
+import type { KebabMenuSheetProps } from '@/types/tripDetail.types';
 
 export const KEBAB_SHEET_HEIGHT = 257;
 

@@ -11,17 +11,19 @@ import EmptyMapScreen from './EmptyMapScreen';
 import TripCard from '@/screens/myTrip/components/TripCard';
 import TripTimeline from '@/screens/myTrip/components/TripTimeline';
 import type {
+  MyTripItem,
+  TripFilterStatus,
   TripCardStatus,
   TripCardViewModel,
   TripFilter,
+  TripSchedulesByDateData,
   TripTimelineDateOption,
   TripTimelineItem,
-} from '@/screens/myTrip/type';
+} from '@/types/myTrip.types';
 import {
   getMyTrips,
   getTripSchedulesByDate,
 } from '@/services';
-import type { MyTripItem, TripFilterStatus, TripSchedulesByDateData } from '@/types/trip';
 
 type MyTripNavigation = NativeStackNavigationProp<RootStackParamList>;
 

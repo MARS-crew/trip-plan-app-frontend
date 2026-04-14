@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { PlaceIcon, VectorIcon, VectorLeftIcon } from '@/assets/icons';
-import type { TripTimelineItem, TripTimelineProps } from '@/screens/myTrip/type';
+import type { TripTimelineItem, TripTimelineProps } from '@/types/myTrip.types';
 
 const formatTimelineTime = (time: string): string => {
   const matched = time.match(/^(\d{2}):(\d{2})/);

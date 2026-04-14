@@ -6,7 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getTripSchedules } from '@/services';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
-import type { TripDetailCardItem, TripDetailHeader, TripDetailRoute, TripDetailSection } from './type';
+import type {
+  TripDetailCardItem,
+  TripDetailHeader,
+  TripDetailRoute,
+  TripDetailSection,
+} from '@/types/tripDetail.types';
 import { Header, DaySection, KebabMenuSheet, CardContextMenu } from './components';
 import { KEBAB_SHEET_HEIGHT } from './components/KebabMenuSheet';
 
@@ -346,7 +351,7 @@ const TripDetailScreen: React.FC = () => {
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 30 }}>
+        contentContainerStyle={{ paddingBottom: 310 }}>
         <Header
           onPressKebab={handleOpenKebabMenu}
           title={headerData.title}
