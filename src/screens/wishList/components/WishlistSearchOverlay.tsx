@@ -2,7 +2,7 @@ import React from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, View } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import PlaceCard from './PlaceCard';
-import type { PlaceCardProps, WishlistBottomSheetTabId } from '@/screens/wishList/components';
+import type { PlaceCardProps, WishlistBottomSheetTabId } from '@/types/wishlist';
 import { ScrollView } from 'react-native-gesture-handler';
 
 interface WishlistSearchOverlayProps {

@@ -1,7 +1,7 @@
 import { X } from '@/assets/icons';
 import React from 'react';
 import { View, Text, Pressable, Modal } from 'react-native';
-import type { WishModalProps } from '@/screens/wishList/types';
+import type { WishModalProps } from '@/types/wishlist';
 
 // ============ Component ============
 export const WishModal = React.memo<WishModalProps>(

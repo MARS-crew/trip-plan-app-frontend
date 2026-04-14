@@ -29,7 +29,7 @@ import {
   WishlistSearchBar,
   WishlistSearchOverlay,
 } from '@/screens/wishList/components';
-import type { WishlistBottomSheetTabId } from '@/screens/wishList/components';
+import type { WishlistBottomSheetTabId } from '@/types/wishlist';
 import type { LikedIdsByTab, LikeTabId, LocationCoords, WishlistTabConfig } from '@/types/wishlist';
 import Animated, {
   useSharedValue,

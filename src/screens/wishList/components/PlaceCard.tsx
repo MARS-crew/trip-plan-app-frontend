@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { ContentContainer } from '@/components/ui';
 import { CategoryChip, WishContentContainer } from '@/screens/wishList/components';
 import { PlaceIcon, HeartIcon, ActiveHeartIcon, VectorIcon } from '@/assets/icons';
-import type { PlaceCardProps } from '@/screens/wishList/types';
+import type { PlaceCardProps } from '@/types/wishlist';
 
 export const PlaceCard = React.memo<PlaceCardProps>(
   ({ place, isLiked, onToggleLike, isTrending = false }) => {
