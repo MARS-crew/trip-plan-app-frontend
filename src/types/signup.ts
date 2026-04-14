@@ -1,3 +1,9 @@
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import type { RootStackParamList } from '@/navigation/types';
+
+export type SignUpScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 export interface SignUpFormData {
   accountId: string;
   nickname: string;

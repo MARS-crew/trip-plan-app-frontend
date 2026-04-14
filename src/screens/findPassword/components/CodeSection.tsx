@@ -3,17 +3,10 @@ import { View, Text, TouchableOpacity } from 'react-native';
 
 import { LabeledInput } from '@/components/ui';
 import { COLORS } from '@/constants';
-
-// ============ Types ============
-export interface CodeSectionProps {
-  code: string;
-  isCodeError: boolean;
-  onChangeCode: (value: string) => void;
-  onVerifyCode: () => void;
-}
+import type { FindPasswordCodeSectionProps } from '@/types/findPasswordCodeSection';
 
 // ============ Component ============
-export const CodeSection: React.FC<CodeSectionProps> = ({
+export const CodeSection: React.FC<FindPasswordCodeSectionProps> = ({
   code,
   isCodeError,
   onChangeCode,
@@ -25,7 +18,7 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
         <LabeledInput
           label="인증번호"
           containerClassName="flex-1 mb-0"
-          className={`h-[46px] px-2 rounded-xl border text-p1 font-pretendardRegular text-black ${
+          className={`h-[46px] rounded-xl border px-2 font-pretendardRegular text-p1 text-black ${
             isCodeError ? 'border-statusError' : 'border-borderGray'
           }`}
           placeholder="6자리 인증번호"
@@ -40,7 +33,7 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
         />
 
         <TouchableOpacity
-          className="h-[46px] px-11 ml-2 bg-white rounded-xl border border-borderGray items-center justify-center"
+          className="ml-2 h-[46px] items-center justify-center rounded-xl border border-borderGray bg-white px-11"
           onPress={onVerifyCode}
           accessibilityRole="button"
           accessibilityLabel="인증번호 확인">
@@ -49,7 +42,7 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
       </View>
 
       {isCodeError ? (
-        <Text className="mt-2 text-p font-pretendardRegular text-statusError">
+        <Text className="mt-2 font-pretendardRegular text-p text-statusError">
           인증번호가 올바르지 않습니다.
         </Text>
       ) : null}

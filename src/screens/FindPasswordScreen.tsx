@@ -1,25 +1,16 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { TopBar, LabeledInput } from '@/components/ui';
-import type { RootStackParamList } from '@/navigation';
-import {
-  EmailSection,
-  CodeSection,
-  ResultCard,
-} from '@/screens/findPassword/components';
-import type { EmailStatus, CodeStatus, TempPasswordStatus } from '@/screens/findPassword/types';
-
-// ============ Types ============
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+import type {
+  CodeStatus,
+  EmailStatus,
+  FindPasswordScreenNavigationProp,
+  TempPasswordStatus,
+} from '@/types/findPassword';
+import { EmailSection, CodeSection, ResultCard } from '@/screens/findPassword/components';
 
 // ============ Constants ============
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -27,7 +18,7 @@ const TEMP_VERIFICATION_CODE = '123456';
 
 // ============ Component ============
 const FindPasswordScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<FindPasswordScreenNavigationProp>();
   const [userId, setUserId] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [code, setCode] = useState<string>('');
@@ -111,11 +102,11 @@ const FindPasswordScreen: React.FC = () => {
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <KeyboardAvoidingView className="flex-1">
-        <View className="flex-1"> 
-            <TopBar title="비밀번호 찾기" onPress={handleGoBack} />
-            <View className="flex-1 px-4">
-            <View className="mt-6 px-6 py-6 bg-white rounded-lg border border-borderGray">
-              <Text className="mb-4 text-p font-pretendardRegular text-gray ">
+        <View className="flex-1">
+          <TopBar title="비밀번호 찾기" onPress={handleGoBack} />
+          <View className="flex-1 px-4">
+            <View className="mt-6 rounded-lg border border-borderGray bg-white px-6 py-6">
+              <Text className="mb-4 font-pretendardRegular text-p text-gray">
                 아이디와 가입 시 등록한 이메일을 입력하면 이메일로 임시 비밀번호를 전송해드립니다.
               </Text>
 
@@ -149,14 +140,16 @@ const FindPasswordScreen: React.FC = () => {
               ) : null}
 
               <TouchableOpacity
-                className={`w-full h-11 mt-4 rounded-lg items-center justify-center ${
+                className={`mt-4 h-11 w-full items-center justify-center rounded-lg ${
                   isSubmitEnabled ? 'bg-main' : 'bg-main/50'
                 }`}
                 onPress={handleSendTemporaryPassword}
                 disabled={!isSubmitEnabled}
                 accessibilityRole="button"
                 accessibilityLabel="임시 비밀번호 전송">
-                <Text className="text-h3 font-pretendardSemiBold text-white">임시 비밀번호 전송</Text>
+                <Text className="font-pretendardSemiBold text-h3 text-white">
+                  임시 비밀번호 전송
+                </Text>
               </TouchableOpacity>
 
               {isTempPwSent ? (
