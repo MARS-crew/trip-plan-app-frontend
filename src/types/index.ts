@@ -61,3 +61,5 @@ export interface ApiError {
   message: string;
   details?: Record<string, unknown>;
 }
+
+export type { TripStatus, MyTripItem, GetMyTripsData, GetMyTripsResult } from './trip';
