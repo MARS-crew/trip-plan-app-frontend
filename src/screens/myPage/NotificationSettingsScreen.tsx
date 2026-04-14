@@ -3,7 +3,7 @@ import { Animated, TouchableOpacity, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import BackArrow from '@/assets/icons/backArrow.svg';
+import { TopBar } from '@/components/ui';
 import BellIcon from '@/assets/icons/bell.svg';
 import Time2Icon from '@/assets/icons/time2.svg';
 import { COLORS } from '@/constants';
@@ -59,20 +59,13 @@ const NotificationSettingsScreen: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <View className="px-4 pt-2">
-        <View className="flex-row items-center">
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={navigation.goBack}
-            className="ml-2 mr-1 h-10 w-10 items-start justify-center">
-            <BackArrow width={20} height={20} />
-          </TouchableOpacity>
-          <Text className="text-xl font-pretendardBold text-left text-black">알림 설정</Text>
-        </View>
+      <TopBar title="알림 설정" onPress={navigation.goBack} />
+      <View className="px-4">
+        <Text className="ml-1.5 mt-4 font-pretendardSemiBold text-xs text-black">
+          푸시 알림
+        </Text>
 
-        <Text className="ml-1 mt-6 text-xs font-pretendardSemiBold text-left text-black">푸시 알림</Text>
-
-        <View className="mt-3 overflow-hidden rounded-2xl border border-borderGray bg-white">
+        <View className="mt-3 overflow-hidden rounded-lg border border-borderGray bg-white">
           <View className="flex-row items-center justify-between px-4 py-4">
             <View className="flex-row items-center">
               <View className="h-9 w-9 items-center justify-center rounded-lg bg-chip">
@@ -80,12 +73,16 @@ const NotificationSettingsScreen: React.FC = () => {
               </View>
 
               <View className="ml-3">
-                <Text className="text-sm font-pretendardMedium text-left text-black">푸시 알림</Text>
-                <Text className="mt-0.5 text-p text-black">일정, 날씨 관련 알림</Text>
+                <Text className="font-pretendardMedium text-sm leading-[17px] text-black">
+                  푸시 알림
+                </Text>
+                <Text className="mt-[2px] text-p leading-[16px] text-black">
+                  일정, 날씨 관련 알림
+                </Text>
               </View>
             </View>
 
-            <ToggleSwitch value={isPushEnabled} onPress={() => setIsPushEnabled(prev => !prev)} />
+            <ToggleSwitch value={isPushEnabled} onPress={() => setIsPushEnabled((prev) => !prev)} />
           </View>
 
           <View className="border-t border-borderGray">
@@ -96,14 +93,18 @@ const NotificationSettingsScreen: React.FC = () => {
                 </View>
 
                 <View className="ml-3">
-                  <Text className="text-sm font-pretendardMedium text-left text-black">야간 푸시 알림 동의</Text>
-                  <Text className="mt-0.5 text-p text-black">야간 중 푸시 알림</Text>
+                  <Text className="font-pretendardMedium text-sm leading-[17px] text-black">
+                    야간 푸시 알림 동의
+                  </Text>
+                  <Text className="mt-[2px] text-p leading-[16px] text-black">
+                    야간 중 푸시 알림
+                  </Text>
                 </View>
               </View>
 
               <ToggleSwitch
                 value={isNightPushEnabled}
-                onPress={() => setIsNightPushEnabled(prev => !prev)}
+                onPress={() => setIsNightPushEnabled((prev) => !prev)}
               />
             </View>
           </View>

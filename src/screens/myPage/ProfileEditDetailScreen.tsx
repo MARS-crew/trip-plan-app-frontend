@@ -18,9 +18,17 @@ import type { RootStackParamList } from '@/navigation/types';
 import BackArrow from '@/assets/icons/backArrow.svg';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
 import { COLORS } from '@/constants';
+import { getProfile } from '@/services';
+import type { Gender } from '@/types/mypage';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type GenderType = '남성' | '여성' | '기타';
+
+const GENDER_API_TO_LABEL: Record<Gender, GenderType> = {
+  MALE: '남성',
+  FEMALE: '여성',
+  OTHER: '기타',
+};
 
 const COUNTRIES = ['대한민국', '미국', '일본', '중국', '영국', '프랑스', '독일'] as const;
 const ITEM_HEIGHT = 44;
@@ -164,17 +172,35 @@ const cardStyle = {
 const ProfileEditDetailScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const currentYear = React.useMemo(() => new Date().getFullYear(), []);
+  const [name, setName] = React.useState('');
   const [gender, setGender] = React.useState<GenderType>('여성');
-  const [nickname, setNickname] = React.useState('최혜림');
+  const [nickname, setNickname] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [passwordConfirm, setPasswordConfirm] = React.useState('');
-  const [birthDate, setBirthDate] = React.useState('2003-07-08');
+  const [birthDate, setBirthDate] = React.useState('');
   const [showBirthDatePicker, setShowBirthDatePicker] = React.useState<boolean>(false);
-  const [tempYear, setTempYear] = React.useState<number>(2003);
-  const [tempMonth, setTempMonth] = React.useState<number>(7);
-  const [tempDay, setTempDay] = React.useState<number>(8);
-  const [country, setCountry] = React.useState<string>('대한민국');
+  const [tempYear, setTempYear] = React.useState<number>(currentYear);
+  const [tempMonth, setTempMonth] = React.useState<number>(1);
+  const [tempDay, setTempDay] = React.useState<number>(1);
+  const [country, setCountry] = React.useState<string>('');
   const [showCountryPicker, setShowCountryPicker] = React.useState<boolean>(false);
+
+  const fetchProfile = React.useCallback(async () => {
+    try {
+      const data = await getProfile();
+      setName(data.name);
+      setNickname(data.nickname);
+      setBirthDate(data.birth);
+      setGender(GENDER_API_TO_LABEL[data.gender] ?? '여성');
+      setCountry(data.countryCode);
+    } catch (error) {
+      console.error('fetchProfile Error:', error);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const isPasswordMismatch = passwordConfirm.length > 0 && password !== passwordConfirm;
 
@@ -296,7 +322,7 @@ const ProfileEditDetailScreen: React.FC = () => {
           <View className="mt-4">
             <Text className="text-h3 font-pretendardSemiBold text-black">이름</Text>
             <TextInput
-              value="최혜림"
+              value={name}
               editable={false}
               className="mt-2 h-[46px] rounded-xl border border-borderGray bg-inputBackground px-3 text-p1 text-gray"
             />
