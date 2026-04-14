@@ -16,6 +16,7 @@ import LogoutIcon from '@/assets/icons/logout.svg';
 import SettingIcon from '@/assets/icons/setting.svg';
 import EarthIcon from '@/assets/icons/earth1.svg';
 import { COLORS } from '@/constants';
+import { postExchange } from '@/services';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -125,9 +126,6 @@ const cardStyle = {
 const KRW_TO_JPY_RATE = 0.11;
 const JPY_TO_KRW_RATE = 9.090909;
 
-const RATE_KRW_TO_JPY = `1 KRW = ${KRW_TO_JPY_RATE.toFixed(6)} JPY`;
-const RATE_JPY_TO_KRW = `1 JPY = ${JPY_TO_KRW_RATE.toFixed(6)} KRW`;
-
 const formatAmountWithCommas = (input: string): string => {
   const digitsOnly = input.replace(/\D/g, '');
   if (!digitsOnly) {
@@ -148,33 +146,117 @@ const convertCurrency = (amount: number, rate: number): string => {
   return formatAmountWithCommas(String(result));
 };
 
+const buildRateText = (fromCurrency: 'KRW' | 'JPY', toCurrency: 'KRW' | 'JPY', rate: number) => {
+  return `1 ${fromCurrency} = ${rate.toFixed(6)} ${toCurrency}`;
+};
+
 const MyPageScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const [krwAmount, setKrwAmount] = React.useState<string>('10,000');
   const [jpyAmount, setJpyAmount] = React.useState<string>('1,100');
   const [isKrwToJpy, setIsKrwToJpy] = React.useState<boolean>(true);
+  const [krwToJpyRate, setKrwToJpyRate] = React.useState<number>(KRW_TO_JPY_RATE);
+  const [jpyToKrwRate, setJpyToKrwRate] = React.useState<number>(JPY_TO_KRW_RATE);
+  const exchangeRequestIdRef = React.useRef<number>(0);
+
+  const requestExchange = React.useCallback((amountText: string, fromKrw: boolean): void => {
+    const amount = parseAmount(amountText);
+
+    if (!amount) {
+      if (fromKrw) {
+        setJpyAmount('');
+      } else {
+        setKrwAmount('');
+      }
+      return;
+    }
+
+    const requestId = exchangeRequestIdRef.current + 1;
+    exchangeRequestIdRef.current = requestId;
+
+    const fetchExchange = async (): Promise<void> => {
+      try {
+        const exchangeData = await postExchange({
+          curUnit: 'JPY',
+          amount,
+          fromKrw,
+        });
+
+        if (requestId !== exchangeRequestIdRef.current) {
+          return;
+        }
+
+        const converted = formatAmountWithCommas(String(exchangeData.convertedAmount));
+
+        if (fromKrw) {
+          setJpyAmount(converted);
+          setKrwToJpyRate(exchangeData.dealBasR);
+          if (exchangeData.dealBasR > 0) {
+            setJpyToKrwRate(1 / exchangeData.dealBasR);
+          }
+          return;
+        }
+
+        setKrwAmount(converted);
+        setJpyToKrwRate(exchangeData.dealBasR);
+        if (exchangeData.dealBasR > 0) {
+          setKrwToJpyRate(1 / exchangeData.dealBasR);
+        }
+      } catch {
+        if (requestId !== exchangeRequestIdRef.current) {
+          return;
+        }
+
+        const fallbackRate = fromKrw ? KRW_TO_JPY_RATE : JPY_TO_KRW_RATE;
+        const converted = convertCurrency(amount, fallbackRate);
+
+        if (fromKrw) {
+          setJpyAmount(converted);
+          setKrwToJpyRate(KRW_TO_JPY_RATE);
+          setJpyToKrwRate(JPY_TO_KRW_RATE);
+          return;
+        }
+
+        setKrwAmount(converted);
+        setKrwToJpyRate(KRW_TO_JPY_RATE);
+        setJpyToKrwRate(JPY_TO_KRW_RATE);
+      }
+    };
+
+    fetchExchange();
+  }, []);
 
   const handleKrwChange = React.useCallback((text: string): void => {
     const formatted = formatAmountWithCommas(text);
     setKrwAmount(formatted);
-    setJpyAmount(formatted ? convertCurrency(parseAmount(formatted), KRW_TO_JPY_RATE) : '');
-  }, []);
+    requestExchange(formatted, true);
+  }, [requestExchange]);
 
   const handleJpyChange = React.useCallback((text: string): void => {
     const formatted = formatAmountWithCommas(text);
     setJpyAmount(formatted);
-    setKrwAmount(formatted ? convertCurrency(parseAmount(formatted), JPY_TO_KRW_RATE) : '');
-  }, []);
+    requestExchange(formatted, false);
+  }, [requestExchange]);
+
+  React.useEffect(() => {
+    requestExchange('10,000', true);
+  }, [requestExchange]);
 
   const handleSwapExchange = React.useCallback((): void => {
-    setIsKrwToJpy((prev) => !prev);
-  }, []);
+    const nextIsKrwToJpy = !isKrwToJpy;
+    const nextTopAmount = nextIsKrwToJpy ? krwAmount : jpyAmount;
+
+    setIsKrwToJpy(nextIsKrwToJpy);
+    requestExchange(nextTopAmount, nextIsKrwToJpy);
+  }, [isKrwToJpy, jpyAmount, krwAmount, requestExchange]);
 
   const topCurrencyCode = isKrwToJpy ? 'KRW' : 'JPY';
   const bottomCurrencyCode = isKrwToJpy ? 'JPY' : 'KRW';
   const topCurrencySymbol = isKrwToJpy ? '₩' : '¥';
   const bottomCurrencySymbol = isKrwToJpy ? '¥' : '₩';
-  const exchangeRateText = isKrwToJpy ? RATE_KRW_TO_JPY : RATE_JPY_TO_KRW;
+  const exchangeRateText = isKrwToJpy
+    ? buildRateText('KRW', 'JPY', krwToJpyRate)
+    : buildRateText('JPY', 'KRW', jpyToKrwRate);
   const rightCurrencyLabel = isKrwToJpy ? '일본 엔' : '대한민국 원';
   const topAmount = isKrwToJpy ? krwAmount : jpyAmount;
   const bottomAmount = isKrwToJpy ? jpyAmount : krwAmount;
@@ -182,18 +264,6 @@ const MyPageScreen: React.FC = () => {
   const bottomSymbolSpacingClass = bottomCurrencyCode === 'KRW' ? 'mr-[8px]' : 'mr-[15px]';
   const handleTopAmountChange = isKrwToJpy ? handleKrwChange : handleJpyChange;
   const handleBottomAmountChange = isKrwToJpy ? handleJpyChange : handleKrwChange;
-
-  const handleNavigateToPrivacy = (): void => {
-    navigation.navigate('PrivacyPolicyScreen');
-  };
-
-  const handleNavigateToMarketing = (): void => {
-    navigation.navigate('MarketingConsentScreen');
-  };
-
-  const handleNavigateToNightMarketing = (): void => {
-    navigation.navigate('NightMarketingScreen');
-  };
 
   const handleNavigateToProfileEdit = (): void => {
     const parentNavigation = navigation.getParent() as
