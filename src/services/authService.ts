@@ -1,6 +1,8 @@
 import Config from 'react-native-config';
 
 import type {
+  EmailRequestData,
+  EmailVerifyData,
   LoginRequest,
   LoginResponse,
   LoginResult,
@@ -10,6 +12,7 @@ import type {
   ReissueTokenResult,
   ReissueTokenWarningType,
 } from '@/types/auth';
+import type { BaseResponse } from '@/types';
 
 const AUTH_LOGIN_ENDPOINT = '/api/v1/auth/login';
 const AUTH_REISSUE_ENDPOINT = '/api/v1/auth/reissue';
@@ -202,6 +205,49 @@ export const postReissueToken = async (
     return {
       ok: false,
       warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
+      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : undefined,
     };
+  }
+};
+
+export const requestEmailVerification = async (email: string): Promise<EmailRequestData> => {
+  try {
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/auth/email-request`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
+      },
+      body: JSON.stringify({ email }),
+    });
+    if (!response.ok) {
+      throw new Error('이메일 인증번호 발송 실패');
+    }
+    const json: BaseResponse<EmailRequestData> = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error('requestEmailVerification Error:', error);
+    throw error;
+  }
+};
+
+export const verifyEmailCode = async (email: string, code: string): Promise<EmailVerifyData> => {
+  try {
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/auth/email-verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
+      },
+      body: JSON.stringify({ email, code }),
+    });
+    if (!response.ok) {
+      throw new Error('이메일 인증번호 확인 실패');
+    }
+    const json: BaseResponse<EmailVerifyData> = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error('verifyEmailCode Error:', error);
+    throw error;
   }
 };
