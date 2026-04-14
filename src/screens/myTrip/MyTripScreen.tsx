@@ -10,7 +10,8 @@ import type { RootStackParamList } from '@/navigation/types';
 import { EmptyMapScreen } from '@/screens/myTrip';
 import TripCard from '@/screens/myTrip/components/TripCard';
 import type { TripCardStatus, TripCardViewModel, TripFilter } from '@/screens/myTrip/type';
-import { getMyTrips, type MyTripItem, type TripFilterStatus } from '@/services';
+import { getMyTrips } from '@/services';
+import type { MyTripItem, TripFilterStatus } from '@/types/trip';
 
 type MyTripNavigation = NativeStackNavigationProp<RootStackParamList>;
 

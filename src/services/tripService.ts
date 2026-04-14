@@ -1,35 +1,6 @@
 import type { BaseResponse } from '@/types';
 import { getEnvConfig } from '@/config/env';
-
-export type TripStatus = 'ONGOING' | 'UPCOMING' | 'PLANNED' | 'COMPLETED' | 'PAST';
-export type TripFilterStatus = 'ALL' | 'UPCOMING' | 'PAST';
-
-export interface MyTripItem {
-  tripId: number;
-  title: string;
-  imageUrl: string;
-  tripStatus: TripStatus;
-  tripStatusLabel: string;
-  startDate: string;
-  endDate: string;
-  scheduleCount: number;
-  tripDayCount: number;
-}
-
-interface GetMyTripsData {
-  tripCount: number;
-  trips: MyTripItem[];
-}
-
-export interface GetMyTripsResult {
-  data: MyTripItem[];
-  error: string | null;
-}
-
-interface GetMyTripsOptions {
-  filterStatus?: TripFilterStatus;
-  signal?: AbortSignal;
-}
+import type { GetMyTripsData, GetMyTripsOptions, GetMyTripsResult } from '@/types/trip';
 
 export const getMyTrips = async ({
   filterStatus = 'ALL',
