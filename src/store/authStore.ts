@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -8,6 +7,26 @@ import type { LoginData, LoginUserDetails } from '@/types/auth';
 const AUTH_STORAGE_KEY = 'auth-storage';
 const AUTH_PERSIST_VERSION = 2;
 const AUTH_TOKEN_SERVICE = 'trip-plan-auth-token';
+
+type PersistStorageLike = {
+  getItem: (name: string) => string | null | Promise<string | null>;
+  setItem: (name: string, value: string) => void | Promise<void>;
+  removeItem: (name: string) => void | Promise<void>;
+};
+
+const memoryStorage = (() => {
+  const map = new Map<string, string>();
+
+  return {
+    getItem: (name: string): string | null => map.get(name) ?? null,
+    setItem: (name: string, value: string): void => {
+      map.set(name, value);
+    },
+    removeItem: (name: string): void => {
+      map.delete(name);
+    },
+  } satisfies PersistStorageLike;
+})();
 
 interface AuthTokens {
   accessToken: string;
@@ -108,7 +127,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: AUTH_STORAGE_KEY,
       version: AUTH_PERSIST_VERSION,
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => memoryStorage),
       migrate: (persistedState) => {
         const state = persistedState as Partial<AuthState> | undefined;
 
