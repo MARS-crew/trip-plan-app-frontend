@@ -1,12 +1,17 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { RootStackNavigator } from '@/navigation';
+import { useAuthStore } from '@/store';
 
 const App: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';
+
+  useEffect(() => {
+    void useAuthStore.getState().hydrateAuth();
+  }, []);
 
   const statusBarStyle = useMemo(
     () => (isDarkMode ? 'light-content' : 'dark-content'),
@@ -14,13 +19,13 @@ const App: React.FC = () => {
   );
 
   return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-    <SafeAreaProvider>
-      <StatusBar barStyle={statusBarStyle} />
-      <NavigationContainer>
-        <RootStackNavigator />
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <StatusBar barStyle={statusBarStyle} />
+        <NavigationContainer>
+          <RootStackNavigator />
+        </NavigationContainer>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 };
