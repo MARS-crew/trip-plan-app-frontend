@@ -2,31 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, type LayoutChangeEvent } from 'react-native';
 
 import { ContentContainer, LabeledInput } from '@/components/ui';
-import type { AccountFieldKey, SignUpFormData } from './signup.types';
-
-interface AccountSectionProps {
-  formData: SignUpFormData;
-  idCheckStatus: 'idle' | 'available' | 'duplicate' | 'error';
-  idMessage: string;
-  idMessageClass: string;
-  idInputClass: string;
-  showFieldErrors: boolean;
-  dismissedFieldErrors: Partial<Record<AccountFieldKey, boolean>>;
-  isIdVerified: boolean;
-  isPasswordValid: boolean;
-  isPasswordMatched: boolean;
-  hasPasswordError: boolean;
-  passwordInputClassName: string;
-  onCheckId: () => void;
-  onChangeId: (text: string) => void;
-  onChangeNickname: (text: string) => void;
-  onChangePassword: (text: string) => void;
-  onChangePasswordConfirm: (text: string) => void;
-  onIdLayout: (event: LayoutChangeEvent) => void;
-  onNicknameLayout: (event: LayoutChangeEvent) => void;
-  onPasswordLayout: (event: LayoutChangeEvent) => void;
-  onPasswordConfirmLayout: (event: LayoutChangeEvent) => void;
-}
+import type { AccountSectionProps } from '@/types/signupAccount';
 
 export const AccountSection: React.FC<AccountSectionProps> = ({
   formData,
@@ -35,7 +11,6 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
   idMessageClass,
   idInputClass,
   showFieldErrors,
-  dismissedFieldErrors,
   isIdVerified,
   isPasswordValid,
   isPasswordMatched,
@@ -65,10 +40,8 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
               value={formData.accountId}
               onChangeText={onChangeId}
               inputClassName={
-                !dismissedFieldErrors.accountId &&
-                (idCheckStatus === 'duplicate' ||
-                  idCheckStatus === 'error' ||
-                  (showFieldErrors && (formData.accountId.trim().length === 0 || !isIdVerified)))
+                idCheckStatus === 'duplicate' ||
+                (showFieldErrors && (formData.accountId.trim().length === 0 || !isIdVerified))
                   ? 'border-statusError'
                   : idInputClass
               }
@@ -86,7 +59,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
         </View>
 
         {idCheckStatus !== 'idle' && (
-          <Text className={`mt-2 text-p ${idMessageClass}`}>{idMessage}</Text>
+          <Text className={`mb-4 mt-2 text-p ${idMessageClass}`}>{idMessage}</Text>
         )}
 
         <View onLayout={onNicknameLayout} className="mt-4">
@@ -97,11 +70,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
             value={formData.nickname}
             onChangeText={onChangeNickname}
             inputClassName={
-              !dismissedFieldErrors.nickname &&
-              showFieldErrors &&
-              formData.nickname.trim().length === 0
-                ? 'border-statusError'
-                : ''
+              showFieldErrors && formData.nickname.trim().length === 0 ? 'border-statusError' : ''
             }
             containerClassName="mb-4"
           />
@@ -115,9 +84,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
             value={formData.password}
             onChangeText={onChangePassword}
             inputClassName={
-              !dismissedFieldErrors.password &&
-              showFieldErrors &&
-              (formData.password.trim().length === 0 || !isPasswordValid)
+              showFieldErrors && (formData.password.trim().length === 0 || !isPasswordValid)
                 ? 'border-statusError'
                 : passwordInputClassName
             }
@@ -140,7 +107,6 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
             value={formData.passwordConfirm}
             onChangeText={onChangePasswordConfirm}
             inputClassName={
-              !dismissedFieldErrors.passwordConfirm &&
               showFieldErrors &&
               (formData.passwordConfirm.trim().length === 0 || !isPasswordMatched)
                 ? 'border-statusError'

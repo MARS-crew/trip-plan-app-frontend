@@ -1,32 +1,29 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
-
-export interface SocialLoginButtonProps {
-	label: string;
-	bgClassName: string;
-	textClassName: string;
-	icon: React.ReactElement;
-	outlined?: boolean;
-}
+import type { SocialLoginButtonProps } from '@/types/login';
 
 export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
-	label,
-	bgClassName,
-	textClassName,
-	icon,
-	outlined = false,
+  label,
+  bgClassName,
+  textClassName,
+  icon,
+  outlined = false,
 }) => {
-	return (
-		<Pressable
-			className={`flex-row items-center justify-center w-full h-11 mt-3 px-5 rounded-lg ${bgClassName} ${outlined ? 'border border-borderGray' : ''}`}
-			accessibilityRole="button"
-			accessibilityLabel={label}>
-			<View className="flex-row items-center justify-center">
-				<View className="mr-3">{icon}</View>
-				<Text className={`text-p1 font-pretendardMedium fontfamily-No ${textClassName}`}>{label}</Text>
-			</View>
-		</Pressable>
-	);
+  const outlineClassName = outlined ? 'border border-borderGray' : '';
+
+  return (
+    <Pressable
+      className={`mt-3 h-11 w-full flex-row items-center justify-center rounded-lg px-5 ${bgClassName} ${outlineClassName}`}
+      accessibilityRole="button"
+      accessibilityLabel={label}>
+      <View className="flex-row items-center justify-center">
+        <View className="mr-3">{icon}</View>
+        <Text className={`fontfamily-No font-pretendardMedium text-p1 ${textClassName}`}>
+          {label}
+        </Text>
+      </View>
+    </Pressable>
+  );
 };
 
 SocialLoginButton.displayName = 'SocialLoginButton';

@@ -20,15 +20,13 @@ import { TopBar } from '@/components';
 import { COLORS } from '@/constants/colors';
 import { ContentContainer, LabeledInput } from '@/components/ui';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
-import {
-  AccountSection,
-  EmailSection,
-  TermsSection,
-  type AccountFieldKey,
-  type SignUpFormData,
-  type TermsAgreement,
-} from './components';
-import type { RootStackParamList } from '@/navigation/types';
+import { AccountSection, EmailSection, TermsSection } from './components';
+import type {
+  SignUpFormData,
+  SignUpScreenNavigationProp,
+  TermsAgreement,
+  AccountFieldKey,
+} from '@/types/signup';
 import { checkDuplicateUserId } from '@/services';
 
 // ============ Types ============
@@ -53,8 +51,6 @@ type CountryDropdownLayout = {
   width: number;
   maxHeight: number;
 };
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const COUNTRIES = [
   '대한민국',
@@ -176,7 +172,7 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
 
 // ============ Component ============
 const SignUpScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<SignUpScreenNavigationProp>();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   // 1. Hooks
@@ -414,33 +410,36 @@ const SignUpScreen: React.FC = () => {
 
   const handleTermsChange = useCallback(
     (field: keyof TermsAgreement, value: boolean) => {
-      let nextTermsAgreement: TermsAgreement;
+      let nextServiceTerms = termsAgreement.serviceTerms;
 
       if (field === 'allTerms') {
-        nextTermsAgreement = {
+        nextServiceTerms = value;
+        setTermsAgreement({
           allTerms: value,
           serviceTerms: value,
           privacyPolicy: value,
           marketingConsent: value,
-        };
+        });
       } else {
-        const updatedTerms = { ...termsAgreement, [field]: value };
-        const allTermsChecked =
-          updatedTerms.serviceTerms && updatedTerms.privacyPolicy && updatedTerms.marketingConsent;
-
-        nextTermsAgreement = {
-          ...updatedTerms,
-          allTerms: allTermsChecked,
-        };
+        setTermsAgreement((prev) => {
+          const updatedTerms = { ...prev, [field]: value };
+          nextServiceTerms = updatedTerms.serviceTerms;
+          const allTermsChecked =
+            updatedTerms.serviceTerms &&
+            updatedTerms.privacyPolicy &&
+            updatedTerms.marketingConsent;
+          return {
+            ...updatedTerms,
+            allTerms: allTermsChecked,
+          };
+        });
       }
 
-      setTermsAgreement(nextTermsAgreement);
-
-      if (nextTermsAgreement.serviceTerms) {
+      if (nextServiceTerms) {
         setShowTermsError(false);
       }
     },
-    [termsAgreement],
+    [termsAgreement.serviceTerms],
   );
 
   const handleChangeId = useCallback(
@@ -605,7 +604,6 @@ const SignUpScreen: React.FC = () => {
               idMessageClass={idMessageClass}
               idInputClass={idInputClass}
               showFieldErrors={showFieldErrors}
-              dismissedFieldErrors={dismissedAccountFieldErrors}
               isIdVerified={isIdVerified}
               isPasswordValid={isPasswordValid}
               isPasswordMatched={isPasswordMatched}
