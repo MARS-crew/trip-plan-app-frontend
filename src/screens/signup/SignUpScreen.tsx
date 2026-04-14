@@ -20,14 +20,8 @@ import { TopBar } from '@/components';
 import { COLORS } from '@/constants/colors';
 import { ContentContainer, LabeledInput } from '@/components/ui';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
-import {
-  AccountSection,
-  EmailSection,
-  TermsSection,
-  type SignUpFormData,
-  type TermsAgreement,
-} from './components';
-import type { RootStackParamList } from '@/navigation/types';
+import { AccountSection, EmailSection, TermsSection } from './components';
+import type { SignUpFormData, SignUpScreenNavigationProp, TermsAgreement } from '@/types/signup';
 
 // ============ Types ============
 type EmailStatus = 'none' | 'sent' | 'error';
@@ -52,9 +46,17 @@ type CountryDropdownLayout = {
   maxHeight: number;
 };
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-const COUNTRIES = ['대한민국', '미국', '일본', '중국', '영국', '프랑스', '독일', '캐나다', '호주'] as const;
+const COUNTRIES = [
+  '대한민국',
+  '미국',
+  '일본',
+  '중국',
+  '영국',
+  '프랑스',
+  '독일',
+  '캐나다',
+  '호주',
+] as const;
 
 const DUPLICATE_ACCOUNT_IDS = ['admin', 'test1234', 'tripplan'];
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
@@ -135,8 +137,7 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
           paddingBottom: ITEM_HEIGHT * 2,
         }}
         onMomentumScrollEnd={handleScrollEnd}
-        onScrollEndDrag={handleScrollEnd}
-      >
+        onScrollEndDrag={handleScrollEnd}>
         {items.map((item, idx) => {
           const isSelected = idx === selectedIndex;
 
@@ -147,15 +148,13 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
                 height: ITEM_HEIGHT,
                 justifyContent: 'center',
                 alignItems: 'center',
-              }}
-            >
+              }}>
               <Text
                 style={{
                   fontSize: 15,
                   fontWeight: isSelected ? '600' : '400',
                   color: isSelected ? COLORS.black : COLORS.gray,
-                }}
-              >
+                }}>
                 {format(item)}
               </Text>
             </View>
@@ -168,7 +167,7 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
 
 // ============ Component ============
 const SignUpScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<SignUpScreenNavigationProp>();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   // 1. Hooks
@@ -392,34 +391,39 @@ const SignUpScreen: React.FC = () => {
     setShowCountryPicker(false);
   }, []);
 
-  const handleTermsChange = useCallback((field: keyof TermsAgreement, value: boolean) => {
-    let nextServiceTerms = termsAgreement.serviceTerms;
+  const handleTermsChange = useCallback(
+    (field: keyof TermsAgreement, value: boolean) => {
+      let nextServiceTerms = termsAgreement.serviceTerms;
 
-    if (field === 'allTerms') {
-      nextServiceTerms = value;
-      setTermsAgreement({
-        allTerms: value,
-        serviceTerms: value,
-        privacyPolicy: value,
-        marketingConsent: value,
-      });
-    } else {
-      setTermsAgreement((prev) => {
-        const updatedTerms = { ...prev, [field]: value };
-        nextServiceTerms = updatedTerms.serviceTerms;
-        const allTermsChecked =
-          updatedTerms.serviceTerms && updatedTerms.privacyPolicy && updatedTerms.marketingConsent;
-        return {
-          ...updatedTerms,
-          allTerms: allTermsChecked,
-        };
-      });
-    }
+      if (field === 'allTerms') {
+        nextServiceTerms = value;
+        setTermsAgreement({
+          allTerms: value,
+          serviceTerms: value,
+          privacyPolicy: value,
+          marketingConsent: value,
+        });
+      } else {
+        setTermsAgreement((prev) => {
+          const updatedTerms = { ...prev, [field]: value };
+          nextServiceTerms = updatedTerms.serviceTerms;
+          const allTermsChecked =
+            updatedTerms.serviceTerms &&
+            updatedTerms.privacyPolicy &&
+            updatedTerms.marketingConsent;
+          return {
+            ...updatedTerms,
+            allTerms: allTermsChecked,
+          };
+        });
+      }
 
-    if (nextServiceTerms) {
-      setShowTermsError(false);
-    }
-  }, [termsAgreement.serviceTerms]);
+      if (nextServiceTerms) {
+        setShowTermsError(false);
+      }
+    },
+    [termsAgreement.serviceTerms],
+  );
 
   const handleChangeId = useCallback(
     (text: string) => handleFormChange('accountId', text),
@@ -589,7 +593,7 @@ const SignUpScreen: React.FC = () => {
 
           <View onLayout={registerSectionY('profile')} className="mt-5">
             <ContentContainer className="px-6 py-6">
-              <Text className="mb-4 text-h3 font-pretendardSemiBold text-black">개인 정보</Text>
+              <Text className="mb-4 font-pretendardSemiBold text-h3 text-black">개인 정보</Text>
 
               <View onLayout={registerFieldPosition('name', 'profile')}>
                 <LabeledInput
@@ -608,7 +612,7 @@ const SignUpScreen: React.FC = () => {
               <View onLayout={registerFieldPosition('birthDate', 'profile')}>
                 <View className="mb-4">
                   <View className="mb-2 flex-row">
-                    <Text className="text-h3 font-pretendardSemiBold text-black">생년월일 </Text>
+                    <Text className="font-pretendardSemiBold text-h3 text-black">생년월일 </Text>
                     <Text className="text-p1 text-statusError">*</Text>
                   </View>
                   <Pressable
@@ -618,7 +622,8 @@ const SignUpScreen: React.FC = () => {
                         ? 'border-statusError'
                         : 'border-borderGray'
                     }`}>
-                    <Text className={`flex-1 text-p1 ${formData.birthDate ? 'text-black' : 'text-gray'}`}>
+                    <Text
+                      className={`flex-1 text-p1 ${formData.birthDate ? 'text-black' : 'text-gray'}`}>
                       {formData.birthDate || '생년월일을 선택해주세요'}
                     </Text>
                     <DownDropdownIcon width={16} height={16} />
@@ -638,10 +643,11 @@ const SignUpScreen: React.FC = () => {
                       formData.gender === 'male'
                         ? 'border-main bg-serve'
                         : showFieldErrors && formData.gender.length === 0
-                        ? 'border-statusError bg-white'
-                        : 'border-borderGray bg-white'
+                          ? 'border-statusError bg-white'
+                          : 'border-borderGray bg-white'
                     }`}>
-                    <Text className={`text-p1 ${formData.gender === 'male' ? 'text-main' : 'text-gray'}`}>
+                    <Text
+                      className={`text-p1 ${formData.gender === 'male' ? 'text-main' : 'text-gray'}`}>
                       남성
                     </Text>
                   </Pressable>
@@ -651,10 +657,11 @@ const SignUpScreen: React.FC = () => {
                       formData.gender === 'female'
                         ? 'border-main bg-serve'
                         : showFieldErrors && formData.gender.length === 0
-                        ? 'border-statusError bg-white'
-                        : 'border-borderGray bg-white'
+                          ? 'border-statusError bg-white'
+                          : 'border-borderGray bg-white'
                     }`}>
-                    <Text className={`text-p1 ${formData.gender === 'female' ? 'text-main' : 'text-gray'}`}>
+                    <Text
+                      className={`text-p1 ${formData.gender === 'female' ? 'text-main' : 'text-gray'}`}>
                       여성
                     </Text>
                   </Pressable>
@@ -664,10 +671,11 @@ const SignUpScreen: React.FC = () => {
                       formData.gender === 'other'
                         ? 'border-main bg-serve'
                         : showFieldErrors && formData.gender.length === 0
-                        ? 'border-statusError bg-white'
-                        : 'border-borderGray bg-white'
+                          ? 'border-statusError bg-white'
+                          : 'border-borderGray bg-white'
                     }`}>
-                    <Text className={`text-p1 ${formData.gender === 'other' ? 'text-main' : 'text-gray'}`}>
+                    <Text
+                      className={`text-p1 ${formData.gender === 'other' ? 'text-main' : 'text-gray'}`}>
                       기타
                     </Text>
                   </Pressable>
@@ -676,7 +684,7 @@ const SignUpScreen: React.FC = () => {
 
               <View className="mb-4" onLayout={registerFieldPosition('country', 'profile')}>
                 <View className="mb-2 flex-row">
-                  <Text className="text-h3 font-pretendardSemiBold text-black">국가 </Text>
+                  <Text className="font-pretendardSemiBold text-h3 text-black">국가 </Text>
                   <Text className="text-p1 text-statusError">*</Text>
                 </View>
                 <View ref={countryTriggerRef} collapsable={false}>
@@ -687,7 +695,8 @@ const SignUpScreen: React.FC = () => {
                         ? 'border-statusError'
                         : 'border-borderGray'
                     }`}>
-                    <Text className={`flex-1 text-p1 ${formData.country ? 'text-black' : 'text-gray'}`}>
+                    <Text
+                      className={`flex-1 text-p1 ${formData.country ? 'text-black' : 'text-gray'}`}>
                       {formData.country || '국가 / 지역'}
                     </Text>
                     {showCountryPicker ? (
@@ -729,14 +738,16 @@ const SignUpScreen: React.FC = () => {
           />
 
           {showTermsError && !termsAgreement.serviceTerms ? (
-            <Text className="mt-2 mb-4 ml-1 text-left text-p text-statusError">이용약관에 동의해주세요</Text>
+            <Text className="mb-4 ml-1 mt-2 text-left text-p text-statusError">
+              이용약관에 동의해주세요
+            </Text>
           ) : null}
 
           {/* 회원가입 버튼 */}
           <TouchableOpacity
             onPress={handleSignUp}
             className="mt-5 h-11 items-center justify-center rounded-lg bg-main">
-            <Text className="text-h3 font-pretendardSemiBold text-white">가입하기</Text>
+            <Text className="font-pretendardSemiBold text-h3 text-white">가입하기</Text>
           </TouchableOpacity>
 
           <Pressable onPress={() => navigation.navigate('Login')} className="mt-5">
@@ -750,15 +761,16 @@ const SignUpScreen: React.FC = () => {
           visible={showCountryPicker}
           transparent
           animationType="fade"
-          onRequestClose={() => setShowCountryPicker(false)}
-        >
+          onRequestClose={() => setShowCountryPicker(false)}>
           <View style={{ flex: 1 }}>
             <Pressable
               style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
               onPress={() => setShowCountryPicker(false)}
             />
 
-            <View pointerEvents="box-none" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
+            <View
+              pointerEvents="box-none"
+              style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
               <View
                 className="rounded-xl border border-borderGray bg-white"
                 style={{
@@ -767,13 +779,11 @@ const SignUpScreen: React.FC = () => {
                   top: countryDropdownLayout.top,
                   width: countryDropdownLayout.width,
                   maxHeight: countryDropdownLayout.maxHeight,
-                }}
-              >
+                }}>
                 <ScrollView
                   showsVerticalScrollIndicator
                   scrollEnabled={true}
-                  contentContainerStyle={{ paddingVertical: 6 }}
-                >
+                  contentContainerStyle={{ paddingVertical: 6 }}>
                   {COUNTRIES.map((country, index) => {
                     const isSelectedCountry = formData.country === country;
                     const isLastItem = index === COUNTRIES.length - 1;
@@ -782,11 +792,11 @@ const SignUpScreen: React.FC = () => {
                       <Pressable
                         key={country}
                         onPress={() => handleCountrySelect(country)}
-                        className={`mx-[6px] rounded-lg px-3 py-[9px] ${isLastItem ? '' : 'mb-1 '}${
+                        className={`mx-[6px] rounded-lg px-3 py-[9px] ${isLastItem ? '' : 'mb-1'}${
                           isSelectedCountry ? 'bg-statusSuccess' : 'bg-white'
-                        }`}
-                      >
-                        <Text className={`text-p ${isSelectedCountry ? 'text-white' : 'text-black'}`}>
+                        }`}>
+                        <Text
+                          className={`text-p ${isSelectedCountry ? 'text-white' : 'text-black'}`}>
                           {country}
                         </Text>
                       </Pressable>
@@ -798,14 +808,12 @@ const SignUpScreen: React.FC = () => {
           </View>
         </Modal>
 
-
         <Modal
           visible={isBirthDatePickerVisible}
           transparent
           animationType="slide"
           onRequestClose={() => setIsBirthDatePickerVisible(false)}
-          statusBarTranslucent
-        >
+          statusBarTranslucent>
           <View style={{ flex: 1, justifyContent: 'flex-end' }}>
             <Pressable
               style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}
@@ -818,10 +826,10 @@ const SignUpScreen: React.FC = () => {
                   <Text className="text-p1 text-gray">취소</Text>
                 </TouchableOpacity>
 
-                <Text className="text-h3 font-pretendardSemiBold text-black">생년월일 선택</Text>
+                <Text className="font-pretendardSemiBold text-h3 text-black">생년월일 선택</Text>
 
                 <TouchableOpacity onPress={handleConfirmBirthDate}>
-                  <Text className="text-p1 font-pretendardSemiBold text-main">완료</Text>
+                  <Text className="font-pretendardSemiBold text-p1 text-main">완료</Text>
                 </TouchableOpacity>
               </View>
 
