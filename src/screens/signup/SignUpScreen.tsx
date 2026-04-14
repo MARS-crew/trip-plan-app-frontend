@@ -21,13 +21,19 @@ import { COLORS } from '@/constants/colors';
 import { ContentContainer, LabeledInput } from '@/components/ui';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
 import { AccountSection, EmailSection, TermsSection } from './components';
-import type { SignUpFormData, SignUpScreenNavigationProp, TermsAgreement } from '@/types/signup';
+import type {
+  SignUpFormData,
+  SignUpScreenNavigationProp,
+  TermsAgreement,
+  AccountFieldKey,
+} from '@/types/signup';
+import { checkDuplicateUserId } from '@/services';
 
 // ============ Types ============
 type EmailStatus = 'none' | 'sent' | 'error';
 type CodeStatus = 'none' | 'success' | 'error';
 
-type IdCheckStatus = 'idle' | 'available' | 'duplicate';
+type IdCheckStatus = 'idle' | 'available' | 'duplicate' | 'error';
 type RequiredFieldKey =
   | 'accountId'
   | 'nickname'
@@ -58,7 +64,6 @@ const COUNTRIES = [
   '호주',
 ] as const;
 
-const DUPLICATE_ACCOUNT_IDS = ['admin', 'test1234', 'tripplan'];
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TEMP_VERIFICATION_CODE = '123456';
@@ -198,6 +203,9 @@ const SignUpScreen: React.FC = () => {
   const [isCodeFieldVisible, setIsCodeFieldVisible] = useState<boolean>(false);
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false);
   const [showFieldErrors, setShowFieldErrors] = useState<boolean>(false);
+  const [dismissedAccountFieldErrors, setDismissedAccountFieldErrors] = useState<
+    Partial<Record<AccountFieldKey, boolean>>
+  >({});
   const [showTermsError, setShowTermsError] = useState<boolean>(false);
   const [isBirthDatePickerVisible, setIsBirthDatePickerVisible] = useState<boolean>(false);
   const [tempYear, setTempYear] = useState<number>(new Date().getFullYear());
@@ -254,6 +262,9 @@ const SignUpScreen: React.FC = () => {
     idInputClass = 'bg-emailBackground';
   } else if (idCheckStatus === 'duplicate') {
     idMessage = '중복된 아이디입니다.';
+    idMessageClass = 'text-statusError';
+  } else if (idCheckStatus === 'error') {
+    idMessage = '아이디 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.';
     idMessageClass = 'text-statusError';
   }
 
@@ -364,16 +375,22 @@ const SignUpScreen: React.FC = () => {
     }
   }, [formData.verificationCode]);
 
-  const handleCheckId = useCallback(() => {
+  const handleCheckId = useCallback(async () => {
     const normalizedAccountId = formData.accountId.trim();
+    setDismissedAccountFieldErrors((prev) => ({ ...prev, accountId: false }));
 
     if (normalizedAccountId.length === 0) {
       setIdCheckStatus('idle');
       return;
     }
 
-    const isDuplicate = DUPLICATE_ACCOUNT_IDS.includes(normalizedAccountId.toLowerCase());
-    setIdCheckStatus(isDuplicate ? 'duplicate' : 'available');
+    try {
+      const isDuplicate = await checkDuplicateUserId(normalizedAccountId);
+      setIdCheckStatus(isDuplicate ? 'duplicate' : 'available');
+    } catch (error) {
+      console.error('handleCheckId Error:', error);
+      setIdCheckStatus('error');
+    }
   }, [formData.accountId]);
 
   const handleGenderSelect = useCallback((gender: 'male' | 'female' | 'other') => {
@@ -426,22 +443,34 @@ const SignUpScreen: React.FC = () => {
   );
 
   const handleChangeId = useCallback(
-    (text: string) => handleFormChange('accountId', text),
+    (text: string) => {
+      setDismissedAccountFieldErrors((prev) => ({ ...prev, accountId: true }));
+      handleFormChange('accountId', text);
+    },
     [handleFormChange],
   );
 
   const handleChangeNickname = useCallback(
-    (text: string) => handleFormChange('nickname', text),
+    (text: string) => {
+      setDismissedAccountFieldErrors((prev) => ({ ...prev, nickname: true }));
+      handleFormChange('nickname', text);
+    },
     [handleFormChange],
   );
 
   const handleChangePassword = useCallback(
-    (text: string) => handleFormChange('password', text),
+    (text: string) => {
+      setDismissedAccountFieldErrors((prev) => ({ ...prev, password: true }));
+      handleFormChange('password', text);
+    },
     [handleFormChange],
   );
 
   const handleChangePasswordConfirm = useCallback(
-    (text: string) => handleFormChange('passwordConfirm', text),
+    (text: string) => {
+      setDismissedAccountFieldErrors((prev) => ({ ...prev, passwordConfirm: true }));
+      handleFormChange('passwordConfirm', text);
+    },
     [handleFormChange],
   );
 
@@ -523,6 +552,7 @@ const SignUpScreen: React.FC = () => {
 
     if (firstInvalidField) {
       setShowFieldErrors(true);
+      setDismissedAccountFieldErrors({});
       const y = fieldPositionsRef.current[firstInvalidField];
       if (typeof y === 'number') {
         scrollViewRef.current?.scrollTo({ y: Math.max(0, y - 24), animated: true });
