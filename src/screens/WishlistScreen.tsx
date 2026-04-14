@@ -150,6 +150,13 @@ const TABS: WishlistTabConfig[] = [
   { id: 'wishlist', label: '위시 리스트' },
 ];
 
+const GOOGLE_HQ_REGION = {
+  latitude: 37.4220936,
+  longitude: -122.083922,
+  latitudeDelta: 0.02,
+  longitudeDelta: 0.02,
+};
+
 // 바텀시트 스냅 포인트
 const WishlistScreen: React.FC = (): React.JSX.Element => {
   const BOTTOM_SHEET_MIN_HEIGHT = 28;
@@ -197,6 +204,8 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   const showExitModalRef = useRef(false);
   const mapRef = useRef<MapView>(null);
   const currentLocationRef = useRef<LocationCoords | null>(null);
+  const hasAutoCenteredOnLocationRef = useRef(false);
+  const [hasLocation, setHasLocation] = useState(false);
   useEffect(() => {
     showAddModalRef.current = showAddModal;
   }, [showAddModal]);
@@ -335,6 +344,24 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     const opacity = interpolate(translateY.value, [SNAP_LOW - 5, SNAP_LOW], [0, 1], 'clamp');
     return { opacity, pointerEvents: opacity < 0.1 ? 'none' : 'auto' };
   }); //  뒤로가기 버튼 핸들링 + 모달 상태 초기화
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    requestLocationPermission();
+  }, 500); // 화면 먼저 뜨고 요청
+
+  return () => clearTimeout(timer);
+}, []);
+  
+ const requestLocationPermission = async () => {
+  if (Platform.OS === 'android') {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+    );
+    return granted === PermissionsAndroid.RESULTS.GRANTED;
+  }
+  return true;
+};
   useFocusEffect(
     useCallback(() => {
       setShowAddModal(false);
@@ -370,10 +397,25 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   > = useCallback((event) => {
     const coords = event.nativeEvent.coordinate;
     if (!coords) return;
+
     currentLocationRef.current = {
       latitude: coords.latitude,
       longitude: coords.longitude,
     };
+
+    if (hasAutoCenteredOnLocationRef.current) return;
+
+    hasAutoCenteredOnLocationRef.current = true;
+    setHasLocation(true);
+    mapRef.current?.animateToRegion(
+      {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      },
+      900,
+    );
   }, []);
 
   const moveToCurrentLocation = async (): Promise<void> => {
@@ -393,7 +435,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       }
     } // 2. 이미 지도가 파악한 위치(currentLocation)가 있다면 해당 위치로 이동
 
-   if (currentLocationRef.current) {
+    if (currentLocationRef.current) {
       mapRef.current?.animateToRegion(
         {
           latitude: currentLocationRef.current.latitude,
@@ -404,7 +446,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
         1000,
       );
     } else {
-      Alert.alert('위치 확인 중', '현재 위치를 수신하고 있습니다. 잠시 후 다시 시도해주세요.');
+      console.log('로딩중');
     }
   }; //탭 컨텐츠
   const renderTabContent = (): React.ReactNode => {
@@ -447,12 +489,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           showsUserLocation={true} // 내 위치 파란 점 표시
           showsMyLocationButton={false} // 구글 기본 버튼은 숨김 (커스텀 버튼 사용)
           onUserLocationChange={handleUserLocationChange}
-          initialRegion={{
-            latitude: 37.482476,
-            longitude: 126.941574,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
+          initialRegion={GOOGLE_HQ_REGION}
         />
         {/* 지도 영역 누르면 바텀시트 내려가기 */}
         <TouchableOpacity
