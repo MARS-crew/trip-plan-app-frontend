@@ -17,30 +17,16 @@ import SettingIcon from '@/assets/icons/setting.svg';
 import EarthIcon from '@/assets/icons/earth1.svg';
 import { COLORS } from '@/constants';
 import { getMyPage } from '@/services';
-import type { GetMyPageData } from '@/types/mypage';
+import type {
+  GetMyPageData,
+  PhraseItem,
+  SettingItem,
+  SettingType,
+  StatItem,
+  StatType,
+} from '@/types/mypage';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-interface StatItem {
-  id: string;
-  label: string;
-  value: number;
-  type: 'map' | 'bookmark' | 'marker';
-}
-
-interface PhraseItem {
-  id: string;
-  japanese: string;
-  koreanPronunciation: string;
-  meaning: string;
-}
-
-interface SettingItem {
-  id: string;
-  title: string;
-  description: string;
-  type: 'account' | 'notification';
-}
 
 const getStats = (data: GetMyPageData | null): StatItem[] => [
   { id: 'trip-count', label: '여행 횟수', value: data?.tripCount ?? 0, type: 'map' },
@@ -101,7 +87,11 @@ const settingItems: SettingItem[] = [
   },
 ];
 
-const StatIcon: React.FC<{ type: StatItem['type'] }> = ({ type }) => {
+interface StatIconProps {
+  type: StatType;
+}
+
+const StatIcon: React.FC<StatIconProps> = ({ type }) => {
   if (type === 'map') {
     return <MapIcon width={20} height={20} fill={COLORS.main} />;
   }
@@ -113,7 +103,11 @@ const StatIcon: React.FC<{ type: StatItem['type'] }> = ({ type }) => {
   return <LocationOrangeIcon width={20} height={20} />;
 };
 
-const SettingItemIcon: React.FC<{ type: SettingItem['type'] }> = ({ type }) => {
+interface SettingItemIconProps {
+  type: SettingType;
+}
+
+const SettingItemIcon: React.FC<SettingItemIconProps> = ({ type }) => {
   if (type === 'account') {
     return <SettingIcon width={16} height={16} />;
   }
@@ -196,69 +190,39 @@ const MyPageScreen: React.FC = () => {
     ? handleAmountChange(setJpyAmount)
     : handleAmountChange(setKrwAmount);
 
-  const handleNavigateToPrivacy = (): void => {
-    navigation.navigate('PrivacyPolicyScreen');
-  };
+  const navigateViaParent = useCallback(
+    (
+      screen:
+        | 'ProfileEditScreen'
+        | 'AccountSettings'
+        | 'NotificationSettings'
+        | 'VisitedPlaceListScreen',
+    ): void => {
+      const parentNavigation = navigation.getParent<NavigationProp>();
+      if (parentNavigation) {
+        parentNavigation.navigate(screen);
+        return;
+      }
+      navigation.navigate(screen);
+    },
+    [navigation],
+  );
 
-  const handleNavigateToMarketing = (): void => {
-    navigation.navigate('MarketingConsentScreen');
-  };
+  const handleNavigateToProfileEdit = useCallback((): void => {
+    navigateViaParent('ProfileEditScreen');
+  }, [navigateViaParent]);
 
-  const handleNavigateToNightMarketing = (): void => {
-    navigation.navigate('NightMarketingScreen');
-  };
+  const handleNavigateToAccountSettings = useCallback((): void => {
+    navigateViaParent('AccountSettings');
+  }, [navigateViaParent]);
 
-  const handleNavigateToProfileEdit = (): void => {
-    const parentNavigation = navigation.getParent() as
-      | { navigate: (...args: unknown[]) => void }
-      | undefined;
+  const handleNavigateToNotificationSettings = useCallback((): void => {
+    navigateViaParent('NotificationSettings');
+  }, [navigateViaParent]);
 
-    if (parentNavigation) {
-      parentNavigation.navigate('ProfileEditScreen');
-      return;
-    }
-
-    navigation.navigate('ProfileEditScreen');
-  };
-
-  const handleNavigateToAccountSettings = (): void => {
-    const parentNavigation = navigation.getParent() as
-      | { navigate: (...args: unknown[]) => void }
-      | undefined;
-
-    if (parentNavigation) {
-      parentNavigation.navigate('AccountSettings');
-      return;
-    }
-
-    navigation.navigate('AccountSettings');
-  };
-
-  const handleNavigateToNotificationSettings = (): void => {
-    const parentNavigation = navigation.getParent() as
-      | { navigate: (...args: unknown[]) => void }
-      | undefined;
-
-    if (parentNavigation) {
-      parentNavigation.navigate('NotificationSettings');
-      return;
-    }
-
-    navigation.navigate('NotificationSettings');
-  };
-
-  const handleNavigateToVisitedPlaceList = (): void => {
-    const parentNavigation = navigation.getParent() as
-      | { navigate: (...args: unknown[]) => void }
-      | undefined;
-
-    if (parentNavigation) {
-      parentNavigation.navigate('VisitedPlaceListScreen');
-      return;
-    }
-
-    navigation.navigate('VisitedPlaceListScreen');
-  };
+  const handleNavigateToVisitedPlaceList = useCallback((): void => {
+    navigateViaParent('VisitedPlaceListScreen');
+  }, [navigateViaParent]);
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
