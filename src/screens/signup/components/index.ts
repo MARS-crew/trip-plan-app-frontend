@@ -3,4 +3,4 @@ export { ProfileSection } from './ProfileSection';
 export { EmailSection } from './EmailSection';
 export { TermsSection } from './TermsSection';
 
-export type { SignUpFormData, TermsAgreement } from './signup.types';
+export type { SignUpFormData, TermsAgreement } from '@/types/signup';

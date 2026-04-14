@@ -2,30 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, type LayoutChangeEvent } from 'react-native';
 
 import { ContentContainer, LabeledInput } from '@/components/ui';
-import type { SignUpFormData } from './signup.types';
-
-interface AccountSectionProps {
-  formData: SignUpFormData;
-  idCheckStatus: 'idle' | 'available' | 'duplicate';
-  idMessage: string;
-  idMessageClass: string;
-  idInputClass: string;
-  showFieldErrors: boolean;
-  isIdVerified: boolean;
-  isPasswordValid: boolean;
-  isPasswordMatched: boolean;
-  hasPasswordError: boolean;
-  passwordInputClassName: string;
-  onCheckId: () => void;
-  onChangeId: (text: string) => void;
-  onChangeNickname: (text: string) => void;
-  onChangePassword: (text: string) => void;
-  onChangePasswordConfirm: (text: string) => void;
-  onIdLayout: (event: LayoutChangeEvent) => void;
-  onNicknameLayout: (event: LayoutChangeEvent) => void;
-  onPasswordLayout: (event: LayoutChangeEvent) => void;
-  onPasswordConfirmLayout: (event: LayoutChangeEvent) => void;
-}
+import type { AccountSectionProps } from '@/types/signupAccount';
 
 export const AccountSection: React.FC<AccountSectionProps> = ({
   formData,
@@ -52,7 +29,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
   return (
     <View className="mt-6">
       <ContentContainer className="px-6 py-6">
-        <Text className="mb-4 text-h3 font-pretendardSemiBold text-black">계정 정보</Text>
+        <Text className="mb-4 font-pretendardSemiBold text-h3 text-black">계정 정보</Text>
 
         <View className="mb-4 flex-row items-end gap-2" onLayout={onIdLayout}>
           <View className="flex-1">
@@ -75,13 +52,13 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
           </View>
           <Pressable
             onPress={onCheckId}
-            className="h-[46px] px-4 items-center justify-center rounded-xl border border-borderGray bg-white">
+            className="h-[46px] items-center justify-center rounded-xl border border-borderGray bg-white px-4">
             <Text className="text-p text-gray">중복 확인</Text>
           </Pressable>
         </View>
 
         {idCheckStatus !== 'idle' && (
-          <Text className={`mt-2 mb-4 text-p ${idMessageClass}`}>{idMessage}</Text>
+          <Text className={`mb-4 mt-2 text-p ${idMessageClass}`}>{idMessage}</Text>
         )}
 
         <View onLayout={onNicknameLayout}>
@@ -138,7 +115,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
             containerClassName=""
           />
           {formData.passwordConfirm.length > 0 && !isPasswordMatched && (
-            <Text className="mt-2 mb-5 text-p text-statusError">비밀번호가 일치하지 않습니다.</Text>
+            <Text className="mb-5 mt-2 text-p text-statusError">비밀번호가 일치하지 않습니다.</Text>
           )}
         </View>
       </ContentContainer>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
-import type { SocialLoginButtonProps } from './types';
+import type { SocialLoginButtonProps } from '@/types/login';
 
 export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
   label,

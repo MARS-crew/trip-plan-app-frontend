@@ -16,11 +16,17 @@ import { COLORS } from '@/constants';
 import { postLogin } from '@/services';
 import { useAuthStore } from '@/store';
 import type { LoginFailureResult } from '@/types/auth';
+import type { LoginScreenNavigationProp } from '@/types/login';
 
 import SocialLoginButton from './SocialLoginButton';
-import type { LoginScreenNavigationProp } from './types';
 
 const getLoginWarningMessage = (failure: LoginFailureResult): string => {
+  const serverMessage = failure.message?.trim();
+
+  if (serverMessage) {
+    return serverMessage;
+  }
+
   if (failure.warningType === 'EMPTY_FIELDS') {
     return '아이디와 비밀번호를 입력해주세요.';
   }
@@ -45,7 +51,7 @@ const getLoginWarningMessage = (failure: LoginFailureResult): string => {
     return '네트워크 연결을 확인해주세요.';
   }
 
-  return failure.message?.trim() || '로그인에 실패했습니다. 다시 시도해주세요.';
+  return '로그인에 실패했습니다. 다시 시도해주세요.';
 };
 
 const LoginScreen: React.FC = () => {
@@ -129,7 +135,7 @@ const LoginScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <KeyboardAvoidingView className="flex-1">
         <ScrollView>
-          <View className="items-center px-5 pt-5 pb-8">
+          <View className="items-center px-5 pb-8 pt-5">
             <View className="mt-8 items-center">
               <AppLogoIcon width={64} height={96} />
               <Text className="mt-4 font-pretendardMedium text-p1 text-gray">
