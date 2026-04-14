@@ -1,29 +1,6 @@
 import type { BaseResponse } from '@/types';
 import { getEnvConfig } from '@/config/env';
-
-export type TripStatus = 'ONGOING' | 'UPCOMING' | 'COMPLETED';
-
-export interface MyTripItem {
-  tripId: number;
-  title: string;
-  imageUrl: string;
-  tripStatus: TripStatus;
-  tripStatusLabel: string;
-  startDate: string;
-  endDate: string;
-  scheduleCount: number;
-  tripDayCount: number;
-}
-
-interface GetMyTripsData {
-  tripCount: number;
-  trips: MyTripItem[];
-}
-
-export interface GetMyTripsResult {
-  data: MyTripItem[];
-  error: string | null;
-}
+import type { GetMyTripsData, GetMyTripsResult } from '@/types/trip';
 
 interface GetMyTripsOptions {
   signal?: AbortSignal;
