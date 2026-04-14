@@ -205,7 +205,7 @@ const normalizeTripDetailData = (
   }
 
   const grouped = new Map<string, { dayNo: number; scheduleDate: string | null; items: Record<string, unknown>[] }>();
-  flatSchedules.forEach((schedule, index) => {
+  flatSchedules.forEach((schedule) => {
     const dayNo = toNumberValue(schedule.dayNo) ?? 1;
     const scheduleDate = toStringValue(schedule.scheduleDate) ?? null;
     const key = `${dayNo}-${scheduleDate ?? 'none'}`;
@@ -215,9 +215,6 @@ const normalizeTripDetailData = (
       return;
     }
     grouped.set(key, { dayNo, scheduleDate, items: [schedule] });
-    if (index === 0 && !scheduleDate) {
-      grouped.set(`1-none`, { dayNo: 1, scheduleDate: null, items: [schedule] });
-    }
   });
 
   const sections = Array.from(grouped.values())

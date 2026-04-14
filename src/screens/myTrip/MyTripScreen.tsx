@@ -20,10 +20,8 @@ import type {
 import {
   getMyTrips,
   getTripSchedulesByDate,
-  type MyTripItem,
-  type TripFilterStatus,
-  type TripSchedulesByDateData,
 } from '@/services';
+import type { MyTripItem, TripFilterStatus, TripSchedulesByDateData } from '@/types/trip';
 
 type MyTripNavigation = NativeStackNavigationProp<RootStackParamList>;
 

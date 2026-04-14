@@ -31,3 +31,19 @@ export interface ApiError {
   message: string;
   details?: Record<string, unknown>;
 }
+
+export type {
+  TripStatus,
+  TripFilterStatus,
+  MyTripItem,
+  GetMyTripsData,
+  TripScheduleDateOption,
+  TripScheduleItem,
+  TripSchedulesByDateData,
+  GetMyTripsResult,
+  GetTripSchedulesByDateResult,
+  GetTripSchedulesResult,
+  GetMyTripsOptions,
+  GetTripSchedulesByDateOptions,
+  GetTripSchedulesOptions,
+} from './trip';
