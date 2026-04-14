@@ -18,6 +18,7 @@ interface CustomBottomSheetProps {
   translateY: SharedValue<number>;
   height?: number;
   collapsedVisibleHeight?: number;
+  maxTopSnap?: number;
   cornerRadius?: number;
   backgroundColor?: string;
   showIndicator?: boolean;
@@ -29,6 +30,7 @@ export const CustomBottomSheet = ({
   translateY,
   height,
   collapsedVisibleHeight = 28,
+  maxTopSnap,
   cornerRadius,
   backgroundColor,
   showIndicator = true,
@@ -41,6 +43,7 @@ export const CustomBottomSheet = ({
   const SNAP_MIN = SHEET_HEIGHT - collapsedVisibleHeight;
   const SNAP_MID = SHEET_HEIGHT - 310;
   const SNAP_HIGH = 0;
+  const SNAP_TOP_LIMIT = Math.max(SNAP_HIGH, Math.min(SNAP_MID, maxTopSnap ?? SNAP_HIGH));
 
   const gesture = Gesture.Pan()
     .onStart(() => {
@@ -49,7 +52,7 @@ export const CustomBottomSheet = ({
     .onUpdate((e) => {
       const nextY = startY.value + e.translationY;
       // 이동 범위 제한 (620 ~ 66 사이에서만 움직임)
-      translateY.value = Math.max(SNAP_HIGH, Math.min(SNAP_MIN, nextY));
+      translateY.value = Math.max(SNAP_TOP_LIMIT, Math.min(SNAP_MIN, nextY));
     })
     .onEnd((e) => {
       const currentY = translateY.value;
@@ -59,7 +62,7 @@ export const CustomBottomSheet = ({
       // 2. 속도가 빠를 때 방향에 따라 스냅
       if (velocityY < -500) {
         // 위로 휙 올릴 때: 현재 위치보다 한 단계 위로
-        targetY = currentY > SNAP_MID ? SNAP_MID : SNAP_HIGH;
+        targetY = currentY > SNAP_MID ? SNAP_MID : SNAP_TOP_LIMIT;
       } else if (velocityY > 500) {
         // 아래로 휙 내릴 때: 현재 위치보다 한 단계 아래로
         targetY = currentY < SNAP_MID ? SNAP_MID : SNAP_MIN;
@@ -67,13 +70,13 @@ export const CustomBottomSheet = ({
         // 3. 속도가 느릴 때 가장 가까운 지점으로 자석처럼 붙기
         const distanceToMin = Math.abs(currentY - SNAP_MIN);
         const distanceToMid = Math.abs(currentY - SNAP_MID);
-        const distanceToHigh = Math.abs(currentY - SNAP_HIGH);
+        const distanceToTop = Math.abs(currentY - SNAP_TOP_LIMIT);
 
-        const minDistance = Math.min(distanceToMin, distanceToMid, distanceToHigh);
+        const minDistance = Math.min(distanceToMin, distanceToMid, distanceToTop);
 
         if (minDistance === distanceToMin) targetY = SNAP_MIN;
         else if (minDistance === distanceToMid) targetY = SNAP_MID;
-        else targetY = SNAP_HIGH;
+        else targetY = SNAP_TOP_LIMIT;
       }
 
       // 부드럽게 이동
