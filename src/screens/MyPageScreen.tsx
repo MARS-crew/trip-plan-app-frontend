@@ -16,6 +16,23 @@ import LogoutIcon from '@/assets/icons/logout.svg';
 import SettingIcon from '@/assets/icons/setting.svg';
 import EarthIcon from '@/assets/icons/earth1.svg';
 import { COLORS } from '@/constants';
+import { getPapagoPhrases } from '@/services';
+import type { GetPapagoPhrase, PapagoTargetLang } from '@/types/mypage';
+
+const LANG_LABEL: Record<PapagoTargetLang, string> = {
+  en: '영어',
+  ja: '일본어',
+  'zh-CN': '중국어(간체)',
+  'zh-TW': '중국어(번체)',
+  vi: '베트남어',
+  th: '태국어',
+  id: '인도네시아어',
+  fr: '프랑스어',
+  es: '스페인어',
+  ru: '러시아어',
+  de: '독일어',
+  it: '이탈리아어',
+};
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -24,13 +41,6 @@ interface StatItem {
   label: string;
   value: number;
   type: 'map' | 'bookmark' | 'marker';
-}
-
-interface PhraseItem {
-  id: string;
-  japanese: string;
-  koreanPronunciation: string;
-  meaning: string;
 }
 
 interface SettingItem {
@@ -44,39 +54,6 @@ const stats: StatItem[] = [
   { id: 'trip-count', label: '여행 횟수', value: 12, type: 'map' },
   { id: 'saved-place', label: '저장된 장소', value: 12, type: 'bookmark' },
   { id: 'visited-place', label: '방문한 장소', value: 12, type: 'marker' },
-];
-
-const phrases: PhraseItem[] = [
-  {
-    id: 'phrase-1',
-    japanese: 'ありがとう',
-    koreanPronunciation: '아리가토우',
-    meaning: '감사합니다',
-  },
-  {
-    id: 'phrase-2',
-    japanese: 'ありがとう',
-    koreanPronunciation: '아리가토우',
-    meaning: '감사합니다',
-  },
-  {
-    id: 'phrase-3',
-    japanese: 'ありがとう',
-    koreanPronunciation: '아리가토우',
-    meaning: '감사합니다',
-  },
-  {
-    id: 'phrase-4',
-    japanese: 'ありがとう',
-    koreanPronunciation: '아리가토우',
-    meaning: '감사합니다',
-  },
-  {
-    id: 'phrase-5',
-    japanese: 'ありがとう',
-    koreanPronunciation: '아리가토우',
-    meaning: '감사합니다',
-  },
 ];
 
 const settingItems: SettingItem[] = [
@@ -153,6 +130,26 @@ const MyPageScreen: React.FC = () => {
   const [krwAmount, setKrwAmount] = React.useState<string>('10,000');
   const [jpyAmount, setJpyAmount] = React.useState<string>('1,100');
   const [isKrwToJpy, setIsKrwToJpy] = React.useState<boolean>(true);
+  const [phrases, setPhrases] = React.useState<GetPapagoPhrase[]>([]);
+
+  const fetchPhrases = React.useCallback(async () => {
+    try {
+      const data = await getPapagoPhrases();
+      setPhrases(data);
+    } catch (error) {
+      console.error('fetchPhrases Error:', error);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchPhrases();
+  }, [fetchPhrases]);
+
+  const phraseSectionTitle = React.useMemo(() => {
+    const firstLang = phrases[0]?.targetLang;
+    const langLabel = firstLang ? LANG_LABEL[firstLang] : '';
+    return langLabel ? `${langLabel} 기본 회화` : '기본 회화';
+  }, [phrases]);
 
   const handleKrwChange = React.useCallback((text: string): void => {
     const formatted = formatAmountWithCommas(text);
@@ -305,25 +302,26 @@ const MyPageScreen: React.FC = () => {
           <View className="ml-1 mt-5 flex-row items-center">
             <JapanLanguageIcon width={16} height={16} />
             <Text className="ml-1.5 font-pretendardSemiBold text-h3 text-black">
-              일본 기본 회화
+              {phraseSectionTitle}
             </Text>
           </View>
 
-          <View
-            className="mt-2 overflow-hidden rounded-lg border border-white bg-white"
-            style={cardStyle}>
-            {phrases.map((phrase, index) => (
-              <View
-                key={phrase.id}
-                className={`px-4 py-3 ${index !== phrases.length - 1 ? 'border-b border-borderGray' : ''}`}>
-                <Text className="font-pretendardBold text-h2 text-black">{phrase.japanese}</Text>
-                <View className="mt-0.5 flex-row items-center">
-                  <Text className="text-p text-gray">{phrase.koreanPronunciation}</Text>
-                  <Text className="ml-2 text-p text-main">{phrase.meaning}</Text>
+          {phrases.length > 0 && (
+            <View
+              className="mt-2 overflow-hidden rounded-lg border border-white bg-white"
+              style={cardStyle}>
+              {phrases.map((phrase, index) => (
+                <View
+                  key={`${phrase.targetLang}-${index}`}
+                  className={`px-4 py-3 ${index !== phrases.length - 1 ? 'border-b border-borderGray' : ''}`}>
+                  <Text className="font-pretendardBold text-h2 text-black">
+                    {phrase.translatedText}
+                  </Text>
+                  <Text className="mt-0.5 text-p text-gray">{phrase.originalText}</Text>
                 </View>
-              </View>
-            ))}
-          </View>
+              ))}
+            </View>
+          )}
 
           <View className="ml-1 mt-5 flex-row items-center">
             <ExchangeIcon width={16} height={16} />
