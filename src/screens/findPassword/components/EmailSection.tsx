@@ -3,21 +3,10 @@ import { View, Text, TouchableOpacity } from 'react-native';
 
 import { LabeledInput } from '@/components/ui';
 import { COLORS } from '@/constants';
-
-// ============ Types ============
-export interface EmailSectionProps {
-  email: string;
-  canSendCode: boolean;
-  sendCodeButtonText: string;
-  isEmailSent: boolean;
-  isEmailError: boolean;
-  isCodeVerified: boolean;
-  onChangeEmail: (value: string) => void;
-  onSendVerification: () => void;
-}
+import type { FindPasswordEmailSectionProps } from '@/types/findPasswordEmailSection';
 
 // ============ Component ============
-export const EmailSection: React.FC<EmailSectionProps> = ({
+export const EmailSection: React.FC<FindPasswordEmailSectionProps> = ({
   email,
   canSendCode,
   sendCodeButtonText,
@@ -35,12 +24,12 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
         <LabeledInput
           label="이메일"
           containerClassName="flex-1 mb-0"
-          className={`h-[46px] px-2 rounded-xl border text-p1 font-pretendardRegular text-black ${
+          className={`h-[46px] rounded-xl border px-2 font-pretendardRegular text-p1 text-black ${
             isEmailError
-              ? 'bg-inputBackground border-statusError'
+              ? 'border-statusError bg-inputBackground'
               : isEmailSent
-                ? 'bg-emailBackground border-borderGray'
-                : 'bg-screenBackground border-borderGray'
+                ? 'border-borderGray bg-emailBackground'
+                : 'border-borderGray bg-screenBackground'
           }`}
           placeholder="example@gmail.com"
           placeholderTextColor={COLORS.gray}
@@ -53,29 +42,29 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
         />
 
         <TouchableOpacity
-          className={`h-[46px] ml-2 shrink-0 items-center justify-center rounded-xl border border-borderGray bg-white ${
+          className={`ml-2 h-[46px] shrink-0 items-center justify-center rounded-xl border border-borderGray bg-white ${
             isResend ? 'px-[38px]' : 'px-5'
           }`}
           onPress={onSendVerification}
           disabled={!canSendCode}
           accessibilityRole="button"
           accessibilityLabel="인증번호 발송">
-          <Text className="text-p font-pretendardRegular text-gray">{sendCodeButtonText}</Text>
+          <Text className="font-pretendardRegular text-p text-gray">{sendCodeButtonText}</Text>
         </TouchableOpacity>
       </View>
 
       {isCodeVerified ? (
-        <Text className="mt-2 text-p font-pretendardRegular text-statusSuccess">
+        <Text className="mt-2 font-pretendardRegular text-p text-statusSuccess">
           이메일 인증이 완료되었습니다
         </Text>
       ) : isEmailSent ? (
-        <Text className="mt-2 text-p font-pretendardRegular text-statusSuccess">
+        <Text className="mt-2 font-pretendardRegular text-p text-statusSuccess">
           인증번호가 발송되었습니다. 이메일을 확인해주세요.
         </Text>
       ) : null}
 
       {isEmailError ? (
-        <Text className="mt-2 text-p font-pretendardRegular text-statusError">
+        <Text className="mt-2 font-pretendardRegular text-p text-statusError">
           가입된 이메일이 없습니다.
         </Text>
       ) : null}

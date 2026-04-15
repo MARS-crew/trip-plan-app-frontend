@@ -192,12 +192,10 @@ const MyPageScreen: React.FC = () => {
   }, [fetchPapagoPhrases, requestExchange]);
 
   const handleSwapExchange = React.useCallback((): void => {
-    const nextIsKrwToJpy = !isKrwToJpy;
-    const nextTopAmount = nextIsKrwToJpy ? krwAmount : jpyAmount;
-
-    setIsKrwToJpy(nextIsKrwToJpy);
-    requestExchange(nextTopAmount, nextIsKrwToJpy);
-  }, [isKrwToJpy, jpyAmount, krwAmount, requestExchange]);
+    setIsKrwToJpy((prev) => !prev);
+    setKrwAmount(jpyAmount);
+    setJpyAmount(krwAmount);
+  }, [krwAmount, jpyAmount]);
 
   const topCurrencyCode = isKrwToJpy ? 'KRW' : 'JPY';
   const bottomCurrencyCode = isKrwToJpy ? 'JPY' : 'KRW';
