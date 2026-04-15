@@ -1,12 +1,9 @@
 import type { BaseResponse } from '@/types';
 import { getEnvConfig } from '@/config/env';
-import type { GetMyTripsData, GetMyTripsResult } from '@/types/trip';
-
-interface GetMyTripsOptions {
-  signal?: AbortSignal;
-}
+import type { GetMyTripsData, GetMyTripsOptions, GetMyTripsResult } from '@/types/trip';
 
 export const getMyTrips = async ({
+  filterStatus = 'ALL',
   signal,
 }: GetMyTripsOptions = {}): Promise<GetMyTripsResult> => {
   try {
@@ -22,17 +19,16 @@ export const getMyTrips = async ({
     }
 
     const headers: Record<string, string> = { Accept: '*/*' };
-    const normalizedToken = tempToken;
-
-    if (normalizedToken) {
-      headers.Authorization = `Bearer ${normalizedToken}`;
-    }
+    headers.Authorization = `Bearer ${tempToken}`;
     if (!headers.Authorization) {
       console.error('[tripService] errorCode=TOKEN_INVALID_FORMAT');
       return { data: [], error: 'TOKEN_INVALID_FORMAT' };
     }
 
-    const requestUrl = `${apiBaseUrl}/api/v1/trips`;
+    const requestUrl =
+      filterStatus === 'ALL'
+        ? `${apiBaseUrl}/api/v1/trips/filter`
+        : `${apiBaseUrl}/api/v1/trips/filter?tripStatus=${encodeURIComponent(filterStatus)}`;
     const response = await fetch(requestUrl, {
       headers,
       signal,

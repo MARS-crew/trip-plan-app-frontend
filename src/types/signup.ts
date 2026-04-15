@@ -23,3 +23,5 @@ export interface TermsAgreement {
   privacyPolicy: boolean;
   marketingConsent: boolean;
 }
+
+export type AccountFieldKey = 'accountId' | 'nickname' | 'password' | 'passwordConfirm';

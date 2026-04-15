@@ -31,7 +31,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
       <ContentContainer className="px-6 py-6">
         <Text className="mb-4 font-pretendardSemiBold text-h3 text-black">계정 정보</Text>
 
-        <View className="mb-4 flex-row items-end gap-2" onLayout={onIdLayout}>
+        <View className="flex-row items-end gap-2" onLayout={onIdLayout}>
           <View className="flex-1">
             <LabeledInput
               label="아이디"
@@ -40,7 +40,8 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
               value={formData.accountId}
               onChangeText={onChangeId}
               inputClassName={
-                showFieldErrors && (formData.accountId.trim().length === 0 || !isIdVerified)
+                idCheckStatus === 'duplicate' ||
+                (showFieldErrors && (formData.accountId.trim().length === 0 || !isIdVerified))
                   ? 'border-statusError'
                   : idInputClass
               }
@@ -61,7 +62,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
           <Text className={`mb-4 mt-2 text-p ${idMessageClass}`}>{idMessage}</Text>
         )}
 
-        <View onLayout={onNicknameLayout}>
+        <View onLayout={onNicknameLayout} className="mt-4">
           <LabeledInput
             label="닉네임"
             required={true}

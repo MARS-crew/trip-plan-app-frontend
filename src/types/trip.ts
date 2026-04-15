@@ -1,4 +1,6 @@
-export type TripStatus = 'ONGOING' | 'UPCOMING' | 'COMPLETED';
+export type TripStatus = 'ONGOING' | 'UPCOMING' | 'PLANNED' | 'COMPLETED' | 'PAST';
+
+export type TripFilterStatus = 'ALL' | 'UPCOMING' | 'PAST';
 
 export interface MyTripItem {
   tripId: number;
@@ -20,4 +22,9 @@ export interface GetMyTripsData {
 export interface GetMyTripsResult {
   data: MyTripItem[];
   error: string | null;
+}
+
+export interface GetMyTripsOptions {
+  filterStatus?: TripFilterStatus;
+  signal?: AbortSignal;
 }
