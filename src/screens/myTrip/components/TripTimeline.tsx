@@ -2,7 +2,10 @@ import React, { useCallback } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { PlaceIcon, VectorIcon, VectorLeftIcon } from '@/assets/icons';
-import type { TripTimelineItem, TripTimelineProps } from '@/types/myTrip.types';
+import type {
+  TripTimelineListItemProps,
+  TripTimelineProps,
+} from '@/types/myTrip.types';
 
 const formatTimelineTime = (time: string): string => {
   const matched = time.match(/^(\d{2}):(\d{2})/);
@@ -22,11 +25,6 @@ const formatDateChipLabel = (scheduleDate: string): string => {
   const weekday = weekdays[new Date(year, month - 1, day).getDay()];
   return `${month}/${day}(${weekday})`;
 };
-
-interface TripTimelineListItemProps {
-  item: TripTimelineItem;
-  isLast: boolean;
-}
 
 const TripTimelineListItem: React.FC<TripTimelineListItemProps> = ({ item, isLast }) => (
   <View className={`${isLast ? '' : 'mb-4'} flex-row items-start`}>

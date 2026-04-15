@@ -17,8 +17,8 @@ import type {
   TripCardViewModel,
   TripFilter,
   TripSchedulesByDateData,
-  TripTimelineDateOption,
   TripTimelineItem,
+  TripTimelineStateItem,
 } from '@/types/myTrip.types';
 import {
   getMyTrips,
@@ -60,13 +60,6 @@ const filterTripsByChip = (trips: MyTripItem[], chip: TripFilter): MyTripItem[] 
     return trips.filter((trip) => trip.tripStatus === 'PLANNED' || trip.tripStatus === 'UPCOMING');
   }
   return trips.filter((trip) => trip.tripStatus === 'COMPLETED' || trip.tripStatus === 'PAST');
-};
-
-type TripTimelineStateItem = {
-  selectedDate: string;
-  dateOptions: TripTimelineDateOption[];
-  items: TripTimelineItem[];
-  isLoading: boolean;
 };
 
 const mapSchedulesToTimelineItems = (

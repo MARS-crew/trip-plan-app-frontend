@@ -53,6 +53,18 @@ export interface TripTimelineProps {
   isLoading?: boolean;
 }
 
+export interface TripTimelineStateItem {
+  selectedDate: string;
+  dateOptions: TripTimelineDateOption[];
+  items: TripTimelineItem[];
+  isLoading: boolean;
+}
+
+export interface TripTimelineListItemProps {
+  item: TripTimelineItem;
+  isLast: boolean;
+}
+
 export interface MyTripItem {
   tripId: number;
   title: string;
