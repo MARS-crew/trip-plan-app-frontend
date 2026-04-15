@@ -248,13 +248,26 @@ export const requestEmailVerification = async (email: string): Promise<EmailRequ
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
       },
       body: JSON.stringify({ email }),
     });
+
+    if (response.status === 400) {
+      throw new Error('잘못된 요청입니다.');
+    }
+
+    if (response.status === 404) {
+      throw new Error('사용자를 찾을 수 없습니다.');
+    }
+
+    if (response.status >= 500) {
+      throw new Error('서버 오류가 발생했습니다.');
+    }
+
     if (!response.ok) {
       throw new Error('이메일 인증번호 발송 실패');
     }
+
     const json: BaseResponse<EmailRequestData> = await response.json();
     return json.data;
   } catch (error) {

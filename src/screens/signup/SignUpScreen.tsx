@@ -27,7 +27,7 @@ import type {
   TermsAgreement,
   AccountFieldKey,
 } from '@/types/signup';
-import { checkDuplicateUserId } from '@/services';
+import { checkDuplicateUserId, requestEmailVerification } from '@/services';
 
 // ============ Types ============
 type EmailStatus = 'none' | 'sent' | 'error';
@@ -340,7 +340,7 @@ const SignUpScreen: React.FC = () => {
     setIsEmailVerified(false);
   }, []);
 
-  const handleSendVerification = useCallback(() => {
+  const handleSendVerification = useCallback(async () => {
     const trimmedEmail = formData.email.trim();
     const isEmailFormatValid = EMAIL_REGEX.test(trimmedEmail);
 
@@ -352,20 +352,28 @@ const SignUpScreen: React.FC = () => {
       return;
     }
 
-    setEmailStatus('sent');
-    setIsCodeFieldVisible(true);
-    setCodeStatus('none');
-    setIsEmailVerified(false);
-    setFormData((prev) => ({
-      ...prev,
-      verificationCode: '',
-    }));
+    try {
+      await requestEmailVerification(trimmedEmail);
+      setEmailStatus('sent');
+      setIsCodeFieldVisible(true);
+      setCodeStatus('none');
+      setIsEmailVerified(false);
+      setFormData((prev) => ({
+        ...prev,
+        verificationCode: '',
+      }));
+    } catch (error) {
+      console.error('handleSendVerification Error:', error);
+      setEmailStatus('error');
+      setIsCodeFieldVisible(false);
+      setCodeStatus('none');
+      setIsEmailVerified(false);
+    }
   }, [formData.email]);
 
   const handleVerifyEmailCode = useCallback(() => {
-    const isVerified =
-      formData.verificationCode.trim().length === 6 &&
-      formData.verificationCode.trim() === TEMP_VERIFICATION_CODE;
+    const trimmedCode = formData.verificationCode.trim();
+    const isVerified = trimmedCode.length === 6 && trimmedCode === TEMP_VERIFICATION_CODE;
 
     setCodeStatus(isVerified ? 'success' : 'error');
     setIsEmailVerified(isVerified);
