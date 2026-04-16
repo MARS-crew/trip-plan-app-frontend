@@ -7,57 +7,91 @@ import type {
   GetTripSchedulesByDateOptions,
   GetTripSchedulesByDateResult,
   TripSchedulesByDateData,
-} from '@/types/trip';
+} from '@/types/myTrip.types';
+import type { GetTripSchedulesOptions, GetTripSchedulesResult } from '@/types/tripDetail.types';
+
+interface TripRequestConfig {
+  apiBaseUrl: string;
+  headers: Record<string, string>;
+}
+interface TripRequestConfigError {
+  error: string;
+}
+
+const logErrorCode = (errorCode: string): void => {
+  console.error(`[tripService] errorCode=${errorCode}`);
+};
+
+const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
+  const { apiBaseUrl, tempToken } = getEnvConfig();
+
+  if (!apiBaseUrl) {
+    const error = 'API_BASE_URL_MISSING';
+    logErrorCode(error);
+    return { error };
+  }
+  if (!tempToken) {
+    const error = 'TEMP_TOKEN_MISSING';
+    logErrorCode(error);
+    return { error };
+  }
+
+  return {
+    apiBaseUrl,
+    headers: {
+      Accept: '*/*',
+      Authorization: `Bearer ${tempToken}`,
+    },
+  };
+};
+
+const getResponseErrorCode = async (response: Response): Promise<string> => {
+  try {
+    const errorJson: { code?: string } = await response.json();
+    return errorJson.code ?? `HTTP_${response.status}`;
+  } catch {
+    return `HTTP_${response.status}`;
+  }
+};
+
+const getRequestErrorCode = (signal?: AbortSignal): string => {
+  if (signal?.aborted) {
+    return 'REQUEST_ABORTED';
+  }
+  logErrorCode('NETWORK_ERROR');
+  return 'NETWORK_ERROR';
+};
 
 export const getMyTrips = async ({
   filterStatus = 'ALL',
   signal,
 }: GetMyTripsOptions = {}): Promise<GetMyTripsResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: [], error: requestConfig.error };
+  }
+
   try {
-    const { apiBaseUrl, tempToken } = getEnvConfig();
-
-    if (!apiBaseUrl) {
-      console.error('[tripService] errorCode=API_BASE_URL_MISSING');
-      return { data: [], error: 'API_BASE_URL_MISSING' };
-    }
-    if (!tempToken) {
-      console.error('[tripService] errorCode=TEMP_TOKEN_MISSING');
-      return { data: [], error: 'TEMP_TOKEN_MISSING' };
-    }
-
-    const headers: Record<string, string> = { Accept: '*/*' };
-    headers.Authorization = `Bearer ${tempToken}`;
-
     const requestUrl =
       filterStatus === 'ALL'
-        ? `${apiBaseUrl}/api/v1/trips/filter`
-        : `${apiBaseUrl}/api/v1/trips/filter?tripStatus=${encodeURIComponent(filterStatus)}`;
+        ? `${requestConfig.apiBaseUrl}/api/v1/trips/filter`
+        : `${requestConfig.apiBaseUrl}/api/v1/trips/filter?tripStatus=${encodeURIComponent(filterStatus)}`;
     const response = await fetch(requestUrl, {
-      headers,
+      headers: requestConfig.headers,
       signal,
     });
 
     if (!response.ok) {
-      try {
-        const errorJson: { code?: string } = await response.json();
-        const errorCode = errorJson.code ?? `HTTP_${response.status}`;
-        console.error(`[tripService] errorCode=${errorCode}`);
-        return { data: [], error: errorCode };
-      } catch {
-        const errorCode = `HTTP_${response.status}`;
-        console.error(`[tripService] errorCode=${errorCode}`);
-        return { data: [], error: errorCode };
-      }
+      const errorCode = await getResponseErrorCode(response);
+      logErrorCode(errorCode);
+      return { data: [], error: errorCode };
     }
 
     const json: BaseResponse<GetMyTripsData> = await response.json();
     return { data: json.data?.trips ?? [], error: null };
   } catch {
-    if (signal?.aborted) {
-      return { data: [], error: 'REQUEST_ABORTED' };
-    }
-    console.error('[tripService] errorCode=NETWORK_ERROR');
-    return { data: [], error: 'NETWORK_ERROR' };
+    const errorCode = getRequestErrorCode(signal);
+    return { data: [], error: errorCode };
   }
 };
 
@@ -66,47 +100,58 @@ export const getTripSchedulesByDate = async ({
   targetDate,
   signal,
 }: GetTripSchedulesByDateOptions): Promise<GetTripSchedulesByDateResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
   try {
-    const { apiBaseUrl, tempToken } = getEnvConfig();
-
-    if (!apiBaseUrl) {
-      console.error('[tripService] errorCode=API_BASE_URL_MISSING');
-      return { data: null, error: 'API_BASE_URL_MISSING' };
-    }
-    if (!tempToken) {
-      console.error('[tripService] errorCode=TEMP_TOKEN_MISSING');
-      return { data: null, error: 'TEMP_TOKEN_MISSING' };
-    }
-
-    const requestUrl = `${apiBaseUrl}/api/v1/trips/${tripId}/schedules/by-date?targetDate=${encodeURIComponent(targetDate)}`;
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/by-date?targetDate=${encodeURIComponent(targetDate)}`;
     const response = await fetch(requestUrl, {
-      headers: {
-        Accept: '*/*',
-        Authorization: `Bearer ${tempToken}`,
-      },
+      headers: requestConfig.headers,
       signal,
     });
 
     if (!response.ok) {
-      try {
-        const errorJson: { code?: string } = await response.json();
-        const errorCode = errorJson.code ?? `HTTP_${response.status}`;
-        console.error(`[tripService] errorCode=${errorCode}`);
-        return { data: null, error: errorCode };
-      } catch {
-        const errorCode = `HTTP_${response.status}`;
-        console.error(`[tripService] errorCode=${errorCode}`);
-        return { data: null, error: errorCode };
-      }
+      const errorCode = await getResponseErrorCode(response);
+      logErrorCode(errorCode);
+      return { data: null, error: errorCode };
     }
 
     const json: BaseResponse<TripSchedulesByDateData> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
-    if (signal?.aborted) {
-      return { data: null, error: 'REQUEST_ABORTED' };
+    const errorCode = getRequestErrorCode(signal);
+    return { data: null, error: errorCode };
+  }
+};
+
+export const getTripSchedules = async ({
+  tripId,
+  signal,
+}: GetTripSchedulesOptions): Promise<GetTripSchedulesResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules`;
+    const response = await fetch(requestUrl, {
+      headers: requestConfig.headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      const errorCode = await getResponseErrorCode(response);
+      logErrorCode(errorCode);
+      return { data: null, error: errorCode };
     }
-    console.error('[tripService] errorCode=NETWORK_ERROR');
-    return { data: null, error: 'NETWORK_ERROR' };
+
+    const json: BaseResponse<unknown> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const errorCode = getRequestErrorCode(signal);
+    return { data: null, error: errorCode };
   }
 };

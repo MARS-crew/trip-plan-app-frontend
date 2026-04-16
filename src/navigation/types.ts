@@ -34,9 +34,10 @@ export type RootStackParamList = {
   FindId: undefined;
   WishlistScreen: undefined;
   FindPassword: undefined;
-  TripDetail: undefined;
+  TripDetail: { tripId: number } | undefined;
   AddSchedule: undefined;
   AddCalendarMapScreen: undefined;
+  ScheduleMap: undefined;
 };
 
 
@@ -44,5 +45,3 @@ export type HomeStackParamList = {
   HomeMain: undefined;
   Alert: undefined;
 };
-
-
