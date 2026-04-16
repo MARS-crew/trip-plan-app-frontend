@@ -1,18 +1,28 @@
 ﻿import { useNavigation } from '@react-navigation/native';
-import type { CompositeNavigationProp } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, Pressable, TextInput, ScrollView, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Pressable,
+  TextInput,
+  ScrollView,
+  Image,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Shadow } from 'react-native-shadow-2';
-import type { HomeStackParamList } from '@/navigation';
-import type { RootStackParamList } from '@/navigation';
-import Animated, { useSharedValue, withTiming, useAnimatedStyle, interpolate } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+  interpolate,
+} from 'react-native-reanimated';
 import CustomBottomSheet from '@/components/ui/CustomBottomSheet';
 import { MainRecChip } from '@/components/ui';
 import { RobotIcon, SendIcon, X, NoticeIcon, LogoIcon, LogoLetter, ChatIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
 import { ChatCaseContent, MainTripCard } from '@/screens/home/components';
+import type { HomeScreenNavigationProp } from '@/types/home';
 import {
   CHAT_HEADER_HEIGHT,
   CHAT_INPUT_BOTTOM_SPACING,
@@ -20,11 +30,6 @@ import {
   CHAT_SEND_BUTTON_SIZE,
   CHAT_SHEET_HEIGHT,
 } from '@/screens/home/constants';
-
-type NavigationProp = CompositeNavigationProp<
-  NativeStackNavigationProp<HomeStackParamList>,
-  NativeStackNavigationProp<RootStackParamList>
->;
 
 const RECOMMENDED_DESTINATIONS = [
   {
@@ -46,7 +51,7 @@ const RECOMMENDED_DESTINATIONS = [
 ];
 
 const HomeScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const translateY = useSharedValue(CHAT_SHEET_HEIGHT);
   const SNAP_MIN = CHAT_SHEET_HEIGHT;
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -103,19 +108,24 @@ const HomeScreen: React.FC = () => {
             elevation: 10,
           },
           backdropStyle,
-        ]}
-      >
+        ]}>
         <Pressable style={{ flex: 1 }} onPress={handleCloseChat} />
       </Animated.View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="px-4 py-4 flex-row justify-between items-center">
+        <View className="flex-row items-center justify-between px-4 py-4">
           <View className="flex-row items-center">
             <LogoIcon width={38} height={38} />
             <LogoLetter width={65} height={32} />
           </View>
-          <Shadow distance={2} startColor="#00000025" endColor="#00000000" offset={[0, 0]} paintInside={false} style={{ borderRadius: 12 }}>
-            <View className="bg-white rounded-xl px-[10px] py-[10px]">
+          <Shadow
+            distance={2}
+            startColor="#00000025"
+            endColor="#00000000"
+            offset={[0, 0]}
+            paintInside={false}
+            style={{ borderRadius: 12 }}>
+            <View className="rounded-xl bg-white px-[10px] py-[10px]">
               <Pressable onPress={handleNavigateToDetail} className="items-center justify-center">
                 <View className="relative">
                   <NoticeIcon width={20} height={20} />
@@ -138,17 +148,16 @@ const HomeScreen: React.FC = () => {
           />
         </View>
 
-        <View className="mt-6 mb-6">
-          <View className="px-4 mb-2">
-            <Text className="text-h1 font-pretendardSemiBold text-black mb-[2px]">추천 여행지</Text>
+        <View className="mb-6 mt-6">
+          <View className="mb-2 px-4">
+            <Text className="mb-[2px] font-pretendardSemiBold text-h1 text-black">추천 여행지</Text>
             <Text className="text-p text-gray">지금 떠나기 좋은 여행지를 모았어요</Text>
           </View>
 
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, gap: 16 }}
-          >
+            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, gap: 16 }}>
             {RECOMMENDED_DESTINATIONS.map((item) => (
               <Shadow
                 key={item.id}
@@ -157,24 +166,31 @@ const HomeScreen: React.FC = () => {
                 startColor="#00000025"
                 endColor="#00000000"
                 paintInside={false}
-                style={{ borderRadius: 8, width: 260 }}
-              >
-                <TouchableOpacity className="rounded-lg overflow-hidden bg-white">
-                  <View className="h-40 relative">
-                    <Image source={item.imageUrl} className="w-full h-full" resizeMode="cover" />
+                style={{ borderRadius: 8, width: 260 }}>
+                <TouchableOpacity className="overflow-hidden rounded-lg bg-white">
+                  <View className="relative h-40">
+                    <Image source={item.imageUrl} className="h-full w-full" resizeMode="cover" />
                     <View className="absolute bottom-3 left-4">
-                      <Text className="text-white text-h2 font-pretendardSemiBold">{item.title}</Text>
-                      <Text className="text-white text-p font-pretendardSemiBold mt-1">{item.country}</Text>
+                      <Text className="font-pretendardSemiBold text-h2 text-white">
+                        {item.title}
+                      </Text>
+                      <Text className="mt-1 font-pretendardSemiBold text-p text-white">
+                        {item.country}
+                      </Text>
                     </View>
                   </View>
 
                   <View className="p-4">
-                    <Text className="text-gray text-p mb-4" numberOfLines={2}>
+                    <Text className="mb-4 text-p text-gray" numberOfLines={2}>
                       {item.description}
                     </Text>
                     <View className="flex-row">
                       {item.tags.map((tag, index) => (
-                        <MainRecChip key={`${item.id}-${tag}-${index}`} label={tag} className={'mr-[6px]'} />
+                        <MainRecChip
+                          key={`${item.id}-${tag}-${index}`}
+                          label={tag}
+                          className={'mr-[6px]'}
+                        />
                       ))}
                     </View>
                   </View>
@@ -185,7 +201,9 @@ const HomeScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      <TouchableOpacity onPress={handleOpenChat} className="absolute bottom-4 right-4 bg-main rounded-full px-4 py-4">
+      <TouchableOpacity
+        onPress={handleOpenChat}
+        className="absolute bottom-4 right-4 rounded-full bg-main px-4 py-4">
         <ChatIcon width={24} height={24} />
       </TouchableOpacity>
 
@@ -196,26 +214,23 @@ const HomeScreen: React.FC = () => {
         cornerRadius={12}
         backgroundColor="#FFFFFF"
         onStateChange={setIsChatOpen}
-        showIndicator={false}
-      >
+        showIndicator={false}>
         <View
-          className="absolute top-0 left-0 right-0 bg-white px-4 flex-row items-center justify-center"
-          style={{ height: CHAT_HEADER_HEIGHT }}
-        >
+          className="absolute left-0 right-0 top-0 flex-row items-center justify-center bg-white px-4"
+          style={{ height: CHAT_HEADER_HEIGHT }}>
           <View className="absolute left-4 flex-row items-center">
-            <View className="w-8 h-8 rounded-full bg-chatHeaderCircleBackground items-center justify-center">
+            <View className="h-8 w-8 items-center justify-center rounded-full bg-chatHeaderCircleBackground">
               <RobotIcon width={20} height={20} />
             </View>
             <View className="ml-[7px]">
-              <Text className="text-h3 text-black font-pretendardSemiBold">Pli AI</Text>
+              <Text className="font-pretendardSemiBold text-h3 text-black">Pli AI</Text>
               <Text className="text-p text-gray">여행 계획을 도와드려요</Text>
             </View>
           </View>
           <Pressable
             onPress={handleCloseChat}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            className="absolute right-4 w-8 h-8 rounded-full bg-chatHeaderCircleBackground items-center justify-center"
-          >
+            className="absolute right-4 h-8 w-8 items-center justify-center rounded-full bg-chatHeaderCircleBackground">
             <X width={14} height={14} />
           </Pressable>
           <View className="absolute bottom-0 left-0 right-0 h-px bg-borderGray" />
@@ -224,17 +239,18 @@ const HomeScreen: React.FC = () => {
         <View className="flex-1" style={{ marginTop: CHAT_HEADER_HEIGHT }}>
           <ChatCaseContent currentCaseIndex={currentCaseIndex} />
 
-          <View className="absolute left-0 right-0 px-4 flex-row items-center" style={{ bottom: CHAT_INPUT_BOTTOM_SPACING }}>
+          <View
+            className="absolute left-0 right-0 flex-row items-center px-4"
+            style={{ bottom: CHAT_INPUT_BOTTOM_SPACING }}>
             <TextInput
               placeholder="AI에게 질문해보세요"
               placeholderTextColor={COLORS.gray}
-              className="flex-1 h-12 border border-borderGray px-4 text-p1 text-black"
+              className="h-12 flex-1 border border-borderGray px-4 text-p1 text-black"
               style={{ borderRadius: CHAT_INPUT_RADIUS }}
             />
             <View
-              className="ml-3 rounded-full bg-main items-center justify-center"
-              style={{ width: CHAT_SEND_BUTTON_SIZE, height: CHAT_SEND_BUTTON_SIZE }}
-            >
+              className="ml-3 items-center justify-center rounded-full bg-main"
+              style={{ width: CHAT_SEND_BUTTON_SIZE, height: CHAT_SEND_BUTTON_SIZE }}>
               <SendIcon width={24} height={24} />
             </View>
           </View>

@@ -2,17 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { ContentContainer, LabeledInput, TopBar } from '@/components';
-import type { RootStackParamList } from '@/navigation/types';
-
-// ============ Types ============
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+import type { FindIdScreenNavigationProp } from '@/types/findId';
 
 // ============ Component ============
 const FindIdScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<FindIdScreenNavigationProp>();
 
   // Hooks
   const [nickname, setNickname] = useState<string>('');
@@ -50,7 +46,7 @@ const FindIdScreen: React.FC = () => {
       <TopBar title="아이디 찾기" onPress={() => navigation.goBack()} />
       <View className="flex-1 px-4 pt-6">
         <ContentContainer className="px-6 py-6">
-          <Text className="text-p text-gray mb-4">
+          <Text className="mb-4 text-p text-gray">
             {'가입 시 등록한 이메일과 닉네임을 입력하면\n아이디를 찾을 수 있습니다.'}
           </Text>
 
@@ -71,12 +67,12 @@ const FindIdScreen: React.FC = () => {
           />
 
           <TouchableOpacity
-            className={`w-full h-11 rounded-lg items-center justify-center ${isSubmitDisabled ? 'bg-main/50' : 'bg-main'}`}
+            className={`h-11 w-full items-center justify-center rounded-lg ${isSubmitDisabled ? 'bg-main/50' : 'bg-main'}`}
             onPress={handleSubmit}
             disabled={isSubmitDisabled}
             accessibilityRole="button"
             accessibilityLabel="아이디 찾기">
-            <Text className="text-h3 font-pretendardSemiBold text-white">아이디 찾기</Text>
+            <Text className="font-pretendardSemiBold text-h3 text-white">아이디 찾기</Text>
           </TouchableOpacity>
 
           {foundId !== null && (
