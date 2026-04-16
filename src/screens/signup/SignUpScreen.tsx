@@ -22,35 +22,19 @@ import { ContentContainer, LabeledInput } from '@/components/ui';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
 import { AccountSection, EmailSection, TermsSection } from './components';
 import type {
+  CodeStatus,
+  CountryDropdownLayout,
+  EmailStatus,
+  IdCheckStatus,
+  RequiredFieldKey,
+  SectionKey,
   SignUpFormData,
   SignUpScreenNavigationProp,
+  SpinnerColumnProps,
   TermsAgreement,
   AccountFieldKey,
 } from '@/types/signup';
 import { checkDuplicateUserId, requestEmailVerification } from '@/services';
-
-// ============ Types ============
-type EmailStatus = 'none' | 'sent' | 'error';
-type CodeStatus = 'none' | 'success' | 'error';
-
-type IdCheckStatus = 'idle' | 'available' | 'duplicate' | 'error';
-type RequiredFieldKey =
-  | 'accountId'
-  | 'nickname'
-  | 'password'
-  | 'passwordConfirm'
-  | 'name'
-  | 'birthDate'
-  | 'gender'
-  | 'country'
-  | 'email';
-type SectionKey = 'account' | 'profile' | 'email';
-type CountryDropdownLayout = {
-  left: number;
-  top: number;
-  width: number;
-  maxHeight: number;
-};
 
 const COUNTRIES = [
   '대한민국',
@@ -78,13 +62,6 @@ const COUNTRY_PICKER_MAX_HEIGHT = 274;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const getDaysInMonth = (year: number, month: number) => new Date(year, month, 0).getDate();
-
-interface SpinnerColumnProps {
-  items: number[];
-  selectedIndex: number;
-  onSelect: (index: number) => void;
-  format?: (n: number) => string;
-}
 
 const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
   items,

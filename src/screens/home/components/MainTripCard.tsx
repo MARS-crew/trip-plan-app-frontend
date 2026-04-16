@@ -1,15 +1,8 @@
 import React from 'react';
+import type { MainTripCardProps } from '@/types/home';
 import { MainTripCardEmpty } from './MainTripCardEmpty';
 import { MainTripCardPlanned } from './MainTripCardPlanned';
 import { MainTripCardInProgress } from './MainTripCardInProgress';
-
-interface MainTripCardProps {
-  hasPlannedTrip: boolean;
-  isInTripScheduleView: boolean;
-  onAddTrip: () => void;
-  onOpenTripSchedule: () => void;
-  onViewAllSchedule: () => void;
-}
 
 const MainTripCard: React.FC<MainTripCardProps> = ({
   hasPlannedTrip,
