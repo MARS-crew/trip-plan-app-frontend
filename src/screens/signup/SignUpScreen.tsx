@@ -35,6 +35,7 @@ import type {
   AccountFieldKey,
 } from '@/types/signup';
 import { checkDuplicateUserId, requestEmailVerification } from '@/services';
+import { showToastMessage } from '@/utils';
 
 const COUNTRIES = [
   '대한민국',
@@ -49,7 +50,6 @@ const COUNTRIES = [
 ] as const;
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TEMP_VERIFICATION_CODE = '123456';
 
 // DatePicker Constants
@@ -176,6 +176,7 @@ const SignUpScreen: React.FC = () => {
   const [showCountryPicker, setShowCountryPicker] = useState<boolean>(false);
   const [idCheckStatus, setIdCheckStatus] = useState<IdCheckStatus>('idle');
   const [emailStatus, setEmailStatus] = useState<EmailStatus>('none');
+  const [emailErrorMessage, setEmailErrorMessage] = useState<string>('');
   const [codeStatus, setCodeStatus] = useState<CodeStatus>('none');
   const [isCodeFieldVisible, setIsCodeFieldVisible] = useState<boolean>(false);
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false);
@@ -217,7 +218,7 @@ const SignUpScreen: React.FC = () => {
 
   const isIdVerified = idCheckStatus === 'available';
   const isEmailSent = emailStatus === 'sent';
-  const isEmailError = emailStatus === 'error';
+  const isEmailError = emailErrorMessage.length > 0;
   const isCodeError = codeStatus === 'error';
   const canSendCode = formData.email.trim().length > 0;
   const sendCodeButtonText = isCodeFieldVisible || isEmailVerified ? '재전송' : '인증번호 발송';
@@ -312,6 +313,7 @@ const SignUpScreen: React.FC = () => {
     }));
 
     setEmailStatus('none');
+    setEmailErrorMessage('');
     setCodeStatus('none');
     setIsCodeFieldVisible(false);
     setIsEmailVerified(false);
@@ -319,18 +321,10 @@ const SignUpScreen: React.FC = () => {
 
   const handleSendVerification = useCallback(async () => {
     const trimmedEmail = formData.email.trim();
-    const isEmailFormatValid = EMAIL_REGEX.test(trimmedEmail);
-
-    if (!isEmailFormatValid) {
-      setEmailStatus('error');
-      setIsCodeFieldVisible(false);
-      setCodeStatus('none');
-      setIsEmailVerified(false);
-      return;
-    }
 
     try {
       await requestEmailVerification(trimmedEmail);
+      setEmailErrorMessage('');
       setEmailStatus('sent');
       setIsCodeFieldVisible(true);
       setCodeStatus('none');
@@ -340,11 +334,13 @@ const SignUpScreen: React.FC = () => {
         verificationCode: '',
       }));
     } catch (error) {
-      console.error('handleSendVerification Error:', error);
-      setEmailStatus('error');
+      setEmailStatus('none');
+      const errMessage = error instanceof Error ? error.message : '';
+      setEmailErrorMessage(errMessage);
       setIsCodeFieldVisible(false);
       setCodeStatus('none');
       setIsEmailVerified(false);
+      showToastMessage(errMessage);
     }
   }, [formData.email]);
 
@@ -373,8 +369,9 @@ const SignUpScreen: React.FC = () => {
       const isDuplicate = await checkDuplicateUserId(normalizedAccountId);
       setIdCheckStatus(isDuplicate ? 'duplicate' : 'available');
     } catch (error) {
-      console.error('handleCheckId Error:', error);
       setIdCheckStatus('error');
+      const errMessage = error instanceof Error ? error.message : '';
+      showToastMessage(errMessage);
     }
   }, [formData.accountId]);
 
@@ -729,7 +726,7 @@ const SignUpScreen: React.FC = () => {
             <EmailSection
               formData={formData}
               isEmailVerified={isEmailVerified}
-              isEmailError={isEmailError}
+              emailErrorMessage={emailErrorMessage}
               isEmailSent={isEmailSent}
               isCodeError={isCodeError}
               isCodeFieldVisible={isCodeFieldVisible}
