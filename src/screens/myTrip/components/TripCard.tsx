@@ -3,7 +3,7 @@ import { Image, Pressable, Text, View, type ImageSourcePropType } from 'react-na
 
 import { TripStatusChip } from '@/components/ui';
 import { PlaceIcon, CalendarWhiteIcon, ChevronDownIcon, ChevronUpIcon } from '@/assets/icons';
-import type { TripCardProps } from '@/screens/myTrip/type';
+import type { TripCardProps } from '@/types/myTrip.types';
 
 const FALLBACK_IMAGE: ImageSourcePropType = require('@/assets/images/thumnail2.png');
 
