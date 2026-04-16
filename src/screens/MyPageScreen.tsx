@@ -90,6 +90,7 @@ const MyPageScreen: React.FC = () => {
   const [krwToJpyRate, setKrwToJpyRate] = React.useState<number>(KRW_TO_JPY_RATE);
   const [jpyToKrwRate, setJpyToKrwRate] = React.useState<number>(JPY_TO_KRW_RATE);
   const exchangeRequestIdRef = React.useRef<number>(0);
+  const exchangeDebounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchPapagoPhrases = React.useCallback(async (): Promise<void> => {
     try {
@@ -128,7 +129,7 @@ const MyPageScreen: React.FC = () => {
           return;
         }
 
-        const converted = formatAmountWithCommas(String(exchangeData.convertedAmount));
+        const converted = formatAmountWithCommas(String(Math.round(exchangeData.convertedAmount)));
 
         if (fromKrw) {
           setJpyAmount(converted);
@@ -172,7 +173,13 @@ const MyPageScreen: React.FC = () => {
     (text: string): void => {
       const formatted = formatAmountWithCommas(text);
       setKrwAmount(formatted);
-      requestExchange(formatted, true);
+
+      if (exchangeDebounceRef.current) {
+        clearTimeout(exchangeDebounceRef.current);
+      }
+      exchangeDebounceRef.current = setTimeout(() => {
+        requestExchange(formatted, true);
+      }, 500);
     },
     [requestExchange],
   );
@@ -181,7 +188,13 @@ const MyPageScreen: React.FC = () => {
     (text: string): void => {
       const formatted = formatAmountWithCommas(text);
       setJpyAmount(formatted);
-      requestExchange(formatted, false);
+
+      if (exchangeDebounceRef.current) {
+        clearTimeout(exchangeDebounceRef.current);
+      }
+      exchangeDebounceRef.current = setTimeout(() => {
+        requestExchange(formatted, false);
+      }, 500);
     },
     [requestExchange],
   );

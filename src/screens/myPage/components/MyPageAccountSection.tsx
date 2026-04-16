@@ -4,7 +4,7 @@ import { TouchableOpacity, View, Text } from 'react-native';
 import BellIcon from '@/assets/icons/bell.svg';
 import SettingIcon from '@/assets/icons/setting.svg';
 import VectorIcon from '@/assets/icons/vector.svg';
-import { COLORS } from '@/constants';
+import { CARD_SHADOW } from '@/constants';
 import type { MyPageSettingItem } from '@/screens/myPage/types';
 
 interface MyPageAccountSectionProps {
@@ -12,14 +12,6 @@ interface MyPageAccountSectionProps {
   onPressAccountSettings: () => void;
   onPressNotificationSettings: () => void;
 }
-
-const cardStyle = {
-  shadowColor: COLORS.gray,
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.15,
-  shadowRadius: 2,
-  elevation: 1,
-};
 
 const SettingItemIcon: React.FC<{ type: MyPageSettingItem['type'] }> = ({ type }) => {
   if (type === 'account') {
@@ -38,7 +30,7 @@ const MyPageAccountSection: React.FC<MyPageAccountSectionProps> = ({
     <>
       <Text className="ml-1 mt-5 font-pretendardSemiBold text-xs text-gray">계정</Text>
 
-      <View className="mt-2 overflow-hidden rounded-lg border border-white bg-white" style={cardStyle}>
+      <View className="mt-2 overflow-hidden rounded-lg border border-white bg-white" style={CARD_SHADOW}>
         {items.map((item, index) => (
           <TouchableOpacity
             key={item.id}

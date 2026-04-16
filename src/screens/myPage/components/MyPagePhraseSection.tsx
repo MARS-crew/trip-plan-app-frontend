@@ -2,21 +2,13 @@ import React from 'react';
 import { View, Text } from 'react-native';
 
 import JapanLanguageIcon from '@/assets/icons/japan_language.svg';
-import { COLORS } from '@/constants';
+import { CARD_SHADOW } from '@/constants';
 import type { GetPapagoPhrase } from '@/types/mypage';
 
 interface MyPagePhraseSectionProps {
   title: string;
   phrases: GetPapagoPhrase[];
 }
-
-const cardStyle = {
-  shadowColor: COLORS.gray,
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.15,
-  shadowRadius: 2,
-  elevation: 1,
-};
 
 const MyPagePhraseSection: React.FC<MyPagePhraseSectionProps> = ({ title, phrases }) => {
   return (
@@ -27,7 +19,7 @@ const MyPagePhraseSection: React.FC<MyPagePhraseSectionProps> = ({ title, phrase
       </View>
 
       {phrases.length > 0 && (
-        <View className="mt-2 overflow-hidden rounded-lg border border-white bg-white" style={cardStyle}>
+        <View className="mt-2 overflow-hidden rounded-lg border border-white bg-white" style={CARD_SHADOW}>
           {phrases.map((phrase, index) => (
             <View
               key={`${phrase.targetLang}-${index}`}

@@ -3,7 +3,7 @@ import { TextInput, TouchableOpacity, View, Text } from 'react-native';
 
 import ExchangeIcon from '@/assets/icons/exchange.svg';
 import Exchange2Icon from '@/assets/icons/exchange2.svg';
-import { COLORS } from '@/constants';
+import { CARD_SHADOW } from '@/constants';
 
 interface MyPageExchangeSectionProps {
   exchangeRateText: string;
@@ -20,14 +20,6 @@ interface MyPageExchangeSectionProps {
   onChangeBottomAmount: (text: string) => void;
   onPressSwap: () => void;
 }
-
-const cardStyle = {
-  shadowColor: COLORS.gray,
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.15,
-  shadowRadius: 2,
-  elevation: 1,
-};
 
 const MyPageExchangeSection: React.FC<MyPageExchangeSectionProps> = ({
   exchangeRateText,
@@ -51,7 +43,7 @@ const MyPageExchangeSection: React.FC<MyPageExchangeSectionProps> = ({
         <Text className="ml-1.5 font-pretendardSemiBold text-h3 text-black">환율 계산기</Text>
       </View>
 
-      <View className="mt-2 rounded-lg border border-white bg-white p-4" style={cardStyle}>
+      <View className="mt-2 rounded-lg border border-white bg-white p-4" style={CARD_SHADOW}>
         <View className="flex-row items-center justify-between">
           <Text className="text-left text-p text-xs text-gray">{exchangeRateText}</Text>
           <Text className="text-p text-gray">{rightCurrencyLabel}</Text>

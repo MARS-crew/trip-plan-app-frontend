@@ -4,21 +4,13 @@ import { TouchableOpacity, View, Text } from 'react-native';
 import BookmarkIcon from '@/assets/icons/bookmark.svg';
 import MapIcon from '@/assets/icons/map.svg';
 import LocationOrangeIcon from '@/assets/icons/location_orange.svg';
-import { COLORS } from '@/constants';
+import { CARD_SHADOW, COLORS } from '@/constants';
 import type { MyPageStatItem } from '@/screens/myPage/types';
 
 interface MyPageStatsSectionProps {
   stats: MyPageStatItem[];
   onPressVisitedPlaceList: () => void;
 }
-
-const cardStyle = {
-  shadowColor: COLORS.gray,
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.15,
-  shadowRadius: 2,
-  elevation: 1,
-};
 
 const StatIcon: React.FC<{ type: MyPageStatItem['type'] }> = ({ type }) => {
   if (type === 'map') {
@@ -42,7 +34,7 @@ const MyPageStatsSection: React.FC<MyPageStatsSectionProps> = ({ stats, onPressV
           disabled={item.type !== 'marker'}
           onPress={item.type === 'marker' ? onPressVisitedPlaceList : undefined}
           className="w-[31.5%] rounded-lg border border-white bg-white py-4"
-          style={cardStyle}>
+          style={CARD_SHADOW}>
           <View className="items-center">
             <StatIcon type={item.type} />
             <Text className="mt-2 font-pretendardBold text-h1 text-black">{item.value}</Text>

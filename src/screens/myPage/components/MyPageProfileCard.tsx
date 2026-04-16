@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity, View, Text } from 'react-native';
 
 import EarthIcon from '@/assets/icons/earth1.svg';
-import { COLORS } from '@/constants';
+import { CARD_SHADOW } from '@/constants';
 
 interface MyPageProfileCardProps {
   nickname: string;
@@ -12,14 +12,6 @@ interface MyPageProfileCardProps {
   avatarText?: string;
 }
 
-const cardStyle = {
-  shadowColor: COLORS.gray,
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.15,
-  shadowRadius: 2,
-  elevation: 1,
-};
-
 const MyPageProfileCard: React.FC<MyPageProfileCardProps> = ({
   nickname,
   email,
@@ -28,7 +20,7 @@ const MyPageProfileCard: React.FC<MyPageProfileCardProps> = ({
   avatarText = 't',
 }) => {
   return (
-    <View className="mt-3.5 rounded-lg border border-subtleBorder bg-white p-4" style={cardStyle}>
+    <View className="mt-3.5 rounded-lg border border-subtleBorder bg-white p-4" style={CARD_SHADOW}>
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center">
           <View className="mr-3 h-16 w-16 items-center justify-center rounded-full bg-contentBackground">
