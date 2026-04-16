@@ -3,10 +3,8 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  Text,
   Keyboard,
   Platform,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
@@ -109,8 +107,6 @@ const WishlistScreen: React.FC = () => {
 
   const [savedPlaces, setSavedPlaces] = useState<PlaceCardProps['place'][]>([]);
   const [wishlistPlaces, setWishlistPlaces] = useState<PlaceCardProps['place'][]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const [likedIdsByTab, setLikedIdsByTab] = useState<Record<LikeTabId, Set<string>>>(() => ({
     saved: new Set<string>(),
@@ -119,7 +115,6 @@ const WishlistScreen: React.FC = () => {
   useEffect(() => {
     const loadPlaceSelection = async () => {
       try {
-        setLoading(true);
         const response = await getPlaceSelection(tripId);
 
         const convertedSavedPlaces = response.data.savedPlaces.map(convertPlaceDataToWishPlace);
@@ -133,18 +128,14 @@ const WishlistScreen: React.FC = () => {
           saved: new Set<string>(),
           wishlist: new Set(convertedWishlistPlaces.map((place) => place.id)),
         });
-        setError(null);
       } catch (err) {
         console.error('Failed to load place selection:', err);
-        setError(err instanceof Error ? err.message : '장소 데이터 로드 실패');
         setSavedPlaces([]);
         setWishlistPlaces([]);
         setLikedIdsByTab({
           saved: new Set<string>(),
           wishlist: new Set<string>(),
         });
-      } finally {
-        setLoading(false);
       }
     };
 
