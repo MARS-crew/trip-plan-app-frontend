@@ -6,11 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { RootTabParamList } from '@/navigation/types';
 import { deleteSavedPlace, getSavedPlaceCategories, getSavedPlaces } from '@/services';
-import type {
-  SavedPlace,
-  SavedPlaceCategory,
-  SavedPlaceFilterType,
-} from '@/types/savedPlace';
+import type { SavedPlace, SavedPlaceCategory, SavedPlaceFilterType } from '@/types/savedPlace';
 import { PlaceCard } from './bookmark/components';
 
 type BookmarkNavigationProp = BottomTabNavigationProp<RootTabParamList, 'Bookmark'>;
@@ -75,8 +71,7 @@ const BookmarkScreen: React.FC = () => {
     async (placeId: number): Promise<void> => {
       try {
         await deleteSavedPlace(placeId);
-        await fetchSavedPlaces(selectedFilter);
-        await fetchCategories();
+        await Promise.all([fetchSavedPlaces(selectedFilter), fetchCategories()]);
       } catch (error) {
         console.error('handleBookmarkPress Error:', error);
       }
