@@ -18,7 +18,7 @@ import type { RootStackParamList } from '@/navigation/types';
 import BackArrow from '@/assets/icons/backArrow.svg';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
 import { COLORS } from '@/constants';
-import { getProfile, patchProfile } from '@/services';
+import { getProfile } from '@/services';
 import type { Gender } from '@/types/mypage';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -28,12 +28,6 @@ const GENDER_API_TO_LABEL: Record<Gender, GenderType> = {
   MALE: '남성',
   FEMALE: '여성',
   OTHER: '기타',
-};
-
-const GENDER_LABEL_TO_API: Record<GenderType, Gender> = {
-  '남성': 'MALE',
-  '여성': 'FEMALE',
-  '기타': 'OTHER',
 };
 
 const COUNTRIES = ['대한민국', '미국', '일본', '중국', '영국', '프랑스', '독일'] as const;
@@ -247,20 +241,9 @@ const ProfileEditDetailScreen: React.FC = () => {
     setShowBirthDatePicker(false);
   }, [currentYear, tempYear, tempMonth, tempDay]);
 
-  const handleSubmitProfileEdit = React.useCallback(async (): Promise<void> => {
-    try {
-      await patchProfile({
-        nickname,
-        ...(password ? { password, passwordConfirm } : {}),
-        gender: GENDER_LABEL_TO_API[gender],
-        birth: birthDate,
-        countryCode: country,
-      });
-      navigation.navigate('MainTabs', { screen: 'MyPage' });
-    } catch (error) {
-      console.error('handleSubmitProfileEdit Error:', error);
-    }
-  }, [nickname, password, passwordConfirm, gender, birthDate, country, navigation]);
+  const handleSubmitProfileEdit = React.useCallback(() => {
+    navigation.navigate('MainTabs', { screen: 'MyPage' });
+  }, [navigation]);
 
   const {
     years: availableYears,
