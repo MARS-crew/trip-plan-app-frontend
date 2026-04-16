@@ -59,29 +59,6 @@ export const getPapagoPhrases = async (): Promise<GetPapagoPhrase[]> => {
   }
 };
 
-export const postExchange = async (payload: GetExchangeRequest): Promise<GetExchangeData> => {
-  try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/exchange`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      throw new Error('환율 계산 실패');
-    }
-
-    const json: BaseResponse<GetExchangeData> = await response.json();
-    return json.data;
-  } catch (error) {
-    console.error('postExchange Error:', error);
-    throw error;
-  }
-};
-
 export const patchProfile = async (payload: PatchProfileRequest): Promise<PatchProfileData> => {
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
