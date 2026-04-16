@@ -7,6 +7,8 @@ import type {
   GetMyPageData,
   GetPapagoPhrase,
   GetProfileData,
+  PatchProfileData,
+  PatchProfileRequest,
 } from '@/types/mypage';
 
 export const getMyPage = async (): Promise<GetMyPageData> => {
@@ -76,6 +78,27 @@ export const postExchange = async (payload: GetExchangeRequest): Promise<GetExch
     return json.data;
   } catch (error) {
     console.error('postExchange Error:', error);
+    throw error;
+  }
+};
+
+export const patchProfile = async (payload: PatchProfileRequest): Promise<PatchProfileData> => {
+  try {
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error('프로필 수정 실패');
+    }
+    const json: BaseResponse<PatchProfileData> = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error('patchProfile Error:', error);
     throw error;
   }
 };

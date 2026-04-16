@@ -36,6 +36,22 @@ export interface GetPapagoPhrase {
   targetLang: PapagoTargetLang;
 }
 
+export interface PatchProfileRequest {
+  nickname?: string;
+  password?: string;
+  passwordConfirm?: string;
+  gender?: Gender;
+  birth?: string;
+  countryCode?: string;
+}
+
+export interface PatchProfileData {
+  birth: string;
+  countryCode: string;
+  gender: Gender;
+  nickname: string;
+}
+
 export type ExchangeCurrencyUnit = 'JPY';
 
 export interface GetExchangeRequest {
