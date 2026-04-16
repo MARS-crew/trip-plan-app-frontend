@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getTripSchedules, getTripShare } from '@/services';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
+import type { ServiceError } from '@/types/trip';
 import type {
   TripDetailCardItem,
   TripDetailHeader,
@@ -239,6 +240,20 @@ const normalizeTripDetailData = (
   return { header, sections };
 };
 
+const getTripShareErrorMessage = (error: ServiceError | null): string => {
+  if (!error) return '서버 오류가 발생했습니다.';
+  switch (error.code) {
+    case 'INVALID_INPUT':
+      return '잘못된 요청입니다.';
+    case 'USER_NOT_FOUND':
+      return '사용자를 찾을 수 없습니다.';
+    case 'INTERNAL_ERROR':
+      return '서버 오류가 발생했습니다.';
+    default:
+      return '서버 오류가 발생했습니다.';
+  }
+};
+
 const TripDetailScreen: React.FC = () => {
   const route = useRoute<TripDetailRoute>();
   const tripId = route.params?.tripId;
@@ -355,6 +370,8 @@ const TripDetailScreen: React.FC = () => {
 
     const result = await getTripShare({ tripId });
     if (result.error || !result.data) {
+      if (result.error?.code === 'REQUEST_ABORTED') return;
+      console.error(`[tripShare] ${getTripShareErrorMessage(result.error)}`);
       return;
     }
 
@@ -369,7 +386,9 @@ const TripDetailScreen: React.FC = () => {
         message: message || title,
         url: shareUrl || undefined,
       });
-    } catch {}
+    } catch {
+      console.error('[tripShare] 서버 오류가 발생했습니다.');
+    }
   }, [tripId]);
 
   const handlePressShareInKebab = useCallback(() => {
