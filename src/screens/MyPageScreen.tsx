@@ -165,7 +165,9 @@ const MyPageScreen: React.FC = () => {
 
   const handleSwapExchange = React.useCallback((): void => {
     setIsKrwToJpy((prev) => !prev);
-  }, []);
+    setKrwAmount(jpyAmount);
+    setJpyAmount(krwAmount);
+  }, [krwAmount, jpyAmount]);
 
   const topCurrencyCode = isKrwToJpy ? 'KRW' : 'JPY';
   const bottomCurrencyCode = isKrwToJpy ? 'JPY' : 'KRW';
