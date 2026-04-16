@@ -62,4 +62,18 @@ export interface ApiError {
   details?: Record<string, unknown>;
 }
 
-export type { TripStatus, MyTripItem, GetMyTripsData, GetMyTripsResult } from './trip';
+export type {
+  TripStatus,
+  TripFilterStatus,
+  MyTripItem,
+  GetMyTripsData,
+  TripScheduleDateOption,
+  TripScheduleItem,
+  TripSchedulesByDateData,
+  GetMyTripsResult,
+  GetTripSchedulesByDateResult,
+  GetTripSchedulesResult,
+  GetMyTripsOptions,
+  GetTripSchedulesByDateOptions,
+  GetTripSchedulesOptions,
+} from './trip';

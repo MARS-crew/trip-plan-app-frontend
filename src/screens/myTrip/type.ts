@@ -7,6 +7,7 @@ export type TripCardStatus = 'traveling' | 'scheduled' | 'completed';
 export interface TripCardViewModel {
   id: number;
   city: string;
+  startDate: string;
   dateText: string;
   scheduleText: string;
   scheduleCountText: string;
@@ -36,6 +37,16 @@ export interface TripTimelineItem {
   description?: string;
 }
 
+export interface TripTimelineDateOption {
+  dayNo: number;
+  scheduleDate: string;
+  displayLabel: string;
+}
+
 export interface TripTimelineProps {
+  dateOptions: TripTimelineDateOption[];
+  selectedDate: string;
+  onSelectDate: (date: string) => void;
   items: TripTimelineItem[];
+  isLoading?: boolean;
 }
