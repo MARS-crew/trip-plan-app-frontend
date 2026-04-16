@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScrollView, TouchableOpacity, View, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -145,16 +145,18 @@ const MyPageScreen: React.FC = () => {
   const fetchMyPage = React.useCallback(async () => {
     try {
       const data = await getMyPage();
-      setMyPageData(data);
+      setMyPageData(data ?? INITIAL_MY_PAGE_DATA);
     } catch (error) {
       console.error('fetchMyPage Error:', error);
     }
   }, []);
 
-  React.useEffect(() => {
-    fetchPhrases();
-    fetchMyPage();
-  }, [fetchPhrases, fetchMyPage]);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchPhrases();
+      fetchMyPage();
+    }, [fetchPhrases, fetchMyPage]),
+  );
 
   const stats = React.useMemo<StatItem[]>(() => buildStats(myPageData), [myPageData]);
 
