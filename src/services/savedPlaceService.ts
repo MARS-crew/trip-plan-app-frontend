@@ -1,5 +1,6 @@
 import Config from 'react-native-config';
 
+import { useAuthStore } from '@/store';
 import type { BaseResponse } from '@/types';
 import type {
   DeleteSavedPlaceData,
@@ -48,11 +49,12 @@ export const getSavedPlaceCategories = async (): Promise<GetSavedPlaceCategories
 
 export const deleteSavedPlace = async (placeId: number): Promise<DeleteSavedPlaceData> => {
   try {
+    const accessToken = useAuthStore.getState().accessToken ?? '';
     const response = await fetch(
       `${Config.API_BASE_URL}/api/v1/places/${placeId}/saved-places`,
       {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+        headers: { Authorization: `Bearer ${accessToken}` },
       },
     );
     if (!response.ok) {
