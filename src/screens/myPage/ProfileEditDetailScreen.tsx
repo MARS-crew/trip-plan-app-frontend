@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/navigation/types';
@@ -198,9 +198,11 @@ const ProfileEditDetailScreen: React.FC = () => {
     }
   }, []);
 
-  React.useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchProfile();
+    }, [fetchProfile]),
+  );
 
   const isPasswordMismatch = passwordConfirm.length > 0 && password !== passwordConfirm;
 

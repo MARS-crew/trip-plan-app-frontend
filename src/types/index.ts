@@ -77,3 +77,15 @@ export type {
   GetTripSchedulesByDateOptions,
   GetTripSchedulesOptions,
 } from './trip';
+
+export type {
+  Gender,
+  GetMyPageData,
+  GetPapagoPhrase,
+  GetProfileData,
+  PapagoTargetLang,
+  SettingItem,
+  SettingItemType,
+  StatItem,
+  StatItemType,
+} from './mypage';
