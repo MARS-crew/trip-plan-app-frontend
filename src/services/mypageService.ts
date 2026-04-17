@@ -1,12 +1,14 @@
 import Config from 'react-native-config';
 
+import { useAuthStore } from '@/store';
 import type { BaseResponse } from '@/types';
 import type { GetMyPageData, GetPapagoPhrase, GetProfileData } from '@/types/mypage';
 
 export const getMyPage = async (): Promise<GetMyPageData> => {
   try {
+    const accessToken = useAuthStore.getState().accessToken ?? '';
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/mypage`, {
-      headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
     if (!response.ok) {
       throw new Error('마이페이지 조회 실패');
