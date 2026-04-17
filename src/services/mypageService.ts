@@ -1,5 +1,6 @@
 import Config from 'react-native-config';
 
+import { useAuthStore } from '@/store';
 import type { BaseResponse } from '@/types';
 import type {
   GetExchangeData,
@@ -61,10 +62,11 @@ export const getPapagoPhrases = async (): Promise<GetPapagoPhrase[]> => {
 
 export const patchProfile = async (payload: PatchProfileRequest): Promise<PatchProfileData> => {
   try {
+    const accessToken = useAuthStore.getState().accessToken ?? '';
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
       method: 'PATCH',
       headers: {
-        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
+        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
