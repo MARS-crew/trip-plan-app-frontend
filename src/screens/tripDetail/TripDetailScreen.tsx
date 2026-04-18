@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/navigation/types';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getTripSchedules } from '@/services';
+import { deleteTrip, getTripSchedules } from '@/services';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
 import type {
   TripDetailCardItem,
@@ -12,11 +14,12 @@ import type {
   TripDetailRoute,
   TripDetailSection,
 } from '@/types/tripDetail.types';
-import { Header, DaySection, KebabMenuSheet, CardContextMenu } from './components';
+import { Header, DaySection, KebabMenuSheet, CardContextMenu, DeleteWarningModal } from './components';
 import { KEBAB_SHEET_HEIGHT } from './components/KebabMenuSheet';
 
 const KEBAB_ANIMATION_DURATION = 250;
 const CARD_MENU_ANIMATION_DURATION = 220;
+type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetail'>;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
@@ -237,6 +240,7 @@ const normalizeTripDetailData = (
 };
 
 const TripDetailScreen: React.FC = () => {
+  const navigation = useNavigation<TripDetailNavigation>();
   const route = useRoute<TripDetailRoute>();
   const tripId = route.params?.tripId;
 
@@ -245,6 +249,7 @@ const TripDetailScreen: React.FC = () => {
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [isKebabMenuVisible, setIsKebabMenuVisible] = useState(false);
+  const [isDeleteWarningVisible, setIsDeleteWarningVisible] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [selectedCardTop, setSelectedCardTop] = useState(0);
   const [headerData, setHeaderData] = useState<TripDetailHeader>({
@@ -346,6 +351,20 @@ const TripDetailScreen: React.FC = () => {
     }, CARD_MENU_ANIMATION_DURATION);
   }, [cardMenuOpacity, clearCloseTimer]);
 
+  const handleDeleteTrip = useCallback(async (): Promise<void> => {
+    if (!tripId) return;
+
+    const result = await deleteTrip({ tripId });
+    if (result.error) {
+      console.error(`[tripDetail] 여행 삭제 실패 errorCode=${result.error}`);
+      return;
+    }
+
+    handleCloseKebabMenu();
+    setIsDeleteWarningVisible(false);
+    navigation.goBack();
+  }, [handleCloseKebabMenu, navigation, tripId]);
+
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView
@@ -386,6 +405,18 @@ const TripDetailScreen: React.FC = () => {
         isVisible={isKebabMenuVisible}
         translateY={kebabTranslateY}
         onClose={handleCloseKebabMenu}
+        onPressDelete={() => {
+          handleCloseKebabMenu();
+          setIsDeleteWarningVisible(true);
+        }}
+      />
+
+      <DeleteWarningModal
+        visible={isDeleteWarningVisible}
+        onConfirm={() => {
+          void handleDeleteTrip();
+        }}
+        onClose={() => setIsDeleteWarningVisible(false)}
       />
     </SafeAreaView>
   );

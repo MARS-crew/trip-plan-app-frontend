@@ -65,3 +65,19 @@ export interface GetTripSchedulesByDateOptions {
   targetDate: string;
   signal?: AbortSignal;
 }
+
+export interface TripRequestConfig {
+  apiBaseUrl: string;
+  headers: Record<string, string>;
+}
+
+export interface TripRequestConfigError {
+  error: string;
+}
+
+export type {
+  GetTripSchedulesResult,
+  GetTripSchedulesOptions,
+  DeleteTripOptions,
+  DeleteTripResult,
+} from './tripDetail.types';
