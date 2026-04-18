@@ -159,6 +159,10 @@ export const getTripSchedules = async ({
       return { data: null, error: errorCode };
     }
 
+    if (response.status === 204) {
+      return { data: null, error: null };
+    }
+
     const json: BaseResponse<unknown> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
