@@ -27,7 +27,7 @@ import type {
   TermsAgreement,
   AccountFieldKey,
 } from '@/types/signup';
-import { checkDuplicateUserId } from '@/services';
+import { checkDuplicateUserId, verifyEmailCode } from '@/services';
 
 // ============ Types ============
 type EmailStatus = 'none' | 'sent' | 'error';
@@ -66,7 +66,6 @@ const COUNTRIES = [
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const TEMP_VERIFICATION_CODE = '123456';
 
 // DatePicker Constants
 const ITEM_HEIGHT = 44;
@@ -362,18 +361,33 @@ const SignUpScreen: React.FC = () => {
     }));
   }, [formData.email]);
 
-  const handleVerifyEmailCode = useCallback(() => {
-    const isVerified =
-      formData.verificationCode.trim().length === 6 &&
-      formData.verificationCode.trim() === TEMP_VERIFICATION_CODE;
+  const handleVerifyEmailCode = useCallback(async () => {
+    const trimmedEmail = formData.email.trim();
+    const trimmedCode = formData.verificationCode.trim();
 
-    setCodeStatus(isVerified ? 'success' : 'error');
-    setIsEmailVerified(isVerified);
-
-    if (isVerified) {
-      setIsCodeFieldVisible(false);
+    if (trimmedCode.length !== 6) {
+      setCodeStatus('error');
+      setIsEmailVerified(false);
+      return;
     }
-  }, [formData.verificationCode]);
+
+    try {
+      const data = await verifyEmailCode(trimmedEmail, trimmedCode);
+      const isVerified = data.email_verified === 'Y';
+
+      if (isVerified) {
+        setCodeStatus('success');
+        setIsEmailVerified(true);
+        setIsCodeFieldVisible(false);
+      } else {
+        setCodeStatus('error');
+        setIsEmailVerified(false);
+      }
+    } catch {
+      setCodeStatus('error');
+      setIsEmailVerified(false);
+    }
+  }, [formData.email, formData.verificationCode]);
 
   const handleCheckId = useCallback(async () => {
     const normalizedAccountId = formData.accountId.trim();
