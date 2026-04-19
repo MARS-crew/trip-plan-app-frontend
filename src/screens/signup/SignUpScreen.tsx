@@ -822,9 +822,9 @@ const SignUpScreen: React.FC = () => {
                       <Pressable
                         key={country}
                         onPress={() => handleCountrySelect(country)}
-                        className={`mx-[6px] rounded-lg px-3 py-[9px] ${isLastItem ? '' : 'mb-1'}${
-                          isSelectedCountry ? 'bg-statusSuccess' : 'bg-white'
-                        }`}>
+                        className={`mx-[6px] rounded-lg px-3 py-[9px] ${
+                          isLastItem ? '' : 'mb-1'
+                        } ${isSelectedCountry ? 'bg-statusSuccess' : 'bg-white'}`}>
                         <Text
                           className={`text-p ${isSelectedCountry ? 'text-white' : 'text-black'}`}>
                           {country}
