@@ -8,6 +8,7 @@ export interface EmailSectionProps {
   isEmailError: boolean;
   isEmailSent: boolean;
   isCodeError: boolean;
+  isVerifyingCode: boolean;
   isCodeFieldVisible: boolean;
   canSendCode: boolean;
   sendCodeButtonText: string;

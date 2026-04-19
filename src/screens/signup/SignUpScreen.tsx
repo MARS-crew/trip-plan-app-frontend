@@ -27,7 +27,7 @@ import type {
   TermsAgreement,
   AccountFieldKey,
 } from '@/types/signup';
-import { checkDuplicateUserId } from '@/services';
+import { checkDuplicateUserId, verifyEmailCode } from '@/services';
 
 // ============ Types ============
 type EmailStatus = 'none' | 'sent' | 'error';
@@ -66,7 +66,6 @@ const COUNTRIES = [
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const TEMP_VERIFICATION_CODE = '123456';
 
 // DatePicker Constants
 const ITEM_HEIGHT = 44;
@@ -201,6 +200,7 @@ const SignUpScreen: React.FC = () => {
   const [emailStatus, setEmailStatus] = useState<EmailStatus>('none');
   const [codeStatus, setCodeStatus] = useState<CodeStatus>('none');
   const [isCodeFieldVisible, setIsCodeFieldVisible] = useState<boolean>(false);
+  const [isVerifyingCode, setIsVerifyingCode] = useState<boolean>(false);
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false);
   const [showFieldErrors, setShowFieldErrors] = useState<boolean>(false);
   const [dismissedAccountFieldErrors, setDismissedAccountFieldErrors] = useState<
@@ -362,18 +362,41 @@ const SignUpScreen: React.FC = () => {
     }));
   }, [formData.email]);
 
-  const handleVerifyEmailCode = useCallback(() => {
-    const isVerified =
-      formData.verificationCode.trim().length === 6 &&
-      formData.verificationCode.trim() === TEMP_VERIFICATION_CODE;
-
-    setCodeStatus(isVerified ? 'success' : 'error');
-    setIsEmailVerified(isVerified);
-
-    if (isVerified) {
-      setIsCodeFieldVisible(false);
+  const handleVerifyEmailCode = useCallback(async () => {
+    if (isVerifyingCode) {
+      return;
     }
-  }, [formData.verificationCode]);
+
+    const trimmedEmail = formData.email.trim();
+    const trimmedCode = formData.verificationCode.trim();
+
+    if (trimmedCode.length !== 6) {
+      setCodeStatus('error');
+      setIsEmailVerified(false);
+      return;
+    }
+
+    setIsVerifyingCode(true);
+
+    try {
+      const data = await verifyEmailCode(trimmedEmail, trimmedCode);
+      const isVerified = data.email_verified === 'Y';
+
+      if (isVerified) {
+        setCodeStatus('success');
+        setIsEmailVerified(true);
+        setIsCodeFieldVisible(false);
+      } else {
+        setCodeStatus('error');
+        setIsEmailVerified(false);
+      }
+    } catch {
+      setCodeStatus('error');
+      setIsEmailVerified(false);
+    } finally {
+      setIsVerifyingCode(false);
+    }
+  }, [formData.email, formData.verificationCode, isVerifyingCode]);
 
   const handleCheckId = useCallback(async () => {
     const normalizedAccountId = formData.accountId.trim();
@@ -747,6 +770,7 @@ const SignUpScreen: React.FC = () => {
               isEmailError={isEmailError}
               isEmailSent={isEmailSent}
               isCodeError={isCodeError}
+              isVerifyingCode={isVerifyingCode}
               isCodeFieldVisible={isCodeFieldVisible}
               canSendCode={canSendCode}
               sendCodeButtonText={sendCodeButtonText}
