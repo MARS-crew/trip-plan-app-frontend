@@ -200,6 +200,7 @@ const SignUpScreen: React.FC = () => {
   const [emailStatus, setEmailStatus] = useState<EmailStatus>('none');
   const [codeStatus, setCodeStatus] = useState<CodeStatus>('none');
   const [isCodeFieldVisible, setIsCodeFieldVisible] = useState<boolean>(false);
+  const [isVerifyingCode, setIsVerifyingCode] = useState<boolean>(false);
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false);
   const [showFieldErrors, setShowFieldErrors] = useState<boolean>(false);
   const [dismissedAccountFieldErrors, setDismissedAccountFieldErrors] = useState<
@@ -362,6 +363,10 @@ const SignUpScreen: React.FC = () => {
   }, [formData.email]);
 
   const handleVerifyEmailCode = useCallback(async () => {
+    if (isVerifyingCode) {
+      return;
+    }
+
     const trimmedEmail = formData.email.trim();
     const trimmedCode = formData.verificationCode.trim();
 
@@ -370,6 +375,8 @@ const SignUpScreen: React.FC = () => {
       setIsEmailVerified(false);
       return;
     }
+
+    setIsVerifyingCode(true);
 
     try {
       const data = await verifyEmailCode(trimmedEmail, trimmedCode);
@@ -386,8 +393,10 @@ const SignUpScreen: React.FC = () => {
     } catch {
       setCodeStatus('error');
       setIsEmailVerified(false);
+    } finally {
+      setIsVerifyingCode(false);
     }
-  }, [formData.email, formData.verificationCode]);
+  }, [formData.email, formData.verificationCode, isVerifyingCode]);
 
   const handleCheckId = useCallback(async () => {
     const normalizedAccountId = formData.accountId.trim();
@@ -761,6 +770,7 @@ const SignUpScreen: React.FC = () => {
               isEmailError={isEmailError}
               isEmailSent={isEmailSent}
               isCodeError={isCodeError}
+              isVerifyingCode={isVerifyingCode}
               isCodeFieldVisible={isCodeFieldVisible}
               canSendCode={canSendCode}
               sendCodeButtonText={sendCodeButtonText}
