@@ -248,17 +248,22 @@ export const requestEmailVerification = async (email: string): Promise<EmailRequ
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
       },
       body: JSON.stringify({ email }),
     });
+
+    const body = await parseJsonSafely<BaseResponse<EmailRequestData>>(response);
+
     if (!response.ok) {
-      throw new Error('이메일 인증번호 발송 실패');
+      throw new Error(body?.message || '이메일 인증번호 발송 실패');
     }
-    const json: BaseResponse<EmailRequestData> = await response.json();
-    return json.data;
+
+    if (!body?.data) {
+      throw new Error(body?.message || '이메일 인증번호 발송 실패');
+    }
+
+    return body.data;
   } catch (error) {
-    console.error('requestEmailVerification Error:', error);
     throw error;
   }
 };
@@ -273,13 +278,19 @@ export const verifyEmailCode = async (email: string, code: string): Promise<Emai
       },
       body: JSON.stringify({ email, code }),
     });
+
+    const body = await parseJsonSafely<BaseResponse<EmailVerifyData>>(response);
+
     if (!response.ok) {
-      throw new Error('이메일 인증번호 확인 실패');
+      throw new Error(body?.message || '이메일 인증번호 확인 실패');
     }
-    const json: BaseResponse<EmailVerifyData> = await response.json();
-    return json.data;
+
+    if (!body?.data) {
+      throw new Error(body?.message || '이메일 인증번호 확인 실패');
+    }
+
+    return body.data;
   } catch (error) {
-    console.error('verifyEmailCode Error:', error);
     throw error;
   }
 };

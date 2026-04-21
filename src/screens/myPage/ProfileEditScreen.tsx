@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,6 +8,7 @@ import type { RootStackParamList } from '@/navigation/types';
 import { TopBar } from '@/components/ui';
 import { COLORS } from '@/constants';
 import { requestEmailVerification, verifyEmailCode } from '@/services';
+import { getFriendlyErrorMessage, showToastMessage } from '@/utils';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -35,12 +36,15 @@ const ProfileEditScreen: React.FC = () => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
   }, []);
 
-  const handleChangeEmail = React.useCallback((value: string) => {
-    setEmail(value);
-    if (emailError) {
-      setEmailError('');
-    }
-  }, [emailError]);
+  const handleChangeEmail = React.useCallback(
+    (value: string) => {
+      setEmail(value);
+      if (emailError) {
+        setEmailError('');
+      }
+    },
+    [emailError],
+  );
 
   const handlePressSendCode = React.useCallback(async () => {
     if (isRequestingCode) {
@@ -67,22 +71,29 @@ const ProfileEditScreen: React.FC = () => {
     } catch (error) {
       console.error('handlePressSendCode Error:', error);
       setIsCodeSent(false);
-      Alert.alert('오류', '인증번호 발송에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      setIsCodeVerified(false);
+      setVerificationCode('');
+      showToastMessage(
+        getFriendlyErrorMessage(error, '인증번호 발송에 실패했습니다. 잠시 후 다시 시도해주세요.'),
+      );
     } finally {
       setIsRequestingCode(false);
     }
   }, [email, isRequestingCode, isValidEmail]);
 
-  const handleChangeVerificationCode = React.useCallback((value: string) => {
-    const digitsOnly = value.replace(/[^0-9]/g, '').slice(0, 6);
-    setVerificationCode(digitsOnly);
-    if (isCodeVerified) {
-      setIsCodeVerified(false);
-    }
-    if (codeError) {
-      setCodeError('');
-    }
-  }, [codeError, isCodeVerified]);
+  const handleChangeVerificationCode = React.useCallback(
+    (value: string) => {
+      const digitsOnly = value.replace(/[^0-9]/g, '').slice(0, 6);
+      setVerificationCode(digitsOnly);
+      if (isCodeVerified) {
+        setIsCodeVerified(false);
+      }
+      if (codeError) {
+        setCodeError('');
+      }
+    },
+    [codeError, isCodeVerified],
+  );
 
   const handleConfirmCode = React.useCallback(async () => {
     if (isVerifyingCode) {
@@ -109,7 +120,10 @@ const ProfileEditScreen: React.FC = () => {
     } catch (error) {
       console.error('handleConfirmCode Error:', error);
       setIsCodeVerified(false);
-      setCodeError('인증번호 확인에 실패했습니다. 다시 시도해주세요.');
+      setCodeError('');
+      showToastMessage(
+        getFriendlyErrorMessage(error, '인증번호 확인에 실패했습니다. 다시 시도해주세요.'),
+      );
     } finally {
       setIsVerifyingCode(false);
     }
@@ -127,13 +141,15 @@ const ProfileEditScreen: React.FC = () => {
       <TopBar title="프로필 수정" onPress={navigation.goBack} className="px-4" />
 
       <View className="px-4 pt-3">
-        <View className="rounded-lg border border-borderGray bg-white px-6 pb-4 pt-6" style={cardStyle}>
+        <View
+          className="rounded-lg border border-borderGray bg-white px-6 pb-4 pt-6"
+          style={cardStyle}>
           <Text className="text-p text-gray">이메일을 인증하고 프로필을 수정하세요.</Text>
 
           <View className="mt-6">
             <View className="flex-row items-center">
-              <Text className="text-h3 font-pretendardSemiBold text-black">이메일</Text>
-              <Text className="text-p1 font-pretendardMedium text-statusError">*</Text>
+              <Text className="font-pretendardSemiBold text-h3 text-black">이메일</Text>
+              <Text className="font-pretendardMedium text-p1 text-statusError">*</Text>
             </View>
 
             <View className="mt-2 flex-row items-center">
@@ -158,18 +174,18 @@ const ProfileEditScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {emailError ? (
-              <Text className="mt-2 text-p text-statusError">{emailError}</Text>
-            ) : null}
+            {emailError ? <Text className="mt-2 text-p text-statusError">{emailError}</Text> : null}
 
             {isCodeSent && (
               <>
-                <Text className="mt-2 text-p text-statusSuccess">인증번호가 발송되었습니다. 이메일을 확인해주세요.</Text>
+                <Text className="mt-2 text-p text-statusSuccess">
+                  인증번호가 발송되었습니다. 이메일을 확인해주세요.
+                </Text>
 
                 <View className="mt-4">
                   <View className="flex-row items-center">
-                    <Text className="text-h3 font-pretendardSemiBold text-black">인증번호</Text>
-                    <Text className="text-p1 font-pretendardMedium text-statusError">*</Text>
+                    <Text className="font-pretendardSemiBold text-h3 text-black">인증번호</Text>
+                    <Text className="font-pretendardMedium text-p1 text-statusError">*</Text>
                   </View>
 
                   <View className="mt-2 flex-row items-center">
@@ -208,7 +224,7 @@ const ProfileEditScreen: React.FC = () => {
             activeOpacity={0.85}
             onPress={handleMoveToProfileEdit}
             className={`mt-4 h-11 items-center justify-center rounded-lg ${isCodeVerified ? 'bg-main' : 'bg-main/50'}`}>
-            <Text className="text-p1 font-pretendardSemiBold text-white">프로필 수정으로 이동</Text>
+            <Text className="font-pretendardSemiBold text-p1 text-white">프로필 수정으로 이동</Text>
           </TouchableOpacity>
         </View>
       </View>
