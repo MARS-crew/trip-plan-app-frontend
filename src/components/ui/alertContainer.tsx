@@ -14,7 +14,7 @@ export const AlertContainer = (alert: AlertItemProps) => {
     <View className="mx-4 flex-row items-start bg-white p-4 shadow-sm">
       {/* 왼쪽 아이콘 영역 */}
       <View className="mr-3 mt-1">
-        {alert.title == '일정 안내' ? (
+        {alert.title === '일정 안내' ? (
           <ScheduleInfoIcon className="h-12 w-12" />
         ) : (
           <WeatherInfoIcon className="h-12 w-12" />
