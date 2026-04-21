@@ -43,6 +43,7 @@ const DestinationDetailScreen: React.FC = () => {
   const { params } = useRoute<DetailRouteProp>();
   const origin = params?.origin ?? 'search';
   const initialTab = params?.initialTab ?? 'info';
+  const placeId = Number(params?.destinationId ?? '0');
 
   // Hooks
   const [activeTab, setActiveTab] = React.useState(initialTab);
@@ -75,7 +76,9 @@ const DestinationDetailScreen: React.FC = () => {
   }, []);
 
   const handleTabChange = useCallback((tabId: string): void => {
-    setActiveTab(tabId);
+    if (tabId === 'info' || tabId === 'review') {
+      setActiveTab(tabId);
+    }
   }, []);
 
   const handleAddToSchedule = useCallback((): void => {
@@ -175,7 +178,7 @@ const DestinationDetailScreen: React.FC = () => {
           {/* 컨텐츠 영역 */}
           <View className="px-4">
             {activeTab === 'info' ? (
-              <InfoTabContent />
+              <InfoTabContent placeId={placeId} />
             ) : (
               <>
                 <View className="mb-4">
