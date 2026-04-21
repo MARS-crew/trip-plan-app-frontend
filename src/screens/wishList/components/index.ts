@@ -21,4 +21,4 @@ export type {
   WishlistBottomSheetTab,
   WishlistBottomSheetTabId,
   WishlistSearchBarProps,
-} from '../types';
+} from '@/types/wishlist';

@@ -1,5 +1,4 @@
-import type { ImageSourcePropType } from 'react-native';
-import type { TextInput } from 'react-native';
+import type { ImageSourcePropType, TextInput } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 
 export type WishlistBottomSheetTabId = 'trending' | 'saved' | 'wishlist';
@@ -95,4 +94,21 @@ export interface WishlistSearchBarProps {
   onBlur: () => void;
   onFocusInput: () => void;
   onPressBack: () => void;
+}
+
+export interface LikedIdsByTab {
+  saved: Set<string>;
+  wishlist: Set<string>;
+}
+
+export type LikeTabId = keyof LikedIdsByTab;
+
+export interface LocationCoords {
+  latitude: number;
+  longitude: number;
+}
+
+export interface WishlistTabConfig {
+  id: WishlistBottomSheetTabId;
+  label: string;
 }
