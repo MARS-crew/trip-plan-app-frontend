@@ -817,14 +817,21 @@ const SignUpScreen: React.FC = () => {
                   {COUNTRIES.map((country, index) => {
                     const isSelectedCountry = formData.country === country;
                     const isLastItem = index === COUNTRIES.length - 1;
+                    const countryItemClassName = [
+                      'mx-[6px] rounded-lg px-3 py-[9px]',
+                      isLastItem ? '' : 'mb-1',
+                      isSelectedCountry ? 'bg-statusSuccess' : 'bg-white',
+                    ]
+                      .filter(Boolean)
+                      .join(' ');
 
                     return (
                       <Pressable
                         key={country}
                         onPress={() => handleCountrySelect(country)}
-                        className={`mx-[6px] rounded-lg px-3 py-[9px] ${isLastItem ? '' : 'mb-1'}${
-                          isSelectedCountry ? 'bg-statusSuccess' : 'bg-white'
-                        }`}>
+                        accessibilityRole="button"
+                        accessibilityState={{ selected: isSelectedCountry }}
+                        className={countryItemClassName}>
                         <Text
                           className={`text-p ${isSelectedCountry ? 'text-white' : 'text-black'}`}>
                           {country}
