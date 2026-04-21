@@ -5,6 +5,7 @@ export { default as PlaceCard } from './PlaceCard';
 export { WishTabTrending } from './tab/WishTabTrending';
 export { WishTabSave } from './tab/WishTabSave';
 export { WishTabWishlist } from './tab/WishTabWishlist';
+
 export { WishlistBottomSheet } from './WishlistBottomSheet';
 export { WishlistSearchBar } from './WishlistSearchBar';
 export { WishlistSearchOverlay } from './WishlistSearchOverlay';
