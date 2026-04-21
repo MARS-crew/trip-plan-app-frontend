@@ -1,38 +1,36 @@
 import { ScheduleInfoIcon, WeatherInfoIcon } from '@/assets';
+import { AlertItemProps } from '@/types/alert';
 import React from 'react';
 import { View, Text } from 'react-native';
+import dayjs from 'dayjs';
 
-export interface AlertProps { 
-    title : string;
-    time : string;
-    contentInfo : string;
-}
+export const AlertContainer = (alert: AlertItemProps) => {
+  const formatDate = (date?: string) => {
+    if (!date) return '';
+    return dayjs(date).format('HH:mm');
+  };
 
-export const AlertContainer = ( alert :AlertProps) => {
   return (
-    <View className="flex-row items-start p-4 mx-4 bg-white shadow-sm">
+    <View className="mx-4 flex-row items-start bg-white p-4 shadow-sm">
       {/* 왼쪽 아이콘 영역 */}
       <View className="mr-3 mt-1">
-        {alert.title == '일정 안내' ? 
-        <ScheduleInfoIcon className="w-12 h-12"/> :
-        <WeatherInfoIcon className="w-12 h-12"/>    
-    }
+        {alert.title == '일정 안내' ? (
+          <ScheduleInfoIcon className="h-12 w-12" />
+        ) : (
+          <WeatherInfoIcon className="h-12 w-12" />
+        )}
       </View>
 
       {/* 텍스트 컨텐츠 영역 */}
       <View className="flex-1">
         <View className="flex-row items-start">
-          <View className="flex-1 mr-2">
-            <Text className="text-h3 font-pretendardBold text-black leading-tight">
+          <View className="mr-2 flex-1">
+            <Text className="font-pretendardBold text-h3 leading-tight text-black">
               {alert.title}
             </Text>
-            <Text className="text-p1 text-gray leading-relaxed mt-1">
-              {alert.contentInfo}
-            </Text>
+            <Text className="mt-1 text-p1 leading-relaxed text-gray">{alert.content}</Text>
           </View>
-          <Text className="text-gray text-p shrink-0">
-            {alert.time}
-          </Text>
+          <Text className="shrink-0 text-p text-gray">{formatDate(alert.sendAt)}</Text>
         </View>
       </View>
     </View>
