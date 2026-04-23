@@ -12,6 +12,9 @@ import type {
 } from '@/types/myTrip.types';
 import type { TripRequestConfig, TripRequestConfigError } from '@/types/trip';
 import type {
+  DeleteTripScheduleData,
+  DeleteTripScheduleOptions,
+  DeleteTripScheduleResult,
   GetTripSchedulesOptions,
   GetTripSchedulesResult,
   GetTripShareOptions,
@@ -195,6 +198,45 @@ export const getTripShare = async ({
     }
 
     const json: BaseResponse<TripShareData> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
+  }
+};
+
+export const deleteTripSchedule = async ({
+  tripId,
+  tripScheduleId,
+  signal,
+}: DeleteTripScheduleOptions): Promise<DeleteTripScheduleResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/${tripScheduleId}`;
+    const response = await fetch(requestUrl, {
+      method: 'DELETE',
+      headers: requestConfig.headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    if (response.status === 204) {
+      return {
+        data: { deleted: true, tripId, tripScheduleId },
+        error: null,
+      };
+    }
+
+    const json: BaseResponse<DeleteTripScheduleData> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
     const error = getRequestError(signal);
