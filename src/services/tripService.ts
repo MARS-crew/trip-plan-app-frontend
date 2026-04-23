@@ -27,9 +27,7 @@ const getResolvedToken = (): string | undefined => {
   if (storeToken) {
     return storeToken;
   }
-
-  const { tempToken } = getEnvConfig();
-  return tempToken;
+  return undefined;
 };
 
 const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
