@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Image, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -22,6 +22,8 @@ import {
   ActiveReviewIcon,
 } from '@/assets/icons';
 import type { RootTabParamList, SearchStackParamList } from '@/navigation/types';
+import { getReviewList } from '@/services/reviewService';
+import type { ReviewData } from '@/types/review';
 
 //예시 값
 const ratings = [
@@ -49,6 +51,8 @@ const DestinationDetailScreen: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState(initialTab);
   const [isBookmarked, setIsBookmarked] = React.useState(false);
 
+  const [reviewData, setReviewData] = useState<ReviewData | null>(null);
+
   const handleGoBack = useCallback((): void => {
     if (origin === 'bookmark') {
       const tabNavigation = navigation.getParent<TabNavigationProp>();
@@ -66,6 +70,20 @@ const DestinationDetailScreen: React.FC = () => {
 
     navigation.navigate('SearchMain');
   }, [navigation, origin]);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const fetched = await getReviewList(placeId);
+        setReviewData(fetched);
+      } catch {
+        setReviewData(null);
+      }
+    };
+    fetchReviews();
+  }, [placeId]);
+
+  console.log(reviewData);
 
   const handleSave = useCallback((): void => {
     setIsBookmarked((prevState) => !prevState);
@@ -94,7 +112,17 @@ const DestinationDetailScreen: React.FC = () => {
     [],
   );
 
-  const maxCount = Math.max(...ratings.map(r => r.count));
+  const ratingDisplayRows = React.useMemo(() => {
+    if (!reviewData) return ratings;
+
+    const dist = reviewData.ratingDistribution;
+    return ([5, 4, 3, 2, 1] as const).map((stars) => ({
+      label: `${stars}점`,
+      count: dist[stars],
+    }));
+  }, [reviewData]);
+
+  const maxCount = Math.max(...ratingDisplayRows.map((r) => r.count), 1);
 
   // 렌더링
   return (
@@ -110,11 +138,7 @@ const DestinationDetailScreen: React.FC = () => {
 
           {/* 왼쪽: 뒤로가기 버튼 */}
           <View className="absolute left-4 top-4">
-            <IconButton
-              icon={LeftArrowIcon}
-              onPress={handleGoBack}
-              accessibilityLabel="뒤로가기"
-            />
+            <IconButton icon={LeftArrowIcon} onPress={handleGoBack} accessibilityLabel="뒤로가기" />
           </View>
 
           {/* 오른쪽: 저장, 공유 버튼 */}
@@ -135,106 +159,112 @@ const DestinationDetailScreen: React.FC = () => {
           </View>
 
           {/* 좌측 하단: 위치 정보 */}
-          <View className="absolute left-4 bottom-[19px]">
-            <Text className="text-title text-white font-pretendardBold mb-[7px]">센소지 아사쿠사</Text>
+          <View className="absolute bottom-[19px] left-4">
+            <Text className="mb-[7px] font-pretendardBold text-title text-white">
+              센소지 아사쿠사
+            </Text>
             <View className="flex-row items-center">
               <MarkerIcon />
-              <Text className="text-p text-white ml-[6px]">도쿄, 일본</Text>
+              <Text className="ml-[6px] text-p text-white">도쿄, 일본</Text>
             </View>
           </View>
         </View>
-          {/* 별 아이콘, 평점, 리뷰, 일정 추가하기 버튼*/}
-          <View className="mt-7 px-4 flex-row items-center justify-between">
-            <View className="flex-row items-center">
-              <StarIcon />
-              <Text className="text-h2 ml-1 font-pretendardBold">4.6</Text>
-              <Text className="text-p1 text-gray ml-3 font-pretendardMedium">리뷰 56,789개</Text>
-            </View>
-
-            <TouchableOpacity
-              className="w-[108px] h-9 bg-main rounded-[6px] flex-row items-center justify-center"
-              onPress={handleAddToSchedule}>
-              <ScheduleIcon />
-              <Text className="text-p text-white ml-[6px]">일정 추가하기</Text>
-            </TouchableOpacity>
+        {/* 별 아이콘, 평점, 리뷰, 일정 추가하기 버튼*/}
+        <View className="mt-7 flex-row items-center justify-between px-4">
+          <View className="flex-row items-center">
+            <StarIcon />
+            <Text className="ml-1 font-pretendardBold text-h2">4.6</Text>
+            <Text className="ml-3 font-pretendardMedium text-p1 text-gray">리뷰 56,789개</Text>
           </View>
 
-          {/* 카테고리 Chip */}
-          <View className="mt-7 px-4 flex-row">
-            <Chip label="관광지" className="mr-2" />
-            <Chip label="문화" className="mr-2" />
-            <Chip label="역사" />
-          </View>
+          <TouchableOpacity
+            className="h-9 w-[108px] flex-row items-center justify-center rounded-[6px] bg-main"
+            onPress={handleAddToSchedule}>
+            <ScheduleIcon />
+            <Text className="ml-[6px] text-p text-white">일정 추가하기</Text>
+          </TouchableOpacity>
+        </View>
 
-          {/* 탭 네비게이션 */}
-          <View className="mt-[34px] px-4 mb-5">
-            <TabNavigation
-              tabs={tabs}
-              activeTabId={activeTab}
-              onTabChange={handleTabChange}
-            />
-          </View>
+        {/* 카테고리 Chip */}
+        <View className="mt-7 flex-row px-4">
+          <Chip label="관광지" className="mr-2" />
+          <Chip label="문화" className="mr-2" />
+          <Chip label="역사" />
+        </View>
 
-          {/* 컨텐츠 영역 */}
-          <View className="px-4">
-            {activeTab === 'info' ? (
-              <InfoTabContent placeId={placeId} />
-            ) : (
-              <>
-                <View className="mb-4">
-                  <ContentContainer>
-                    <View className="flex-row p-4 pb-6">
-                      <View className="flex-row shrink-0 items-center gap-2">
-                        <StarIcon width={20} height={20} />
-                        <Text className="text-2xl font-pretendardMedium text-black">4.6</Text>
-                      </View>
+        {/* 탭 네비게이션 */}
+        <View className="mb-5 mt-[34px] px-4">
+          <TabNavigation tabs={tabs} activeTabId={activeTab} onTabChange={handleTabChange} />
+        </View>
 
-                      <View className="flex-1 gap-1">
-                        {ratings.map((item) => (
-                          <View key={item.label} className="flex-row items-center gap-2">
-                            <Text className="w-7 text-p1 text-right text-black">{item.label}</Text>
-                            <View className="flex-1 h-2 bg-background rounded-sm overflow-hidden">
-                              <View
-                                className="h-2 rounded-sm bg-main"
-                                style={{ width: `${(item.count / maxCount) * 100}%` }}
-                              />
-                            </View>
-                            <Text className="w-12 text-left text-p leading-none text-gray">
-                              {item.count.toLocaleString()}
-                            </Text>
-                          </View>
-                        ))}
-                      </View>
+        {/* 컨텐츠 영역 */}
+        <View className="px-4">
+          {activeTab === 'info' ? (
+            <InfoTabContent placeId={placeId} />
+          ) : (
+            <>
+              <View className="mb-4">
+                <ContentContainer>
+                  <View className="flex-row p-4 pb-6">
+                    <View className="shrink-0 flex-row items-center gap-2">
+                      <StarIcon width={20} height={20} />
+                      <Text className="font-pretendardMedium text-2xl text-black">4.6</Text>
                     </View>
-                  </ContentContainer>
-                </View>
+
+                    <View className="flex-1 gap-1">
+                      {ratingDisplayRows.map((item) => (
+                        <View key={item.label} className="flex-row items-center gap-2">
+                          <Text className="w-7 text-right text-p1 text-black">{item.label}</Text>
+                          <View className="h-2 flex-1 overflow-hidden rounded-sm bg-background">
+                            <View
+                              className="h-2 rounded-sm bg-main"
+                              style={{ width: `${(item.count / maxCount) * 100}%` }}
+                            />
+                          </View>
+                          <Text className="w-12 text-left text-p leading-none text-gray">
+                            {item.count.toLocaleString()}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                </ContentContainer>
+              </View>
+              {reviewData?.reviews.map((item) => (
                 <ReviewCard
-                  profileName="사랑스런그녀"
-                  visitDt="2025.11.03"
-                  scope={4}
-                  content="도시 한 가운데에 있는 사원이라니 즐길거리가 많아 좋았습니다! 근처에 음식점이나 길거리 음식이 많이 판매하고 있어 관광 후 배를 채우기 좋았어요!"
-                  imageList={[
-                    'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400',
-                    'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400',
-                    'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400',
-                  ]}
+                  key={item.nickname + item.createdAt}
+                  nickname={item.nickname}
+                  visitedDate={item.visitedDate}
+                  rating={item.rating}
+                  content={item.content}
+                  imageUrls={item.imageUrls}
                 />
-                <ReviewCard
-                  profileName="사랑스런그녀"
-                  visitDt="2025.11.03"
-                  scope={4}
-                  content="도시 한 가운데에 있는 사원이라니 즐길거리가 많아 좋았습니다! 근처에 음식점이나 길거리 음식이 많이 판매하고 있어 관광 후 배를 채우기 좋았어요!"
-                  imageList={[
-                  ]}
-                />
-              </>
-            )}
-          </View>
+              ))}
+              {/* <ReviewCard
+                profileName="사랑스런그녀"
+                visitDt="2025.11.03"
+                scope={4}
+                content="도시 한 가운데에 있는 사원이라니 즐길거리가 많아 좋았습니다! 근처에 음식점이나 길거리 음식이 많이 판매하고 있어 관광 후 배를 채우기 좋았어요!"
+                imageList={[
+                  'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400',
+                  'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400',
+                  'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400',
+                ]}
+              />
+              <ReviewCard
+                profileName="사랑스런그녀"
+                visitDt="2025.11.03"
+                scope={4}
+                content="도시 한 가운데에 있는 사원이라니 즐길거리가 많아 좋았습니다! 근처에 음식점이나 길거리 음식이 많이 판매하고 있어 관광 후 배를 채우기 좋았어요!"
+                imageList={[]}
+              /> */}
+            </>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
-
 
 export default DestinationDetailScreen;
 export { DestinationDetailScreen };
