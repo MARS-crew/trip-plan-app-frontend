@@ -1,5 +1,6 @@
 import type { BaseResponse } from '@/types';
 import { getEnvConfig } from '@/config/env';
+import { useAuthStore } from '@/store';
 import type { ServiceError } from '@/types/trip';
 import type {
   GetMyTripsData,
@@ -28,16 +29,25 @@ const createServiceError = (code: string, message?: string): ServiceError => ({
   message: message?.trim() || code,
 });
 
+const getResolvedToken = (): string | undefined => {
+  const storeToken = useAuthStore.getState().accessToken?.trim();
+  if (storeToken) {
+    return storeToken;
+  }
+  return undefined;
+};
+
 const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
-  const { apiBaseUrl, tempToken } = getEnvConfig();
+  const { apiBaseUrl } = getEnvConfig();
+  const resolvedToken = getResolvedToken();
 
   if (!apiBaseUrl) {
     const error = createServiceError('API_BASE_URL_MISSING', 'API_BASE_URL이 설정되지 않았습니다.');
     logErrorCode(error.code);
     return { error };
   }
-  if (!tempToken) {
-    const error = createServiceError('TEMP_TOKEN_MISSING', '인증 토큰이 없습니다.');
+  if (!resolvedToken) {
+    const error = createServiceError('AUTH_TOKEN_MISSING', '인증 토큰이 없습니다.');
     logErrorCode(error.code);
     return { error };
   }
@@ -46,7 +56,7 @@ const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
     apiBaseUrl,
     headers: {
       Accept: '*/*',
-      Authorization: `Bearer ${tempToken}`,
+      Authorization: `Bearer ${resolvedToken}`,
     },
   };
 };
