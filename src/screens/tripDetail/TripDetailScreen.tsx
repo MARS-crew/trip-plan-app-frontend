@@ -1,18 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, Share } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getTripSchedules } from '@/services';
+import { deleteTripSchedule, getTripSchedules, getTripShare } from '@/services';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
+import type { ServiceError } from '@/types/trip';
 import type {
   TripDetailCardItem,
   TripDetailHeader,
   TripDetailRoute,
   TripDetailSection,
 } from '@/types/tripDetail.types';
-import { Header, DaySection, KebabMenuSheet, CardContextMenu } from './components';
+import { Header, DaySection, KebabMenuSheet, CardContextMenu, DeleteWarningModal } from './components';
 import { KEBAB_SHEET_HEIGHT } from './components/KebabMenuSheet';
 
 const KEBAB_ANIMATION_DURATION = 250;
@@ -99,7 +100,9 @@ const mergeSectionsWithDayFallback = (
   const emptySections = buildEmptyDaySections(tripDayCount, startDate);
   if (!sections.length) return emptySections;
 
-  const sectionMap = new Map<number, TripDetailSection>(sections.map((section) => [section.dayNo, section]));
+  const sectionMap = new Map<number, TripDetailSection>(
+    sections.map((section) => [section.dayNo, section]),
+  );
   return emptySections.map((emptySection) => sectionMap.get(emptySection.dayNo) ?? emptySection);
 };
 
@@ -116,6 +119,7 @@ const mapScheduleToCardItem = (
   isCurrentSchedule: boolean,
 ): TripDetailCardItem => ({
   id: toNumberValue(schedule.tripScheduleId) ?? toNumberValue(schedule.id) ?? order,
+  tripScheduleId: toNumberValue(schedule.tripScheduleId) ?? toNumberValue(schedule.id) ?? undefined,
   order,
   title: toStringValue(schedule.title) ?? '',
   location: toStringValue(schedule.placeName) ?? toStringValue(schedule.address) ?? '',
@@ -157,10 +161,7 @@ const normalizeTripDetailData = (
     toNumberValue(rawData.dayCount) ??
     toNumberValue(rawData.totalDayCount) ??
     1;
-  const dateText = formatTripDateText(
-    startDate ?? null,
-    endDate,
-  );
+  const dateText = formatTripDateText(startDate ?? null, endDate);
   const imageUrl = toStringValue(rawData.imageUrl) ?? undefined;
 
   const header: TripDetailHeader = { title, dateText, imageUrl, startDate, tripDayCount };
@@ -178,7 +179,8 @@ const normalizeTripDetailData = (
     if (!dayGroups.length) continue;
 
     const sections = dayGroups.map((group, sectionIndex) => {
-      const dayNo = toNumberValue(group.dayNo) ?? toNumberValue(group.selectedDayNo) ?? sectionIndex + 1;
+      const dayNo =
+        toNumberValue(group.dayNo) ?? toNumberValue(group.selectedDayNo) ?? sectionIndex + 1;
       const scheduleDate = toStringValue(group.scheduleDate) ?? toStringValue(group.date);
       const selectedDayLabel = toStringValue(group.selectedDayLabel);
       const cards = getScheduleListFromGroup(group).map((schedule, cardIndex) =>
@@ -209,7 +211,10 @@ const normalizeTripDetailData = (
     return { header, sections: [] };
   }
 
-  const grouped = new Map<string, { dayNo: number; scheduleDate: string | null; items: Record<string, unknown>[] }>();
+  const grouped = new Map<
+    string,
+    { dayNo: number; scheduleDate: string | null; items: Record<string, unknown>[] }
+  >();
   flatSchedules.forEach((schedule) => {
     const dayNo = toNumberValue(schedule.dayNo) ?? 1;
     const scheduleDate = toStringValue(schedule.scheduleDate) ?? null;
@@ -236,6 +241,20 @@ const normalizeTripDetailData = (
   return { header, sections };
 };
 
+const getTripShareErrorMessage = (error: ServiceError | null): string => {
+  if (!error) return '서버 오류가 발생했습니다.';
+  switch (error.code) {
+    case 'INVALID_INPUT':
+      return '잘못된 요청입니다.';
+    case 'USER_NOT_FOUND':
+      return '사용자를 찾을 수 없습니다.';
+    case 'INTERNAL_ERROR':
+      return '서버 오류가 발생했습니다.';
+    default:
+      return '서버 오류가 발생했습니다.';
+  }
+};
+
 const TripDetailScreen: React.FC = () => {
   const route = useRoute<TripDetailRoute>();
   const tripId = route.params?.tripId;
@@ -247,6 +266,8 @@ const TripDetailScreen: React.FC = () => {
   const [isKebabMenuVisible, setIsKebabMenuVisible] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [selectedCardTop, setSelectedCardTop] = useState(0);
+  const [isScheduleDeleteWarningVisible, setIsScheduleDeleteWarningVisible] = useState(false);
+  const [pendingDeleteScheduleId, setPendingDeleteScheduleId] = useState<number | null>(null);
   const [headerData, setHeaderData] = useState<TripDetailHeader>({
     title: '',
     dateText: '',
@@ -254,16 +275,17 @@ const TripDetailScreen: React.FC = () => {
   });
   const [daySections, setDaySections] = useState<TripDetailSection[]>([]);
 
-  const allCards = useMemo(
-    () => daySections.flatMap((section) => section.cards),
-    [daySections],
-  );
+  const allCards = useMemo(() => daySections.flatMap((section) => section.cards), [daySections]);
   const renderedSections = useMemo(
-    () => mergeSectionsWithDayFallback(daySections, headerData.tripDayCount ?? 1, headerData.startDate),
+    () =>
+      mergeSectionsWithDayFallback(daySections, headerData.tripDayCount ?? 1, headerData.startDate),
     [daySections, headerData.startDate, headerData.tripDayCount],
   );
   const selectedCard = useMemo(
-    () => (selectedCardId !== null ? allCards.find((card) => card.id === selectedCardId) ?? null : null),
+    () =>
+      selectedCardId !== null
+        ? (allCards.find((card) => card.id === selectedCardId) ?? null)
+        : null,
     [allCards, selectedCardId],
   );
   const selectedCardAccentColor = useMemo(() => {
@@ -275,16 +297,15 @@ const TripDetailScreen: React.FC = () => {
     return getTripDayColor(selectedSection?.dayNo ?? 1);
   }, [renderedSections, selectedCardId]);
 
-  useEffect(() => {
-    if (!tripId) {
-      setDaySections([]);
-      return;
-    }
+  const fetchTripDetailSchedules = useCallback(
+    async (signal?: AbortSignal): Promise<void> => {
+      if (!tripId) {
+        setDaySections([]);
+        return;
+      }
 
-    const abortController = new AbortController();
-    const fetchTripDetailSchedules = async (): Promise<void> => {
-      const result = await getTripSchedules({ tripId, signal: abortController.signal });
-      if (abortController.signal.aborted || result.error === 'REQUEST_ABORTED') return;
+      const result = await getTripSchedules({ tripId, signal });
+      if (signal?.aborted || result.error?.code === 'REQUEST_ABORTED') return;
       if (result.error) {
         setDaySections([]);
         return;
@@ -292,14 +313,23 @@ const TripDetailScreen: React.FC = () => {
       const normalizedData = normalizeTripDetailData(result.data);
       setHeaderData(normalizedData.header);
       setDaySections(normalizedData.sections);
-    };
+    },
+    [tripId],
+  );
 
-    fetchTripDetailSchedules();
+  useEffect(() => {
+    if (!tripId) {
+      setDaySections([]);
+      return;
+    }
+
+    const abortController = new AbortController();
+    fetchTripDetailSchedules(abortController.signal);
 
     return () => {
       abortController.abort();
     };
-  }, [tripId]);
+  }, [fetchTripDetailSchedules, tripId]);
 
   const clearCloseTimer = useCallback(() => {
     if (closeTimerRef.current) {
@@ -346,6 +376,57 @@ const TripDetailScreen: React.FC = () => {
     }, CARD_MENU_ANIMATION_DURATION);
   }, [cardMenuOpacity, clearCloseTimer]);
 
+  const handleShareTrip = useCallback(async (): Promise<void> => {
+    if (!tripId) return;
+
+    const result = await getTripShare({ tripId });
+    if (result.error || !result.data) {
+      if (result.error?.code === 'REQUEST_ABORTED') return;
+      console.error(`[tripShare] ${getTripShareErrorMessage(result.error)}`);
+      return;
+    }
+
+    const title = result.data.shareTitle?.trim() || result.data.tripTitle?.trim() || '여행 공유';
+    const description = result.data.shareDescription?.trim() || '';
+    const shareUrl = result.data.shareUrl?.trim() || '';
+    const message = [description, shareUrl].filter(Boolean).join('\n');
+
+    try {
+      await Share.share({
+        title,
+        message: message || title,
+        url: shareUrl || undefined,
+      });
+    } catch {
+      console.error('[tripShare] 서버 오류가 발생했습니다.');
+    }
+  }, [tripId]);
+
+  const handlePressShareInKebab = useCallback(() => {
+    handleCloseKebabMenu();
+    handleShareTrip().catch(() => {
+      console.error('[tripShare] 서버 오류가 발생했습니다.');
+    });
+  }, [handleCloseKebabMenu, handleShareTrip]);
+
+  const handleDeleteSchedule = useCallback(async (): Promise<void> => {
+    if (!tripId || !pendingDeleteScheduleId) return;
+
+    const result = await deleteTripSchedule({
+      tripId,
+      tripScheduleId: pendingDeleteScheduleId,
+    });
+
+    if (result.error) {
+      console.error(`[tripDetail] 일정 삭제 실패 errorCode=${result.error.code}`);
+      return;
+    }
+
+    setIsScheduleDeleteWarningVisible(false);
+    setPendingDeleteScheduleId(null);
+    await fetchTripDetailSchedules();
+  }, [fetchTripDetailSchedules, pendingDeleteScheduleId, tripId]);
+
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView
@@ -378,14 +459,40 @@ const TripDetailScreen: React.FC = () => {
           opacity={cardMenuOpacity}
           topOffset={selectedCardTop}
           accentColor={selectedCardAccentColor}
+          onPressDelete={(card) => {
+            const targetScheduleId = card.tripScheduleId ?? card.id;
+            if (!targetScheduleId) {
+              console.error('[tripDetail] 일정 삭제 실패 errorCode=INVALID_INPUT');
+              return;
+            }
+            handleCloseCardMenu();
+            setPendingDeleteScheduleId(targetScheduleId);
+            setIsScheduleDeleteWarningVisible(true);
+          }}
           onClose={handleCloseCardMenu}
         />
       )}
+
+      <DeleteWarningModal
+        visible={isScheduleDeleteWarningVisible}
+        title="일정을 삭제하시겠습니까? 취소가 불가능합니다."
+        confirmLabel="삭제"
+        onConfirm={() => {
+          handleDeleteSchedule().catch(() => {
+            console.error('[tripDetail] 일정 삭제 실패 errorCode=INTERNAL_ERROR');
+          });
+        }}
+        onClose={() => {
+          setIsScheduleDeleteWarningVisible(false);
+          setPendingDeleteScheduleId(null);
+        }}
+      />
 
       <KebabMenuSheet
         isVisible={isKebabMenuVisible}
         translateY={kebabTranslateY}
         onClose={handleCloseKebabMenu}
+        onPressShare={handlePressShareInKebab}
       />
     </SafeAreaView>
   );
