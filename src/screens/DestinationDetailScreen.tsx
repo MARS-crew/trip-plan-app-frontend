@@ -83,8 +83,6 @@ const DestinationDetailScreen: React.FC = () => {
     fetchReviews();
   }, [placeId]);
 
-  console.log(reviewData);
-
   const handleSave = useCallback((): void => {
     setIsBookmarked((prevState) => !prevState);
   }, []);
@@ -208,7 +206,9 @@ const DestinationDetailScreen: React.FC = () => {
                   <View className="flex-row p-4 pb-6">
                     <View className="shrink-0 flex-row items-center gap-2">
                       <StarIcon width={20} height={20} />
-                      <Text className="font-pretendardMedium text-2xl text-black">4.6</Text>
+                      <Text className="font-pretendardMedium text-2xl text-black">
+                        {reviewData?.ratingAvg ?? 0.0}
+                      </Text>
                     </View>
 
                     <View className="flex-1 gap-1">
@@ -240,24 +240,6 @@ const DestinationDetailScreen: React.FC = () => {
                   imageUrls={item.imageUrls}
                 />
               ))}
-              {/* <ReviewCard
-                profileName="사랑스런그녀"
-                visitDt="2025.11.03"
-                scope={4}
-                content="도시 한 가운데에 있는 사원이라니 즐길거리가 많아 좋았습니다! 근처에 음식점이나 길거리 음식이 많이 판매하고 있어 관광 후 배를 채우기 좋았어요!"
-                imageList={[
-                  'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400',
-                  'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400',
-                  'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400',
-                ]}
-              />
-              <ReviewCard
-                profileName="사랑스런그녀"
-                visitDt="2025.11.03"
-                scope={4}
-                content="도시 한 가운데에 있는 사원이라니 즐길거리가 많아 좋았습니다! 근처에 음식점이나 길거리 음식이 많이 판매하고 있어 관광 후 배를 채우기 좋았어요!"
-                imageList={[]}
-              /> */}
             </>
           )}
         </View>

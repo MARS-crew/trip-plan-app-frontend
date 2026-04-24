@@ -5,8 +5,6 @@ import Config from 'react-native-config';
 export const getReviewList = async (placeId: number): Promise<ReviewData> => {
   const { accessToken } = useAuthStore.getState();
 
-  placeId = 8;
-
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/reviews/place/${placeId}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
