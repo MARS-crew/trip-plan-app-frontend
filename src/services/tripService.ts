@@ -1,37 +1,46 @@
 import type { BaseResponse } from '@/types';
 import { getEnvConfig } from '@/config/env';
+import { useAuthStore } from '@/store';
 import type {
   GetMyTripsData,
   GetMyTripsOptions,
   GetMyTripsResult,
+  TripRequestConfig,
+  TripRequestConfigError,
   GetTripSchedulesByDateOptions,
   GetTripSchedulesByDateResult,
   TripSchedulesByDateData,
-} from '@/types/myTrip.types';
-import type { GetTripSchedulesOptions, GetTripSchedulesResult } from '@/types/tripDetail.types';
-
-interface TripRequestConfig {
-  apiBaseUrl: string;
-  headers: Record<string, string>;
-}
-interface TripRequestConfigError {
-  error: string;
-}
+} from '@/types/trip';
+import type {
+  DeleteTripOptions,
+  DeleteTripResult,
+  GetTripSchedulesOptions,
+  GetTripSchedulesResult,
+} from '@/types/tripDetail.types';
 
 const logErrorCode = (errorCode: string): void => {
   console.error(`[tripService] errorCode=${errorCode}`);
 };
 
+const getResolvedToken = (): string | undefined => {
+  const storeToken = useAuthStore.getState().accessToken?.trim();
+  if (storeToken) {
+    return storeToken;
+  }
+  return undefined;
+};
+
 const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
-  const { apiBaseUrl, tempToken } = getEnvConfig();
+  const { apiBaseUrl } = getEnvConfig();
+  const resolvedToken = getResolvedToken();
 
   if (!apiBaseUrl) {
     const error = 'API_BASE_URL_MISSING';
     logErrorCode(error);
     return { error };
   }
-  if (!tempToken) {
-    const error = 'TEMP_TOKEN_MISSING';
+  if (!resolvedToken) {
+    const error = 'AUTH_TOKEN_MISSING';
     logErrorCode(error);
     return { error };
   }
@@ -40,7 +49,7 @@ const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
     apiBaseUrl,
     headers: {
       Accept: '*/*',
-      Authorization: `Bearer ${tempToken}`,
+      Authorization: `Bearer ${resolvedToken}`,
     },
   };
 };
@@ -138,6 +147,41 @@ export const getTripSchedules = async ({
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules`;
     const response = await fetch(requestUrl, {
+      headers: requestConfig.headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      const errorCode = await getResponseErrorCode(response);
+      logErrorCode(errorCode);
+      return { data: null, error: errorCode };
+    }
+
+    if (response.status === 204) {
+      return { data: null, error: null };
+    }
+
+    const json: BaseResponse<unknown> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const errorCode = getRequestErrorCode(signal);
+    return { data: null, error: errorCode };
+  }
+};
+
+export const deleteTrip = async ({
+  tripId,
+  signal,
+}: DeleteTripOptions): Promise<DeleteTripResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}`;
+    const response = await fetch(requestUrl, {
+      method: 'DELETE',
       headers: requestConfig.headers,
       signal,
     });
