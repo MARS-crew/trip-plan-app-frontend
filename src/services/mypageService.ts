@@ -1,7 +1,12 @@
 import Config from 'react-native-config';
 
 import type { BaseResponse } from '@/types';
-import type { GetMyPageData, GetPapagoPhrase, GetProfileData } from '@/types/mypage';
+import type {
+  GetMyPageData,
+  GetPapagoPhrase,
+  GetProfileData,
+  PapagoTargetLang,
+} from '@/types/mypage';
 
 export const getMyPage = async (): Promise<GetMyPageData> => {
   try {
@@ -35,10 +40,17 @@ export const getProfile = async (): Promise<GetProfileData> => {
   }
 };
 
-export const getPapagoPhrases = async (): Promise<GetPapagoPhrase[]> => {
+export const getPapagoPhrases = async (
+  targetLang: PapagoTargetLang = 'ja',
+): Promise<GetPapagoPhrase[]> => {
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/papago`, {
-      headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
+      },
+      body: JSON.stringify({ targetLang }),
     });
     if (!response.ok) {
       throw new Error('기본 어휘 번역 조회 실패');
