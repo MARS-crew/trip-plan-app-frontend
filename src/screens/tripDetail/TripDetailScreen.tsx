@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, ToastAndroid } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
@@ -357,6 +357,7 @@ const TripDetailScreen: React.FC = () => {
     const result = await deleteTrip({ tripId });
     if (result.error) {
       console.error(`[tripDetail] 여행 삭제 실패 errorCode=${result.error}`);
+      ToastAndroid.show('여행 삭제에 실패하였습니다', ToastAndroid.SHORT);
       return;
     }
 
@@ -414,7 +415,10 @@ const TripDetailScreen: React.FC = () => {
       <DeleteWarningModal
         visible={isDeleteWarningVisible}
         onConfirm={() => {
-          void handleDeleteTrip();
+          handleDeleteTrip().catch(() => {
+            console.error('[tripDetail] 여행 삭제 실패 errorCode=INTERNAL_ERROR');
+            ToastAndroid.show('여행 삭제에 실패하였습니다', ToastAndroid.SHORT);
+          });
         }}
         onClose={() => setIsDeleteWarningVisible(false)}
       />
