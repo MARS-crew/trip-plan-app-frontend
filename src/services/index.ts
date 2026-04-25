@@ -4,3 +4,4 @@ export * from './searchService';
 export * from './tripService';
 export * from './mypageService';
 export * from './savedPlaceService';
+export * from './placeService';

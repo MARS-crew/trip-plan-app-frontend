@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
@@ -45,12 +45,16 @@ const BookmarkScreen: React.FC = () => {
     fetchSavedPlaces(selectedFilter);
   }, [fetchSavedPlaces, selectedFilter]);
 
+  const categoryLabelMap = useMemo(
+    () => new Map(categories.map((cat) => [cat.filterType, cat.filterDisplayName])),
+    [categories],
+  );
+
   const getCategoryLabel = useCallback(
     (filterType: SavedPlaceFilterType): string => {
-      const found = categories.find((cat) => cat.filterType === filterType);
-      return found?.filterDisplayName ?? '기타';
+      return categoryLabelMap.get(filterType) ?? '기타';
     },
-    [categories],
+    [categoryLabelMap],
   );
 
   const handleCategoryPress = useCallback((filterType: SavedPlaceFilterType): void => {

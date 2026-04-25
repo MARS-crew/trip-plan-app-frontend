@@ -9,6 +9,10 @@ import type {
   SavedPlaceFilterType,
 } from '@/types/savedPlace';
 
+const getAccessToken = (): string => {
+  return useAuthStore.getState().accessToken ?? '';
+};
+
 export const getSavedPlaces = async (
   filterType: SavedPlaceFilterType | string = 'ALL',
 ): Promise<GetSavedPlacesData> => {
@@ -17,7 +21,7 @@ export const getSavedPlaces = async (
     const response = await fetch(
       `${Config.API_BASE_URL}/api/v1/places/saved-places?filterType=${query}`,
       {
-        headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
       },
     );
     if (!response.ok) {
@@ -34,7 +38,7 @@ export const getSavedPlaces = async (
 export const getSavedPlaceCategories = async (): Promise<GetSavedPlaceCategoriesData> => {
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/places/saved-places/categories`, {
-      headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+      headers: { Authorization: `Bearer ${getAccessToken()}` },
     });
     if (!response.ok) {
       throw new Error('저장된 장소 카테고리 조회 실패');
