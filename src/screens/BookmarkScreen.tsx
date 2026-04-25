@@ -5,12 +5,8 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { RootTabParamList } from '@/navigation/types';
-import { getSavedPlaceCategories, getSavedPlaces } from '@/services';
-import type {
-  SavedPlace,
-  SavedPlaceCategory,
-  SavedPlaceFilterType,
-} from '@/types/savedPlace';
+import { deleteSavedPlace, getSavedPlaceCategories, getSavedPlaces } from '@/services';
+import type { SavedPlace, SavedPlaceCategory, SavedPlaceFilterType } from '@/types/savedPlace';
 import { PlaceCard } from './bookmark/components';
 
 type BookmarkNavigationProp = BottomTabNavigationProp<RootTabParamList, 'Bookmark'>;
@@ -75,9 +71,17 @@ const BookmarkScreen: React.FC = () => {
     [navigation],
   );
 
-  const handleBookmarkPress = useCallback((_savedPlaceId: number): void => {
-    // TODO: 북마크 해제 로직
-  }, []);
+  const handleBookmarkPress = useCallback(
+    async (placeId: number): Promise<void> => {
+      try {
+        await deleteSavedPlace(placeId);
+        await Promise.all([fetchSavedPlaces(selectedFilter), fetchCategories()]);
+      } catch (error) {
+        console.error('handleBookmarkPress Error:', error);
+      }
+    },
+    [selectedFilter, fetchSavedPlaces, fetchCategories],
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
@@ -124,7 +128,7 @@ const BookmarkScreen: React.FC = () => {
                       imageUrl={place.imageUrl}
                       isSaved={place.saved}
                       onPress={() => handlePlacePress(place.placeId)}
-                      onBookmarkPress={() => handleBookmarkPress(place.savedPlaceId)}
+                      onBookmarkPress={() => handleBookmarkPress(place.placeId)}
                     />
                   </View>
                 ))}

@@ -3,6 +3,7 @@ import Config from 'react-native-config';
 import { useAuthStore } from '@/store';
 import type { BaseResponse } from '@/types';
 import type {
+  DeleteSavedPlaceData,
   GetSavedPlaceCategoriesData,
   GetSavedPlacesData,
   SavedPlaceFilterType,
@@ -46,6 +47,27 @@ export const getSavedPlaceCategories = async (): Promise<GetSavedPlaceCategories
     return json.data;
   } catch (error) {
     console.error('getSavedPlaceCategories Error:', error);
+    throw error;
+  }
+};
+
+export const deleteSavedPlace = async (placeId: number): Promise<DeleteSavedPlaceData> => {
+  try {
+    const accessToken = useAuthStore.getState().accessToken ?? '';
+    const response = await fetch(
+      `${Config.API_BASE_URL}/api/v1/places/${placeId}/saved-places`,
+      {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+    if (!response.ok) {
+      throw new Error('저장된 장소 취소 실패');
+    }
+    const json: BaseResponse<DeleteSavedPlaceData> = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error('deleteSavedPlace Error:', error);
     throw error;
   }
 };
