@@ -1,7 +1,13 @@
 import Config from 'react-native-config';
 
 import type { BaseResponse } from '@/types';
-import type { GetMyPageData, GetPapagoPhrase, GetProfileData } from '@/types/mypage';
+import type {
+  GetExchangeData,
+  GetExchangeRequest,
+  GetMyPageData,
+  GetPapagoPhrase,
+  GetProfileData,
+} from '@/types/mypage';
 
 export const getMyPage = async (): Promise<GetMyPageData> => {
   try {
@@ -47,6 +53,29 @@ export const getPapagoPhrases = async (): Promise<GetPapagoPhrase[]> => {
     return json.data ?? [];
   } catch (error) {
     console.error('getPapagoPhrases Error:', error);
+    throw error;
+  }
+};
+
+export const postExchange = async (payload: GetExchangeRequest): Promise<GetExchangeData> => {
+  try {
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/exchange`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error('환율 계산 실패');
+    }
+
+    const json: BaseResponse<GetExchangeData> = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error('postExchange Error:', error);
     throw error;
   }
 };

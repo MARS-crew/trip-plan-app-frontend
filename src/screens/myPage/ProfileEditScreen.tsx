@@ -6,18 +6,10 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/navigation/types';
 import { TopBar } from '@/components/ui';
-import { COLORS } from '@/constants';
+import { CARD_SHADOW_DARK, COLORS } from '@/constants';
 import { requestEmailVerification, verifyEmailCode } from '@/services';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-const cardStyle = {
-  shadowColor: COLORS.black,
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.25,
-  shadowRadius: 3,
-  elevation: 1,
-};
 
 const ProfileEditScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -127,7 +119,7 @@ const ProfileEditScreen: React.FC = () => {
       <TopBar title="프로필 수정" onPress={navigation.goBack} className="px-4" />
 
       <View className="px-4 pt-3">
-        <View className="rounded-lg border border-borderGray bg-white px-6 pb-4 pt-6" style={cardStyle}>
+        <View className="rounded-lg border border-borderGray bg-white px-6 pb-4 pt-6" style={CARD_SHADOW_DARK}>
           <Text className="text-p text-gray">이메일을 인증하고 프로필을 수정하세요.</Text>
 
           <View className="mt-6">

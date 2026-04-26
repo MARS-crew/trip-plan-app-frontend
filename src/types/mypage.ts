@@ -35,3 +35,19 @@ export interface GetPapagoPhrase {
   translatedText: string;
   targetLang: PapagoTargetLang;
 }
+
+export type ExchangeCurrencyUnit = 'JPY';
+
+export interface GetExchangeRequest {
+  curUnit: ExchangeCurrencyUnit;
+  amount: number;
+  fromKrw: boolean;
+}
+
+export interface GetExchangeData {
+  curUnit: ExchangeCurrencyUnit;
+  curNm: string;
+  dealBasR: number;
+  convertedAmount: number;
+  searchDate: string;
+}
