@@ -9,6 +9,7 @@ export type TripDetailRoute = RouteProp<RootStackParamList, 'TripDetail'>;
 
 export interface TripDetailCardItem {
   id: number;
+  tripScheduleId?: number;
   order: number;
   title: string;
   location: string;
@@ -59,6 +60,7 @@ export interface CardContextMenuProps {
   opacity: SharedValue<number>;
   topOffset: number;
   accentColor?: string;
+  onPressRoute: (card: TripDetailCardMenuItem) => void;
   onClose: () => void;
 }
 
@@ -97,5 +99,28 @@ export interface GetTripShareOptions {
 
 export interface GetTripShareResult {
   data: TripShareData | null;
+  error: ServiceError | null;
+}
+
+export interface GetTripRouteData {
+  destinationAddress: string;
+  destinationName: string;
+  googleDirectionsUrl: string;
+  hasCoordinate: boolean;
+  latitude: number;
+  longitude: number;
+  placeId: number;
+  tripId: number;
+  tripScheduleId: number;
+}
+
+export interface GetTripRouteOptions {
+  tripId: number;
+  tripScheduleId: number;
+  signal?: AbortSignal;
+}
+
+export interface GetTripRouteResult {
+  data: GetTripRouteData | null;
   error: ServiceError | null;
 }

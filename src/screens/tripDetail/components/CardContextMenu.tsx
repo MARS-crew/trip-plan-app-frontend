@@ -5,7 +5,14 @@ import TripDetailCard from '@/components/ui/TripDetailCard';
 import { KebabEditIcon, KebabMapIcon, KebabTrashIcon } from '@/assets/icons';
 import type { CardContextMenuProps } from '@/types/tripDetail.types';
 
-const CardContextMenu = ({ card, opacity, topOffset, accentColor, onClose }: CardContextMenuProps) => {
+const CardContextMenu = ({
+  card,
+  opacity,
+  topOffset,
+  accentColor,
+  onPressRoute,
+  onClose,
+}: CardContextMenuProps) => {
   const backdropStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   const menuStyle = useAnimatedStyle(() => ({
@@ -55,7 +62,7 @@ const CardContextMenu = ({ card, opacity, topOffset, accentColor, onClose }: Car
 
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={onClose}
+              onPress={() => onPressRoute(card)}
               className="flex-row items-center px-2 py-3">
               <View className="mr-3 h-[32px] w-[32px] items-center justify-center rounded-[8px] bg-chip">
                 <KebabMapIcon />

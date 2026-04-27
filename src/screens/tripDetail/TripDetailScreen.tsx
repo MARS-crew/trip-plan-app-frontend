@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, Share } from 'react-native';
+import { Linking, ScrollView, Share, ToastAndroid } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getTripSchedules, getTripShare } from '@/services';
+import { getTripRoute, getTripSchedules, getTripShare } from '@/services';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
 import type { ServiceError } from '@/types/trip';
 import type {
@@ -119,6 +119,7 @@ const mapScheduleToCardItem = (
   isCurrentSchedule: boolean,
 ): TripDetailCardItem => ({
   id: toNumberValue(schedule.tripScheduleId) ?? toNumberValue(schedule.id) ?? order,
+  tripScheduleId: toNumberValue(schedule.tripScheduleId) ?? toNumberValue(schedule.id) ?? undefined,
   order,
   title: toStringValue(schedule.title) ?? '',
   location: toStringValue(schedule.placeName) ?? toStringValue(schedule.address) ?? '',
@@ -240,7 +241,7 @@ const normalizeTripDetailData = (
   return { header, sections };
 };
 
-const getTripShareErrorMessage = (error: ServiceError | null): string => {
+const getServiceErrorMessage = (error: ServiceError | null): string => {
   if (!error) return '서버 오류가 발생했습니다.';
   switch (error.code) {
     case 'INVALID_INPUT':
@@ -371,7 +372,7 @@ const TripDetailScreen: React.FC = () => {
     const result = await getTripShare({ tripId });
     if (result.error || !result.data) {
       if (result.error?.code === 'REQUEST_ABORTED') return;
-      console.error(`[tripShare] ${getTripShareErrorMessage(result.error)}`);
+      console.error(`[tripShare] ${getServiceErrorMessage(result.error)}`);
       return;
     }
 
@@ -391,10 +392,54 @@ const TripDetailScreen: React.FC = () => {
     }
   }, [tripId]);
 
+  const handleRouteFailure = useCallback((errorCode: string, message: string): void => {
+    console.error(`[tripRoute] 길찾기 실패 errorCode=${errorCode} message=${message}`);
+    ToastAndroid.show('길찾기 요청에 실패하였습니다', ToastAndroid.SHORT);
+  }, []);
+
   const handlePressShareInKebab = useCallback(() => {
     handleCloseKebabMenu();
-    void handleShareTrip();
+    handleShareTrip().catch(() => {
+      console.error('[tripShare] 공유 실패 errorCode=INTERNAL_ERROR message=서버 오류가 발생했습니다.');
+    });
   }, [handleCloseKebabMenu, handleShareTrip]);
+
+  const handlePressRouteInCard = useCallback(
+    async (card: TripDetailCardItem): Promise<void> => {
+      if (!tripId) return;
+      const tripScheduleId = card.tripScheduleId ?? card.id;
+      if (!tripScheduleId) {
+        handleRouteFailure('INVALID_INPUT', '잘못된 요청입니다.');
+        return;
+      }
+
+      const result = await getTripRoute({ tripId, tripScheduleId });
+      if (result.error || !result.data) {
+        if (result.error?.code === 'REQUEST_ABORTED') return;
+        handleRouteFailure(result.error?.code ?? 'INTERNAL_ERROR', getServiceErrorMessage(result.error));
+        return;
+      }
+
+      const routeUrl = result.data.googleDirectionsUrl?.trim();
+      if (!routeUrl) {
+        handleRouteFailure('INTERNAL_ERROR', '서버 오류가 발생했습니다.');
+        return;
+      }
+
+      try {
+        const canOpen = await Linking.canOpenURL(routeUrl);
+        if (!canOpen) {
+          handleRouteFailure('INTERNAL_ERROR', '서버 오류가 발생했습니다.');
+          return;
+        }
+        await Linking.openURL(routeUrl);
+        handleCloseCardMenu();
+      } catch {
+        handleRouteFailure('INTERNAL_ERROR', '서버 오류가 발생했습니다.');
+      }
+    },
+    [handleCloseCardMenu, handleRouteFailure, tripId],
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
@@ -428,6 +473,11 @@ const TripDetailScreen: React.FC = () => {
           opacity={cardMenuOpacity}
           topOffset={selectedCardTop}
           accentColor={selectedCardAccentColor}
+          onPressRoute={(card) => {
+            handlePressRouteInCard(card).catch(() => {
+              handleRouteFailure('INTERNAL_ERROR', '서버 오류가 발생했습니다.');
+            });
+          }}
           onClose={handleCloseCardMenu}
         />
       )}
