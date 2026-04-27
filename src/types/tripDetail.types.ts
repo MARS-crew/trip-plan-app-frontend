@@ -60,7 +60,7 @@ export interface CardContextMenuProps {
   opacity: SharedValue<number>;
   topOffset: number;
   accentColor?: string;
-  onPressRoute: (card: TripDetailCardMenuItem) => void;
+  onPressRoute: (card: TripDetailCardItem) => void;
   onClose: () => void;
 }
 

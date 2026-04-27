@@ -407,7 +407,7 @@ const TripDetailScreen: React.FC = () => {
   const handlePressRouteInCard = useCallback(
     async (card: TripDetailCardItem): Promise<void> => {
       if (!tripId) return;
-      const tripScheduleId = card.tripScheduleId ?? card.id;
+      const tripScheduleId = card.tripScheduleId;
       if (!tripScheduleId) {
         handleRouteFailure('INVALID_INPUT', '잘못된 요청입니다.');
         return;
@@ -429,7 +429,7 @@ const TripDetailScreen: React.FC = () => {
       try {
         const canOpen = await Linking.canOpenURL(routeUrl);
         if (!canOpen) {
-          handleRouteFailure('INTERNAL_ERROR', '서버 오류가 발생했습니다.');
+          handleRouteFailure('CLIENT_ERROR', '길찾기를 실행할 수 있는 앱이 없습니다.');
           return;
         }
         await Linking.openURL(routeUrl);
