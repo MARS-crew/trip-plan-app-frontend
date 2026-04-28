@@ -9,52 +9,57 @@ import { TopBar } from '@/components/ui';
 import LocationOrangeIcon from '@/assets/icons/location_orange.svg';
 import MarkerGrayIcon from '@/assets/icons/marker-gray.svg';
 import VectorGrayIcon from '@/assets/icons/vectorgray.svg';
+import { getVisitedPlaces } from '@/services';
+import type { VisitedPlace, VisitedPlaceItem } from '@/types/mypage';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-interface VisitedPlaceItem {
-  id: string;
-  date: string;
-  title: string;
-  location: string;
-  tags: string[];
-  reviewCta: string;
-  hasReview: boolean;
-  imageSource: number;
-}
+const PLACEHOLDER_IMAGE = require('@/assets/images/thumnail.png');
 
-const visitedPlaces: VisitedPlaceItem[] = [
-  {
-    id: 'visited-1',
-    date: '2026.02.05',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    tags: ['관광지', '문화', '역사'],
-    reviewCta: '리뷰 확인하기',
-    hasReview: true,
-    imageSource: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'visited-2',
-    date: '2026.02.05',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    tags: ['관광지', '문화', '역사'],
-    reviewCta: '리뷰 쓰기',
-    hasReview: false,
-    imageSource: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'visited-3',
-    date: '2026.02.03',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    tags: ['관광지', '문화', '역사'],
-    reviewCta: '리뷰 쓰기',
-    hasReview: false,
-    imageSource: require('@/assets/images/thumnail.png'),
-  },
-];
+const PLACE_TYPE_LABEL: Record<string, string> = {
+  ATTRACTION: '관광지',
+  RESTAURANT: '음식점',
+  BEACH: '해변',
+  NATURE: '자연',
+  LANDMARK: '명소',
+  ACCOMMODATION: '숙소',
+  SHOPPING: '쇼핑',
+  CULTURE: '문화',
+};
+
+const formatVisitedDate = (visitedAt: string): string => {
+  if (!visitedAt) {
+    return '';
+  }
+
+  const datePart = visitedAt.split('T')[0];
+  return datePart.replace(/-/g, '.');
+};
+
+const buildLocation = (cityName: string, countryName: string): string => {
+  if (cityName && countryName) {
+    return `${cityName}, ${countryName}`;
+  }
+  return cityName || countryName || '';
+};
+
+const buildTags = (placeType: string): string[] => {
+  if (!placeType) {
+    return [];
+  }
+  return [PLACE_TYPE_LABEL[placeType] ?? placeType];
+};
+
+const mapVisitedPlace = (place: VisitedPlace): VisitedPlaceItem => ({
+  id: String(place.visitedPlaceId),
+  date: formatVisitedDate(place.visitedAt),
+  title: place.placeName,
+  location: buildLocation(place.cityName, place.countryName),
+  tags: buildTags(place.placeType),
+  reviewCta: '리뷰 쓰기',
+  hasReview: false,
+  imageUrl: place.imageUrl,
+});
 
 const cardStyle = {
   shadowColor: COLORS.black,
@@ -66,6 +71,30 @@ const cardStyle = {
 
 const VisitedPlaceListScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
+  const [visitedPlaces, setVisitedPlaces] = React.useState<VisitedPlaceItem[]>([]);
+
+  React.useEffect(() => {
+    let isActive = true;
+
+    const fetchVisited = async (): Promise<void> => {
+      try {
+        const data = await getVisitedPlaces();
+        if (isActive) {
+          setVisitedPlaces(data.map(mapVisitedPlace));
+        }
+      } catch {
+        if (isActive) {
+          setVisitedPlaces([]);
+        }
+      }
+    };
+
+    fetchVisited();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const groupedByDate = React.useMemo(() => {
     const map = new Map<string, VisitedPlaceItem[]>();
@@ -80,7 +109,7 @@ const VisitedPlaceListScreen: React.FC = () => {
     });
 
     return Array.from(map.entries());
-  }, []);
+  }, [visitedPlaces]);
 
   const handleReviewPress = React.useCallback(
     (item: VisitedPlaceItem): void => {
@@ -152,7 +181,7 @@ const VisitedPlaceListScreen: React.FC = () => {
                       }
                       className="flex-row px-3 py-3">
                       <Image
-                        source={item.imageSource}
+                        source={item.imageUrl ? { uri: item.imageUrl } : PLACEHOLDER_IMAGE}
                         className="h-28 w-28 rounded-lg"
                         resizeMode="cover"
                       />
