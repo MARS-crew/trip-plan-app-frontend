@@ -16,7 +16,8 @@ import LogoutIcon from '@/assets/icons/logout.svg';
 import SettingIcon from '@/assets/icons/setting.svg';
 import EarthIcon from '@/assets/icons/earth1.svg';
 import { COLORS } from '@/constants';
-import { getPapagoPhrases } from '@/services';
+import { getPapagoPhrases, postLogout } from '@/services';
+import { useAuthStore } from '@/store/authStore';
 import type { GetPapagoPhrase, PapagoTargetLang } from '@/types/mypage';
 
 const LANG_LABEL: Record<PapagoTargetLang, string> = {
@@ -233,6 +234,21 @@ const MyPageScreen: React.FC = () => {
     navigation.navigate('NotificationSettings');
   };
 
+  const handleLogout = async (): Promise<void> => {
+    const { accessToken, refreshToken, clearTokens } = useAuthStore.getState();
+
+    try {
+      if (accessToken && refreshToken) {
+        await postLogout(accessToken, refreshToken);
+      }
+    } catch {
+      // 서버 요청이 실패해도 클라이언트 세션은 정리한다.
+    } finally {
+      clearTokens();
+      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+    }
+  };
+
   const handleNavigateToVisitedPlaceList = (): void => {
     const parentNavigation = navigation.getParent() as
       | { navigate: (...args: unknown[]) => void }
@@ -407,7 +423,10 @@ const MyPageScreen: React.FC = () => {
             ))}
           </View>
 
-          <TouchableOpacity activeOpacity={0.8} className="mt-[35px] items-center">
+          <TouchableOpacity
+            onPress={handleLogout}
+            activeOpacity={0.8}
+            className="mt-[35px] items-center">
             <View className="flex-row items-center">
               <LogoutIcon width={16} height={16} />
               <Text className="ml-1.5 font-pretendardMedium text-xs text-logoutRed">로그아웃</Text>
