@@ -1,7 +1,13 @@
 import Config from 'react-native-config';
 
+import { useAuthStore } from '@/store';
 import type { BaseResponse } from '@/types';
-import type { GetMyPageData, GetPapagoPhrase, GetProfileData } from '@/types/mypage';
+import type {
+  GetMyPageData,
+  GetPapagoPhrase,
+  GetProfileData,
+  VisitedPlace,
+} from '@/types/mypage';
 
 export const getMyPage = async (): Promise<GetMyPageData> => {
   try {
@@ -31,6 +37,24 @@ export const getProfile = async (): Promise<GetProfileData> => {
     return json.data;
   } catch (error) {
     console.error('getProfile Error:', error);
+    throw error;
+  }
+};
+
+export const getVisitedPlaces = async (): Promise<VisitedPlace[]> => {
+  const { accessToken } = useAuthStore.getState();
+
+  try {
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/visited`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!response.ok) {
+      throw new Error('방문한 장소 조회 실패');
+    }
+    const json: BaseResponse<VisitedPlace[]> = await response.json();
+    return json.data ?? [];
+  } catch (error) {
+    console.error('getVisitedPlaces Error:', error);
     throw error;
   }
 };
