@@ -35,3 +35,11 @@ export interface GetPapagoPhrase {
   translatedText: string;
   targetLang: PapagoTargetLang;
 }
+
+export interface GetSettingData {
+  birth: string;
+  countryCode: string;
+  email: string;
+  gender: Gender;
+  nickname: string;
+}
