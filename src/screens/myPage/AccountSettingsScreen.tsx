@@ -12,6 +12,8 @@ import SecessionIcon from '@/assets/icons/secession.svg';
 import { COLORS } from '@/constants';
 import { TopBar } from '@/components/ui';
 import type { RootStackParamList } from '@/navigation';
+import { getSetting } from '@/services';
+import type { Gender, GetSettingData } from '@/types/mypage';
 import {
   WithdrawConfirmModal,
   WithdrawWarningModal,
@@ -29,12 +31,18 @@ interface ProfileItem {
 
 type WithdrawModalStep = 'none' | 'step1' | 'step2' | 'step3';
 
-const profileItems: ProfileItem[] = [
-  { id: 'nickname', label: '닉네임', value: '여행자', type: 'nickname' },
-  { id: 'email', label: '이메일', value: 'traveler@gmail.com', type: 'email' },
-  { id: 'birthday', label: '생년월일', value: '2003-07-08', type: 'birthday' },
-  { id: 'gender', label: '성별', value: '여자', type: 'gender' },
-  { id: 'country', label: '국가', value: '대한민국', type: 'country' },
+const GENDER_LABEL: Record<Gender, string> = {
+  MALE: '남자',
+  FEMALE: '여자',
+  OTHER: '기타',
+};
+
+const buildProfileItems = (data: GetSettingData): ProfileItem[] => [
+  { id: 'nickname', label: '닉네임', value: data.nickname, type: 'nickname' },
+  { id: 'email', label: '이메일', value: data.email, type: 'email' },
+  { id: 'birthday', label: '생년월일', value: data.birth, type: 'birthday' },
+  { id: 'gender', label: '성별', value: GENDER_LABEL[data.gender] ?? '-', type: 'gender' },
+  { id: 'country', label: '국가', value: data.countryCode, type: 'country' },
 ];
 
 
@@ -61,6 +69,33 @@ const ProfileItemIcon: React.FC<{ type: ProfileItem['type'] }> = ({ type }) => {
 const AccountSettingsScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const [withdrawModalStep, setWithdrawModalStep] = React.useState<WithdrawModalStep>('none');
+  const [setting, setSetting] = React.useState<GetSettingData | null>(null);
+
+  React.useEffect(() => {
+    let isActive = true;
+
+    const fetchSetting = async (): Promise<void> => {
+      try {
+        const data = await getSetting();
+        if (isActive) {
+          setSetting(data);
+        }
+      } catch {
+        // 조회 실패 시 빈 상태 유지
+      }
+    };
+
+    fetchSetting();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  const profileItems = React.useMemo<ProfileItem[]>(
+    () => (setting ? buildProfileItems(setting) : []),
+    [setting],
+  );
 
   const handleCloseWithdrawModal = React.useCallback((): void => {
     setWithdrawModalStep('none');
