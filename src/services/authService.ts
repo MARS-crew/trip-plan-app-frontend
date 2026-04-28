@@ -1,5 +1,6 @@
 import Config from 'react-native-config';
 
+import { useAuthStore } from '@/store';
 import type {
   EmailRequestData,
   EmailVerifyData,
@@ -11,6 +12,7 @@ import type {
   ReissueTokenResponse,
   ReissueTokenResult,
   ReissueTokenWarningType,
+  WithdrawRequest,
 } from '@/types/auth';
 import type { BaseResponse } from '@/types';
 
@@ -239,6 +241,27 @@ export const postReissueToken = async (
       warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
       message: isNetworkError ? '네트워크 연결을 확인해주세요.' : undefined,
     };
+  }
+};
+
+export const deleteAccount = async (payload: WithdrawRequest): Promise<void> => {
+  const { accessToken } = useAuthStore.getState();
+
+  try {
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/auth/withdraw`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error('회원 탈퇴 실패');
+    }
+  } catch (error) {
+    console.error('deleteAccount Error:', error);
+    throw error;
   }
 };
 

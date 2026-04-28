@@ -12,6 +12,9 @@ import SecessionIcon from '@/assets/icons/secession.svg';
 import { COLORS } from '@/constants';
 import { TopBar } from '@/components/ui';
 import type { RootStackParamList } from '@/navigation';
+import { deleteAccount } from '@/services';
+import { useAuthStore } from '@/store';
+import type { WithdrawRequest } from '@/types/auth';
 import {
   WithdrawConfirmModal,
   WithdrawWarningModal,
@@ -70,10 +73,20 @@ const AccountSettingsScreen: React.FC = () => {
     setWithdrawModalStep('step1');
   }, []);
 
-  const handleWithdraw = React.useCallback((): void => {
-    handleCloseWithdrawModal();
-    navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
-  }, [handleCloseWithdrawModal, navigation]);
+  const handleWithdraw = React.useCallback(
+    async (payload: WithdrawRequest): Promise<void> => {
+      try {
+        await deleteAccount(payload);
+      } catch {
+        return;
+      }
+
+      handleCloseWithdrawModal();
+      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+      useAuthStore.getState().clearTokens();
+    },
+    [handleCloseWithdrawModal, navigation],
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
