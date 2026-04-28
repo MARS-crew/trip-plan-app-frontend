@@ -1,5 +1,6 @@
 import Config from 'react-native-config';
 
+import { useAuthStore } from '@/store/authStore';
 import type { BaseResponse } from '@/types';
 import type {
   GetMyPageData,
@@ -8,10 +9,18 @@ import type {
   PapagoTargetLang,
 } from '@/types/mypage';
 
+const getAccessToken = (): string => {
+  const accessToken = useAuthStore.getState().accessToken;
+  if (!accessToken) {
+    throw new Error('로그인이 필요합니다.');
+  }
+  return accessToken;
+};
+
 export const getMyPage = async (): Promise<GetMyPageData> => {
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/mypage`, {
-      headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+      headers: { Authorization: `Bearer ${getAccessToken()}` },
     });
     if (!response.ok) {
       throw new Error('마이페이지 조회 실패');
@@ -27,7 +36,7 @@ export const getMyPage = async (): Promise<GetMyPageData> => {
 export const getProfile = async (): Promise<GetProfileData> => {
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
-      headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+      headers: { Authorization: `Bearer ${getAccessToken()}` },
     });
     if (!response.ok) {
       throw new Error('프로필 조회 실패');
@@ -48,7 +57,7 @@ export const getPapagoPhrases = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
+        Authorization: `Bearer ${getAccessToken()}`,
       },
       body: JSON.stringify({ targetLang }),
     });
