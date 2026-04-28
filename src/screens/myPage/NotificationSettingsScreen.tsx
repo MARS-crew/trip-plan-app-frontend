@@ -8,6 +8,8 @@ import BellIcon from '@/assets/icons/bell.svg';
 import Time2Icon from '@/assets/icons/time2.svg';
 import { COLORS } from '@/constants';
 import type { RootStackParamList } from '@/navigation';
+import { getAgree, patchAgree } from '@/services';
+import type { AgreeFlag } from '@/types/mypage';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -52,10 +54,67 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ value, onPress }) => {
   );
 };
 
+const toFlag = (value: boolean): AgreeFlag => (value ? 'Y' : 'N');
+
 const NotificationSettingsScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
-  const [isPushEnabled, setIsPushEnabled] = React.useState<boolean>(true);
+  const [isPushEnabled, setIsPushEnabled] = React.useState<boolean>(false);
   const [isNightPushEnabled, setIsNightPushEnabled] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    let isActive = true;
+
+    const fetchAgree = async (): Promise<void> => {
+      try {
+        const data = await getAgree();
+        if (!isActive) {
+          return;
+        }
+        setIsPushEnabled(data.marketingAgreed === 'Y');
+        setIsNightPushEnabled(data.nightMarketingAgreed === 'Y');
+      } catch {
+        // 조회 실패 시 기본값(false) 유지
+      }
+    };
+
+    fetchAgree();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  const updateAgree = React.useCallback(
+    async (next: { isPushEnabled: boolean; isNightPushEnabled: boolean }): Promise<void> => {
+      try {
+        await patchAgree({
+          marketingAgreed: toFlag(next.isPushEnabled),
+          nightMarketingAgreed: toFlag(next.isNightPushEnabled),
+        });
+      } catch {
+        // 실패 시 토글 원복
+        setIsPushEnabled((prev) => (prev === next.isPushEnabled ? !prev : prev));
+        setIsNightPushEnabled((prev) => (prev === next.isNightPushEnabled ? !prev : prev));
+      }
+    },
+    [],
+  );
+
+  const handleTogglePush = React.useCallback((): void => {
+    setIsPushEnabled((prev) => {
+      const nextValue = !prev;
+      void updateAgree({ isPushEnabled: nextValue, isNightPushEnabled });
+      return nextValue;
+    });
+  }, [isNightPushEnabled, updateAgree]);
+
+  const handleToggleNightPush = React.useCallback((): void => {
+    setIsNightPushEnabled((prev) => {
+      const nextValue = !prev;
+      void updateAgree({ isPushEnabled, isNightPushEnabled: nextValue });
+      return nextValue;
+    });
+  }, [isPushEnabled, updateAgree]);
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
@@ -82,7 +141,7 @@ const NotificationSettingsScreen: React.FC = () => {
               </View>
             </View>
 
-            <ToggleSwitch value={isPushEnabled} onPress={() => setIsPushEnabled((prev) => !prev)} />
+            <ToggleSwitch value={isPushEnabled} onPress={handleTogglePush} />
           </View>
 
           <View className="border-t border-borderGray">
@@ -102,10 +161,7 @@ const NotificationSettingsScreen: React.FC = () => {
                 </View>
               </View>
 
-              <ToggleSwitch
-                value={isNightPushEnabled}
-                onPress={() => setIsNightPushEnabled((prev) => !prev)}
-              />
+              <ToggleSwitch value={isNightPushEnabled} onPress={handleToggleNightPush} />
             </View>
           </View>
         </View>

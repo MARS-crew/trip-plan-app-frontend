@@ -35,3 +35,15 @@ export interface GetPapagoPhrase {
   translatedText: string;
   targetLang: PapagoTargetLang;
 }
+
+export type AgreeFlag = 'Y' | 'N';
+
+export interface AgreeData {
+  marketingAgreed: AgreeFlag;
+  nightMarketingAgreed: AgreeFlag;
+}
+
+export interface AgreeUpdateRequest {
+  marketingAgreed: AgreeFlag;
+  nightMarketingAgreed: AgreeFlag;
+}
