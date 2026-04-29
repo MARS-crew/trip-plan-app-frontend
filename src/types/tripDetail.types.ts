@@ -72,6 +72,13 @@ export interface KebabMenuSheetProps {
   isVisible: boolean;
   translateY: SharedValue<number>;
   onClose: () => void;
+  onPressDelete?: () => void;
+}
+
+export interface DeleteWarningModalProps {
+  visible: boolean;
+  onConfirm: () => void;
+  onClose: () => void;
   onPressShare?: () => void;
 }
 
@@ -85,6 +92,7 @@ export interface GetTripSchedulesOptions {
   signal?: AbortSignal;
 }
 
+export interface DeleteTripOptions {
 export interface TripShareData {
   tripId: number;
   tripTitle: string;
@@ -101,6 +109,9 @@ export interface GetTripShareOptions {
   signal?: AbortSignal;
 }
 
+export interface DeleteTripResult {
+  data: unknown;
+  error: string | null;
 export interface GetTripShareResult {
   data: TripShareData | null;
   error: ServiceError | null;

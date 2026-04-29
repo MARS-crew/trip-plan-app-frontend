@@ -44,5 +44,7 @@ const DeleteWarningModal = ({
   );
 };
 
+DeleteWarningModal.displayName = 'DeleteWarningModal';
+
 export default DeleteWarningModal;
 export { DeleteWarningModal };

@@ -34,3 +34,19 @@ export interface TripRequestConfig {
 export interface TripRequestConfigError {
   error: ServiceError;
 }
+
+export interface TripRequestConfig {
+  apiBaseUrl: string;
+  headers: Record<string, string>;
+}
+
+export interface TripRequestConfigError {
+  error: string;
+}
+
+export type {
+  GetTripSchedulesResult,
+  GetTripSchedulesOptions,
+  DeleteTripOptions,
+  DeleteTripResult,
+} from './tripDetail.types';

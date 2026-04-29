@@ -1,7 +1,7 @@
 import type { BaseResponse } from '@/types';
 import { getEnvConfig } from '@/config/env';
 import { useAuthStore } from '@/store';
-import type { ServiceError } from '@/types/trip';
+import type { ServiceError, TripRequestConfig, TripRequestConfigError } from '@/types/trip';
 import type {
   GetMyTripsData,
   GetMyTripsOptions,
@@ -10,8 +10,10 @@ import type {
   GetTripSchedulesByDateResult,
   TripSchedulesByDateData,
 } from '@/types/myTrip.types';
-import type { TripRequestConfig, TripRequestConfigError } from '@/types/trip';
 import type {
+  GetTripRouteData,
+  GetTripRouteOptions,
+  GetTripRouteResult,
   DeleteTripScheduleData,
   DeleteTripScheduleOptions,
   DeleteTripScheduleResult,
@@ -34,9 +36,7 @@ const createServiceError = (code: string, message?: string): ServiceError => ({
 
 const getAccessToken = (): string | undefined => {
   const storeToken = useAuthStore.getState().accessToken?.trim();
-  if (storeToken) {
-    return storeToken;
-  }
+  if (storeToken) return storeToken;
   return undefined;
 };
 
@@ -66,7 +66,7 @@ const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
 
 const getResponseError = async (response: Response): Promise<ServiceError> => {
   try {
-    const errorJson: { code?: string; message?: string; success?: boolean } = await response.json();
+    const errorJson: { code?: string; message?: string } = await response.json();
     return createServiceError(errorJson.code ?? `HTTP_${response.status}`, errorJson.message);
   } catch {
     return createServiceError(`HTTP_${response.status}`, '요청 처리 중 오류가 발생했습니다.');
@@ -95,6 +95,7 @@ export const getMyTrips = async ({
       filterStatus === 'ALL'
         ? `${requestConfig.apiBaseUrl}/api/v1/trips/filter`
         : `${requestConfig.apiBaseUrl}/api/v1/trips/filter?tripStatus=${encodeURIComponent(filterStatus)}`;
+
     const response = await fetch(requestUrl, {
       headers: requestConfig.headers,
       signal,
@@ -167,6 +168,10 @@ export const getTripSchedules = async ({
       return { data: null, error };
     }
 
+    if (response.status === 204) {
+      return { data: null, error: null };
+    }
+
     const json: BaseResponse<unknown> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
@@ -205,6 +210,11 @@ export const getTripShare = async ({
   }
 };
 
+export const getTripRoute = async ({
+  tripId,
+  tripScheduleId,
+  signal,
+}: GetTripRouteOptions): Promise<GetTripRouteResult> => {
 export const deleteTripSchedule = async ({
   tripId,
   tripScheduleId,
