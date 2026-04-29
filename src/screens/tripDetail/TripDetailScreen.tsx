@@ -324,10 +324,8 @@ const TripDetailScreen: React.FC = () => {
         return;
       }
 
-    const abortController = new AbortController();
-    const fetchTripDetailSchedules = async (): Promise<void> => {
-      const result = await getTripSchedules({ tripId, signal: abortController.signal });
-      if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
+      const result = await getTripSchedules({ tripId, signal });
+      if (signal?.aborted || result.error?.code === 'REQUEST_ABORTED') return;
       if (result.error) {
         setDaySections([]);
         return;
