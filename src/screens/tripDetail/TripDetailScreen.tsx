@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, Share } from 'react-native';
+import { ScrollView, Share, ToastAndroid } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -255,6 +255,26 @@ const getTripShareErrorMessage = (error: ServiceError | null): string => {
   }
 };
 
+const getTripDeleteErrorToastMessage = (error: ServiceError | null): string => {
+  if (!error) return '알 수 없는 오류로 삭제에 실패하였습니다';
+  switch (error.code) {
+    case 'AUTH_TOKEN_MISSING':
+      return '로그인이 필요합니다.';
+    case 'HTTP_401':
+      return '인증이 만료되었습니다. 다시 로그인해주세요.';
+    case 'HTTP_403':
+      return '삭제 권한이 없습니다.';
+    case 'INVALID_INPUT':
+      return '잘못된 요청입니다.';
+    case 'USER_NOT_FOUND':
+      return '사용자를 찾을 수 없습니다.';
+    case 'REQUEST_ABORTED':
+      return '요청이 취소되었습니다.';
+    default:
+      return '알 수 없는 오류로 삭제에 실패하였습니다';
+  }
+};
+
 const TripDetailScreen: React.FC = () => {
   const route = useRoute<TripDetailRoute>();
   const tripId = route.params?.tripId;
@@ -418,7 +438,7 @@ const TripDetailScreen: React.FC = () => {
     });
 
     if (result.error) {
-      console.error(`[tripDetail] 일정 삭제 실패 errorCode=${result.error.code}`);
+      ToastAndroid.show(getTripDeleteErrorToastMessage(result.error), ToastAndroid.SHORT);
       return;
     }
 
@@ -462,7 +482,7 @@ const TripDetailScreen: React.FC = () => {
           onPressDelete={(card) => {
             const targetScheduleId = card.tripScheduleId ?? card.id;
             if (!targetScheduleId) {
-              console.error('[tripDetail] 일정 삭제 실패 errorCode=INVALID_INPUT');
+              ToastAndroid.show('알 수 없는 오류로 삭제에 실패하였습니다', ToastAndroid.SHORT);
               return;
             }
             handleCloseCardMenu();
@@ -479,7 +499,7 @@ const TripDetailScreen: React.FC = () => {
         confirmLabel="삭제"
         onConfirm={() => {
           handleDeleteSchedule().catch(() => {
-            console.error('[tripDetail] 일정 삭제 실패 errorCode=INTERNAL_ERROR');
+            ToastAndroid.show('알 수 없는 오류로 삭제에 실패하였습니다', ToastAndroid.SHORT);
           });
         }}
         onClose={() => {

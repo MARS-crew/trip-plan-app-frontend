@@ -32,7 +32,7 @@ const createServiceError = (code: string, message?: string): ServiceError => ({
   message: message?.trim() || code,
 });
 
-const getResolvedToken = (): string | undefined => {
+const getAccessToken = (): string | undefined => {
   const storeToken = useAuthStore.getState().accessToken?.trim();
   if (storeToken) {
     return storeToken;
@@ -42,14 +42,14 @@ const getResolvedToken = (): string | undefined => {
 
 const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
   const { apiBaseUrl } = getEnvConfig();
-  const resolvedToken = getResolvedToken();
+  const accessToken = getAccessToken();
 
   if (!apiBaseUrl) {
     const error = createServiceError('API_BASE_URL_MISSING', 'API_BASE_URL이 설정되지 않았습니다.');
     logErrorCode(error.code);
     return { error };
   }
-  if (!resolvedToken) {
+  if (!accessToken) {
     const error = createServiceError('AUTH_TOKEN_MISSING', '인증 토큰이 없습니다.');
     logErrorCode(error.code);
     return { error };
@@ -59,7 +59,7 @@ const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
     apiBaseUrl,
     headers: {
       Accept: '*/*',
-      Authorization: `Bearer ${resolvedToken}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   };
 };
