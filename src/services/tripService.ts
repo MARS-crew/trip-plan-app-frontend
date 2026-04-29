@@ -14,6 +14,9 @@ import type {
   GetTripRouteData,
   GetTripRouteOptions,
   GetTripRouteResult,
+  DeleteTripScheduleData,
+  DeleteTripScheduleOptions,
+  DeleteTripScheduleResult,
   GetTripSchedulesOptions,
   GetTripSchedulesResult,
   GetTripShareOptions,
@@ -31,7 +34,7 @@ const createServiceError = (code: string, message?: string): ServiceError => ({
   message: message?.trim() || code,
 });
 
-const getResolvedToken = (): string | undefined => {
+const getAccessToken = (): string | undefined => {
   const storeToken = useAuthStore.getState().accessToken?.trim();
   if (storeToken) return storeToken;
   return undefined;
@@ -39,15 +42,14 @@ const getResolvedToken = (): string | undefined => {
 
 const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
   const { apiBaseUrl } = getEnvConfig();
-  const resolvedToken = getResolvedToken();
+  const accessToken = getAccessToken();
 
   if (!apiBaseUrl) {
     const error = createServiceError('API_BASE_URL_MISSING', 'API_BASE_URL이 설정되지 않았습니다.');
     logErrorCode(error.code);
     return { error };
   }
-
-  if (!resolvedToken) {
+  if (!accessToken) {
     const error = createServiceError('AUTH_TOKEN_MISSING', '인증 토큰이 없습니다.');
     logErrorCode(error.code);
     return { error };
@@ -57,7 +59,7 @@ const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
     apiBaseUrl,
     headers: {
       Accept: '*/*',
-      Authorization: `Bearer ${resolvedToken}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   };
 };
@@ -213,14 +215,20 @@ export const getTripRoute = async ({
   tripScheduleId,
   signal,
 }: GetTripRouteOptions): Promise<GetTripRouteResult> => {
+export const deleteTripSchedule = async ({
+  tripId,
+  tripScheduleId,
+  signal,
+}: DeleteTripScheduleOptions): Promise<DeleteTripScheduleResult> => {
   const requestConfig = getTripRequestConfig();
   if ('error' in requestConfig) {
     return { data: null, error: requestConfig.error };
   }
 
   try {
-    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/${tripScheduleId}/route`;
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/${tripScheduleId}`;
     const response = await fetch(requestUrl, {
+      method: 'DELETE',
       headers: requestConfig.headers,
       signal,
     });
@@ -231,7 +239,14 @@ export const getTripRoute = async ({
       return { data: null, error };
     }
 
-    const json: BaseResponse<GetTripRouteData> = await response.json();
+    if (response.status === 204) {
+      return {
+        data: { deleted: true, tripId, tripScheduleId },
+        error: null,
+      };
+    }
+
+    const json: BaseResponse<DeleteTripScheduleData> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
     const error = getRequestError(signal);
