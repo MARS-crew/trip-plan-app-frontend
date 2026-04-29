@@ -18,6 +18,11 @@ export type {
   TripShareData,
   GetTripShareOptions,
   GetTripShareResult,
+  GetTripRouteData,
+  GetTripRouteOptions,
+  GetTripRouteResult,
+  DeleteTripOptions,
+  DeleteTripResult,
 } from './tripDetail.types';
 
 export interface ServiceError {
@@ -34,19 +39,3 @@ export interface TripRequestConfig {
 export interface TripRequestConfigError {
   error: ServiceError;
 }
-
-export interface TripRequestConfig {
-  apiBaseUrl: string;
-  headers: Record<string, string>;
-}
-
-export interface TripRequestConfigError {
-  error: string;
-}
-
-export type {
-  GetTripSchedulesResult,
-  GetTripSchedulesOptions,
-  DeleteTripOptions,
-  DeleteTripResult,
-} from './tripDetail.types';
