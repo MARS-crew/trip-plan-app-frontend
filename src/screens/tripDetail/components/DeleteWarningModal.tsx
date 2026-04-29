@@ -6,7 +6,7 @@ import type { DeleteWarningModalProps } from '@/types/tripDetail.types';
 
 const DeleteWarningModal = ({
   visible,
-  title,
+  title = '여행을 삭제하시겠습니까? 취소가 불가능합니다.',
   confirmLabel = '삭제',
   onConfirm,
   onClose,

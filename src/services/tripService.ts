@@ -14,6 +14,9 @@ import type {
   GetTripRouteData,
   GetTripRouteOptions,
   GetTripRouteResult,
+  DeleteTripData,
+  DeleteTripOptions,
+  DeleteTripResult,
   DeleteTripScheduleData,
   DeleteTripScheduleOptions,
   DeleteTripScheduleResult,
@@ -215,6 +218,32 @@ export const getTripRoute = async ({
   tripScheduleId,
   signal,
 }: GetTripRouteOptions): Promise<GetTripRouteResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/${tripScheduleId}/route`;
+    const response = await fetch(requestUrl, {
+      headers: requestConfig.headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    const json: BaseResponse<GetTripRouteData> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
+  }
+};
+
 export const deleteTripSchedule = async ({
   tripId,
   tripScheduleId,
@@ -247,6 +276,44 @@ export const deleteTripSchedule = async ({
     }
 
     const json: BaseResponse<DeleteTripScheduleData> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
+  }
+};
+
+export const deleteTrip = async ({
+  tripId,
+  signal,
+}: DeleteTripOptions): Promise<DeleteTripResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}`;
+    const response = await fetch(requestUrl, {
+      method: 'DELETE',
+      headers: requestConfig.headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    if (response.status === 204) {
+      return {
+        data: { tripId, deleted: true },
+        error: null,
+      };
+    }
+
+    const json: BaseResponse<DeleteTripData> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
     const error = getRequestError(signal);

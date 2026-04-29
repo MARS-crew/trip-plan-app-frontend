@@ -406,8 +406,7 @@ const TripDetailScreen: React.FC = () => {
 
     const result = await deleteTrip({ tripId });
     if (result.error) {
-      console.error(`[tripDetail] 여행 삭제 실패 errorCode=${result.error}`);
-      ToastAndroid.show('여행 삭제에 실패하였습니다', ToastAndroid.SHORT);
+      ToastAndroid.show(getTripDeleteErrorToastMessage(result.error), ToastAndroid.SHORT);
       return;
     }
 
@@ -421,7 +420,7 @@ const TripDetailScreen: React.FC = () => {
     const result = await getTripShare({ tripId });
     if (result.error || !result.data) {
       if (result.error?.code === 'REQUEST_ABORTED') return;
-      console.error(`[tripShare] ${getTripShareErrorMessage(result.error)}`);
+      ToastAndroid.show(getTripShareErrorMessage(result.error), ToastAndroid.SHORT);
       return;
     }
 
@@ -437,15 +436,13 @@ const TripDetailScreen: React.FC = () => {
         url: shareUrl || undefined,
       });
     } catch {
-      console.error('[tripShare] 서버 오류가 발생했습니다.');
+      ToastAndroid.show('서버 오류가 발생했습니다.', ToastAndroid.SHORT);
     }
   }, [tripId]);
 
   const handlePressShareInKebab = useCallback(() => {
     handleCloseKebabMenu();
-    handleShareTrip().catch(() => {
-      console.error('[tripShare] 서버 오류가 발생했습니다.');
-    });
+    void handleShareTrip();
   }, [handleCloseKebabMenu, handleShareTrip]);
 
   const handleDeleteSchedule = useCallback(async (): Promise<void> => {
@@ -531,6 +528,7 @@ const TripDetailScreen: React.FC = () => {
         isVisible={isKebabMenuVisible}
         translateY={kebabTranslateY}
         onClose={handleCloseKebabMenu}
+        onPressShare={handlePressShareInKebab}
         onPressDelete={() => {
           handleCloseKebabMenu();
           setIsDeleteWarningVisible(true);
@@ -539,14 +537,12 @@ const TripDetailScreen: React.FC = () => {
 
       <DeleteWarningModal
         visible={isDeleteWarningVisible}
+        title="여행을 삭제하시겠습니까? 취소가 불가능합니다."
+        confirmLabel="삭제"
         onConfirm={() => {
-          handleDeleteTrip().catch(() => {
-            console.error('[tripDetail] 여행 삭제 실패 errorCode=INTERNAL_ERROR');
-            ToastAndroid.show('여행 삭제에 실패하였습니다', ToastAndroid.SHORT);
-          });
+          void handleDeleteTrip();
         }}
         onClose={() => setIsDeleteWarningVisible(false)}
-        onPressShare={handlePressShareInKebab}
       />
     </SafeAreaView>
   );
