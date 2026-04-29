@@ -1,7 +1,16 @@
 import Config from 'react-native-config';
 
+import { useAuthStore } from '@/store';
 import type { BaseResponse } from '@/types';
-import type { GetMyPageData, GetPapagoPhrase, GetProfileData } from '@/types/mypage';
+import type {
+  GetExchangeData,
+  GetExchangeRequest,
+  GetMyPageData,
+  GetPapagoPhrase,
+  GetProfileData,
+  PatchProfileData,
+  PatchProfileRequest,
+} from '@/types/mypage';
 
 export const getMyPage = async (): Promise<GetMyPageData> => {
   try {
@@ -47,6 +56,28 @@ export const getPapagoPhrases = async (): Promise<GetPapagoPhrase[]> => {
     return json.data ?? [];
   } catch (error) {
     console.error('getPapagoPhrases Error:', error);
+    throw error;
+  }
+};
+
+export const patchProfile = async (payload: PatchProfileRequest): Promise<PatchProfileData> => {
+  try {
+    const accessToken = useAuthStore.getState().accessToken ?? '';
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error('프로필 수정 실패');
+    }
+    const json: BaseResponse<PatchProfileData> = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error('patchProfile Error:', error);
     throw error;
   }
 };

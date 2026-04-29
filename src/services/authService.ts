@@ -1,5 +1,6 @@
 import Config from 'react-native-config';
 
+import { useAuthStore } from '@/store';
 import type {
   EmailRequestData,
   EmailVerifyData,
@@ -244,11 +245,12 @@ export const postReissueToken = async (
 
 export const requestEmailVerification = async (email: string): Promise<EmailRequestData> => {
   try {
+    const accessToken = useAuthStore.getState().accessToken ?? '';
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/auth/email-request`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({ email }),
     });
@@ -265,11 +267,12 @@ export const requestEmailVerification = async (email: string): Promise<EmailRequ
 
 export const verifyEmailCode = async (email: string, code: string): Promise<EmailVerifyData> => {
   try {
+    const accessToken = useAuthStore.getState().accessToken ?? '';
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/auth/email-verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({ email, code }),
     });
