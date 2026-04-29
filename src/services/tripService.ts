@@ -1,32 +1,39 @@
 import type { BaseResponse } from '@/types';
 import { getEnvConfig } from '@/config/env';
 import { useAuthStore } from '@/store';
+import type { ServiceError, TripRequestConfig, TripRequestConfigError } from '@/types/trip';
 import type {
   GetMyTripsData,
   GetMyTripsOptions,
   GetMyTripsResult,
-  TripRequestConfig,
-  TripRequestConfigError,
   GetTripSchedulesByDateOptions,
   GetTripSchedulesByDateResult,
   TripSchedulesByDateData,
-} from '@/types/trip';
+} from '@/types/myTrip.types';
 import type {
-  DeleteTripOptions,
-  DeleteTripResult,
+  GetTripRouteData,
+  GetTripRouteOptions,
+  GetTripRouteResult,
   GetTripSchedulesOptions,
   GetTripSchedulesResult,
+  GetTripShareOptions,
+  GetTripShareResult,
+  TripShareData,
 } from '@/types/tripDetail.types';
 
 const logErrorCode = (errorCode: string): void => {
   console.error(`[tripService] errorCode=${errorCode}`);
 };
 
+const createServiceError = (code: string, message?: string): ServiceError => ({
+  success: false,
+  code,
+  message: message?.trim() || code,
+});
+
 const getResolvedToken = (): string | undefined => {
   const storeToken = useAuthStore.getState().accessToken?.trim();
-  if (storeToken) {
-    return storeToken;
-  }
+  if (storeToken) return storeToken;
   return undefined;
 };
 
@@ -35,13 +42,14 @@ const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
   const resolvedToken = getResolvedToken();
 
   if (!apiBaseUrl) {
-    const error = 'API_BASE_URL_MISSING';
-    logErrorCode(error);
+    const error = createServiceError('API_BASE_URL_MISSING', 'API_BASE_URL이 설정되지 않았습니다.');
+    logErrorCode(error.code);
     return { error };
   }
+
   if (!resolvedToken) {
-    const error = 'AUTH_TOKEN_MISSING';
-    logErrorCode(error);
+    const error = createServiceError('AUTH_TOKEN_MISSING', '인증 토큰이 없습니다.');
+    logErrorCode(error.code);
     return { error };
   }
 
@@ -54,21 +62,21 @@ const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
   };
 };
 
-const getResponseErrorCode = async (response: Response): Promise<string> => {
+const getResponseError = async (response: Response): Promise<ServiceError> => {
   try {
-    const errorJson: { code?: string } = await response.json();
-    return errorJson.code ?? `HTTP_${response.status}`;
+    const errorJson: { code?: string; message?: string } = await response.json();
+    return createServiceError(errorJson.code ?? `HTTP_${response.status}`, errorJson.message);
   } catch {
-    return `HTTP_${response.status}`;
+    return createServiceError(`HTTP_${response.status}`, '요청 처리 중 오류가 발생했습니다.');
   }
 };
 
-const getRequestErrorCode = (signal?: AbortSignal): string => {
+const getRequestError = (signal?: AbortSignal): ServiceError => {
   if (signal?.aborted) {
-    return 'REQUEST_ABORTED';
+    return createServiceError('REQUEST_ABORTED', '요청이 취소되었습니다.');
   }
   logErrorCode('NETWORK_ERROR');
-  return 'NETWORK_ERROR';
+  return createServiceError('NETWORK_ERROR', '네트워크 오류가 발생했습니다.');
 };
 
 export const getMyTrips = async ({
@@ -85,22 +93,23 @@ export const getMyTrips = async ({
       filterStatus === 'ALL'
         ? `${requestConfig.apiBaseUrl}/api/v1/trips/filter`
         : `${requestConfig.apiBaseUrl}/api/v1/trips/filter?tripStatus=${encodeURIComponent(filterStatus)}`;
+
     const response = await fetch(requestUrl, {
       headers: requestConfig.headers,
       signal,
     });
 
     if (!response.ok) {
-      const errorCode = await getResponseErrorCode(response);
-      logErrorCode(errorCode);
-      return { data: [], error: errorCode };
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: [], error };
     }
 
     const json: BaseResponse<GetMyTripsData> = await response.json();
     return { data: json.data?.trips ?? [], error: null };
   } catch {
-    const errorCode = getRequestErrorCode(signal);
-    return { data: [], error: errorCode };
+    const error = getRequestError(signal);
+    return { data: [], error };
   }
 };
 
@@ -122,16 +131,16 @@ export const getTripSchedulesByDate = async ({
     });
 
     if (!response.ok) {
-      const errorCode = await getResponseErrorCode(response);
-      logErrorCode(errorCode);
-      return { data: null, error: errorCode };
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
     }
 
     const json: BaseResponse<TripSchedulesByDateData> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
-    const errorCode = getRequestErrorCode(signal);
-    return { data: null, error: errorCode };
+    const error = getRequestError(signal);
+    return { data: null, error };
   }
 };
 
@@ -152,9 +161,9 @@ export const getTripSchedules = async ({
     });
 
     if (!response.ok) {
-      const errorCode = await getResponseErrorCode(response);
-      logErrorCode(errorCode);
-      return { data: null, error: errorCode };
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
     }
 
     if (response.status === 204) {
@@ -164,38 +173,68 @@ export const getTripSchedules = async ({
     const json: BaseResponse<unknown> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
-    const errorCode = getRequestErrorCode(signal);
-    return { data: null, error: errorCode };
+    const error = getRequestError(signal);
+    return { data: null, error };
   }
 };
 
-export const deleteTrip = async ({
+export const getTripShare = async ({
   tripId,
   signal,
-}: DeleteTripOptions): Promise<DeleteTripResult> => {
+}: GetTripShareOptions): Promise<GetTripShareResult> => {
   const requestConfig = getTripRequestConfig();
   if ('error' in requestConfig) {
     return { data: null, error: requestConfig.error };
   }
 
   try {
-    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}`;
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/share`;
     const response = await fetch(requestUrl, {
-      method: 'DELETE',
       headers: requestConfig.headers,
       signal,
     });
 
     if (!response.ok) {
-      const errorCode = await getResponseErrorCode(response);
-      logErrorCode(errorCode);
-      return { data: null, error: errorCode };
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
     }
 
-    const json: BaseResponse<unknown> = await response.json();
+    const json: BaseResponse<TripShareData> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
-    const errorCode = getRequestErrorCode(signal);
-    return { data: null, error: errorCode };
+    const error = getRequestError(signal);
+    return { data: null, error };
+  }
+};
+
+export const getTripRoute = async ({
+  tripId,
+  tripScheduleId,
+  signal,
+}: GetTripRouteOptions): Promise<GetTripRouteResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/${tripScheduleId}/route`;
+    const response = await fetch(requestUrl, {
+      headers: requestConfig.headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    const json: BaseResponse<GetTripRouteData> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
   }
 };

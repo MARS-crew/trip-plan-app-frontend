@@ -92,7 +92,7 @@ const MyTripScreen: React.FC = () => {
         filterStatus: CHIP_TO_FILTER_STATUS[selectedChip],
         signal,
       });
-      if (signal?.aborted || result.error === 'REQUEST_ABORTED') return;
+      if (signal?.aborted || result.error?.code === 'REQUEST_ABORTED') return;
       if (result.error) {
         setIsLoading(false);
         return;
@@ -129,7 +129,7 @@ const MyTripScreen: React.FC = () => {
         targetDate,
         signal: abortController.signal,
       });
-      if (abortController.signal.aborted || result.error === 'REQUEST_ABORTED') return;
+      if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
       if (result.error || !result.data) {
         setTripTimelineByCardId((prev) => ({
           ...prev,
