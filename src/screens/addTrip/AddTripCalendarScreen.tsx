@@ -1,17 +1,19 @@
 import React, { useMemo, useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@/navigation/types';
 import { CalendarList, LocaleConfig } from 'react-native-calendars';
 
-import { TopBar } from '@/components'
-import { BackArrow } from '@/assets/icons';
+import { TopBar } from '@/components';
 import { COLORS } from '@/constants/colors';
+import { createTrip } from '@/services';
 
 // ==================== Types ====================
 type AddTripNavigation = NativeStackNavigationProp<RootStackParamList, 'AddTripCalendar'>;
+type AddTripCalendarRoute = RouteProp<RootStackParamList, 'AddTripCalendar'>;
 
 interface DateRange {
   startDate: string | null;
@@ -93,14 +95,15 @@ const getDateRange = (start: string, end: string): string[] => {
 };
 
 const AddTripCalendarScreen: React.FC = () => {
-
   // ==================== Hooks ====================
   const navigation = useNavigation<AddTripNavigation>();
+  const route = useRoute<AddTripCalendarRoute>();
   const todayString = getTodayString();
   const [range, setRange] = useState<DateRange>({
     startDate: null,
     endDate: null,
   });
+  const [isCreatingTrip, setIsCreatingTrip] = useState<boolean>(false);
 
   const markedDates = useMemo(() => {
     const result: Record<string, MarkedDateItem> = {};
@@ -134,7 +137,76 @@ const AddTripCalendarScreen: React.FC = () => {
     return result;
   }, [range]);
 
-  const isButtonEnabled = Boolean(range.startDate && range.endDate);
+  const isButtonEnabled = Boolean(range.startDate && range.endDate) && !isCreatingTrip;
+  const calendarTheme = useMemo(() => ({
+    backgroundColor: COLORS.screenBackground,
+    calendarBackground: COLORS.screenBackground,
+    textSectionTitleColor: COLORS.gray,
+    textSectionTitleDisabledColor: COLORS.muted,
+    selectedDayBackgroundColor: COLORS.main,
+    selectedDayTextColor: COLORS.white,
+    todayTextColor: COLORS.main,
+    dayTextColor: COLORS.black,
+    textDisabledColor: COLORS.muted,
+    monthTextColor: COLORS.black,
+    textMonthFontWeight: '700',
+    textMonthFontSize: 16,
+    textDayHeaderFontSize: 12,
+    textDayFontWeight: '500',
+    'stylesheet.calendar.main': {
+      week: {
+        marginTop: 0,
+        marginBottom: 0,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+      },
+    },
+    'stylesheet.calendar.header': {
+      header: {
+        paddingLeft: 0,
+        marginLeft: 0,
+        marginBottom: 8,
+      },
+      monthText: {
+        color: COLORS.black,
+        fontSize: 16,
+        fontWeight: '700',
+        textAlign: 'left',
+        alignSelf: 'flex-start',
+      },
+      dayTextAtIndex0: {
+        color: COLORS.sunday,
+      },
+      dayTextAtIndex6: {
+        color: COLORS.saturday,
+      },
+    },
+  }), []) as unknown as NonNullable<React.ComponentProps<typeof CalendarList>['theme']>;
+
+  const handleCreateTrip = async (): Promise<void> => {
+    if (!range.startDate || !range.endDate || isCreatingTrip) return;
+
+    setIsCreatingTrip(true);
+    try {
+      const result = await createTrip({
+        payload: {
+          title: route.params.title,
+          imageUrl: route.params.imageUrl,
+          startDate: range.startDate,
+          endDate: range.endDate,
+        },
+      });
+
+      if (result.error) {
+        ToastAndroid.show('여행 생성에 실패했습니다.', ToastAndroid.SHORT);
+        return;
+      }
+
+      navigation.navigate('MainTabs', { screen: 'MyTrip' });
+    } finally {
+      setIsCreatingTrip(false);
+    }
+  };
 
   const handleDayPress = (day: { dateString: string }): void => {
     const { dateString } = day;
@@ -176,50 +248,7 @@ const AddTripCalendarScreen: React.FC = () => {
             calendarHeight={320}
             hideExtraDays
             contentContainerStyle={{ paddingBottom: 110 }}
-            theme={{
-              backgroundColor: COLORS.screenBackground,
-              calendarBackground: COLORS.screenBackground,
-              textSectionTitleColor: COLORS.gray,
-              textSectionTitleDisabledColor: COLORS.muted,
-              selectedDayBackgroundColor: COLORS.main,
-              selectedDayTextColor: COLORS.white,
-              todayTextColor: COLORS.main,
-              dayTextColor: COLORS.black,
-              textDisabledColor: COLORS.muted,
-              monthTextColor: COLORS.black,
-              textMonthFontWeight: '700',
-              textMonthFontSize: 16,
-              textDayHeaderFontSize: 12,
-              textDayFontWeight: '500',
-              'stylesheet.calendar.main': {
-                week: {
-                  marginTop: 0,
-                  marginBottom: 0,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                },
-              },
-              'stylesheet.calendar.header': {
-                header: {
-                  paddingLeft: 0,
-                  marginLeft: 0,
-                  marginBottom: 8,
-                },
-                monthText: {
-                  color: COLORS.black,
-                  fontSize: 16,
-                  fontWeight: '700',
-                  textAlign: 'left',
-                  alignSelf: 'flex-start',
-                },
-                dayTextAtIndex0: {
-                  color: COLORS.sunday,
-                },
-                dayTextAtIndex6: {
-                  color: COLORS.saturday,
-                },
-              },
-            }}
+            theme={calendarTheme}
             dayComponent={({ date, state, marking }) => {
               if (!date) {
                 return <View style={{ width: 53, height: 40 }} />;
@@ -234,7 +263,7 @@ const AddTripCalendarScreen: React.FC = () => {
 
               const weekDay = new Date(date.dateString).getDay();
 
-              let textColor = COLORS.gray;
+              let textColor: string = COLORS.gray;
               if (state === 'disabled') {
                 textColor = COLORS.muted;
               } else if (isStart || isEnd || isSingle) {
@@ -283,11 +312,9 @@ const AddTripCalendarScreen: React.FC = () => {
                         borderWidth: isTodayDefault ? 1 : 0,
                         borderColor: isTodayDefault ? COLORS.main : 'transparent',
                         borderTopLeftRadius: isStart || isSingle ? 22 : isTodayDefault ? 8 : 0,
-                        borderBottomLeftRadius:
-                          isStart || isSingle ? 22 : isTodayDefault ? 8 : 0,
+                        borderBottomLeftRadius: isStart || isSingle ? 22 : isTodayDefault ? 8 : 0,
                         borderTopRightRadius: isEnd || isSingle ? 22 : isTodayDefault ? 8 : 0,
-                        borderBottomRightRadius:
-                          isEnd || isSingle ? 22 : isTodayDefault ? 8 : 0,
+                        borderBottomRightRadius: isEnd || isSingle ? 22 : isTodayDefault ? 8 : 0,
                       }}>
                       <Text className="text-p1" style={{ color: textColor }}>
                         {date.day}
@@ -296,11 +323,12 @@ const AddTripCalendarScreen: React.FC = () => {
                   </View>
                 </TouchableOpacity>
               );
-            }}/>
+            }}
+          />
         </View>
 
         {/* ==================== 날짜 등록 버튼 ==================== */}
-        <View className="absolute bottom-0 left-0 right-0 px-4 py-4 mb-4">
+        <View className="absolute bottom-0 left-0 right-0 mb-4 px-4 py-4">
           <View
             className="h-[44px] w-full rounded-[4px]"
             style={{
@@ -314,14 +342,14 @@ const AddTripCalendarScreen: React.FC = () => {
             <TouchableOpacity
               activeOpacity={0.8}
               disabled={!isButtonEnabled}
-              onPress={() => navigation.navigate('WishlistScreen')}
+              onPress={handleCreateTrip}
               className="h-[44px] w-full items-center justify-center rounded-[4px]"
               style={{
                 backgroundColor: isButtonEnabled ? COLORS.main : COLORS.buttonDisabledOverlay,
                 borderWidth: 1,
                 borderColor: isButtonEnabled ? COLORS.main : COLORS.buttonDisabled,
               }}>
-              <Text className="text-h3 font-pretendardSemiBold text-white">날짜 등록</Text>
+              <Text className="font-pretendardSemiBold text-h3 text-white">날짜 등록</Text>
             </TouchableOpacity>
           </View>
         </View>
