@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import type { CategoryChipProps } from '@/screens/wishList/types';
+import type { CategoryChipProps } from '@/types/wishlist';
 
 // ============ Component ============
 export const CategoryChip = React.memo<CategoryChipProps>(

@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { ScrollView, View } from 'react-native';
 import CustomBottomSheet from '@/components/ui/CustomBottomSheet';
 import { CategoryChip } from '@/screens/wishList/components';
-import type { WishlistBottomSheetProps } from '@/screens/wishList/types';
+import type { WishlistBottomSheetProps } from '@/types/wishlist';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const WishlistBottomSheetComponent: React.FC<WishlistBottomSheetProps> = ({
   translateY,
