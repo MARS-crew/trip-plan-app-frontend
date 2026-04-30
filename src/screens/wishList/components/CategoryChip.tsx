@@ -1,14 +1,10 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import type { CategoryChipProps } from '@/screens/wishList/types';
 
 // ============ Component ============
 export const CategoryChip = React.memo<CategoryChipProps>(
   ({ label, onPress, isSelected = false, className, textClassName }) => {
-    const handlePress = useCallback(() => {
-      onPress?.();
-    }, [onPress]);
-
     const defaultContainerStyle = 'items-center justify-center';
 
     // 선택 여부에 따른 색상만 자동으로 처리
@@ -23,7 +19,7 @@ export const CategoryChip = React.memo<CategoryChipProps>(
     if (onPress) {
       return (
         <Pressable
-          onPress={handlePress}
+          onPress={onPress}
           className={`${defaultContainerStyle} ${bgStyle} ${className ?? 'px-2 py-[2px] rounded-2xl '}`}>
           {renderContent}
         </Pressable>

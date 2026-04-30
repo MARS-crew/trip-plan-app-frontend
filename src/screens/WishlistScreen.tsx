@@ -1,7 +1,13 @@
 import React, { useCallback, useRef, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Keyboard, Platform } from 'react-native';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Keyboard,
+  Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MyLocation, WishStar } from '@/assets/icons';
 import { WishModal } from './wishList/components/WishModal';
@@ -30,85 +36,26 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Shadow } from 'react-native-shadow-2';
+import { getPlaceSelection } from '@/services/searchService';
+import type { PlaceSelectionPlace } from '@/types/wishlist';
 
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type TabId = WishlistBottomSheetTabId;
 type LikeTabId = Exclude<TabId, 'trending'>;
+
+const convertPlaceDataToWishPlace = (place: PlaceSelectionPlace): PlaceCardProps['place'] => ({
+  id: place.placeId.toString(),
+  title: place.name,
+  location: `${place.cityName}, ${place.countryName}`,
+  description: place.address,
+  categories: [place.placeType],
+  image: { uri: place.imageUrl },
+});
 //더미 데이터 - 실제 API 연동 시 제거 예정
 const TRENDING_PLACES: PlaceCardProps['place'][] = [
   {
     id: 'place_1',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-];
-
-const SAVED_PLACES: PlaceCardProps['place'][] = [
-  {
-    id: 'placeS_1',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'placeS_2',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-];
-
-const WISHLIST_PLACES: PlaceCardProps['place'][] = [
-  {
-    id: 'placeW_1',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'placeW_2',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'placeW_3',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'placeW_4',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'placeW_5',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'placeW_6',
     title: '센소지 아사쿠사',
     location: '도쿄, 일본',
     description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
@@ -153,12 +100,47 @@ const WishlistScreen: React.FC = () => {
   const SNAP_TRENDING = SHEET_HEIGHT - SECOND_SNAP_VISIBLE_HEIGHT;
   const SEARCH_BUTTON_BOTTOM = BOTTOM_SHEET_MIN_HEIGHT + 10;
 
+  const route = useRoute();
+  const navigation = useNavigation<NavigationProp>();
   const translateY = useSharedValue(SNAP_LOW);
+  const tripId = (route.params as { tripId?: number })?.tripId ?? 5;
+
+  const [savedPlaces, setSavedPlaces] = useState<PlaceCardProps['place'][]>([]);
+  const [wishlistPlaces, setWishlistPlaces] = useState<PlaceCardProps['place'][]>([]);
 
   const [likedIdsByTab, setLikedIdsByTab] = useState<Record<LikeTabId, Set<string>>>(() => ({
     saved: new Set<string>(),
-    wishlist: new Set(WISHLIST_PLACES.map((place) => place.id)),
+    wishlist: new Set<string>(),
   }));
+  useEffect(() => {
+    const loadPlaceSelection = async () => {
+      try {
+        const response = await getPlaceSelection(tripId);
+
+        const convertedSavedPlaces = response.data.savedPlaces.map(convertPlaceDataToWishPlace);
+        const convertedWishlistPlaces = response.data.wishlistPlaces.map(
+          convertPlaceDataToWishPlace,
+        );
+
+        setSavedPlaces(convertedSavedPlaces);
+        setWishlistPlaces(convertedWishlistPlaces);
+        setLikedIdsByTab({
+          saved: new Set<string>(),
+          wishlist: new Set(convertedWishlistPlaces.map((place) => place.id)),
+        });
+      } catch (err) {
+        console.error('Failed to load place selection:', err);
+        setSavedPlaces([]);
+        setWishlistPlaces([]);
+        setLikedIdsByTab({
+          saved: new Set<string>(),
+          wishlist: new Set<string>(),
+        });
+      }
+    };
+
+    loadPlaceSelection();
+  }, [tripId]);
 
   const toggleLike = useCallback((tab: LikeTabId, id: string) => {
     setLikedIdsByTab((prev) => {
@@ -173,7 +155,6 @@ const WishlistScreen: React.FC = () => {
     [likedIdsByTab],
   );
 
-  const navigation = useNavigation<NavigationProp>();
   const [selectedCategory, setSelectedCategory] = useState<TabId>(INITIAL_CATEGORY);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -375,7 +356,7 @@ const WishlistScreen: React.FC = () => {
       case 'saved':
         return (
           <WishTabSave
-            places={SAVED_PLACES}
+            places={savedPlaces}
             isLiked={isSavedLiked}
             onToggleLike={handleToggleSaved}
           />
@@ -383,7 +364,7 @@ const WishlistScreen: React.FC = () => {
       case 'wishlist':
         return (
           <WishTabWishlist
-            places={WISHLIST_PLACES}
+            places={wishlistPlaces}
             isLiked={isWishlistLiked}
             onToggleLike={handleToggleWishlist}
           />
@@ -457,29 +438,29 @@ const WishlistScreen: React.FC = () => {
           </View>
         </Animated.View>
         {!isSearchFocused && (
-        <WishlistBottomSheet
-          translateY={translateY}
-          onStateChange={handleSheetChange}
-          maxTopSnap={selectedCategory === 'trending' ? SNAP_TRENDING : SNAP_FULL}
-          tabs={TABS}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-          onPressComplete={handleComplete}
-          renderTabContent={renderTabContent}
-        />
+          <WishlistBottomSheet
+            translateY={translateY}
+            onStateChange={handleSheetChange}
+            maxTopSnap={selectedCategory === 'trending' ? SNAP_TRENDING : SNAP_FULL}
+            tabs={TABS}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            onPressComplete={handleComplete}
+            renderTabContent={renderTabContent}
+          />
         )}
         {isSearchFocused && (
-        <WishlistSearchOverlay
-          isVisible={isSearchFocused}
-          selectedCategory={selectedCategory}
-          places={SEARCH_PLACES}
-          isLiked={(id) =>
-            isLikedInTab(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
-          }
-          onToggleLike={(id) =>
-            toggleLike(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
-          }
-        />
+          <WishlistSearchOverlay
+            isVisible={isSearchFocused}
+            selectedCategory={selectedCategory}
+            places={SEARCH_PLACES}
+            isLiked={(id) =>
+              isLikedInTab(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
+            }
+            onToggleLike={(id) =>
+              toggleLike(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
+            }
+          />
         )}
         {/* 완료 모달 */}
         <WishModal
