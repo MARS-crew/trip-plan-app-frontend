@@ -36,6 +36,7 @@ import type {
 } from '@/types/signup';
 import { checkDuplicateUserId, requestEmailVerification } from '@/services';
 import { showToastMessage } from '@/utils';
+import { handleError } from '@/utils/error';
 
 const COUNTRIES = [
   '대한민국',
@@ -335,7 +336,7 @@ const SignUpScreen: React.FC = () => {
       }));
     } catch (error) {
       setEmailStatus('none');
-      const errMessage = error instanceof Error ? error.message : '';
+      const errMessage = handleError(error);
       setEmailErrorMessage(errMessage);
       setIsCodeFieldVisible(false);
       setCodeStatus('none');
@@ -370,7 +371,7 @@ const SignUpScreen: React.FC = () => {
       setIdCheckStatus(isDuplicate ? 'duplicate' : 'available');
     } catch (error) {
       setIdCheckStatus('error');
-      const errMessage = error instanceof Error ? error.message : '';
+      const errMessage = handleError(error);
       showToastMessage(errMessage);
     }
   }, [formData.accountId]);

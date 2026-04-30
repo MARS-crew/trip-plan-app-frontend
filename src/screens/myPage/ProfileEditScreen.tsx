@@ -8,7 +8,8 @@ import type { RootStackParamList } from '@/navigation/types';
 import { TopBar } from '@/components/ui';
 import { COLORS } from '@/constants';
 import { requestEmailVerification, verifyEmailCode } from '@/services';
-import { getFriendlyErrorMessage, showToastMessage } from '@/utils';
+import { showToastMessage } from '@/utils';
+import { handleError } from '@/utils/error';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -73,9 +74,7 @@ const ProfileEditScreen: React.FC = () => {
       setIsCodeSent(false);
       setIsCodeVerified(false);
       setVerificationCode('');
-      showToastMessage(
-        getFriendlyErrorMessage(error, '인증번호 발송에 실패했습니다. 잠시 후 다시 시도해주세요.'),
-      );
+      showToastMessage(handleError(error) || '인증번호 발송에 실패했습니다. 잠시 후 다시 시도해주세요.');
     } finally {
       setIsRequestingCode(false);
     }
@@ -121,9 +120,7 @@ const ProfileEditScreen: React.FC = () => {
       console.error('handleConfirmCode Error:', error);
       setIsCodeVerified(false);
       setCodeError('');
-      showToastMessage(
-        getFriendlyErrorMessage(error, '인증번호 확인에 실패했습니다. 다시 시도해주세요.'),
-      );
+      showToastMessage(handleError(error) || '인증번호 확인에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsVerifyingCode(false);
     }
