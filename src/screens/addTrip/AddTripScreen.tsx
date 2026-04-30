@@ -11,6 +11,7 @@ import type { RootStackParamList } from '@/navigation/types';
 import { CameraIcon, RightArrowIcon } from '@/assets/icons';
 
 type AddTripNavigation = NativeStackNavigationProp<RootStackParamList, 'AddTripScreen'>;
+const DEFAULT_TRIP_IMAGE_URL = 'https://cdn.lets-trip.com/trips/default.jpg';
 
 const AddTripScreen: React.FC = () => {
   const navigation = useNavigation<AddTripNavigation>();
@@ -35,10 +36,9 @@ const AddTripScreen: React.FC = () => {
 
     navigation.navigate('AddTripCalendar', {
       title: tripName.trim(),
-      imageUrl: selectedImageUri ?? 'https://cdn.lets-trip.com/trips/default.jpg',
+      imageUrl: selectedImageUri ?? DEFAULT_TRIP_IMAGE_URL,
     });
   };
-
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>

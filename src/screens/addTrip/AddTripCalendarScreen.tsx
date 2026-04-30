@@ -103,6 +103,7 @@ const AddTripCalendarScreen: React.FC = () => {
     startDate: null,
     endDate: null,
   });
+  const [isCreatingTrip, setIsCreatingTrip] = useState<boolean>(false);
 
   const markedDates = useMemo(() => {
     const result: Record<string, MarkedDateItem> = {};
@@ -136,8 +137,8 @@ const AddTripCalendarScreen: React.FC = () => {
     return result;
   }, [range]);
 
-  const isButtonEnabled = Boolean(range.startDate && range.endDate);
-  const calendarTheme = ({
+  const isButtonEnabled = Boolean(range.startDate && range.endDate) && !isCreatingTrip;
+  const calendarTheme = useMemo(() => ({
     backgroundColor: COLORS.screenBackground,
     calendarBackground: COLORS.screenBackground,
     textSectionTitleColor: COLORS.gray,
@@ -180,26 +181,31 @@ const AddTripCalendarScreen: React.FC = () => {
         color: COLORS.saturday,
       },
     },
-  }) as unknown as NonNullable<React.ComponentProps<typeof CalendarList>['theme']>;
+  }), []) as unknown as NonNullable<React.ComponentProps<typeof CalendarList>['theme']>;
 
   const handleCreateTrip = async (): Promise<void> => {
-    if (!range.startDate || !range.endDate) return;
+    if (!range.startDate || !range.endDate || isCreatingTrip) return;
 
-    const result = await createTrip({
-      payload: {
-        title: route.params.title,
-        imageUrl: route.params.imageUrl,
-        startDate: range.startDate,
-        endDate: range.endDate,
-      },
-    });
+    setIsCreatingTrip(true);
+    try {
+      const result = await createTrip({
+        payload: {
+          title: route.params.title,
+          imageUrl: route.params.imageUrl,
+          startDate: range.startDate,
+          endDate: range.endDate,
+        },
+      });
 
-    if (result.error) {
-      ToastAndroid.show('여행 생성에 실패했습니다.', ToastAndroid.SHORT);
-      return;
+      if (result.error) {
+        ToastAndroid.show('여행 생성에 실패했습니다.', ToastAndroid.SHORT);
+        return;
+      }
+
+      navigation.navigate('MainTabs', { screen: 'MyTrip' });
+    } finally {
+      setIsCreatingTrip(false);
     }
-
-    navigation.navigate('MainTabs', { screen: 'MyTrip' });
   };
 
   const handleDayPress = (day: { dateString: string }): void => {
