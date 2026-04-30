@@ -130,3 +130,28 @@ export interface GetTripSchedulesByDateOptions {
   targetDate: string;
   signal?: AbortSignal;
 }
+
+export interface CreateTripRequest {
+  title: string;
+  imageUrl: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface CreateTripData {
+  tripId: number;
+  title: string;
+  imageUrl: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface CreateTripResult {
+  data: CreateTripData | null;
+  error: ServiceError | null;
+}
+
+export interface CreateTripOptions {
+  payload: CreateTripRequest;
+  signal?: AbortSignal;
+}

@@ -29,7 +29,10 @@ export type RootStackParamList = {
   AccountSettings: undefined;
   NotificationSettings: undefined;
   AddTripScreen: undefined;
-  AddTripCalendar: undefined;
+  AddTripCalendar: {
+    title: string;
+    imageUrl: string;
+  };
   VisitedPlaceListScreen: undefined;
   FindId: undefined;
   WishlistScreen: undefined;

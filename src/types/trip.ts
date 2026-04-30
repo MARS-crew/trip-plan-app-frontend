@@ -10,6 +10,10 @@ export type {
   GetTripSchedulesByDateResult,
   GetMyTripsOptions,
   GetTripSchedulesByDateOptions,
+  CreateTripRequest,
+  CreateTripData,
+  CreateTripResult,
+  CreateTripOptions,
 } from './myTrip.types';
 
 export type {
