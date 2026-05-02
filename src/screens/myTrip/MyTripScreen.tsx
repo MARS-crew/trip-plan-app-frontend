@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { PlusIcon } from '@/assets/icons';
@@ -180,15 +180,17 @@ const MyTripScreen: React.FC = () => {
     [fetchTripTimeline],
   );
 
-  useEffect(() => {
-    const abortController = new AbortController();
-    fetchMyTrips(abortController.signal);
+  useFocusEffect(
+    useCallback(() => {
+      const abortController = new AbortController();
+      fetchMyTrips(abortController.signal);
 
-    return () => {
-      abortController.abort();
-      timelineAbortControllerRef.current?.abort();
-    };
-  }, [fetchMyTrips]);
+      return () => {
+        abortController.abort();
+        timelineAbortControllerRef.current?.abort();
+      };
+    }, [fetchMyTrips]),
+  );
 
   // Hooks
   const handleNavigateToDetail = useCallback(() => {
