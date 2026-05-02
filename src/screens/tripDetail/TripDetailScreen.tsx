@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, Share, ToastAndroid } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@/navigation/types';
+import { ScrollView, Share } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { deleteTripSchedule, deleteTrip, getTripSchedules, getTripShare } from '@/services';
+import { getTripSchedules, getTripShare } from '@/services';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
 import type { ServiceError } from '@/types/trip';
 import type {
@@ -15,12 +13,11 @@ import type {
   TripDetailRoute,
   TripDetailSection,
 } from '@/types/tripDetail.types';
-import { Header, DaySection, KebabMenuSheet, CardContextMenu, DeleteWarningModal } from './components';
+import { Header, DaySection, KebabMenuSheet, CardContextMenu } from './components';
 import { KEBAB_SHEET_HEIGHT } from './components/KebabMenuSheet';
 
 const KEBAB_ANIMATION_DURATION = 250;
 const CARD_MENU_ANIMATION_DURATION = 220;
-type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetail'>;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
@@ -122,7 +119,6 @@ const mapScheduleToCardItem = (
   isCurrentSchedule: boolean,
 ): TripDetailCardItem => ({
   id: toNumberValue(schedule.tripScheduleId) ?? toNumberValue(schedule.id) ?? order,
-  tripScheduleId: toNumberValue(schedule.tripScheduleId) ?? toNumberValue(schedule.id) ?? undefined,
   order,
   title: toStringValue(schedule.title) ?? '',
   location: toStringValue(schedule.placeName) ?? toStringValue(schedule.address) ?? '',
@@ -258,28 +254,7 @@ const getTripShareErrorMessage = (error: ServiceError | null): string => {
   }
 };
 
-const getTripDeleteErrorToastMessage = (error: ServiceError | null): string => {
-  if (!error) return '알 수 없는 오류로 삭제에 실패하였습니다';
-  switch (error.code) {
-    case 'AUTH_TOKEN_MISSING':
-      return '로그인이 필요합니다.';
-    case 'HTTP_401':
-      return '인증이 만료되었습니다. 다시 로그인해주세요.';
-    case 'HTTP_403':
-      return '삭제 권한이 없습니다.';
-    case 'INVALID_INPUT':
-      return '잘못된 요청입니다.';
-    case 'USER_NOT_FOUND':
-      return '사용자를 찾을 수 없습니다.';
-    case 'REQUEST_ABORTED':
-      return '요청이 취소되었습니다.';
-    default:
-      return '알 수 없는 오류로 삭제에 실패하였습니다';
-  }
-};
-
 const TripDetailScreen: React.FC = () => {
-  const navigation = useNavigation<TripDetailNavigation>();
   const route = useRoute<TripDetailRoute>();
   const tripId = route.params?.tripId;
 
@@ -288,11 +263,8 @@ const TripDetailScreen: React.FC = () => {
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [isKebabMenuVisible, setIsKebabMenuVisible] = useState(false);
-  const [isDeleteWarningVisible, setIsDeleteWarningVisible] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [selectedCardTop, setSelectedCardTop] = useState(0);
-  const [isScheduleDeleteWarningVisible, setIsScheduleDeleteWarningVisible] = useState(false);
-  const [pendingDeleteScheduleId, setPendingDeleteScheduleId] = useState<number | null>(null);
   const [headerData, setHeaderData] = useState<TripDetailHeader>({
     title: '',
     dateText: '',
@@ -322,26 +294,6 @@ const TripDetailScreen: React.FC = () => {
     return getTripDayColor(selectedSection?.dayNo ?? 1);
   }, [renderedSections, selectedCardId]);
 
-  const fetchTripDetailSchedules = useCallback(
-    async (signal?: AbortSignal): Promise<void> => {
-      if (!tripId) {
-        setDaySections([]);
-        return;
-      }
-
-      const result = await getTripSchedules({ tripId, signal });
-      if (signal?.aborted || result.error?.code === 'REQUEST_ABORTED') return;
-      if (result.error) {
-        setDaySections([]);
-        return;
-      }
-      const normalizedData = normalizeTripDetailData(result.data);
-      setHeaderData(normalizedData.header);
-      setDaySections(normalizedData.sections);
-    },
-    [tripId],
-  );
-
   useEffect(() => {
     if (!tripId) {
       setDaySections([]);
@@ -349,12 +301,24 @@ const TripDetailScreen: React.FC = () => {
     }
 
     const abortController = new AbortController();
-    fetchTripDetailSchedules(abortController.signal);
+    const fetchTripDetailSchedules = async (): Promise<void> => {
+      const result = await getTripSchedules({ tripId, signal: abortController.signal });
+      if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
+      if (result.error) {
+        setDaySections([]);
+        return;
+      }
+      const normalizedData = normalizeTripDetailData(result.data);
+      setHeaderData(normalizedData.header);
+      setDaySections(normalizedData.sections);
+    };
+
+    fetchTripDetailSchedules();
 
     return () => {
       abortController.abort();
     };
-  }, [fetchTripDetailSchedules, tripId]);
+  }, [tripId]);
 
   const clearCloseTimer = useCallback(() => {
     if (closeTimerRef.current) {
@@ -401,26 +365,13 @@ const TripDetailScreen: React.FC = () => {
     }, CARD_MENU_ANIMATION_DURATION);
   }, [cardMenuOpacity, clearCloseTimer]);
 
-  const handleDeleteTrip = useCallback(async (): Promise<void> => {
-    if (!tripId) return;
-
-    const result = await deleteTrip({ tripId });
-    if (result.error) {
-      ToastAndroid.show(getTripDeleteErrorToastMessage(result.error), ToastAndroid.SHORT);
-      return;
-    }
-
-    handleCloseKebabMenu();
-    setIsDeleteWarningVisible(false);
-    navigation.goBack();
-  }, [handleCloseKebabMenu, navigation, tripId]);
   const handleShareTrip = useCallback(async (): Promise<void> => {
     if (!tripId) return;
 
     const result = await getTripShare({ tripId });
     if (result.error || !result.data) {
       if (result.error?.code === 'REQUEST_ABORTED') return;
-      ToastAndroid.show(getTripShareErrorMessage(result.error), ToastAndroid.SHORT);
+      console.error(`[tripShare] ${getTripShareErrorMessage(result.error)}`);
       return;
     }
 
@@ -436,7 +387,7 @@ const TripDetailScreen: React.FC = () => {
         url: shareUrl || undefined,
       });
     } catch {
-      ToastAndroid.show('서버 오류가 발생했습니다.', ToastAndroid.SHORT);
+      console.error('[tripShare] 서버 오류가 발생했습니다.');
     }
   }, [tripId]);
 
@@ -444,24 +395,6 @@ const TripDetailScreen: React.FC = () => {
     handleCloseKebabMenu();
     void handleShareTrip();
   }, [handleCloseKebabMenu, handleShareTrip]);
-
-  const handleDeleteSchedule = useCallback(async (): Promise<void> => {
-    if (!tripId || !pendingDeleteScheduleId) return;
-
-    const result = await deleteTripSchedule({
-      tripId,
-      tripScheduleId: pendingDeleteScheduleId,
-    });
-
-    if (result.error) {
-      ToastAndroid.show(getTripDeleteErrorToastMessage(result.error), ToastAndroid.SHORT);
-      return;
-    }
-
-    setIsScheduleDeleteWarningVisible(false);
-    setPendingDeleteScheduleId(null);
-    await fetchTripDetailSchedules();
-  }, [fetchTripDetailSchedules, pendingDeleteScheduleId, tripId]);
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
@@ -495,54 +428,15 @@ const TripDetailScreen: React.FC = () => {
           opacity={cardMenuOpacity}
           topOffset={selectedCardTop}
           accentColor={selectedCardAccentColor}
-          onPressDelete={(card) => {
-            const targetScheduleId = card.tripScheduleId ?? card.id;
-            if (!targetScheduleId) {
-              ToastAndroid.show('알 수 없는 오류로 삭제에 실패하였습니다', ToastAndroid.SHORT);
-              return;
-            }
-            handleCloseCardMenu();
-            setPendingDeleteScheduleId(targetScheduleId);
-            setIsScheduleDeleteWarningVisible(true);
-          }}
           onClose={handleCloseCardMenu}
         />
       )}
-
-      <DeleteWarningModal
-        visible={isScheduleDeleteWarningVisible}
-        title="일정을 삭제하시겠습니까? 취소가 불가능합니다."
-        confirmLabel="삭제"
-        onConfirm={() => {
-          handleDeleteSchedule().catch(() => {
-            ToastAndroid.show('알 수 없는 오류로 삭제에 실패하였습니다', ToastAndroid.SHORT);
-          });
-        }}
-        onClose={() => {
-          setIsScheduleDeleteWarningVisible(false);
-          setPendingDeleteScheduleId(null);
-        }}
-      />
 
       <KebabMenuSheet
         isVisible={isKebabMenuVisible}
         translateY={kebabTranslateY}
         onClose={handleCloseKebabMenu}
         onPressShare={handlePressShareInKebab}
-        onPressDelete={() => {
-          handleCloseKebabMenu();
-          setIsDeleteWarningVisible(true);
-        }}
-      />
-
-      <DeleteWarningModal
-        visible={isDeleteWarningVisible}
-        title="여행을 삭제하시겠습니까? 취소가 불가능합니다."
-        confirmLabel="삭제"
-        onConfirm={() => {
-          void handleDeleteTrip();
-        }}
-        onClose={() => setIsDeleteWarningVisible(false)}
       />
     </SafeAreaView>
   );

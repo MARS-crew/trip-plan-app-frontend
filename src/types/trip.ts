@@ -18,11 +18,6 @@ export type {
   TripShareData,
   GetTripShareOptions,
   GetTripShareResult,
-  GetTripRouteData,
-  GetTripRouteOptions,
-  GetTripRouteResult,
-  DeleteTripOptions,
-  DeleteTripResult,
 } from './tripDetail.types';
 
 export interface ServiceError {
