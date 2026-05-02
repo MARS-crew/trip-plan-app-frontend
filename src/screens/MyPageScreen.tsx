@@ -16,7 +16,7 @@ import LogoutIcon from '@/assets/icons/logout.svg';
 import SettingIcon from '@/assets/icons/setting.svg';
 import EarthIcon from '@/assets/icons/earth1.svg';
 import { COLORS } from '@/constants';
-import { getMyPage, getPapagoPhrases } from '@/services';
+import { getMyPageInfo, getPapagoPhrases } from '@/services';
 import type {
   GetMyPageData,
   GetPapagoPhrase,
@@ -144,7 +144,7 @@ const MyPageScreen: React.FC = () => {
 
   const fetchMyPage = React.useCallback(async () => {
     try {
-      const data = await getMyPage();
+      const data = await getMyPageInfo();
       setMyPageData(data ?? INITIAL_MY_PAGE_DATA);
     } catch (error) {
       console.error('fetchMyPage Error:', error);

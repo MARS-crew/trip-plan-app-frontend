@@ -18,7 +18,7 @@ import type { RootStackParamList } from '@/navigation/types';
 import BackArrow from '@/assets/icons/backArrow.svg';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
 import { COLORS } from '@/constants';
-import { getProfile } from '@/services';
+import { getProfileDetail } from '@/services';
 import type { Gender } from '@/types/mypage';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -187,7 +187,7 @@ const ProfileEditDetailScreen: React.FC = () => {
 
   const fetchProfile = React.useCallback(async () => {
     try {
-      const data = await getProfile();
+      const data = await getProfileDetail();
       setName(data.name);
       setNickname(data.nickname);
       setBirthDate(data.birth);
