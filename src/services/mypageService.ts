@@ -53,11 +53,12 @@ export const getPapagoPhrases = async (
   targetLang: PapagoTargetLang = 'ja',
 ): Promise<GetPapagoPhrase[]> => {
   try {
+    const accessToken = getAccessToken();
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/papago`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${getAccessToken()}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({ targetLang }),
     });
