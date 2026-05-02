@@ -1,128 +1,113 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import type { RootTabParamList } from '@/navigation/types';
+import { deleteSavedPlace, getSavedPlaceCategories, getSavedPlaces } from '@/services';
+import type { SavedPlace, SavedPlaceCategory, SavedPlaceFilterType } from '@/types/savedPlace';
 import { PlaceCard } from './bookmark/components';
-
-// ============ Constants ============
-const CATEGORIES = [
-  { id: 'all', label: '전체' },
-  { id: 'landmark', label: '관광지' },
-  { id: 'restaurant', label: '맛집' },
-  { id: 'accommodation', label: '숙소' },
-  { id: 'beach', label: '해변' },
-  { id: 'nature', label: '자연' },
-] as const;
-
-type CategoryId = (typeof CATEGORIES)[number]['id'];
-type PlaceCategoryId = Exclude<CategoryId, 'all'>;
-
-const CATEGORY_LABEL_MAP = new Map<string, string>(CATEGORIES.map((cat) => [cat.id, cat.label]));
-
-interface BookmarkedPlace {
-  id: string;
-  title: string;
-  categoryId: PlaceCategoryId;
-  region: string;
-  rating: number;
-}
-
-const DUMMY_PLACES: BookmarkedPlace[] = [
-  {
-    id: '1',
-    title: '센소지 아사쿠사',
-    categoryId: 'landmark',
-    region: '도쿄, 일본',
-    rating: 4.6,
-  },
-  {
-    id: '2',
-    title: '스시 사토',
-    categoryId: 'restaurant',
-    region: '오사카, 일본',
-    rating: 4.7,
-  },
-  {
-    id: '3',
-    title: '오션뷰 리조트',
-    categoryId: 'accommodation',
-    region: '제주, 한국',
-    rating: 4.8,
-  },
-  {
-    id: '4',
-    title: '에메랄드 비치',
-    categoryId: 'beach',
-    region: '세부, 필리핀',
-    rating: 4.5,
-  },
-];
 
 type BookmarkNavigationProp = BottomTabNavigationProp<RootTabParamList, 'Bookmark'>;
 
 const BookmarkScreen: React.FC = () => {
   const navigation = useNavigation<BookmarkNavigationProp>();
-  const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all');
+  const [selectedFilter, setSelectedFilter] = useState<SavedPlaceFilterType>('ALL');
+  const [categories, setCategories] = useState<SavedPlaceCategory[]>([]);
+  const [savedPlaces, setSavedPlaces] = useState<SavedPlace[]>([]);
+  const [filteredCount, setFilteredCount] = useState<number>(0);
 
-  const filteredPlaces = useMemo(() => {
-    if (selectedCategory === 'all') {
-      return DUMMY_PLACES;
+  const fetchCategories = useCallback(async (): Promise<void> => {
+    try {
+      const data = await getSavedPlaceCategories();
+      setCategories(data.categories);
+    } catch (error) {
+      console.error('fetchCategories Error:', error);
     }
-
-    return DUMMY_PLACES.filter((place) => place.categoryId === selectedCategory);
-  }, [selectedCategory]);
-
-  const getCategoryLabel = useCallback((categoryId: PlaceCategoryId): string => {
-    return CATEGORY_LABEL_MAP.get(categoryId) ?? '기타';
   }, []);
 
-  const handleCategoryPress = useCallback((categoryId: CategoryId): void => {
-    setSelectedCategory(categoryId);
+  const fetchSavedPlaces = useCallback(async (filter: SavedPlaceFilterType): Promise<void> => {
+    try {
+      const data = await getSavedPlaces(filter);
+      setSavedPlaces(data.savedPlaces);
+      setFilteredCount(data.filteredSavedPlaceCount);
+    } catch (error) {
+      console.error('fetchSavedPlaces Error:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  useEffect(() => {
+    fetchSavedPlaces(selectedFilter);
+  }, [fetchSavedPlaces, selectedFilter]);
+
+  const categoryLabelMap = useMemo(
+    () => new Map(categories.map((cat) => [cat.filterType, cat.filterDisplayName])),
+    [categories],
+  );
+
+  const getCategoryLabel = useCallback(
+    (filterType: SavedPlaceFilterType): string => {
+      return categoryLabelMap.get(filterType) ?? '기타';
+    },
+    [categoryLabelMap],
+  );
+
+  const handleCategoryPress = useCallback((filterType: SavedPlaceFilterType): void => {
+    setSelectedFilter(filterType);
   }, []);
 
   const handlePlacePress = useCallback(
-    (destinationId: string): void => {
+    (placeId: number): void => {
       navigation.navigate('Search', {
         screen: 'DestinationDetail',
-        params: { destinationId, origin: 'bookmark' },
+        params: { destinationId: String(placeId), origin: 'bookmark' },
       });
     },
     [navigation],
   );
 
-  const handleBookmarkPress = useCallback((placeId: string): void => {
-    // TODO: 북마크 해제 로직
-  }, []);
+  const handleBookmarkPress = useCallback(
+    async (placeId: number): Promise<void> => {
+      try {
+        await deleteSavedPlace(placeId);
+        await Promise.all([fetchSavedPlaces(selectedFilter), fetchCategories()]);
+      } catch (error) {
+        console.error('handleBookmarkPress Error:', error);
+      }
+    },
+    [selectedFilter, fetchSavedPlaces, fetchCategories],
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="pb-5 pt-1">
-          {/* 헤더 */}
           <View className="px-4 pb-4 pt-4">
             <Text className="mb-1 font-pretendardBold text-h text-black">저장된 장소</Text>
             <Text className="font-pretendardMedium text-sm text-gray">
-              {filteredPlaces.length}개의 장소를 표시 중이에요
+              {filteredCount}개의 장소를 표시 중이에요
             </Text>
           </View>
 
-          {/* 필터 탭 */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View className="flex-row gap-2 px-4 pb-4 pr-6">
-              {CATEGORIES.map((cat) => {
-                const isSelected = selectedCategory === cat.id;
+              {categories.map((cat) => {
+                const isSelected = selectedFilter === cat.filterType;
 
                 return (
                   <TouchableOpacity
-                    key={cat.id}
-                    onPress={() => handleCategoryPress(cat.id)}
+                    key={cat.filterType}
+                    onPress={() => handleCategoryPress(cat.filterType)}
                     activeOpacity={0.8}
                     className={`h-8 rounded-2xl px-4 py-2 ${isSelected ? 'bg-main' : 'bg-chip'}`}>
                     <Text
                       className={`font-pretendardRegular text-xs ${isSelected ? 'text-white' : 'text-gray'}`}>
-                      {cat.label}
+                      {cat.filterDisplayName}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -130,19 +115,20 @@ const BookmarkScreen: React.FC = () => {
             </View>
           </ScrollView>
 
-          {/* 카드 그리드 */}
           <View className="px-4">
-            {filteredPlaces.length > 0 ? (
+            {savedPlaces.length > 0 ? (
               <View className="flex-row flex-wrap justify-between">
-                {filteredPlaces.map((place) => (
-                  <View key={place.id} className="mb-2 w-[48.8%]">
+                {savedPlaces.map((place) => (
+                  <View key={place.savedPlaceId} className="mb-2 w-[48.8%]">
                     <PlaceCard
-                      title={place.title}
-                      region={place.region}
-                      rating={place.rating}
-                      categoryLabel={getCategoryLabel(place.categoryId)}
-                      onPress={() => handlePlacePress(place.id)}
-                      onBookmarkPress={() => handleBookmarkPress(place.id)}
+                      title={place.name}
+                      region={place.location}
+                      rating={place.ratingAvg}
+                      categoryLabel={getCategoryLabel(place.placeType)}
+                      imageUrl={place.imageUrl}
+                      isSaved={place.saved}
+                      onPress={() => handlePlacePress(place.placeId)}
+                      onBookmarkPress={() => handleBookmarkPress(place.placeId)}
                     />
                   </View>
                 ))}

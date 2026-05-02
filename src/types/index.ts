@@ -72,10 +72,8 @@ export type {
   TripSchedulesByDateData,
   GetMyTripsResult,
   GetTripSchedulesByDateResult,
-  GetTripSchedulesResult,
   GetMyTripsOptions,
   GetTripSchedulesByDateOptions,
-  GetTripSchedulesOptions,
 } from './trip';
 
 export type {
@@ -89,3 +87,14 @@ export type {
   StatItem,
   StatItemType,
 } from './mypage';
+export type { GetTripSchedulesOptions, GetTripSchedulesResult } from './tripDetail.types';
+export type {
+  GetNearbyRecommendedPlacesData,
+  GetNearbyRecommendedPlacesOptions,
+  GetNearbyRecommendedPlacesResult,
+  NearbyRecommendedPlace,
+  RecommendedPlace,
+  GetRecommendedPlacesData,
+  GetRecommendedPlacesOptions,
+  GetRecommendedPlacesResult,
+} from './place';
