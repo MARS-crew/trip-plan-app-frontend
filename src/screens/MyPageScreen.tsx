@@ -338,7 +338,10 @@ const MyPageScreen: React.FC = () => {
                   <Text className="font-pretendardBold text-h2 text-black">
                     {phrase.translatedText}
                   </Text>
-                  <Text className="mt-0.5 text-p text-gray">{phrase.originalText}</Text>
+                  <View className="mt-0.5 flex-row items-center">
+                    <Text className="text-p text-gray">{phrase.pronounce}</Text>
+                    <Text className="ml-2 text-p text-main">{phrase.originalText}</Text>
+                  </View>
                 </View>
               ))}
             </View>
