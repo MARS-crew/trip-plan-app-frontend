@@ -51,7 +51,6 @@ const COUNTRIES = [
 ] as const;
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // DatePicker Constants
 const ITEM_HEIGHT = 44;
