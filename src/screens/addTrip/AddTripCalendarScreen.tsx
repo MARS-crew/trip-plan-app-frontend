@@ -8,7 +8,7 @@ import type { RootStackParamList } from '@/navigation/types';
 import { CalendarList, LocaleConfig } from 'react-native-calendars';
 
 import { TopBar } from '@/components';
-import { COLORS } from '@/constants/colors';
+import { ADD_TRIP_CALENDAR_THEME, COLORS } from '@/constants';
 import { createTrip } from '@/services';
 
 // ==================== Types ====================
@@ -138,50 +138,6 @@ const AddTripCalendarScreen: React.FC = () => {
   }, [range]);
 
   const isButtonEnabled = Boolean(range.startDate && range.endDate) && !isCreatingTrip;
-  const calendarTheme = useMemo(() => ({
-    backgroundColor: COLORS.screenBackground,
-    calendarBackground: COLORS.screenBackground,
-    textSectionTitleColor: COLORS.gray,
-    textSectionTitleDisabledColor: COLORS.muted,
-    selectedDayBackgroundColor: COLORS.main,
-    selectedDayTextColor: COLORS.white,
-    todayTextColor: COLORS.main,
-    dayTextColor: COLORS.black,
-    textDisabledColor: COLORS.muted,
-    monthTextColor: COLORS.black,
-    textMonthFontWeight: '700',
-    textMonthFontSize: 16,
-    textDayHeaderFontSize: 12,
-    textDayFontWeight: '500',
-    'stylesheet.calendar.main': {
-      week: {
-        marginTop: 0,
-        marginBottom: 0,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-      },
-    },
-    'stylesheet.calendar.header': {
-      header: {
-        paddingLeft: 0,
-        marginLeft: 0,
-        marginBottom: 8,
-      },
-      monthText: {
-        color: COLORS.black,
-        fontSize: 16,
-        fontWeight: '700',
-        textAlign: 'left',
-        alignSelf: 'flex-start',
-      },
-      dayTextAtIndex0: {
-        color: COLORS.sunday,
-      },
-      dayTextAtIndex6: {
-        color: COLORS.saturday,
-      },
-    },
-  }), []) as unknown as NonNullable<React.ComponentProps<typeof CalendarList>['theme']>;
 
   const handleCreateTrip = async (): Promise<void> => {
     if (!range.startDate || !range.endDate || isCreatingTrip) return;
@@ -248,7 +204,7 @@ const AddTripCalendarScreen: React.FC = () => {
             calendarHeight={320}
             hideExtraDays
             contentContainerStyle={{ paddingBottom: 110 }}
-            theme={calendarTheme}
+            theme={ADD_TRIP_CALENDAR_THEME}
             dayComponent={({ date, state, marking }) => {
               if (!date) {
                 return <View style={{ width: 53, height: 40 }} />;
