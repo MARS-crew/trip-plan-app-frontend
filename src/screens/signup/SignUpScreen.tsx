@@ -22,35 +22,21 @@ import { ContentContainer, LabeledInput } from '@/components/ui';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
 import { AccountSection, EmailSection, TermsSection } from './components';
 import type {
+  CodeStatus,
+  CountryDropdownLayout,
+  EmailStatus,
+  IdCheckStatus,
+  RequiredFieldKey,
+  SectionKey,
   SignUpFormData,
   SignUpScreenNavigationProp,
+  SpinnerColumnProps,
   TermsAgreement,
   AccountFieldKey,
 } from '@/types/signup';
-import { checkDuplicateUserId } from '@/services';
-
-// ============ Types ============
-type EmailStatus = 'none' | 'sent' | 'error';
-type CodeStatus = 'none' | 'success' | 'error';
-
-type IdCheckStatus = 'idle' | 'available' | 'duplicate' | 'error';
-type RequiredFieldKey =
-  | 'accountId'
-  | 'nickname'
-  | 'password'
-  | 'passwordConfirm'
-  | 'name'
-  | 'birthDate'
-  | 'gender'
-  | 'country'
-  | 'email';
-type SectionKey = 'account' | 'profile' | 'email';
-type CountryDropdownLayout = {
-  left: number;
-  top: number;
-  width: number;
-  maxHeight: number;
-};
+import { checkDuplicateUserId, requestEmailVerification, verifyEmailCode } from '@/services';
+import { showToastMessage } from '@/utils';
+import { handleError } from '@/utils/error';
 
 const COUNTRIES = [
   '대한민국',
@@ -65,8 +51,6 @@ const COUNTRIES = [
 ] as const;
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const TEMP_VERIFICATION_CODE = '123456';
 
 // DatePicker Constants
 const ITEM_HEIGHT = 44;
@@ -78,13 +62,6 @@ const COUNTRY_PICKER_MAX_HEIGHT = 274;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const getDaysInMonth = (year: number, month: number) => new Date(year, month, 0).getDate();
-
-interface SpinnerColumnProps {
-  items: number[];
-  selectedIndex: number;
-  onSelect: (index: number) => void;
-  format?: (n: number) => string;
-}
 
 const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
   items,
@@ -199,8 +176,10 @@ const SignUpScreen: React.FC = () => {
   const [showCountryPicker, setShowCountryPicker] = useState<boolean>(false);
   const [idCheckStatus, setIdCheckStatus] = useState<IdCheckStatus>('idle');
   const [emailStatus, setEmailStatus] = useState<EmailStatus>('none');
+  const [emailErrorMessage, setEmailErrorMessage] = useState<string>('');
   const [codeStatus, setCodeStatus] = useState<CodeStatus>('none');
   const [isCodeFieldVisible, setIsCodeFieldVisible] = useState<boolean>(false);
+  const [isVerifyingCode, setIsVerifyingCode] = useState<boolean>(false);
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false);
   const [showFieldErrors, setShowFieldErrors] = useState<boolean>(false);
   const [dismissedAccountFieldErrors, setDismissedAccountFieldErrors] = useState<
@@ -240,7 +219,7 @@ const SignUpScreen: React.FC = () => {
 
   const isIdVerified = idCheckStatus === 'available';
   const isEmailSent = emailStatus === 'sent';
-  const isEmailError = emailStatus === 'error';
+  const isEmailError = emailErrorMessage.length > 0;
   const isCodeError = codeStatus === 'error';
   const canSendCode = formData.email.trim().length > 0;
   const sendCodeButtonText = isCodeFieldVisible || isEmailVerified ? '재전송' : '인증번호 발송';
@@ -335,45 +314,74 @@ const SignUpScreen: React.FC = () => {
     }));
 
     setEmailStatus('none');
+    setEmailErrorMessage('');
     setCodeStatus('none');
     setIsCodeFieldVisible(false);
     setIsEmailVerified(false);
   }, []);
 
-  const handleSendVerification = useCallback(() => {
+  const handleSendVerification = useCallback(async () => {
     const trimmedEmail = formData.email.trim();
-    const isEmailFormatValid = EMAIL_REGEX.test(trimmedEmail);
 
-    if (!isEmailFormatValid) {
-      setEmailStatus('error');
+    try {
+      await requestEmailVerification(trimmedEmail);
+      setEmailErrorMessage('');
+      setEmailStatus('sent');
+      setIsCodeFieldVisible(true);
+      setCodeStatus('none');
+      setIsEmailVerified(false);
+      setFormData((prev) => ({
+        ...prev,
+        verificationCode: '',
+      }));
+    } catch (error) {
+      setEmailStatus('none');
+      const errMessage = handleError(error);
+      setEmailErrorMessage(errMessage);
       setIsCodeFieldVisible(false);
       setCodeStatus('none');
+      setIsEmailVerified(false);
+      showToastMessage(errMessage);
+    }
+  }, [formData.email]);
+
+  const handleVerifyEmailCode = useCallback(async () => {
+    if (isVerifyingCode) {
+      return;
+    }
+
+    const trimmedEmail = formData.email.trim();
+    const trimmedCode = formData.verificationCode.trim();
+
+    if (trimmedCode.length !== 6) {
+      setCodeStatus('error');
       setIsEmailVerified(false);
       return;
     }
 
-    setEmailStatus('sent');
-    setIsCodeFieldVisible(true);
-    setCodeStatus('none');
-    setIsEmailVerified(false);
-    setFormData((prev) => ({
-      ...prev,
-      verificationCode: '',
-    }));
-  }, [formData.email]);
+    setIsVerifyingCode(true);
 
-  const handleVerifyEmailCode = useCallback(() => {
-    const isVerified =
-      formData.verificationCode.trim().length === 6 &&
-      formData.verificationCode.trim() === TEMP_VERIFICATION_CODE;
+    try {
+      const data = await verifyEmailCode(trimmedEmail, trimmedCode);
+      const isVerified = data.email_verified === 'Y';
 
-    setCodeStatus(isVerified ? 'success' : 'error');
-    setIsEmailVerified(isVerified);
-
-    if (isVerified) {
-      setIsCodeFieldVisible(false);
+      if (isVerified) {
+        setCodeStatus('success');
+        setIsEmailVerified(true);
+        setIsCodeFieldVisible(false);
+      } else {
+        setCodeStatus('error');
+        setIsEmailVerified(false);
+      }
+    } catch (error) {
+      setCodeStatus('error');
+      setIsEmailVerified(false);
+      const errMessage = handleError(error);
+      showToastMessage(errMessage);
+    } finally {
+      setIsVerifyingCode(false);
     }
-  }, [formData.verificationCode]);
+  }, [formData.email, formData.verificationCode, isVerifyingCode]);
 
   const handleCheckId = useCallback(async () => {
     const normalizedAccountId = formData.accountId.trim();
@@ -388,8 +396,9 @@ const SignUpScreen: React.FC = () => {
       const isDuplicate = await checkDuplicateUserId(normalizedAccountId);
       setIdCheckStatus(isDuplicate ? 'duplicate' : 'available');
     } catch (error) {
-      console.error('handleCheckId Error:', error);
       setIdCheckStatus('error');
+      const errMessage = handleError(error);
+      showToastMessage(errMessage);
     }
   }, [formData.accountId]);
 
@@ -744,9 +753,10 @@ const SignUpScreen: React.FC = () => {
             <EmailSection
               formData={formData}
               isEmailVerified={isEmailVerified}
-              isEmailError={isEmailError}
+              emailErrorMessage={emailErrorMessage}
               isEmailSent={isEmailSent}
               isCodeError={isCodeError}
+              isVerifyingCode={isVerifyingCode}
               isCodeFieldVisible={isCodeFieldVisible}
               canSendCode={canSendCode}
               sendCodeButtonText={sendCodeButtonText}

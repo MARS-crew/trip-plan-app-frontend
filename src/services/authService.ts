@@ -14,6 +14,7 @@ import type {
 } from '@/types/auth';
 import type { BaseResponse } from '@/types';
 
+import { ApiError, handleError } from '@/utils/error';
 interface CheckIdErrorBody {
   code?: string;
 }
@@ -46,106 +47,18 @@ export const checkDuplicateUserId = async (userId: string): Promise<boolean> => 
   }
 };
 
-const AUTH_LOGIN_ENDPOINT = '/api/v1/auth/login';
-const AUTH_REISSUE_ENDPOINT = '/api/v1/auth/reissue';
-const AUTH_REQUEST_TIMEOUT_MS = 10000;
-const REQUEST_TIMEOUT_ERROR_MESSAGE = 'REQUEST_TIMEOUT';
-
-const fetchWithTimeout = async (
-  url: string,
-  options: RequestInit,
-  timeoutMs: number = AUTH_REQUEST_TIMEOUT_MS,
-): Promise<Response> => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, timeoutMs);
-
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error(REQUEST_TIMEOUT_ERROR_MESSAGE);
-    }
-    throw error;
-  } finally {
-    clearTimeout(timeoutId);
-  }
-};
-
-const parseJsonSafely = async <T>(response: Response): Promise<T | null> => {
-  const rawBody = await response.text();
-
-  if (!rawBody) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(rawBody) as T;
-  } catch {
-    return null;
-  }
-};
-
-const getDefaultMessageByStatus = (status: number): string => {
-  if (status >= 500) {
-    return '서버 오류가 발생했습니다.';
-  }
-
-  if (status >= 400) {
-    return '요청 처리 중 오류가 발생했습니다.';
-  }
-
-  return '응답을 처리할 수 없습니다.';
-};
-
-const getLoginWarningType = (status: number, code: string): LoginWarningType => {
-  if (code === 'INVALID_INPUT') {
-    return 'INVALID_INPUT';
-  }
-
-  if (code === 'PASSWORD_MISMATCH') {
-    return 'PASSWORD_MISMATCH';
-  }
-
-  if (code === 'USER_NOT_FOUND' || status === 404) {
-    return 'USER_NOT_FOUND';
-  }
-
-  if (code === 'INTERNAL_ERROR' || status >= 500) {
-    return 'SERVER_ERROR';
-  }
-
-  if (status === 400) {
-    return 'INVALID_INPUT';
-  }
-
-  return 'UNKNOWN_ERROR';
-};
-
-const getReissueWarningType = (status: number, code: string): ReissueTokenWarningType => {
-  if (code === 'INVALID_TOKEN' || status === 400) {
-    return 'INVALID_TOKEN';
-  }
-
-  if (code === 'EXPIRED_REFRESH_TOKEN' || status === 401) {
-    return 'EXPIRED_REFRESH_TOKEN';
-  }
-
-  if (code === 'USER_NOT_FOUND' || status === 404) {
-    return 'USER_NOT_FOUND';
-  }
-
-  if (code === 'INTERNAL_ERROR' || status >= 500) {
-    return 'SERVER_ERROR';
-  }
-
-  return 'UNKNOWN_ERROR';
-};
+import {
+  REQUEST_TIMEOUT_ERROR_MESSAGE,
+  fetchWithTimeout,
+  parseJsonSafely,
+  getDefaultMessageByStatus,
+  getLoginWarningType,
+  getReissueWarningType,
+} from '@/utils/error';
 
 export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => {
   try {
-    const response = await fetchWithTimeout(`${Config.API_BASE_URL}${AUTH_LOGIN_ENDPOINT}`, {
+    const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/login`, {
       method: 'POST',
       headers: {
         accept: 'application/json',
@@ -195,7 +108,7 @@ export const postReissueToken = async (
   payload: ReissueTokenRequest,
 ): Promise<ReissueTokenResult> => {
   try {
-    const response = await fetchWithTimeout(`${Config.API_BASE_URL}${AUTH_REISSUE_ENDPOINT}`, {
+    const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/reissue`, {
       method: 'POST',
       headers: {
         accept: 'application/json',
@@ -248,17 +161,22 @@ export const requestEmailVerification = async (email: string): Promise<EmailRequ
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
       },
       body: JSON.stringify({ email }),
     });
+
+    const body = await parseJsonSafely<BaseResponse<EmailRequestData>>(response);
+
     if (!response.ok) {
-      throw new Error('이메일 인증번호 발송 실패');
+      throw new Error(body?.message || '이메일 인증번호 발송 실패');
     }
-    const json: BaseResponse<EmailRequestData> = await response.json();
-    return json.data;
+
+    if (!body?.data) {
+      throw new Error(body?.message || '이메일 인증번호 발송 실패');
+    }
+
+    return body.data;
   } catch (error) {
-    console.error('requestEmailVerification Error:', error);
     throw error;
   }
 };
@@ -269,17 +187,22 @@ export const verifyEmailCode = async (email: string, code: string): Promise<Emai
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
       },
       body: JSON.stringify({ email, code }),
     });
+
+    const body = await parseJsonSafely<BaseResponse<EmailVerifyData>>(response);
+
     if (!response.ok) {
-      throw new Error('이메일 인증번호 확인 실패');
+      throw new Error(body?.message || '이메일 인증번호 확인 실패');
     }
-    const json: BaseResponse<EmailVerifyData> = await response.json();
-    return json.data;
+
+    if (!body?.data) {
+      throw new Error(body?.message || '이메일 인증번호 확인 실패');
+    }
+
+    return body.data;
   } catch (error) {
-    console.error('verifyEmailCode Error:', error);
     throw error;
   }
 };
