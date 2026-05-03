@@ -10,6 +10,7 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
   emailErrorMessage,
   isEmailSent,
   isCodeError,
+  isVerifyingCode,
   isCodeFieldVisible,
   canSendCode,
   sendCodeButtonText,
@@ -90,7 +91,10 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
 
               <Pressable
                 onPress={onVerifyCode}
-                className="h-[46px] items-center justify-center rounded-xl border border-borderGray bg-white px-11">
+                disabled={isVerifyingCode}
+                className={`h-[46px] items-center justify-center rounded-xl border border-borderGray bg-white px-11 ${
+                  isVerifyingCode ? 'opacity-50' : ''
+                }`}>
                 <Text className="text-p text-gray">확인</Text>
               </Pressable>
             </View>
