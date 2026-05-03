@@ -23,7 +23,14 @@ export type {
 export type { FindPasswordCodeSectionProps } from './findPasswordCodeSection';
 export type { FindPasswordEmailSectionProps } from './findPasswordEmailSection';
 export type { FindPasswordResultCardProps } from './findPasswordResultCard';
-export type { HomeScreenNavigationProp } from './home';
+export type {
+  ChatCaseContentProps,
+  HomeScreenNavigationProp,
+  MainTripCardEmptyProps,
+  MainTripCardInProgressProps,
+  MainTripCardPlannedProps,
+  MainTripCardProps,
+} from './home';
 export type { LoginScreenNavigationProp, SocialLoginButtonProps } from './login';
 export type { AccountSectionProps } from './signupAccount';
 export type { EmailSectionProps } from './signupEmail';
@@ -72,8 +79,17 @@ export type {
   TripSchedulesByDateData,
   GetMyTripsResult,
   GetTripSchedulesByDateResult,
-  GetTripSchedulesResult,
   GetMyTripsOptions,
   GetTripSchedulesByDateOptions,
-  GetTripSchedulesOptions,
 } from './trip';
+export type { GetTripSchedulesOptions, GetTripSchedulesResult } from './tripDetail.types';
+export type {
+  GetNearbyRecommendedPlacesData,
+  GetNearbyRecommendedPlacesOptions,
+  GetNearbyRecommendedPlacesResult,
+  NearbyRecommendedPlace,
+  RecommendedPlace,
+  GetRecommendedPlacesData,
+  GetRecommendedPlacesOptions,
+  GetRecommendedPlacesResult,
+} from './place';

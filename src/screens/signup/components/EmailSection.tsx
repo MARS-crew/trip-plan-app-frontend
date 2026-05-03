@@ -7,7 +7,7 @@ import type { EmailSectionProps } from '@/types/signupEmail';
 export const EmailSection: React.FC<EmailSectionProps> = ({
   formData,
   isEmailVerified,
-  isEmailError,
+  emailErrorMessage,
   isEmailSent,
   isCodeError,
   isVerifyingCode,
@@ -38,7 +38,8 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
               onChangeText={onChangeEmail}
               editable={!isEmailVerified}
               inputClassName={
-                (showFieldErrors && formData.email.trim().length === 0) || isEmailError
+                (showFieldErrors && formData.email.trim().length === 0) ||
+                emailErrorMessage.length > 0
                   ? 'border-statusError'
                   : isEmailSent || isEmailVerified
                     ? 'bg-emailBackground'
@@ -67,10 +68,8 @@ export const EmailSection: React.FC<EmailSectionProps> = ({
           </Text>
         ) : null}
 
-        {isEmailError ? (
-          <Text className="mb-4 mt-2 text-p text-statusError">
-            올바른 이메일 형식을 입력해주세요.
-          </Text>
+        {emailErrorMessage ? (
+          <Text className="mb-4 mt-2 text-p text-statusError">{emailErrorMessage}</Text>
         ) : null}
 
         {isCodeFieldVisible ? (
