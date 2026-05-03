@@ -187,7 +187,6 @@ export const verifyEmailCode = async (email: string, code: string): Promise<Emai
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${Config.TEMP_TOKEN}`,
       },
       body: JSON.stringify({ email, code }),
     });
