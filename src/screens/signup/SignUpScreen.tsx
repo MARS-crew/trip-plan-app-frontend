@@ -52,7 +52,6 @@ const COUNTRIES = [
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const TEMP_VERIFICATION_CODE = '123456';
 
 // DatePicker Constants
 const ITEM_HEIGHT = 44;
