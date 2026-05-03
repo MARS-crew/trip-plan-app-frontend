@@ -11,6 +11,7 @@ const CardContextMenu = ({
   topOffset,
   accentColor,
   onPressRoute,
+  onPressDelete,
   onClose,
 }: CardContextMenuProps) => {
   const backdropStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
@@ -72,7 +73,7 @@ const CardContextMenu = ({
 
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={onClose}
+              onPress={() => onPressDelete(card)}
               className="flex-row items-center px-2 py-3">
               <View className="mr-3 h-[32px] w-[32px] items-center justify-center rounded-[8px] bg-chip">
                 <KebabTrashIcon />
