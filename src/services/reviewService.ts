@@ -42,7 +42,7 @@ export const postReviewWrite = async (body: ReviewWriteBody) => {
       throw new Error('장소를 찾을수 없습니다.');
     }
     if (!response.ok) {
-      throw new Error('리뷰 조회 실패');
+      throw new Error('리뷰 등록 실패');
     }
     const data = await response.json();
     return data.data;
@@ -62,8 +62,8 @@ export const getUpLoadImageUrl = async (
       `${Config.API_BASE_URL}/api/v1/image/${domain}/upload-url?fileName=${fileName}`, // ← 수정
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
-    if (response.status === 404) throw new Error('사용자를 찾을수 없습니다.');
-    if (!response.ok) throw new Error('이미지 업로드 실패');
+    if (response.status === 404) throw new Error('업로드 경로를 찾을 수 없습니다.');
+    if (!response.ok) throw new Error('이미지 URL 발급 실패');
 
     const data = await response.json();
     return data.data;

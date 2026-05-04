@@ -85,20 +85,8 @@ export interface ReviewSubmitPayload {
   visitedDate: string;
 }
 
-export interface ReviewPhoto {
-  id: string;
-  uri: string;
-  fileName?: string;
-  type?: string;
-}
-
 export interface StarButtonProps {
   star: number;
   isFilled: boolean;
   onPress: (star: number) => void;
-}
-
-export interface ReviewPhotoItemProps {
-  photo: ReviewPhoto;
-  onRemove: (photoId: string) => void;
 }

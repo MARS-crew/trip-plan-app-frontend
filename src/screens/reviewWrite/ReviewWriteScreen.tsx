@@ -64,7 +64,7 @@ const ReviewWriteScreen = ({
       // 1. 사진 업로드 → storagePath 수집
       const storagePaths = await Promise.all(
         photos.map(async (photo) => {
-          const fileName = photo.fileName ?? `${Date.now()}.jpg`;
+          const fileName = photo.fileName ?? `${photo.id}.jpg`;
           const { uploadUrl, storagePath } = await getUpLoadImageUrl(fileName, 'REVIEW');
           await uploadToMinio(uploadUrl, { uri: photo.uri, type: photo.type });
           return storagePath; // "reviews/1/uuid_123.png"
