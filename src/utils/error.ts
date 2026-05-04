@@ -1,4 +1,4 @@
-import type { LoginWarningType, ReissueTokenWarningType } from '@/types/auth';
+import type { LoginWarningType, ReissueTokenWarningType, SignUpWarningType } from '@/types/auth';
 
 export const AUTH_REQUEST_TIMEOUT_MS = 10000;
 export const REQUEST_TIMEOUT_ERROR_MESSAGE = 'REQUEST_TIMEOUT';
@@ -53,8 +53,19 @@ export const getReissueWarningType = (status: number, code = ''): ReissueTokenWa
   return 'UNKNOWN_ERROR';
 };
 
+export const getSignUpWarningType = (status: number, code = ''): SignUpWarningType => {
+  if (status >= 500 || code === 'INTERNAL_ERROR') return 'SERVER_ERROR';
+  if (code === 'DUPLICATE_USER' || status === 409) return 'DUPLICATE_USER';
+  if (code === 'INVALID_INPUT' || status === 400) return 'INVALID_INPUT';
+  return 'UNKNOWN_ERROR';
+};
+
 export class ApiError extends Error {
-  constructor(message: string, public status: number, public code?: string) {
+  constructor(
+    message: string,
+    public status: number,
+    public code?: string,
+  ) {
     super(message);
     this.name = 'ApiError';
   }
