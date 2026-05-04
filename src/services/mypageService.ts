@@ -1,6 +1,6 @@
 import Config from 'react-native-config';
 
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/store';
 import type { BaseResponse } from '@/types';
 import type {
   GetMyPageData,
@@ -17,10 +17,11 @@ const getAccessToken = (): string => {
   return accessToken;
 };
 
-export const getMyPage = async (): Promise<GetMyPageData> => {
+export const getMyPageInfo = async (): Promise<GetMyPageData> => {
   try {
+    const accessToken = useAuthStore.getState().accessToken ?? '';
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/mypage`, {
-      headers: { Authorization: `Bearer ${getAccessToken()}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
     if (!response.ok) {
       throw new Error('마이페이지 조회 실패');
@@ -28,12 +29,12 @@ export const getMyPage = async (): Promise<GetMyPageData> => {
     const json: BaseResponse<GetMyPageData> = await response.json();
     return json.data;
   } catch (error) {
-    console.error('getMyPage Error:', error);
+    console.error('getMyPageInfo Error:', error);
     throw error;
   }
 };
 
-export const getProfile = async (): Promise<GetProfileData> => {
+export const getProfileDetail = async (): Promise<GetProfileData> => {
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
       headers: { Authorization: `Bearer ${getAccessToken()}` },
@@ -44,7 +45,7 @@ export const getProfile = async (): Promise<GetProfileData> => {
     const json: BaseResponse<GetProfileData> = await response.json();
     return json.data;
   } catch (error) {
-    console.error('getProfile Error:', error);
+    console.error('getProfileDetail Error:', error);
     throw error;
   }
 };

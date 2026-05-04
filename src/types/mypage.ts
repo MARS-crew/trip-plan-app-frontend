@@ -6,6 +6,24 @@ export interface GetMyPageData {
   visitedPlaceCount: number;
 }
 
+export type StatItemType = 'map' | 'bookmark' | 'marker';
+
+export interface StatItem {
+  id: string;
+  label: string;
+  value: number;
+  type: StatItemType;
+}
+
+export type SettingItemType = 'account' | 'notification';
+
+export interface SettingItem {
+  id: string;
+  title: string;
+  description: string;
+  type: SettingItemType;
+}
+
 export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
 
 export interface GetProfileData {

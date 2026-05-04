@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScrollView, TouchableOpacity, View, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,8 +16,14 @@ import LogoutIcon from '@/assets/icons/logout.svg';
 import SettingIcon from '@/assets/icons/setting.svg';
 import EarthIcon from '@/assets/icons/earth1.svg';
 import { COLORS } from '@/constants';
-import { getPapagoPhrases } from '@/services';
-import type { GetPapagoPhrase, PapagoTargetLang, SettingItem, StatItem } from '@/types/mypage';
+import { getMyPageInfo, getPapagoPhrases } from '@/services';
+import type {
+  GetMyPageData,
+  GetPapagoPhrase,
+  PapagoTargetLang,
+  SettingItem,
+  StatItem,
+} from '@/types/mypage';
 
 const LANG_LABEL: Record<PapagoTargetLang, string> = {
   en: '영어',
@@ -36,10 +42,18 @@ const LANG_LABEL: Record<PapagoTargetLang, string> = {
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-const stats: StatItem[] = [
-  { id: 'trip-count', label: '여행 횟수', value: 12, type: 'map' },
-  { id: 'saved-place', label: '저장된 장소', value: 12, type: 'bookmark' },
-  { id: 'visited-place', label: '방문한 장소', value: 12, type: 'marker' },
+const INITIAL_MY_PAGE_DATA: GetMyPageData = {
+  nickname: '',
+  email: '',
+  tripCount: 0,
+  savedPlaceCount: 0,
+  visitedPlaceCount: 0,
+};
+
+const buildStats = (data: GetMyPageData): StatItem[] => [
+  { id: 'trip-count', label: '여행 횟수', value: data.tripCount, type: 'map' },
+  { id: 'saved-place', label: '저장된 장소', value: data.savedPlaceCount, type: 'bookmark' },
+  { id: 'visited-place', label: '방문한 장소', value: data.visitedPlaceCount, type: 'marker' },
 ];
 
 const settingItems: SettingItem[] = [
@@ -117,6 +131,7 @@ const MyPageScreen: React.FC = () => {
   const [jpyAmount, setJpyAmount] = React.useState<string>('1,100');
   const [isKrwToJpy, setIsKrwToJpy] = React.useState<boolean>(true);
   const [phrases, setPhrases] = React.useState<GetPapagoPhrase[]>([]);
+  const [myPageData, setMyPageData] = React.useState<GetMyPageData>(INITIAL_MY_PAGE_DATA);
 
   const fetchPhrases = React.useCallback(async () => {
     try {
@@ -127,9 +142,23 @@ const MyPageScreen: React.FC = () => {
     }
   }, []);
 
-  React.useEffect(() => {
-    fetchPhrases();
-  }, [fetchPhrases]);
+  const fetchMyPage = React.useCallback(async () => {
+    try {
+      const data = await getMyPageInfo();
+      setMyPageData(data ?? INITIAL_MY_PAGE_DATA);
+    } catch (error) {
+      console.error('fetchMyPage Error:', error);
+    }
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchPhrases();
+      fetchMyPage();
+    }, [fetchPhrases, fetchMyPage]),
+  );
+
+  const stats = React.useMemo<StatItem[]>(() => buildStats(myPageData), [myPageData]);
 
   const phraseSectionTitle = React.useMemo(() => {
     const firstLang = phrases[0]?.targetLang;
@@ -244,11 +273,15 @@ const MyPageScreen: React.FC = () => {
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
                 <View className="mr-3 h-16 w-16 items-center justify-center rounded-full bg-contentBackground">
-                  <Text className="font-pretendardBold text-h2 text-main">t</Text>
+                  <Text className="font-pretendardBold text-h2 text-main">
+                    {myPageData.nickname ? myPageData.nickname.charAt(0) : ''}
+                  </Text>
                 </View>
                 <View>
-                  <Text className="font-pretendardSemiBold text-h1 text-black">여행자</Text>
-                  <Text className="mt-0.5 text-p1 text-black">travel@gmail.com</Text>
+                  <Text className="font-pretendardSemiBold text-h1 text-black">
+                    {myPageData.nickname}
+                  </Text>
+                  <Text className="mt-0.5 text-p1 text-black">{myPageData.email}</Text>
                   <View className="mt-1 h-4 flex-row items-center">
                     <View className="mt-0.5 h-4 w-3 items-center justify-center">
                       <EarthIcon width={12} height={12} />

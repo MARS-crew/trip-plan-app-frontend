@@ -11,14 +11,14 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/navigation/types';
 import BackArrow from '@/assets/icons/backArrow.svg';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
 import { COLORS } from '@/constants';
-import { getProfile } from '@/services';
+import { getProfileDetail } from '@/services';
 import type { Gender } from '@/types/mypage';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -187,7 +187,7 @@ const ProfileEditDetailScreen: React.FC = () => {
 
   const fetchProfile = React.useCallback(async () => {
     try {
-      const data = await getProfile();
+      const data = await getProfileDetail();
       setName(data.name);
       setNickname(data.nickname);
       setBirthDate(data.birth);
@@ -198,9 +198,11 @@ const ProfileEditDetailScreen: React.FC = () => {
     }
   }, []);
 
-  React.useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchProfile();
+    }, [fetchProfile]),
+  );
 
   const isPasswordMismatch = passwordConfirm.length > 0 && password !== passwordConfirm;
 
