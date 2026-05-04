@@ -176,6 +176,7 @@ const SignUpScreen: React.FC = () => {
     serviceTerms: false,
     privacyPolicy: false,
     marketingConsent: false,
+    nightMarketingConsent: false,
   });
 
   const [showCountryPicker, setShowCountryPicker] = useState<boolean>(false);
@@ -433,6 +434,7 @@ const SignUpScreen: React.FC = () => {
           serviceTerms: value,
           privacyPolicy: value,
           marketingConsent: value,
+          nightMarketingConsent: value,
         });
       } else {
         setTermsAgreement((prev) => {
@@ -441,7 +443,8 @@ const SignUpScreen: React.FC = () => {
           const allTermsChecked =
             updatedTerms.serviceTerms &&
             updatedTerms.privacyPolicy &&
-            updatedTerms.marketingConsent;
+            updatedTerms.marketingConsent &&
+            updatedTerms.nightMarketingConsent;
           return {
             ...updatedTerms,
             allTerms: allTermsChecked,
@@ -592,7 +595,7 @@ const SignUpScreen: React.FC = () => {
       countryCode: formData.country,
       privacyAgreed: termsAgreement.privacyPolicy ? 'Y' : 'N',
       marketingAgreed: termsAgreement.marketingConsent ? 'Y' : 'N',
-      nightMarketingAgreed: termsAgreement.marketingConsent ? 'Y' : 'N',
+      nightMarketingAgreed: termsAgreement.nightMarketingConsent ? 'Y' : 'N',
       loginType: 'LOCAL',
     };
 

@@ -260,7 +260,7 @@ export const postSignUp = async (payload: SignUpRequest): Promise<SignUpResult> 
     return {
       ok: false,
       warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
-      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : undefined,
+      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : '알 수 없는 에러가 발생했습니다.',
     };
   }
 };
