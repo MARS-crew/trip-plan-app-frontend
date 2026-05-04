@@ -1,4 +1,4 @@
-import type { LoginWarningType, ReissueTokenWarningType } from '@/types/auth';
+import type { FindIdWarningType, LoginWarningType, ReissueTokenWarningType } from '@/types/auth';
 
 export const AUTH_REQUEST_TIMEOUT_MS = 10000;
 export const REQUEST_TIMEOUT_ERROR_MESSAGE = 'REQUEST_TIMEOUT';
@@ -53,8 +53,19 @@ export const getReissueWarningType = (status: number, code = ''): ReissueTokenWa
   return 'UNKNOWN_ERROR';
 };
 
+export const getFindIdWarningType = (status: number, code = ''): FindIdWarningType => {
+  if (status >= 500 || code === 'INTERNAL_ERROR') return 'SERVER_ERROR';
+  if (code === 'INVALID_INPUT' || status === 400) return 'INVALID_INPUT';
+  if (code === 'USER_NOT_FOUND' || status === 404) return 'USER_NOT_FOUND';
+  return 'UNKNOWN_ERROR';
+};
+
 export class ApiError extends Error {
-  constructor(message: string, public status: number, public code?: string) {
+  constructor(
+    message: string,
+    public status: number,
+    public code?: string,
+  ) {
     super(message);
     this.name = 'ApiError';
   }

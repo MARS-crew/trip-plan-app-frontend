@@ -1,6 +1,9 @@
 import Config from 'react-native-config';
 
 import type {
+  FindIdRequest,
+  FindIdData,
+  FindIdResponse,
   EmailRequestData,
   EmailVerifyData,
   LoginRequest,
@@ -203,6 +206,41 @@ export const verifyEmailCode = async (email: string, code: string): Promise<Emai
 
     return body.data;
   } catch (error) {
+    throw error;
+  }
+};
+
+export const postFindId = async (payload: FindIdRequest): Promise<FindIdData> => {
+  try {
+    const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/find-id`, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const json = await parseJsonSafely<FindIdResponse>(response);
+
+    if (!response.ok) {
+      throw new Error(json?.message ?? getDefaultMessageByStatus(response.status));
+    }
+
+    if (!json?.success || !json.data?.usersId) {
+      throw new Error(json?.message ?? '응답 형식이 올바르지 않습니다.');
+    }
+
+    return json.data;
+  } catch (error) {
+    if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      throw new Error('요청 시간이 초과되었습니다. 다시 시도해주세요.');
+    }
+
+    if (error instanceof TypeError) {
+      throw new Error('네트워크 연결을 확인해주세요.');
+    }
+
     throw error;
   }
 };

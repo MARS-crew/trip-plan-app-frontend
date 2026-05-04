@@ -4,7 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
 import { ContentContainer, LabeledInput, TopBar } from '@/components';
+import { postFindId } from '@/services';
 import type { FindIdScreenNavigationProp } from '@/types/findId';
+import { showToastMessage } from '@/utils';
+import { handleError } from '@/utils/error';
 
 // ============ Component ============
 const FindIdScreen: React.FC = () => {
@@ -18,9 +21,18 @@ const FindIdScreen: React.FC = () => {
   const isSubmitDisabled = nickname.trim().length === 0 || !isEmailValid;
 
   // Handlers
-  const handleSubmit = (): void => {
-    // TODO: API 연결 후 응답값으로 setFoundId 호출
-    setFoundId('trav****');
+  const handleSubmit = async (): Promise<void> => {
+    try {
+      const result = await postFindId({
+        nickname: nickname.trim(),
+        email: email.trim(),
+      });
+
+      setFoundId(result.usersId);
+    } catch (error) {
+      setFoundId(null);
+      showToastMessage(handleError(error));
+    }
   };
 
   const handleChangeNickname = (value: string): void => {
