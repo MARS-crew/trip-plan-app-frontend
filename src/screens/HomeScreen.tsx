@@ -1,4 +1,4 @@
-﻿import { useNavigation } from '@react-navigation/native';
+﻿import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useState } from 'react';
 import {
   View,
@@ -22,6 +22,7 @@ import { MainRecChip } from '@/components/ui';
 import { RobotIcon, SendIcon, X, NoticeIcon, LogoIcon, LogoLetter, ChatIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
 import { ChatCaseContent, MainTripCard } from '@/screens/home/components';
+import { getUnreadAlert } from '@/services/alertService';
 import type { HomeScreenNavigationProp } from '@/types/home';
 import {
   CHAT_HEADER_HEIGHT,
@@ -59,7 +60,32 @@ const HomeScreen: React.FC = () => {
   const [hasPlannedTrip, setHasPlannedTrip] = useState(false);
   const [isInTripScheduleView, setIsInTripScheduleView] = useState(false);
   const currentCaseIndex = chatCaseOrder < 0 ? 0 : chatCaseOrder;
-  const hasNotification = true;
+  const [hasNotification, setHasNotification] = useState<boolean>(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      const fetchUnread = async (): Promise<void> => {
+        try {
+          const unread = await getUnreadAlert();
+          if (isActive) {
+            setHasNotification(unread);
+          }
+        } catch {
+          if (isActive) {
+            setHasNotification(false);
+          }
+        }
+      };
+
+      fetchUnread();
+
+      return () => {
+        isActive = false;
+      };
+    }, []),
+  );
 
   const handleNavigateToDetail = useCallback(() => {
     navigation.navigate('Alert');
