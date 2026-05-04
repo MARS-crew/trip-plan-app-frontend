@@ -34,7 +34,12 @@ import type {
   TermsAgreement,
   AccountFieldKey,
 } from '@/types/signup';
-import { checkDuplicateUserId, requestEmailVerification, verifyEmailCode } from '@/services';
+import {
+  checkDuplicateUserId,
+  requestEmailVerification,
+  verifyEmailCode,
+  postSignUp,
+} from '@/services';
 import { showToastMessage } from '@/utils';
 import { handleError } from '@/utils/error';
 
@@ -171,6 +176,7 @@ const SignUpScreen: React.FC = () => {
     serviceTerms: false,
     privacyPolicy: false,
     marketingConsent: false,
+    nightMarketingConsent: false,
   });
 
   const [showCountryPicker, setShowCountryPicker] = useState<boolean>(false);
@@ -428,6 +434,7 @@ const SignUpScreen: React.FC = () => {
           serviceTerms: value,
           privacyPolicy: value,
           marketingConsent: value,
+          nightMarketingConsent: value,
         });
       } else {
         setTermsAgreement((prev) => {
@@ -436,7 +443,8 @@ const SignUpScreen: React.FC = () => {
           const allTermsChecked =
             updatedTerms.serviceTerms &&
             updatedTerms.privacyPolicy &&
-            updatedTerms.marketingConsent;
+            updatedTerms.marketingConsent &&
+            updatedTerms.nightMarketingConsent;
           return {
             ...updatedTerms,
             allTerms: allTermsChecked,
@@ -553,7 +561,7 @@ const SignUpScreen: React.FC = () => {
     });
   }, [openCountryPicker, showCountryPicker]);
 
-  const handleSignUp = useCallback(() => {
+  const handleSignUp = useCallback(async () => {
     const firstInvalidField = getFirstInvalidField();
     const isTermsAccepted = termsAgreement.serviceTerms;
 
@@ -574,9 +582,33 @@ const SignUpScreen: React.FC = () => {
     }
 
     setShowFieldErrors(false);
-    // TODO: API 연동
-    navigation.replace('MainTabs', { screen: 'Home' });
-  }, [getFirstInvalidField, navigation, termsAgreement.serviceTerms]);
+
+    const payloadForSignUp = {
+      usersId: formData.accountId,
+      name: formData.name,
+      email: formData.email,
+      nickname: formData.nickname,
+      password: formData.password,
+      passwordConfirm: formData.passwordConfirm,
+      gender: formData.gender.toUpperCase(),
+      birth: formData.birthDate,
+      countryCode: formData.country,
+      privacyAgreed: termsAgreement.privacyPolicy ? 'Y' : 'N',
+      marketingAgreed: termsAgreement.marketingConsent ? 'Y' : 'N',
+      nightMarketingAgreed: termsAgreement.nightMarketingConsent ? 'Y' : 'N',
+      loginType: 'LOCAL',
+    };
+
+    const result = await postSignUp(payloadForSignUp);
+
+    if (result.ok) {
+      showToastMessage('회원가입에 성공했습니다.');
+      navigation.replace('Login');
+    } else {
+      const errorMessage = result.message || '회원가입 실패';
+      showToastMessage(errorMessage);
+    }
+  }, [getFirstInvalidField, navigation, termsAgreement, formData]);
 
   const handleGoBack = useCallback(() => {
     navigation.goBack();
