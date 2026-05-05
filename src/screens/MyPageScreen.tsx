@@ -220,7 +220,7 @@ const MyPageScreen: React.FC = () => {
     navigation.navigate('NotificationSettings');
   };
 
-  const handleLogout = async (): Promise<void> => {
+  const handleLogout = React.useCallback(async (): Promise<void> => {
     const { accessToken, refreshToken, clearTokens } = useAuthStore.getState();
 
     try {
@@ -233,7 +233,7 @@ const MyPageScreen: React.FC = () => {
       clearTokens();
       navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
     }
-  };
+  }, [navigation]);
 
   const handleNavigateToVisitedPlaceList = (): void => {
     const parentNavigation = navigation.getParent() as

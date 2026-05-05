@@ -157,7 +157,7 @@ export const postReissueToken = async (
 
 export const postLogout = async (accessToken: string, refreshToken: string): Promise<void> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/auth/logout`, {
+    const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/logout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
