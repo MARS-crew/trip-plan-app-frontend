@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { ImageSourcePropType } from 'react-native';
+import type { ServiceError } from './trip';
 
 export type TripFilter = '전체' | '예정된 여행' | '지난 여행';
 export type TripCardStatus = 'traveling' | 'scheduled' | 'completed';
@@ -111,12 +112,12 @@ export interface TripSchedulesByDateData {
 
 export interface GetMyTripsResult {
   data: MyTripItem[];
-  error: string | null;
+  error: ServiceError | null;
 }
 
 export interface GetTripSchedulesByDateResult {
   data: TripSchedulesByDateData | null;
-  error: string | null;
+  error: ServiceError | null;
 }
 
 export interface GetMyTripsOptions {

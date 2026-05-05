@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { PlusIcon } from '@/assets/icons';
@@ -92,7 +92,7 @@ const MyTripScreen: React.FC = () => {
         filterStatus: CHIP_TO_FILTER_STATUS[selectedChip],
         signal,
       });
-      if (signal?.aborted || result.error === 'REQUEST_ABORTED') return;
+      if (signal?.aborted || result.error?.code === 'REQUEST_ABORTED') return;
       if (result.error) {
         setIsLoading(false);
         return;
@@ -129,7 +129,7 @@ const MyTripScreen: React.FC = () => {
         targetDate,
         signal: abortController.signal,
       });
-      if (abortController.signal.aborted || result.error === 'REQUEST_ABORTED') return;
+      if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
       if (result.error || !result.data) {
         setTripTimelineByCardId((prev) => ({
           ...prev,
@@ -180,15 +180,17 @@ const MyTripScreen: React.FC = () => {
     [fetchTripTimeline],
   );
 
-  useEffect(() => {
-    const abortController = new AbortController();
-    fetchMyTrips(abortController.signal);
+  useFocusEffect(
+    useCallback(() => {
+      const abortController = new AbortController();
+      fetchMyTrips(abortController.signal);
 
-    return () => {
-      abortController.abort();
-      timelineAbortControllerRef.current?.abort();
-    };
-  }, [fetchMyTrips]);
+      return () => {
+        abortController.abort();
+        timelineAbortControllerRef.current?.abort();
+      };
+    }, [fetchMyTrips]),
+  );
 
   // Hooks
   const handleNavigateToDetail = useCallback(() => {

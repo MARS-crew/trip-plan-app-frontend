@@ -1,21 +1,26 @@
 import Config from 'react-native-config';
 
-import { useAuthStore } from '@/store';
+import { useAuthStore } from '@/store/authStore';
 import type { BaseResponse } from '@/types';
 import type {
-  GetExchangeData,
-  GetExchangeRequest,
   GetMyPageData,
   GetPapagoPhrase,
   GetProfileData,
-  PatchProfileData,
-  PatchProfileRequest,
+  PapagoTargetLang,
 } from '@/types/mypage';
+
+const getAccessToken = (): string => {
+  const accessToken = useAuthStore.getState().accessToken;
+  if (!accessToken) {
+    throw new Error('로그인이 필요합니다.');
+  }
+  return accessToken;
+};
 
 export const getMyPage = async (): Promise<GetMyPageData> => {
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/mypage`, {
-      headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+      headers: { Authorization: `Bearer ${getAccessToken()}` },
     });
     if (!response.ok) {
       throw new Error('마이페이지 조회 실패');
@@ -31,7 +36,7 @@ export const getMyPage = async (): Promise<GetMyPageData> => {
 export const getProfile = async (): Promise<GetProfileData> => {
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
-      headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+      headers: { Authorization: `Bearer ${getAccessToken()}` },
     });
     if (!response.ok) {
       throw new Error('프로필 조회 실패');
@@ -44,10 +49,18 @@ export const getProfile = async (): Promise<GetProfileData> => {
   }
 };
 
-export const getPapagoPhrases = async (): Promise<GetPapagoPhrase[]> => {
+export const getPapagoPhrases = async (
+  targetLang: PapagoTargetLang = 'ja',
+): Promise<GetPapagoPhrase[]> => {
   try {
+    const accessToken = getAccessToken();
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/papago`, {
-      headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ targetLang }),
     });
     if (!response.ok) {
       throw new Error('기본 어휘 번역 조회 실패');
