@@ -3,6 +3,7 @@ export const APP_NAME = 'Trip Plan';
 export const APP_VERSION = '0.0.1';
 
 export { COLORS, COLOR_VALUES } from './colors';
+export { CARD_SHADOW, CARD_SHADOW_DARK, CARD_SHADOW_SUBTLE } from './shadows';
 export { TEXT_SIZES, TEXT_SIZE_CLASSES } from './textSizes';
 export {
   TAB_COUNT,
