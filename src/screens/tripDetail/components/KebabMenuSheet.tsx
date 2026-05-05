@@ -1,18 +1,12 @@
 import React from 'react';
 import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { interpolate, useAnimatedStyle } from 'react-native-reanimated';
-import type { SharedValue } from 'react-native-reanimated';
 import { KebabEditIcon, KebabCalIcon, KebabShareIcon, KebabTrashIcon } from '@/assets/icons';
+import type { KebabMenuSheetProps } from '@/types/tripDetail.types';
 
 export const KEBAB_SHEET_HEIGHT = 257;
 
-interface KebabMenuSheetProps {
-  isVisible: boolean;
-  translateY: SharedValue<number>;
-  onClose: () => void;
-}
-
-const KebabMenuSheet = ({ isVisible, translateY, onClose }: KebabMenuSheetProps) => {
+const KebabMenuSheet = ({ isVisible, translateY, onClose, onPressShare }: KebabMenuSheetProps) => {
   const backdropStyle = useAnimatedStyle(() => ({
     opacity: interpolate(translateY.value, [0, KEBAB_SHEET_HEIGHT], [1, 0]),
   }));
@@ -67,7 +61,7 @@ const KebabMenuSheet = ({ isVisible, translateY, onClose }: KebabMenuSheetProps)
 
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={onClose}
+            onPress={onPressShare ?? onClose}
             className="h-14 w-full flex-row items-center px-4">
             <View className="mr-3">
               <KebabShareIcon />

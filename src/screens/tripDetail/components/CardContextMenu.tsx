@@ -1,21 +1,19 @@
 import React from 'react';
 import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
-import type { SharedValue } from 'react-native-reanimated';
-import type { TripDetailCardProps } from '@/components/ui/TripDetailCard';
 import TripDetailCard from '@/components/ui/TripDetailCard';
 import { KebabEditIcon, KebabMapIcon, KebabTrashIcon } from '@/assets/icons';
+import type { CardContextMenuProps } from '@/types/tripDetail.types';
 
-type CardItem = Pick<TripDetailCardProps, 'id' | 'order' | 'title' | 'location' | 'description' | 'startTime' | 'endTime' | 'isCurrentSchedule'>;
-
-interface CardContextMenuProps {
-  card: CardItem;
-  opacity: SharedValue<number>;
-  topOffset: number;
-  onClose: () => void;
-}
-
-const CardContextMenu = ({ card, opacity, topOffset, onClose }: CardContextMenuProps) => {
+const CardContextMenu = ({
+  card,
+  opacity,
+  topOffset,
+  accentColor,
+  onPressRoute,
+  onPressDelete,
+  onClose,
+}: CardContextMenuProps) => {
   const backdropStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   const menuStyle = useAnimatedStyle(() => ({
@@ -47,6 +45,7 @@ const CardContextMenu = ({ card, opacity, topOffset, onClose }: CardContextMenuP
         <View className="w-full">
           <TripDetailCard
             {...card}
+            accentColor={accentColor}
             onPressAction={() => {}}
             onPressCard={onClose}
           />
@@ -64,7 +63,7 @@ const CardContextMenu = ({ card, opacity, topOffset, onClose }: CardContextMenuP
 
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={onClose}
+              onPress={() => onPressRoute(card)}
               className="flex-row items-center px-2 py-3">
               <View className="mr-3 h-[32px] w-[32px] items-center justify-center rounded-[8px] bg-chip">
                 <KebabMapIcon />
@@ -74,7 +73,7 @@ const CardContextMenu = ({ card, opacity, topOffset, onClose }: CardContextMenuP
 
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={onClose}
+              onPress={() => onPressDelete(card)}
               className="flex-row items-center px-2 py-3">
               <View className="mr-3 h-[32px] w-[32px] items-center justify-center rounded-[8px] bg-chip">
                 <KebabTrashIcon />
@@ -89,4 +88,3 @@ const CardContextMenu = ({ card, opacity, topOffset, onClose }: CardContextMenuP
 };
 
 export default CardContextMenu;
-

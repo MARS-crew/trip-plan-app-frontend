@@ -1,6 +1,14 @@
 import { COLORS, TRIP_DAY_COLOR_PALETTE } from '@/constants/colors';
 import type { DayGroup, RoutePoint } from './types';
 
+export const getTripDayColor = (day: number): string => {
+  if (!Number.isFinite(day) || day < 1) {
+    return TRIP_DAY_COLOR_PALETTE[0];
+  }
+
+  return TRIP_DAY_COLOR_PALETTE[(day - 1) % TRIP_DAY_COLOR_PALETTE.length];
+};
+
 export const groupRoutePointsByDay = (points: RoutePoint[]): DayGroup[] => {
   const pointsByDay = points.reduce<Record<number, RoutePoint[]>>((groupedPoints, routePoint) => {
     if (!groupedPoints[routePoint.day]) {
@@ -13,26 +21,14 @@ export const groupRoutePointsByDay = (points: RoutePoint[]): DayGroup[] => {
   return Object.entries(pointsByDay)
     .map(([dayKey, pointsForDay]) => ({
       day: Number(dayKey),
-      points: [...pointsForDay].sort(
-        (leftPoint, rightPoint) => leftPoint.order - rightPoint.order,
-      ),
+      points: [...pointsForDay].sort((leftPoint, rightPoint) => leftPoint.order - rightPoint.order),
     }))
     .sort((leftDayGroup, rightDayGroup) => leftDayGroup.day - rightDayGroup.day);
 };
 
 export const createDayColorMap = (dayGroups: DayGroup[]): Record<number, string> => {
-  const shuffledPalette = [...TRIP_DAY_COLOR_PALETTE];
-
-  for (let index = shuffledPalette.length - 1; index > 0; index -= 1) {
-    const randomIndex = Math.floor(Math.random() * (index + 1));
-    [shuffledPalette[index], shuffledPalette[randomIndex]] = [
-      shuffledPalette[randomIndex],
-      shuffledPalette[index],
-    ];
-  }
-
-  return dayGroups.reduce<Record<number, string>>((acc, dayGroup, index) => {
-    acc[dayGroup.day] = shuffledPalette[index % shuffledPalette.length] ?? COLORS.main;
+  return dayGroups.reduce<Record<number, string>>((acc, dayGroup) => {
+    acc[dayGroup.day] = getTripDayColor(dayGroup.day) ?? COLORS.main;
     return acc;
   }, {});
 };

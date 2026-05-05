@@ -1,11 +1,17 @@
 import React from 'react';
 import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { MarkerGrayIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
+import type { RootStackParamList } from '@/navigation/types';
+
+type TripDetailCardNavigation = NativeStackNavigationProp<RootStackParamList>;
+const ACTION_LABEL_TEXT_STYLE = { includeFontPadding: false, textAlignVertical: 'center' } as const;
 
 export interface TripDetailCardProps {
+  id?: number;
   order: number;
   title: string;
   location: string;
@@ -36,7 +42,7 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
   onPressCard,
   accentColor = COLORS.main,
 }) => {
-const navigation = useNavigation<TripDetailNavigation>();
+  const navigation = useNavigation<TripDetailCardNavigation>();
   return (
     <Pressable
       onPress={onPressCard}
@@ -93,7 +99,7 @@ const navigation = useNavigation<TripDetailNavigation>();
             >
               <Text
                 className="text-p text-center text-white"
-                style={{ includeFontPadding: false, textAlignVertical: 'center' }}
+                style={ACTION_LABEL_TEXT_STYLE}
               >
                 {actionLabel}
               </Text>

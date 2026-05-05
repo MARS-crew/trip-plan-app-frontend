@@ -1,30 +1,36 @@
-export type TripStatus = 'ONGOING' | 'UPCOMING' | 'PLANNED' | 'COMPLETED' | 'PAST';
+export type {
+  TripStatus,
+  TripFilterStatus,
+  MyTripItem,
+  GetMyTripsData,
+  TripScheduleDateOption,
+  TripScheduleItem,
+  TripSchedulesByDateData,
+  GetMyTripsResult,
+  GetTripSchedulesByDateResult,
+  GetMyTripsOptions,
+  GetTripSchedulesByDateOptions,
+} from './myTrip.types';
 
-export type TripFilterStatus = 'ALL' | 'UPCOMING' | 'PAST';
+export type {
+  GetTripSchedulesResult,
+  GetTripSchedulesOptions,
+  TripShareData,
+  GetTripShareOptions,
+  GetTripShareResult,
+} from './tripDetail.types';
 
-export interface MyTripItem {
-  tripId: number;
-  title: string;
-  imageUrl: string;
-  tripStatus: TripStatus;
-  tripStatusLabel: string;
-  startDate: string;
-  endDate: string;
-  scheduleCount: number;
-  tripDayCount: number;
+export interface ServiceError {
+  success: false;
+  code: string;
+  message: string;
 }
 
-export interface GetMyTripsData {
-  tripCount: number;
-  trips: MyTripItem[];
+export interface TripRequestConfig {
+  apiBaseUrl: string;
+  headers: Record<string, string>;
 }
 
-export interface GetMyTripsResult {
-  data: MyTripItem[];
-  error: string | null;
-}
-
-export interface GetMyTripsOptions {
-  filterStatus?: TripFilterStatus;
-  signal?: AbortSignal;
+export interface TripRequestConfigError {
+  error: ServiceError;
 }

@@ -1,25 +1,19 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 
+import type { PlaceCardProps } from '@/types/placeCard';
+
 const THUMBNAIL_IMAGE = require('@/assets/images/thumnail.png');
 const SaveIcon = require('@/assets/icons/activebookmark.svg').default;
 const StarIcon = require('@/assets/icons/star.svg').default;
 const LocationIcon = require('@/assets/icons/location.svg').default;
-
-interface PlaceCardProps {
-  title: string;
-  region: string;
-  rating: number;
-  categoryLabel: string;
-  onPress: () => void;
-  onBookmarkPress: () => void;
-}
 
 const PlaceCard: React.FC<PlaceCardProps> = ({
   title,
   region,
   rating,
   categoryLabel,
+  imageUrl,
   onPress,
   onBookmarkPress,
 }) => {
@@ -36,7 +30,11 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
         elevation: 1,
       }}>
       <View className="relative aspect-[181/128] w-full bg-black">
-        <Image source={THUMBNAIL_IMAGE} className="h-full w-full" resizeMode="cover" />
+        <Image
+          source={imageUrl ? { uri: imageUrl } : THUMBNAIL_IMAGE}
+          className="h-full w-full"
+          resizeMode="cover"
+        />
 
         <TouchableOpacity
           className="bg-bookmarkBackground absolute right-2.5 top-2.5 h-7 w-7 items-center justify-center rounded-full"

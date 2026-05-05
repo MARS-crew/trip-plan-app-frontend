@@ -8,6 +8,7 @@ import type {
   GetMyPageData,
   GetPapagoPhrase,
   GetProfileData,
+  PapagoTargetLang,
 } from '@/types/mypage';
 
 const getAccessToken = (): string => {
@@ -50,10 +51,18 @@ export const getProfile = async (): Promise<GetProfileData> => {
   }
 };
 
-export const getPapagoPhrases = async (): Promise<GetPapagoPhrase[]> => {
+export const getPapagoPhrases = async (
+  targetLang: PapagoTargetLang = 'ja',
+): Promise<GetPapagoPhrase[]> => {
   try {
+    const accessToken = getAccessToken();
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/papago`, {
-      headers: { Authorization: `Bearer ${getAccessToken()}` },
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ targetLang }),
     });
     if (!response.ok) {
       throw new Error('기본 어휘 번역 조회 실패');
