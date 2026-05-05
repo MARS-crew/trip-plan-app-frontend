@@ -29,7 +29,6 @@ export const getMyPageInfo = async (): Promise<GetMyPageData> => {
     const json: BaseResponse<GetMyPageData> = await response.json();
     return json.data;
   } catch (error) {
-    console.error('getMyPageInfo Error:', error);
     throw error;
   }
 };

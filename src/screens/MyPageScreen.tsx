@@ -17,6 +17,8 @@ import SettingIcon from '@/assets/icons/setting.svg';
 import EarthIcon from '@/assets/icons/earth1.svg';
 import { COLORS } from '@/constants';
 import { getMyPageInfo, getPapagoPhrases } from '@/services';
+import { showToastMessage } from '@/utils';
+import { handleError } from '@/utils/error';
 import type {
   GetMyPageData,
   GetPapagoPhrase,
@@ -147,7 +149,7 @@ const MyPageScreen: React.FC = () => {
       const data = await getMyPageInfo();
       setMyPageData(data ?? INITIAL_MY_PAGE_DATA);
     } catch (error) {
-      console.error('fetchMyPage Error:', error);
+      showToastMessage(handleError(error) || '마이페이지 정보를 불러오지 못했습니다.');
     }
   }, []);
 
