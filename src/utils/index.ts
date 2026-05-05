@@ -1,6 +1,152 @@
 // utils barrel export
 // 유틸리티 함수를 여기에 export 합니다.
-// 예: export { formatDate } from './formatDate';
-// 예: export { validateEmail } from './validation';
 
 export { getFriendlyErrorMessage, showToastMessage } from './errfeedback';
+
+// ========== Formatters ==========
+export {
+  pad,
+  getDaysInMonth,
+  formatDateToString,
+  parseDateString,
+  getDaysBetween,
+  getAge,
+  formatTime,
+  formatDateKorean,
+  getRelativeTime,
+  formatCurrency,
+  formatPercent,
+} from './formatters';
+
+// ========== Validators ==========
+export {
+  PASSWORD_REGEX,
+  EMAIL_REGEX,
+  PHONE_REGEX,
+  KOREAN_NAME_REGEX,
+  isValidEmail,
+  isValidPassword,
+  validatePasswordStrength,
+  isValidPhoneNumber,
+  isValidKoreanName,
+  isValidName,
+  isValidNickname,
+  isValidUserId,
+  isValidBirthDate,
+  isValidUrl,
+  isNotEmpty,
+  isLengthInRange,
+  isPasswordMatching,
+  isNumeric,
+  validateMultiple,
+} from './validators';
+
+// ========== String Helpers ==========
+export {
+  capitalize,
+  toSnakeCase,
+  toCamelCase,
+  toPascalCase,
+  toKebabCase,
+  trimAndNormalize,
+  truncate,
+  removeSpecialChars,
+  extractNumbers,
+  repeat,
+  reverse,
+  removeWhitespace,
+  maskString,
+  formatPhoneNumber,
+  getFirstWord,
+  getLastWord,
+  stringSimilarity,
+} from './stringHelpers';
+
+// ========== Array Helpers ==========
+export {
+  unique,
+  uniqueBy,
+  shuffle,
+  last,
+  first,
+  chunk,
+  groupBy,
+  flatten,
+  deepFlatten,
+  sum,
+  average,
+  max,
+  min,
+  findIndex,
+  findLastIndex,
+  difference,
+  intersection,
+  union,
+  sort,
+  sortDesc,
+  sortBy,
+  remove,
+  insert,
+  isEmpty as arrayIsEmpty,
+  isNotEmpty as arrayIsNotEmpty,
+  inRange,
+  equalSet,
+  arrayToObject,
+  paginate,
+  getTotalPages,
+} from './arrayHelpers';
+
+// ========== Object Helpers ==========
+export {
+  mapValues,
+  mapKeys,
+  filterObject,
+  deepMerge,
+  flatten as flattenObject,
+  unflatten,
+  pick,
+  omit,
+  invert,
+  values,
+  keys,
+  isEmpty as objectIsEmpty,
+  hasKey,
+  hasValue,
+  every,
+  some,
+  transform,
+  toQueryString,
+  fromQueryString,
+  deepClone,
+  deepEqual,
+  compact,
+  withDefaults,
+} from './objectHelpers';
+
+// ========== Date Constants ==========
+export {
+  CURRENT_YEAR,
+  CURRENT_MONTH,
+  CURRENT_DATE,
+  YEARS,
+  MONTHS,
+  WEEKDAYS_EN,
+  WEEKDAYS_EN_SHORT,
+  WEEKDAYS_KO,
+  WEEKDAYS_KO_SHORT,
+  MONTHS_EN,
+  MONTHS_EN_SHORT,
+  MONTHS_KO,
+  HOURS,
+  MINUTES_BY_15,
+  MINUTES_BY_30,
+  MINUTES,
+  TIME_UNITS,
+  isWeekday,
+  isWeekend,
+  isLeapYear,
+  getQuarter,
+  getDaysInYear,
+  getQuarterStartMonth,
+  getQuarterEndMonth,
+} from './dateConstants';

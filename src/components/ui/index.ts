@@ -17,7 +17,7 @@ export type { TopBarProps } from './TopBar';
 
 export { SearchContainer } from './SearchContainer';
 export type { SearchContainerProps } from './SearchContainer';
-
+ 
 export { LabeledInput } from './LabeledInput';
 export type { LabeledInputProps } from './LabeledInput';
 
@@ -25,3 +25,5 @@ export { PhotoUploader } from './PhotoUploader';
 
 export { default as TripDetailCard } from './TripDetailCard';
 export type { TripDetailCardProps } from './TripDetailCard';
+
+export { default as SpinnerColumn } from './SpinnerColumn';
