@@ -1,25 +1,10 @@
 import React from 'react';
-import { TextInput, TouchableOpacity, View, Text } from 'react-native';
+import { TextInput, View, Text } from 'react-native';
 
 import ExchangeIcon from '@/assets/icons/exchange.svg';
 import Exchange2Icon from '@/assets/icons/exchange2.svg';
 import { CARD_SHADOW } from '@/constants';
-
-interface MyPageExchangeSectionProps {
-  exchangeRateText: string;
-  rightCurrencyLabel: string;
-  topCurrencyCode: 'KRW' | 'JPY';
-  bottomCurrencyCode: 'KRW' | 'JPY';
-  topCurrencySymbol: '₩' | '¥';
-  bottomCurrencySymbol: '₩' | '¥';
-  topSymbolSpacingClass: string;
-  bottomSymbolSpacingClass: string;
-  topAmount: string;
-  bottomAmount: string;
-  onChangeTopAmount: (text: string) => void;
-  onChangeBottomAmount: (text: string) => void;
-  onPressSwap: () => void;
-}
+import type { MyPageExchangeSectionProps } from '@/screens/myPage/types';
 
 const MyPageExchangeSection: React.FC<MyPageExchangeSectionProps> = ({
   exchangeRateText,
@@ -34,7 +19,6 @@ const MyPageExchangeSection: React.FC<MyPageExchangeSectionProps> = ({
   bottomAmount,
   onChangeTopAmount,
   onChangeBottomAmount,
-  onPressSwap,
 }) => {
   return (
     <>
@@ -65,12 +49,9 @@ const MyPageExchangeSection: React.FC<MyPageExchangeSectionProps> = ({
         </View>
 
         <View className="items-center">
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={onPressSwap}
-            className="mb-1 mt-1 h-8 w-8 items-center justify-center rounded-full bg-main">
+          <View className="mb-1 mt-1 h-8 w-8 items-center justify-center rounded-full bg-main">
             <Exchange2Icon width={14} height={14} />
-          </TouchableOpacity>
+          </View>
         </View>
 
         <View className="rounded-xl bg-chip px-4 py-3.5">

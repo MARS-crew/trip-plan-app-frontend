@@ -3,14 +3,7 @@ import { TouchableOpacity, View, Text } from 'react-native';
 
 import EarthIcon from '@/assets/icons/earth1.svg';
 import { CARD_SHADOW } from '@/constants';
-
-interface MyPageProfileCardProps {
-  nickname: string;
-  email: string;
-  locationLabel: string;
-  onPressEdit: () => void;
-  avatarText?: string;
-}
+import type { MyPageProfileCardProps } from '@/screens/myPage/types';
 
 const MyPageProfileCard: React.FC<MyPageProfileCardProps> = ({
   nickname,

@@ -5,13 +5,7 @@ import BellIcon from '@/assets/icons/bell.svg';
 import SettingIcon from '@/assets/icons/setting.svg';
 import VectorIcon from '@/assets/icons/vector.svg';
 import { CARD_SHADOW } from '@/constants';
-import type { MyPageSettingItem } from '@/screens/myPage/types';
-
-interface MyPageAccountSectionProps {
-  items: MyPageSettingItem[];
-  onPressAccountSettings: () => void;
-  onPressNotificationSettings: () => void;
-}
+import type { MyPageAccountSectionProps, MyPageSettingItem } from '@/screens/myPage/types';
 
 const SettingItemIcon: React.FC<{ type: MyPageSettingItem['type'] }> = ({ type }) => {
   if (type === 'account') {

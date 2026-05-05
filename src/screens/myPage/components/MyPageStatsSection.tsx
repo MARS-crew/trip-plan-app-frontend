@@ -5,12 +5,7 @@ import BookmarkIcon from '@/assets/icons/bookmark.svg';
 import MapIcon from '@/assets/icons/map.svg';
 import LocationOrangeIcon from '@/assets/icons/location_orange.svg';
 import { CARD_SHADOW, COLORS } from '@/constants';
-import type { MyPageStatItem } from '@/screens/myPage/types';
-
-interface MyPageStatsSectionProps {
-  stats: MyPageStatItem[];
-  onPressVisitedPlaceList: () => void;
-}
+import type { MyPageStatItem, MyPageStatsSectionProps } from '@/screens/myPage/types';
 
 const StatIcon: React.FC<{ type: MyPageStatItem['type'] }> = ({ type }) => {
   if (type === 'map') {

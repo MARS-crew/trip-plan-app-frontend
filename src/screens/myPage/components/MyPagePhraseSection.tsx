@@ -3,12 +3,7 @@ import { View, Text } from 'react-native';
 
 import JapanLanguageIcon from '@/assets/icons/japan_language.svg';
 import { CARD_SHADOW } from '@/constants';
-import type { GetPapagoPhrase } from '@/types/mypage';
-
-interface MyPagePhraseSectionProps {
-  title: string;
-  phrases: GetPapagoPhrase[];
-}
+import type { MyPagePhraseSectionProps } from '@/screens/myPage/types';
 
 const MyPagePhraseSection: React.FC<MyPagePhraseSectionProps> = ({ title, phrases }) => {
   return (

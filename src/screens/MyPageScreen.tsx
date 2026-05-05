@@ -204,12 +204,6 @@ const MyPageScreen: React.FC = () => {
     fetchPapagoPhrases();
   }, [fetchPapagoPhrases, requestExchange]);
 
-  const handleSwapExchange = React.useCallback((): void => {
-    setIsKrwToJpy((prev) => !prev);
-    setKrwAmount(jpyAmount);
-    setJpyAmount(krwAmount);
-  }, [krwAmount, jpyAmount]);
-
   const topCurrencyCode = isKrwToJpy ? 'KRW' : 'JPY';
   const bottomCurrencyCode = isKrwToJpy ? 'JPY' : 'KRW';
   const topCurrencySymbol = isKrwToJpy ? '₩' : '¥';
@@ -318,7 +312,6 @@ const MyPageScreen: React.FC = () => {
             bottomAmount={bottomAmount}
             onChangeTopAmount={handleTopAmountChange}
             onChangeBottomAmount={handleBottomAmountChange}
-            onPressSwap={handleSwapExchange}
           />
 
           <MyPageAccountSection
