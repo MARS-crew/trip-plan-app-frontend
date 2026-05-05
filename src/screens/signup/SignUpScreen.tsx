@@ -22,6 +22,7 @@ import {
 } from './components';
 import type { SignUpScreenNavigationProp } from '@/types/signup';
 import { showToastMessage } from '@/utils';
+import { getSignUpIdCheckMessage } from '@/utils/error';
 import {
   useSignUpForm,
   useIdVerification,
@@ -75,22 +76,9 @@ const SignUpScreen: React.FC = () => {
 
   const hasPasswordError = signUpForm.formData.password.length > 0 && !isPasswordValid;
   const passwordInputClassName = hasPasswordError ? 'border-main bg-white' : '';
-
-  let idMessage = '';
-  let idMessageClass = 'text-transparent';
-  let idInputClass = '';
-
-  if (idVerification.idCheckStatus === 'available') {
-    idMessage = '사용 가능한 아이디입니다.';
-    idMessageClass = 'text-statusSuccess';
-    idInputClass = 'bg-emailBackground';
-  } else if (idVerification.idCheckStatus === 'duplicate') {
-    idMessage = '중복된 아이디입니다.';
-    idMessageClass = 'text-statusError';
-  } else if (idVerification.idCheckStatus === 'error') {
-    idMessage = '아이디 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.';
-    idMessageClass = 'text-statusError';
-  }
+  const { idMessage, idMessageClass, idInputClass } = getSignUpIdCheckMessage(
+    idVerification.idCheckStatus,
+  );
 
   // ========== Callbacks ==========
   const handleCheckId = useCallback(async () => {
@@ -234,180 +222,179 @@ const SignUpScreen: React.FC = () => {
           showsVerticalScrollIndicator={false}>
           <View className="px-4 pb-10">
             <View onLayout={formValidation.registerSectionY('account')}>
-            <AccountSection
-              formData={signUpForm.formData}
-              idCheckStatus={idVerification.idCheckStatus}
-              idMessage={idMessage}
-              idMessageClass={idMessageClass}
-              idInputClass={idInputClass}
-              showFieldErrors={formValidation.showFieldErrors}
-              isIdVerified={isIdVerified}
-              isPasswordValid={isPasswordValid}
-              isPasswordMatched={isPasswordMatched}
-              hasPasswordError={hasPasswordError}
-              passwordInputClassName={passwordInputClassName}
-              onCheckId={handleCheckId}
-              onChangeId={signUpForm.handleChangeId}
-              onChangeNickname={signUpForm.handleChangeNickname}
-              onChangePassword={signUpForm.handleChangePassword}
-              onChangePasswordConfirm={signUpForm.handleChangePasswordConfirm}
-              onIdLayout={formValidation.registerFieldPosition('accountId', 'account')}
-              onNicknameLayout={formValidation.registerFieldPosition('nickname', 'account')}
-              onPasswordLayout={formValidation.registerFieldPosition('password', 'account')}
-              onPasswordConfirmLayout={formValidation.registerFieldPosition(
-                'passwordConfirm',
-                'account',
-              )}
-            />
-          </View>
+              <AccountSection
+                formData={signUpForm.formData}
+                idCheckStatus={idVerification.idCheckStatus}
+                idMessage={idMessage}
+                idMessageClass={idMessageClass}
+                idInputClass={idInputClass}
+                showFieldErrors={formValidation.showFieldErrors}
+                isIdVerified={isIdVerified}
+                isPasswordValid={isPasswordValid}
+                isPasswordMatched={isPasswordMatched}
+                hasPasswordError={hasPasswordError}
+                passwordInputClassName={passwordInputClassName}
+                onCheckId={handleCheckId}
+                onChangeId={signUpForm.handleChangeId}
+                onChangeNickname={signUpForm.handleChangeNickname}
+                onChangePassword={signUpForm.handleChangePassword}
+                onChangePasswordConfirm={signUpForm.handleChangePasswordConfirm}
+                onIdLayout={formValidation.registerFieldPosition('accountId', 'account')}
+                onNicknameLayout={formValidation.registerFieldPosition('nickname', 'account')}
+                onPasswordLayout={formValidation.registerFieldPosition('password', 'account')}
+                onPasswordConfirmLayout={formValidation.registerFieldPosition(
+                  'passwordConfirm',
+                  'account',
+                )}
+              />
+            </View>
 
-          <View onLayout={formValidation.registerSectionY('profile')} className="mt-5">
-            <ContentContainer className="px-6 py-6">
-              <Text className="mb-4 font-pretendardSemiBold text-h3 text-black">개인 정보</Text>
+            <View onLayout={formValidation.registerSectionY('profile')} className="mt-5">
+              <ContentContainer className="px-6 py-6">
+                <Text className="mb-4 font-pretendardSemiBold text-h3 text-black">개인 정보</Text>
 
-              <View onLayout={formValidation.registerFieldPosition('name', 'profile')}>
-                <LabeledInput
-                  label="이름"
-                  required={true}
-                  placeholder="이름을 입력하세요"
-                  value={signUpForm.formData.name}
-                  onChangeText={signUpForm.handleChangeName}
-                  inputClassName={
-                    formValidation.showFieldErrors && signUpForm.formData.name.trim().length === 0
-                      ? 'border-statusError'
-                      : ''
-                  }
-                  containerClassName="mb-4"
-                />
-              </View>
+                <View onLayout={formValidation.registerFieldPosition('name', 'profile')}>
+                  <LabeledInput
+                    label="이름"
+                    required={true}
+                    placeholder="이름을 입력하세요"
+                    value={signUpForm.formData.name}
+                    onChangeText={signUpForm.handleChangeName}
+                    inputClassName={
+                      formValidation.showFieldErrors && signUpForm.formData.name.trim().length === 0
+                        ? 'border-statusError'
+                        : ''
+                    }
+                    containerClassName="mb-4"
+                  />
+                </View>
 
-              <View onLayout={formValidation.registerFieldPosition('birthDate', 'profile')}>
-                <View className="mb-4">
+                <View onLayout={formValidation.registerFieldPosition('birthDate', 'profile')}>
+                  <View className="mb-4">
+                    <View className="mb-2 flex-row">
+                      <Text className="font-pretendardSemiBold text-h3 text-black">생년월일 </Text>
+                      <Text className="text-p1 text-statusError">*</Text>
+                    </View>
+                    <Pressable
+                      onPress={handleOpenBirthDatePicker}
+                      className={`h-[46px] w-full flex-row items-center rounded-xl border bg-inputBackground px-3 ${
+                        formValidation.showFieldErrors &&
+                        signUpForm.formData.birthDate.trim().length === 0
+                          ? 'border-statusError'
+                          : 'border-borderGray'
+                      }`}>
+                      <Text
+                        className={`flex-1 text-p1 ${
+                          signUpForm.formData.birthDate ? 'text-black' : 'text-gray'
+                        }`}>
+                        {signUpForm.formData.birthDate || '생년월일을 선택해주세요'}
+                      </Text>
+                      <DownDropdownIcon width={16} height={16} />
+                    </Pressable>
+                  </View>
+                </View>
+
+                <View
+                  className="mb-4"
+                  onLayout={formValidation.registerFieldPosition('gender', 'profile')}>
                   <View className="mb-2 flex-row">
-                    <Text className="font-pretendardSemiBold text-h3 text-black">생년월일 </Text>
+                    <Text className="text-h3 text-black">성별 </Text>
+                    <Text className="text-p1 text-statusError">*</Text>
+                  </View>
+                  <View className="flex-row gap-2">
+                    {(['male', 'female', 'other'] as const).map((gender) => (
+                      <Pressable
+                        key={gender}
+                        onPress={() => handleGenderSelect(gender)}
+                        className={`h-[46px] flex-1 items-center justify-center rounded-xl border ${
+                          signUpForm.formData.gender === gender
+                            ? 'border-main bg-serve'
+                            : formValidation.showFieldErrors &&
+                                signUpForm.formData.gender.length === 0
+                              ? 'border-statusError bg-white'
+                              : 'border-borderGray bg-white'
+                        }`}>
+                        <Text
+                          className={`text-p1 ${
+                            signUpForm.formData.gender === gender ? 'text-main' : 'text-gray'
+                          }`}>
+                          {gender === 'male' ? '남성' : gender === 'female' ? '여성' : '기타'}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+
+                <View
+                  className="mb-4"
+                  onLayout={formValidation.registerFieldPosition('country', 'profile')}>
+                  <View className="mb-2 flex-row">
+                    <Text className="font-pretendardSemiBold text-h3 text-black">국가 </Text>
                     <Text className="text-p1 text-statusError">*</Text>
                   </View>
                   <Pressable
-                    onPress={handleOpenBirthDatePicker}
+                    ref={countryPicker.countryTriggerRef}
+                    onPress={countryPicker.handleToggleCountryPicker}
                     className={`h-[46px] w-full flex-row items-center rounded-xl border bg-inputBackground px-3 ${
-                      formValidation.showFieldErrors &&
-                      signUpForm.formData.birthDate.trim().length === 0
+                      formValidation.showFieldErrors && signUpForm.formData.country.length === 0
                         ? 'border-statusError'
                         : 'border-borderGray'
                     }`}>
                     <Text
                       className={`flex-1 text-p1 ${
-                        signUpForm.formData.birthDate ? 'text-black' : 'text-gray'
+                        signUpForm.formData.country ? 'text-black' : 'text-gray'
                       }`}>
-                      {signUpForm.formData.birthDate || '생년월일을 선택해주세요'}
+                      {signUpForm.formData.country || '국가 / 지역'}
                     </Text>
-                    <DownDropdownIcon width={16} height={16} />
+                    {countryPicker.showCountryPicker ? (
+                      <UpDropdownIcon width={16} height={16} />
+                    ) : (
+                      <DownDropdownIcon width={16} height={16} />
+                    )}
                   </Pressable>
                 </View>
-              </View>
+              </ContentContainer>
+            </View>
 
-              <View
-                className="mb-4"
-                onLayout={formValidation.registerFieldPosition('gender', 'profile')}>
-                <View className="mb-2 flex-row">
-                  <Text className="text-h3 text-black">성별 </Text>
-                  <Text className="text-p1 text-statusError">*</Text>
-                </View>
-                <View className="flex-row gap-2">
-                  {(['male', 'female', 'other'] as const).map((gender) => (
-                    <Pressable
-                      key={gender}
-                      onPress={() => handleGenderSelect(gender)}
-                      className={`h-[46px] flex-1 items-center justify-center rounded-xl border ${
-                        signUpForm.formData.gender === gender
-                          ? 'border-main bg-serve'
-                          : formValidation.showFieldErrors &&
-                              signUpForm.formData.gender.length === 0
-                            ? 'border-statusError bg-white'
-                            : 'border-borderGray bg-white'
-                      }`}>
-                      <Text
-                        className={`text-p1 ${
-                          signUpForm.formData.gender === gender ? 'text-main' : 'text-gray'
-                        }`}>
-                        {gender === 'male' ? '남성' : gender === 'female' ? '여성' : '기타'}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
+            <View onLayout={formValidation.registerSectionY('email')}>
+              <EmailSection
+                formData={signUpForm.formData}
+                isEmailVerified={emailVerification.isEmailVerified}
+                emailErrorMessage={emailVerification.emailErrorMessage}
+                isEmailSent={isEmailSent}
+                isCodeError={isCodeError}
+                isVerifyingCode={emailVerification.isVerifyingCode}
+                isCodeFieldVisible={emailVerification.isCodeFieldVisible}
+                canSendCode={canSendCode}
+                sendCodeButtonText={sendCodeButtonText}
+                showFieldErrors={formValidation.showFieldErrors}
+                onChangeEmail={handleChangeEmail}
+                onSendVerification={handleSendVerification}
+                onVerifyCode={handleVerifyEmailCode}
+                onChangeVerificationCode={handleChangeCode}
+                onEmailLayout={formValidation.registerFieldPosition('email', 'email')}
+              />
+            </View>
 
-              <View
-                className="mb-4"
-                onLayout={formValidation.registerFieldPosition('country', 'profile')}>
-                <View className="mb-2 flex-row">
-                  <Text className="font-pretendardSemiBold text-h3 text-black">국가 </Text>
-                  <Text className="text-p1 text-statusError">*</Text>
-                </View>
-                <Pressable
-                  ref={countryPicker.countryTriggerRef}
-                  onPress={countryPicker.handleToggleCountryPicker}
-                  className={`h-[46px] w-full flex-row items-center rounded-xl border bg-inputBackground px-3 ${
-                    formValidation.showFieldErrors && signUpForm.formData.country.length === 0
-                      ? 'border-statusError'
-                      : 'border-borderGray'
-                  }`}>
-                  <Text
-                    className={`flex-1 text-p1 ${
-                      signUpForm.formData.country ? 'text-black' : 'text-gray'
-                    }`}>
-                    {signUpForm.formData.country || '국가 / 지역'}
-                  </Text>
-                  {countryPicker.showCountryPicker ? (
-                    <UpDropdownIcon width={16} height={16} />
-                  ) : (
-                    <DownDropdownIcon width={16} height={16} />
-                  )}
-                </Pressable>
-              </View>
-            </ContentContainer>
-          </View>
-
-          <View onLayout={formValidation.registerSectionY('email')}>
-            <EmailSection
-              formData={signUpForm.formData}
-              isEmailVerified={emailVerification.isEmailVerified}
-              emailErrorMessage={emailVerification.emailErrorMessage}
-              isEmailSent={isEmailSent}
-              isCodeError={isCodeError}
-              isVerifyingCode={emailVerification.isVerifyingCode}
-              isCodeFieldVisible={emailVerification.isCodeFieldVisible}
-              canSendCode={canSendCode}
-              sendCodeButtonText={sendCodeButtonText}
-              showFieldErrors={formValidation.showFieldErrors}
-              onChangeEmail={handleChangeEmail}
-              onSendVerification={handleSendVerification}
-              onVerifyCode={handleVerifyEmailCode}
-              onChangeVerificationCode={handleChangeCode}
-              onEmailLayout={formValidation.registerFieldPosition('email', 'email')}
+            <TermsSection
+              termsAgreement={signUpForm.termsAgreement}
+              onTermsChange={signUpForm.handleTermsChange}
+              onNavigatePrivacyPolicy={handleNavigatePrivacyPolicy}
+              onNavigateMarketingConsent={handleNavigateMarketingConsent}
+              onNavigateNightMarketing={handleNavigateNightMarketing}
             />
-          </View>
 
-          <TermsSection
-            termsAgreement={signUpForm.termsAgreement}
-            onTermsChange={signUpForm.handleTermsChange}
-            onNavigatePrivacyPolicy={handleNavigatePrivacyPolicy}
-            onNavigateMarketingConsent={handleNavigateMarketingConsent}
-            onNavigateNightMarketing={handleNavigateNightMarketing}
-          />
+            {formValidation.showFieldErrors && !signUpForm.termsAgreement.serviceTerms ? (
+              <Text className="mb-4 ml-1 mt-2 text-left text-p text-statusError">
+                이용약관에 동의해주세요
+              </Text>
+            ) : null}
 
-          {formValidation.showFieldErrors && !signUpForm.termsAgreement.serviceTerms ? (
-            <Text className="mb-4 ml-1 mt-2 text-left text-p text-statusError">
-              이용약관에 동의해주세요
-            </Text>
-          ) : null}
-
-          <TouchableOpacity
-            onPress={handleSignUp}
-            className="mt-5 h-11 items-center justify-center rounded-lg bg-main">
-            <Text className="font-pretendardSemiBold text-h3 text-white">가입하기</Text>
-          </TouchableOpacity>
-
+            <TouchableOpacity
+              onPress={handleSignUp}
+              className="mt-5 h-11 items-center justify-center rounded-lg bg-main">
+              <Text className="font-pretendardSemiBold text-h3 text-white">가입하기</Text>
+            </TouchableOpacity>
           </View>
           <Pressable onPress={handleNavigateLogin} className="mt-5">
             <Text className="text-center text-p text-gray">

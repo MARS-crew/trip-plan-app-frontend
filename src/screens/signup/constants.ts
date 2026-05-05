@@ -28,5 +28,8 @@ export const ITEM_HEIGHT = 44;
 export const VISIBLE_ITEMS = 5;
 export const COUNTRY_PICKER_MAX_HEIGHT = 274;
 
-// 포맷팅 유틸리티 (utils에서 재export)
-export { pad, getDaysInMonth } from '@/utils/formatters';
+// 포맷팅 유틸리티
+export const pad = (n: number): string => String(n).padStart(2, '0');
+
+export const getDaysInMonth = (year: number, month: number): number =>
+  new Date(year, month, 0).getDate();
