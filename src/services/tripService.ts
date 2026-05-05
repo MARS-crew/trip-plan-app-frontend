@@ -12,6 +12,9 @@ import type {
 } from '@/types/myTrip.types';
 import type { TripRequestConfig, TripRequestConfigError } from '@/types/trip';
 import type {
+  GetTripRouteData,
+  GetTripRouteOptions,
+  GetTripRouteResult,
   GetTripSchedulesOptions,
   GetTripSchedulesResult,
   GetTripShareOptions,
@@ -195,6 +198,37 @@ export const getTripShare = async ({
     }
 
     const json: BaseResponse<TripShareData> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
+  }
+};
+
+export const getTripRoute = async ({
+  tripId,
+  tripScheduleId,
+  signal,
+}: GetTripRouteOptions): Promise<GetTripRouteResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/${tripScheduleId}/route`;
+    const response = await fetch(requestUrl, {
+      headers: requestConfig.headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    const json: BaseResponse<GetTripRouteData> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
     const error = getRequestError(signal);

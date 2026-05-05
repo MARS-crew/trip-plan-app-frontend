@@ -2,10 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { TimeB, MarkerGrayIcon, RightArrow2Icon } from '@/assets/icons';
-
-interface MainTripCardInProgressProps {
-  onViewAllSchedule: () => void;
-}
+import type { MainTripCardInProgressProps } from '@/types/home';
 
 const MainTripCardInProgress: React.FC<MainTripCardInProgressProps> = ({ onViewAllSchedule }) => {
   return (

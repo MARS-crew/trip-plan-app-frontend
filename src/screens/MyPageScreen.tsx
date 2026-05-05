@@ -18,7 +18,7 @@ import EarthIcon from '@/assets/icons/earth1.svg';
 import { COLORS } from '@/constants';
 import { getPapagoPhrases, postLogout } from '@/services';
 import { useAuthStore } from '@/store/authStore';
-import type { GetPapagoPhrase, PapagoTargetLang } from '@/types/mypage';
+import type { GetPapagoPhrase, PapagoTargetLang, SettingItem, StatItem } from '@/types/mypage';
 
 const LANG_LABEL: Record<PapagoTargetLang, string> = {
   en: '영어',
@@ -36,20 +36,6 @@ const LANG_LABEL: Record<PapagoTargetLang, string> = {
 };
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-interface StatItem {
-  id: string;
-  label: string;
-  value: number;
-  type: 'map' | 'bookmark' | 'marker';
-}
-
-interface SettingItem {
-  id: string;
-  title: string;
-  description: string;
-  type: 'account' | 'notification';
-}
 
 const stats: StatItem[] = [
   { id: 'trip-count', label: '여행 횟수', value: 12, type: 'map' },
@@ -335,7 +321,10 @@ const MyPageScreen: React.FC = () => {
                   <Text className="font-pretendardBold text-h2 text-black">
                     {phrase.translatedText}
                   </Text>
-                  <Text className="mt-0.5 text-p text-gray">{phrase.originalText}</Text>
+                  <View className="mt-0.5 flex-row items-center">
+                    <Text className="text-p text-gray">{phrase.pronounce}</Text>
+                    <Text className="ml-2 text-p text-main">{phrase.originalText}</Text>
+                  </View>
                 </View>
               ))}
             </View>

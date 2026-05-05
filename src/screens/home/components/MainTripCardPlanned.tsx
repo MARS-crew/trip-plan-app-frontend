@@ -2,10 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { DateIcon, MainPlaneIcon, VectorGrayIcon } from '@/assets/icons';
-
-interface MainTripCardPlannedProps {
-  onOpenTripSchedule: () => void;
-}
+import type { MainTripCardPlannedProps } from '@/types/home';
 
 const MainTripCardPlanned: React.FC<MainTripCardPlannedProps> = ({ onOpenTripSchedule }) => {
   return (

@@ -34,4 +34,23 @@ export interface GetPapagoPhrase {
   originalText: string;
   translatedText: string;
   targetLang: PapagoTargetLang;
+  pronounce: string;
+}
+
+export type StatItemType = 'map' | 'bookmark' | 'marker';
+
+export interface StatItem {
+  id: string;
+  label: string;
+  value: number;
+  type: StatItemType;
+}
+
+export type SettingItemType = 'account' | 'notification';
+
+export interface SettingItem {
+  id: string;
+  title: string;
+  description: string;
+  type: SettingItemType;
 }
