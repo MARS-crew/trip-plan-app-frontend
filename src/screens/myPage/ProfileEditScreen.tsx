@@ -6,20 +6,12 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/navigation/types';
 import { TopBar } from '@/components/ui';
-import { COLORS } from '@/constants';
+import { CARD_SHADOW_DARK, COLORS } from '@/constants';
 import { requestEmailVerification, verifyEmailCode } from '@/services';
 import { showToastMessage } from '@/utils';
 import { handleError } from '@/utils/error';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-const cardStyle = {
-  shadowColor: COLORS.black,
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.25,
-  shadowRadius: 3,
-  elevation: 1,
-};
 
 const ProfileEditScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -74,7 +66,9 @@ const ProfileEditScreen: React.FC = () => {
       setIsCodeSent(false);
       setIsCodeVerified(false);
       setVerificationCode('');
-      showToastMessage(handleError(error) || '인증번호 발송에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      showToastMessage(
+        handleError(error) || '인증번호 발송에 실패했습니다. 잠시 후 다시 시도해주세요.',
+      );
     } finally {
       setIsRequestingCode(false);
     }
@@ -140,7 +134,7 @@ const ProfileEditScreen: React.FC = () => {
       <View className="px-4 pt-3">
         <View
           className="rounded-lg border border-borderGray bg-white px-6 pb-4 pt-6"
-          style={cardStyle}>
+          style={CARD_SHADOW_DARK}>
           <Text className="text-p text-gray">이메일을 인증하고 프로필을 수정하세요.</Text>
 
           <View className="mt-6">
