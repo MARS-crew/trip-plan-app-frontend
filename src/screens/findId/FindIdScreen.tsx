@@ -7,7 +7,6 @@ import { ContentContainer, LabeledInput, TopBar } from '@/components';
 import { postFindId } from '@/services';
 import type { FindIdScreenNavigationProp } from '@/types/findId';
 import { showToastMessage } from '@/utils';
-import { handleError } from '@/utils/error';
 
 // ============ Component ============
 const FindIdScreen: React.FC = () => {
@@ -22,19 +21,17 @@ const FindIdScreen: React.FC = () => {
 
   // Handlers
   const handleSubmit = async (): Promise<void> => {
-    try {
-      const result = await postFindId({
-        nickname: nickname.trim(),
-        email: email.trim(),
-      });
-
-      setFoundId(result.usersId);
-    } catch (error) {
+    const result = await postFindId({
+      nickname: nickname.trim(),
+      email: email.trim(),
+    });
+    if (result.ok) {
+      setFoundId(result.data.usersId);
+    } else {
       setFoundId(null);
-      showToastMessage(handleError(error));
+      showToastMessage(result.message || '아이디를 찾는 중 오류가 발생했습니다.');
     }
   };
-
   const handleChangeNickname = (value: string): void => {
     setNickname(value);
     if (foundId !== null) {

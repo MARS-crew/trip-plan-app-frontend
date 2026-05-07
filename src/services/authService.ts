@@ -3,6 +3,7 @@ import Config from 'react-native-config';
 import type {
   FindIdRequest,
   FindIdData,
+  FindIdResult,
   FindIdResponse,
   EmailRequestData,
   EmailVerifyData,
@@ -17,7 +18,7 @@ import type {
 } from '@/types/auth';
 import type { BaseResponse } from '@/types';
 
-import { ApiError, handleError } from '@/utils/error';
+import { ApiError, handleError, getFindIdWarningType } from '@/utils/error';
 interface CheckIdErrorBody {
   code?: string;
 }
@@ -210,7 +211,7 @@ export const verifyEmailCode = async (email: string, code: string): Promise<Emai
   }
 };
 
-export const postFindId = async (payload: FindIdRequest): Promise<FindIdData> => {
+export const postFindId = async (payload: FindIdRequest): Promise<FindIdResult> => {
   try {
     const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/find-id`, {
       method: 'POST',
@@ -224,23 +225,37 @@ export const postFindId = async (payload: FindIdRequest): Promise<FindIdData> =>
     const json = await parseJsonSafely<FindIdResponse>(response);
 
     if (!response.ok) {
-      throw new Error(json?.message ?? getDefaultMessageByStatus(response.status));
+      return {
+        ok: false,
+        warningType: getFindIdWarningType(response.status, json?.code ?? ''),
+        message: json?.message ?? getDefaultMessageByStatus(response.status),
+      };
     }
 
     if (!json?.success || !json.data?.usersId) {
-      throw new Error(json?.message ?? '응답 형식이 올바르지 않습니다.');
+      return {
+        ok: false,
+        warningType: 'UNKNOWN_ERROR',
+        message: json?.message ?? '응답 형식이 올바르지 않습니다.',
+      };
     }
 
-    return json.data;
+    return { ok: true, data: json.data };
   } catch (error) {
     if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
-      throw new Error('요청 시간이 초과되었습니다. 다시 시도해주세요.');
+      return {
+        ok: false,
+        warningType: 'NETWORK_ERROR',
+        message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
+      };
     }
 
-    if (error instanceof TypeError) {
-      throw new Error('네트워크 연결을 확인해주세요.');
-    }
+    const isNetworkError = error instanceof TypeError;
 
-    throw error;
+    return {
+      ok: false,
+      warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
+      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : undefined,
+    };
   }
 };
