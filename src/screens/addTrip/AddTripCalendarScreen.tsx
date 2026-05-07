@@ -10,6 +10,7 @@ import { CalendarList, LocaleConfig } from 'react-native-calendars';
 import { TopBar } from '@/components';
 import { ADD_TRIP_CALENDAR_THEME, COLORS } from '@/constants';
 import { createTrip } from '@/services';
+import { getCreateTripErrorMessage, getDateRange, getTodayString, toDate } from '@/utils';
 
 // ==================== Types ====================
 type AddTripNavigation = NativeStackNavigationProp<RootStackParamList, 'AddTripCalendar'>;
@@ -63,36 +64,6 @@ LocaleConfig.locales.kr = {
   today: '오늘',
 };
 LocaleConfig.defaultLocale = 'kr';
-
-const toDate = (dateString: string): Date => {
-  const [year, month, day] = dateString.split('-').map(Number);
-  return new Date(year, month - 1, day);
-};
-
-const getTodayString = (): string => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-};
-
-const getDateRange = (start: string, end: string): string[] => {
-  const result: string[] = [];
-  const current = toDate(start);
-  const last = toDate(end);
-
-  while (current <= last) {
-    const year = current.getFullYear();
-    const month = String(current.getMonth() + 1).padStart(2, '0');
-    const day = String(current.getDate()).padStart(2, '0');
-    result.push(`${year}-${month}-${day}`);
-    current.setDate(current.getDate() + 1);
-  }
-
-  return result;
-};
 
 const AddTripCalendarScreen: React.FC = () => {
   // ==================== Hooks ====================
@@ -154,7 +125,7 @@ const AddTripCalendarScreen: React.FC = () => {
       });
 
       if (result.error) {
-        ToastAndroid.show('여행 생성에 실패했습니다.', ToastAndroid.SHORT);
+        ToastAndroid.show(getCreateTripErrorMessage(), ToastAndroid.SHORT);
         return;
       }
 

@@ -12,6 +12,7 @@ import { CameraIcon, RightArrowIcon } from '@/assets/icons';
 
 type AddTripNavigation = NativeStackNavigationProp<RootStackParamList, 'AddTripScreen'>;
 const DEFAULT_TRIP_IMAGE_URL = 'https://cdn.lets-trip.com/trips/default.jpg';
+const TRIP_TITLE_MAX_LENGTH = 10;
 
 const AddTripScreen: React.FC = () => {
   const navigation = useNavigation<AddTripNavigation>();
@@ -29,13 +30,20 @@ const AddTripScreen: React.FC = () => {
   };
 
   const handleNavigateToCalendar = (): void => {
-    if (!tripName.trim()) {
+    const trimmedTripName = tripName.trim();
+
+    if (!trimmedTripName) {
       ToastAndroid.show('여행명을 입력해주세요.', ToastAndroid.SHORT);
       return;
     }
 
+    if (trimmedTripName.length > TRIP_TITLE_MAX_LENGTH) {
+      ToastAndroid.show(`여행명은 10자 이내로 입력해주세요.`, ToastAndroid.SHORT);
+      return;
+    }
+
     navigation.navigate('AddTripCalendar', {
-      title: tripName.trim(),
+      title: trimmedTripName,
       imageUrl: selectedImageUri ?? DEFAULT_TRIP_IMAGE_URL,
     });
   };
@@ -49,7 +57,9 @@ const AddTripScreen: React.FC = () => {
           <View className="relative">
             <Image
               source={
-                selectedImageUri ? { uri: selectedImageUri } : require('../../assets/images/thumnail3.png')
+                selectedImageUri
+                  ? { uri: selectedImageUri }
+                  : require('../../assets/images/thumnail3.png')
               }
               className="h-[140px] w-[140px] rounded-[20px]"
               resizeMode="cover"
@@ -64,7 +74,7 @@ const AddTripScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-          <Text className="mt-[24px] text-h1 font-pretendardBold text-black">
+          <Text className="mt-[24px] font-pretendardBold text-h1 text-black">
             어디로 여행을 떠나시나요?
           </Text>
 
@@ -74,6 +84,7 @@ const AddTripScreen: React.FC = () => {
               placeholderTextColor={COLORS.gray}
               value={tripName}
               onChangeText={setTripName}
+              maxLength={TRIP_TITLE_MAX_LENGTH}
               className="flex-1 pr-4 text-p1 text-black"
             />
             <TouchableOpacity
