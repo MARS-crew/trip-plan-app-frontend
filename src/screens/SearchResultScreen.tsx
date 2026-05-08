@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type {
@@ -9,11 +9,24 @@ import type {
 import type { SearchStackParamList } from '@/navigation/types';
 import { InputSearchIcon, X } from '@/assets/icons';
 import { TravelItem } from './search/components/TravelItem';
-import { travelDummyData } from './SearchScreen';
+import { getSearchResults } from '@/services';
+import type { GetTravelItemData, SearchResult } from '@/types/search';
+import { COLORS } from '@/constants/colors';
 
 // ============ Types ============
 type Props = NativeStackScreenProps<SearchStackParamList, 'SearchResult'>;
 type NavigationProp = NativeStackNavigationProp<SearchStackParamList>;
+
+// ============ Utils ============
+const toGetTravelItemData = (item: SearchResult): GetTravelItemData => ({
+  id: item.placeId.toString(),
+  name: item.name,
+  location: `${item.cityName}, ${item.countryName}`,
+  categories: item.tags.length > 0 ? item.tags : [item.placeType],
+  rating: item.ratingAvg,
+  reviewCount: item.reviewCount,
+  image: item.imageUrl ? { uri: item.imageUrl } : require('@/assets/images/thumnail.png'),
+});
 
 // ============ Component ============
 const SearchResultScreen: React.FC = () => {
@@ -21,29 +34,42 @@ const SearchResultScreen: React.FC = () => {
   const { params } = useRoute<Props['route']>();
   const { query } = params;
 
-  const handlePressItem = useCallback((item: { id: string }) => {
-    navigation.navigate('DestinationDetail', { destinationId: item.id, origin: 'search' });
-  }, [navigation]);
+  const [results, setResults] = useState<GetTravelItemData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const results = useMemo(() => {
-    const trimmed = query.trim().toLowerCase();
-    return travelDummyData.filter(
-      (item) =>
-        item.name.toLowerCase().includes(trimmed) ||
-        item.location.toLowerCase().includes(trimmed) ||
-        item.categories.some((c) => c.includes(trimmed)),
-    );
+  useEffect(() => {
+    const fetchResults = async (): Promise<void> => {
+      setIsLoading(true);
+      try {
+        const data = await getSearchResults(query);
+        setResults(data.map(toGetTravelItemData));
+      } catch (error) {
+        console.error('fetchResults Error:', error);
+        setResults([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchResults();
   }, [query]);
+
+  const handlePressItem = useCallback(
+    (item: { id: string }): void => {
+      navigation.navigate('DestinationDetail', { destinationId: item.id, origin: 'search' });
+    },
+    [navigation],
+  );
 
   // 렌더링
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <View className="px-4">
         <View className="h-14 justify-center">
-          <Text className="text-h font-pretendardBold">검색</Text>
+          <Text className="font-pretendardBold text-h">검색</Text>
         </View>
-        <View className="h-[46px] bg-white border border-borderGray rounded-xl flex-row items-center mb-3">
-          <View className="w-4 h-4 ml-4">
+        <View className="mb-3 h-[46px] flex-row items-center rounded-xl border border-borderGray bg-white">
+          <View className="ml-4 h-4 w-4">
             <InputSearchIcon />
           </View>
           <TextInput className="flex-1 px-4" value={query} editable={false} />
@@ -55,21 +81,27 @@ const SearchResultScreen: React.FC = () => {
 
       <ScrollView>
         <View className="px-4">
-          <Text className="text-p text-gray mb-3">
-            "{query}" 검색 결과 {results.length}건
-          </Text>
-          {results.length > 0 ? (
-            <View className="gap-3">
-              {results.map((item) => (
-                <View>
-                  <TravelItem key={item.id} item={item} onPress={handlePressItem} />
-                </View>
-              ))}
-            </View>
+          {isLoading ? (
+            <ActivityIndicator size="large" color={COLORS.main} className="py-20" />
           ) : (
-            <View className="flex-1 items-center justify-center py-20">
-              <Text className="text-gray">검색 결과가 없습니다.</Text>
-            </View>
+            <>
+              <Text className="mb-3 text-p text-gray">
+                "{query}" 검색 결과 {results.length}건
+              </Text>
+              {results.length > 0 ? (
+                <View>
+                  {results.map((item, index) => (
+                    <View key={item.id} className={index < results.length - 1 ? 'mb-3' : ''}>
+                      <TravelItem item={item} onPress={handlePressItem} />
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <View className="flex-1 items-center justify-center py-20">
+                  <Text className="text-gray">검색 결과가 없습니다.</Text>
+                </View>
+              )}
+            </>
           )}
         </View>
       </ScrollView>
