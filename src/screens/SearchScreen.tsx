@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TextInput, ScrollView } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -7,7 +7,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { SearchStackParamList } from '@/navigation/types';
 import { InputSearchIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
-import { getRecentSearches, deleteRecentSearch } from '@/services';
+import { getRecentSearches, deleteRecentSearch, deleteAllRecentSearch } from '@/services';
 import { SearchList } from '@/screens/search/components/SearchList';
 import { PopularList } from '@/screens/search/components/PopularList';
 import { CategoryChip } from '@/screens/search/components/CategoryChip';
@@ -63,6 +63,15 @@ const SearchScreen: React.FC = () => {
     }
   }, []);
 
+  const handleDeleteAll = useCallback(async () => {
+    try {
+      await deleteAllRecentSearch();
+      setRecentSearches([]);
+    } catch (error) {
+      console.error('handleDeleteAll Error:', error);
+    }
+  }, []);
+
   const handleSearch = useCallback(() => {
     const trimmed = query.trim();
     if (!trimmed) return;
@@ -113,7 +122,9 @@ const SearchScreen: React.FC = () => {
             <View>
               <View className="mb-4 flex-row justify-between">
                 <Text className="font-pretendardSemiBold text-h3">최근 검색</Text>
-                <Text className="text-p text-gray">전체 삭제</Text>
+                <TouchableOpacity onPress={handleDeleteAll}>
+                  <Text className="text-p text-gray">전체 삭제</Text>
+                </TouchableOpacity>
               </View>
               <View>
                 {recentSearches.length === 0 ? (
