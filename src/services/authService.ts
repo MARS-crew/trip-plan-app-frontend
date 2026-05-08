@@ -1,4 +1,5 @@
 import Config from 'react-native-config';
+import { getEnvConfig } from '@/config/env';
 
 import type {
   EmailRequestData,
@@ -61,7 +62,35 @@ import {
   getSignUpWarningType,
 } from '@/utils/error';
 
+// true: 중복 아이디, false: 사용 가능 아이디
+export const checkDuplicateUserId = async (userId: string): Promise<boolean> => {
+  const trimmedUserId = userId.trim();
+  const query = encodeURIComponent(trimmedUserId);
+
+  const response = await fetch(`${buildAuthUrl('/api/v1/auth/check-id')}?usersId=${query}`, {
+    method: 'GET',
+  });
+
+  if (response.status === 409) {
+    return true;
+  }
+
+  if (response.ok) {
+    return false;
+  }
+
+  try {
+    const body: BaseResponse<CheckIdErrorBody> = await response.json();
+    throw new Error(body.message || '아이디 중복 확인 실패');
+  } catch {
+    throw new Error('아이디 중복 확인 실패');
+  }
+};
+
 export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => {
+  const requestUrl = buildAuthUrl(AUTH_LOGIN_ENDPOINT);
+  const requestStart = Date.now();
+
   try {
     const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/login`, {
       method: 'POST',
@@ -93,6 +122,10 @@ export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => 
     return { ok: true, data: json.data };
   } catch (error) {
     if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      console.error('[authService] login timeout', {
+        url: requestUrl,
+        elapsedMs: Date.now() - requestStart,
+      });
       return {
         ok: false,
         warningType: 'NETWORK_ERROR',
@@ -101,6 +134,12 @@ export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => 
     }
 
     const isNetworkError = error instanceof TypeError;
+    console.error('[authService] login request failed', {
+      url: requestUrl,
+      elapsedMs: Date.now() - requestStart,
+      errorName: error instanceof Error ? error.name : 'UNKNOWN',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
 
     return {
       ok: false,
@@ -112,6 +151,8 @@ export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => 
 export const postReissueToken = async (
   payload: ReissueTokenRequest,
 ): Promise<ReissueTokenResult> => {
+  const requestUrl = buildAuthUrl(AUTH_REISSUE_ENDPOINT);
+
   try {
     const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/reissue`, {
       method: 'POST',
@@ -162,7 +203,7 @@ export const postReissueToken = async (
 
 export const requestEmailVerification = async (email: string): Promise<EmailRequestData> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/auth/email-request`, {
+    const response = await fetch(buildAuthUrl('/api/v1/auth/email-request'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -192,7 +233,7 @@ export const requestEmailVerification = async (email: string): Promise<EmailRequ
 
 export const verifyEmailCode = async (email: string, code: string): Promise<EmailVerifyData> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/auth/email-verify`, {
+    const response = await fetch(buildAuthUrl('/api/v1/auth/email-verify'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
