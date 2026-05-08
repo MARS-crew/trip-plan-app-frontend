@@ -1,12 +1,21 @@
 import Config from 'react-native-config';
 
+import { useAuthStore } from '@/store';
 import type { BaseResponse } from '@/types';
-import type { GetMyPageData, GetPapagoPhrase, GetProfileData } from '@/types/mypage';
+import type {
+  GetExchangeData,
+  GetExchangeRequest,
+  GetMyPageData,
+  GetPapagoPhrase,
+  GetProfileData,
+  PapagoTargetLang,
+} from '@/types/mypage';
 
 export const getMyPage = async (): Promise<GetMyPageData> => {
+  const { accessToken } = useAuthStore.getState();
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/mypage`, {
-      headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
     if (!response.ok) {
       throw new Error('마이페이지 조회 실패');
@@ -20,9 +29,10 @@ export const getMyPage = async (): Promise<GetMyPageData> => {
 };
 
 export const getProfile = async (): Promise<GetProfileData> => {
+  const { accessToken } = useAuthStore.getState();
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
-      headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
     if (!response.ok) {
       throw new Error('프로필 조회 실패');
@@ -35,10 +45,18 @@ export const getProfile = async (): Promise<GetProfileData> => {
   }
 };
 
-export const getPapagoPhrases = async (): Promise<GetPapagoPhrase[]> => {
+export const getPapagoPhrases = async (
+  targetLang: PapagoTargetLang = 'ja',
+): Promise<GetPapagoPhrase[]> => {
+  const { accessToken } = useAuthStore.getState();
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/papago`, {
-      headers: { Authorization: `Bearer ${Config.TEMP_TOKEN}` },
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ targetLang }),
     });
     if (!response.ok) {
       throw new Error('기본 어휘 번역 조회 실패');
@@ -47,6 +65,30 @@ export const getPapagoPhrases = async (): Promise<GetPapagoPhrase[]> => {
     return json.data ?? [];
   } catch (error) {
     console.error('getPapagoPhrases Error:', error);
+    throw error;
+  }
+};
+
+export const postExchange = async (payload: GetExchangeRequest): Promise<GetExchangeData> => {
+  const { accessToken } = useAuthStore.getState();
+  try {
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/exchange`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error('환율 계산 실패');
+    }
+
+    const json: BaseResponse<GetExchangeData> = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error('postExchange Error:', error);
     throw error;
   }
 };
