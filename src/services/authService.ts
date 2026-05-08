@@ -11,6 +11,10 @@ import type {
   ReissueTokenResponse,
   ReissueTokenResult,
   ReissueTokenWarningType,
+  SignUpRequest,
+  SignUpResponse,
+  SignUpResult,
+  SignUpWarningType,
 } from '@/types/auth';
 import type { BaseResponse } from '@/types';
 
@@ -54,6 +58,7 @@ import {
   getDefaultMessageByStatus,
   getLoginWarningType,
   getReissueWarningType,
+  getSignUpWarningType,
 } from '@/utils/error';
 
 export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => {
@@ -168,6 +173,10 @@ export const requestEmailVerification = async (email: string): Promise<EmailRequ
     const body = await parseJsonSafely<BaseResponse<EmailRequestData>>(response);
 
     if (!response.ok) {
+      // 409: Duplicate email
+      if (response.status === 409) {
+        throw new Error(body?.message || '이미 존재하는 이메일입니다.');
+      }
       throw new Error(body?.message || '이메일 인증번호 발송 실패');
     }
 
@@ -204,5 +213,54 @@ export const verifyEmailCode = async (email: string, code: string): Promise<Emai
     return body.data;
   } catch (error) {
     throw error;
+  }
+};
+
+export const postSignUp = async (payload: SignUpRequest): Promise<SignUpResult> => {
+  try {
+    const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/signup`, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const json = await parseJsonSafely<SignUpResponse>(response);
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        warningType: getSignUpWarningType(response.status, json?.code ?? ''),
+        message: json?.message ?? getDefaultMessageByStatus(response.status),
+      };
+    }
+
+    if (!json?.success || !json.data) {
+      return {
+        ok: false,
+        warningType: 'UNKNOWN_ERROR',
+        message: json?.message ?? '응답 형식이 올바르지 않습니다.',
+      };
+    }
+
+    return { ok: true, data: json.data };
+  } catch (error) {
+    if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      return {
+        ok: false,
+        warningType: 'NETWORK_ERROR',
+        message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
+      };
+    }
+
+    const isNetworkError = error instanceof TypeError;
+
+    return {
+      ok: false,
+      warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
+      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : '알 수 없는 에러가 발생했습니다.',
+    };
   }
 };
