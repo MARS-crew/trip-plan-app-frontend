@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { PlaceCard } from '@/screens/wishList/components';
-import type { WishPlace, WishTabTrendingProps } from '@/screens/wishList/types';
+import type { WishPlace, WishTabTrendingProps } from '@/types/wishlist';
 
 // .map() 사용 — 아이템 수가 적으므로 가상화 불필요
 const TrendingPlaceItem = React.memo<{ item: WishPlace; onToggleLike: (id: string) => void }>(

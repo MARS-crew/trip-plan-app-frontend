@@ -5,6 +5,7 @@ export const APP_VERSION = '0.0.1';
 export { COLORS, COLOR_VALUES } from './colors';
 export { CARD_SHADOW, CARD_SHADOW_DARK, CARD_SHADOW_SUBTLE } from './shadows';
 export { TEXT_SIZES, TEXT_SIZE_CLASSES } from './textSizes';
+export { ADD_TRIP_CALENDAR_THEME } from './addTripCalendar';
 export {
   TAB_COUNT,
   ICON_SIZE,
