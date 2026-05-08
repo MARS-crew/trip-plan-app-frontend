@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
-import type { WishContentContainerProps } from '@/screens/wishList/types';
+import type { WishContentContainerProps } from '@/types/wishlist';
 
 // ============ Component ============
 export const WishContentContainer = React.memo<WishContentContainerProps>(
