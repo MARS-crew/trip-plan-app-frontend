@@ -1,4 +1,4 @@
-import Config from 'react-native-config';
+import { getEnvConfig } from '@/config/env';
 
 import type {
   EmailRequestData,
@@ -6,46 +6,14 @@ import type {
   LoginRequest,
   LoginResponse,
   LoginResult,
-  LoginWarningType,
   ReissueTokenRequest,
   ReissueTokenResponse,
   ReissueTokenResult,
-  ReissueTokenWarningType,
+  SignUpRequest,
+  SignUpResponse,
+  SignUpResult,
 } from '@/types/auth';
 import type { BaseResponse } from '@/types';
-
-import { ApiError, handleError } from '@/utils/error';
-interface CheckIdErrorBody {
-  code?: string;
-}
-
-// true: 중복 아이디, false: 사용 가능 아이디
-export const checkDuplicateUserId = async (userId: string): Promise<boolean> => {
-  const trimmedUserId = userId.trim();
-  const query = encodeURIComponent(trimmedUserId);
-
-  const response = await fetch(`${Config.API_BASE_URL}/api/v1/auth/check-id?usersId=${query}`, {
-    method: 'GET',
-  });
-
-  // 409 Conflict: 중복된 아이디
-  if (response.status === 409) {
-    return true;
-  }
-
-  // 200 OK: 사용 가능한 아이디
-  if (response.ok) {
-    return false;
-  }
-
-  // 그 외 상태 코드는 에러로 처리
-  try {
-    const body: BaseResponse<CheckIdErrorBody> = await response.json();
-    throw new Error(body.message || '아이디 중복 확인 실패');
-  } catch {
-    throw new Error('아이디 중복 확인 실패');
-  }
-};
 
 import {
   REQUEST_TIMEOUT_ERROR_MESSAGE,
@@ -54,11 +22,45 @@ import {
   getDefaultMessageByStatus,
   getLoginWarningType,
   getReissueWarningType,
+  getSignUpWarningType,
 } from '@/utils/error';
 
-export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => {
+interface CheckIdErrorBody {
+  code?: string;
+}
+
+const buildAuthUrl = (endpoint: string): string => `${getEnvConfig().apiBaseUrl ?? ''}${endpoint}`;
+
+export const checkDuplicateUserId = async (userId: string): Promise<boolean> => {
+  const trimmedUserId = userId.trim();
+  const query = encodeURIComponent(trimmedUserId);
+
+  const response = await fetch(`${buildAuthUrl('/api/v1/auth/check-id')}?usersId=${query}`, {
+    method: 'GET',
+  });
+
+  if (response.status === 409) {
+    return true;
+  }
+
+  if (response.ok) {
+    return false;
+  }
+
   try {
-    const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/login`, {
+    const body: BaseResponse<CheckIdErrorBody> = await response.json();
+    throw new Error(body.message || '아이디 중복 확인 실패');
+  } catch {
+    throw new Error('아이디 중복 확인 실패');
+  }
+};
+
+export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => {
+  const requestUrl = buildAuthUrl('/api/v1/auth/login');
+  const requestStart = Date.now();
+
+  try {
+    const response = await fetchWithTimeout(requestUrl, {
       method: 'POST',
       headers: {
         accept: 'application/json',
@@ -88,6 +90,10 @@ export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => 
     return { ok: true, data: json.data };
   } catch (error) {
     if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      console.error('[authService] login timeout', {
+        url: requestUrl,
+        elapsedMs: Date.now() - requestStart,
+      });
       return {
         ok: false,
         warningType: 'NETWORK_ERROR',
@@ -96,6 +102,12 @@ export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => 
     }
 
     const isNetworkError = error instanceof TypeError;
+    console.error('[authService] login request failed', {
+      url: requestUrl,
+      elapsedMs: Date.now() - requestStart,
+      errorName: error instanceof Error ? error.name : 'UNKNOWN',
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
 
     return {
       ok: false,
@@ -107,8 +119,10 @@ export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => 
 export const postReissueToken = async (
   payload: ReissueTokenRequest,
 ): Promise<ReissueTokenResult> => {
+  const requestUrl = buildAuthUrl('/api/v1/auth/reissue');
+
   try {
-    const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/reissue`, {
+    const response = await fetchWithTimeout(requestUrl, {
       method: 'POST',
       headers: {
         accept: 'application/json',
@@ -156,53 +170,99 @@ export const postReissueToken = async (
 };
 
 export const requestEmailVerification = async (email: string): Promise<EmailRequestData> => {
-  try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/auth/email-request`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
+  const response = await fetch(buildAuthUrl('/api/v1/auth/email-request'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
 
-    const body = await parseJsonSafely<BaseResponse<EmailRequestData>>(response);
+  const body = await parseJsonSafely<BaseResponse<EmailRequestData>>(response);
 
-    if (!response.ok) {
-      throw new Error(body?.message || '이메일 인증번호 발송 실패');
+  if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error(body?.message || '이미 존재하는 이메일입니다.');
     }
-
-    if (!body?.data) {
-      throw new Error(body?.message || '이메일 인증번호 발송 실패');
-    }
-
-    return body.data;
-  } catch (error) {
-    throw error;
+    throw new Error(body?.message || '이메일 인증번호 발송 실패');
   }
+
+  if (!body?.data) {
+    throw new Error(body?.message || '이메일 인증번호 발송 실패');
+  }
+
+  return body.data;
 };
 
 export const verifyEmailCode = async (email: string, code: string): Promise<EmailVerifyData> => {
+  const response = await fetch(buildAuthUrl('/api/v1/auth/email-verify'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, code }),
+  });
+
+  const body = await parseJsonSafely<BaseResponse<EmailVerifyData>>(response);
+
+  if (!response.ok) {
+    throw new Error(body?.message || '이메일 인증번호 확인 실패');
+  }
+
+  if (!body?.data) {
+    throw new Error(body?.message || '이메일 인증번호 확인 실패');
+  }
+
+  return body.data;
+};
+
+export const postSignUp = async (payload: SignUpRequest): Promise<SignUpResult> => {
+  const requestUrl = buildAuthUrl('/api/v1/auth/signup');
+
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/auth/email-verify`, {
+    const response = await fetchWithTimeout(requestUrl, {
       method: 'POST',
       headers: {
+        accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, code }),
+      body: JSON.stringify(payload),
     });
 
-    const body = await parseJsonSafely<BaseResponse<EmailVerifyData>>(response);
+    const json = await parseJsonSafely<SignUpResponse>(response);
 
     if (!response.ok) {
-      throw new Error(body?.message || '이메일 인증번호 확인 실패');
+      return {
+        ok: false,
+        warningType: getSignUpWarningType(response.status, json?.code ?? ''),
+        message: json?.message ?? getDefaultMessageByStatus(response.status),
+      };
     }
 
-    if (!body?.data) {
-      throw new Error(body?.message || '이메일 인증번호 확인 실패');
+    if (!json?.success || !json.data) {
+      return {
+        ok: false,
+        warningType: 'UNKNOWN_ERROR',
+        message: json?.message ?? '응답 형식이 올바르지 않습니다.',
+      };
     }
 
-    return body.data;
+    return { ok: true, data: json.data };
   } catch (error) {
-    throw error;
+    if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      return {
+        ok: false,
+        warningType: 'NETWORK_ERROR',
+        message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
+      };
+    }
+
+    const isNetworkError = error instanceof TypeError;
+
+    return {
+      ok: false,
+      warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
+      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : '알 수 없는 에러가 발생했습니다.',
+    };
   }
 };
