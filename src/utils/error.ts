@@ -1,4 +1,9 @@
-import type { FindIdWarningType, LoginWarningType, ReissueTokenWarningType, SignUpWarningType } from '@/types/auth';
+import type {
+  FindIdWarningType,
+  LoginWarningType,
+  ReissueTokenWarningType,
+  SignUpWarningType,
+} from '@/types/auth';
 import type { IdCheckStatus } from '@/types/signup';
 
 export const AUTH_REQUEST_TIMEOUT_MS = 10000;
