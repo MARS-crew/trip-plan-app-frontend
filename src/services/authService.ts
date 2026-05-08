@@ -1,4 +1,3 @@
-import Config from 'react-native-config';
 import { getEnvConfig } from '@/config/env';
 
 import type {
@@ -7,50 +6,14 @@ import type {
   LoginRequest,
   LoginResponse,
   LoginResult,
-  LoginWarningType,
   ReissueTokenRequest,
   ReissueTokenResponse,
   ReissueTokenResult,
-  ReissueTokenWarningType,
   SignUpRequest,
   SignUpResponse,
   SignUpResult,
-  SignUpWarningType,
 } from '@/types/auth';
 import type { BaseResponse } from '@/types';
-
-import { ApiError, handleError } from '@/utils/error';
-interface CheckIdErrorBody {
-  code?: string;
-}
-
-// true: 중복 아이디, false: 사용 가능 아이디
-export const checkDuplicateUserId = async (userId: string): Promise<boolean> => {
-  const trimmedUserId = userId.trim();
-  const query = encodeURIComponent(trimmedUserId);
-
-  const response = await fetch(`${Config.API_BASE_URL}/api/v1/auth/check-id?usersId=${query}`, {
-    method: 'GET',
-  });
-
-  // 409 Conflict: 중복된 아이디
-  if (response.status === 409) {
-    return true;
-  }
-
-  // 200 OK: 사용 가능한 아이디
-  if (response.ok) {
-    return false;
-  }
-
-  // 그 외 상태 코드는 에러로 처리
-  try {
-    const body: BaseResponse<CheckIdErrorBody> = await response.json();
-    throw new Error(body.message || '아이디 중복 확인 실패');
-  } catch {
-    throw new Error('아이디 중복 확인 실패');
-  }
-};
 
 import {
   REQUEST_TIMEOUT_ERROR_MESSAGE,
@@ -62,7 +25,12 @@ import {
   getSignUpWarningType,
 } from '@/utils/error';
 
-// true: 중복 아이디, false: 사용 가능 아이디
+interface CheckIdErrorBody {
+  code?: string;
+}
+
+const buildAuthUrl = (endpoint: string): string => `${getEnvConfig().apiBaseUrl ?? ''}${endpoint}`;
+
 export const checkDuplicateUserId = async (userId: string): Promise<boolean> => {
   const trimmedUserId = userId.trim();
   const query = encodeURIComponent(trimmedUserId);
@@ -88,11 +56,11 @@ export const checkDuplicateUserId = async (userId: string): Promise<boolean> => 
 };
 
 export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => {
-  const requestUrl = buildAuthUrl(AUTH_LOGIN_ENDPOINT);
+  const requestUrl = buildAuthUrl('/api/v1/auth/login');
   const requestStart = Date.now();
 
   try {
-    const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/login`, {
+    const response = await fetchWithTimeout(requestUrl, {
       method: 'POST',
       headers: {
         accept: 'application/json',
@@ -151,10 +119,10 @@ export const postLogin = async (payload: LoginRequest): Promise<LoginResult> => 
 export const postReissueToken = async (
   payload: ReissueTokenRequest,
 ): Promise<ReissueTokenResult> => {
-  const requestUrl = buildAuthUrl(AUTH_REISSUE_ENDPOINT);
+  const requestUrl = buildAuthUrl('/api/v1/auth/reissue');
 
   try {
-    const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/reissue`, {
+    const response = await fetchWithTimeout(requestUrl, {
       method: 'POST',
       headers: {
         accept: 'application/json',
@@ -202,64 +170,57 @@ export const postReissueToken = async (
 };
 
 export const requestEmailVerification = async (email: string): Promise<EmailRequestData> => {
-  try {
-    const response = await fetch(buildAuthUrl('/api/v1/auth/email-request'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
+  const response = await fetch(buildAuthUrl('/api/v1/auth/email-request'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
 
-    const body = await parseJsonSafely<BaseResponse<EmailRequestData>>(response);
+  const body = await parseJsonSafely<BaseResponse<EmailRequestData>>(response);
 
-    if (!response.ok) {
-      // 409: Duplicate email
-      if (response.status === 409) {
-        throw new Error(body?.message || '이미 존재하는 이메일입니다.');
-      }
-      throw new Error(body?.message || '이메일 인증번호 발송 실패');
+  if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error(body?.message || '이미 존재하는 이메일입니다.');
     }
-
-    if (!body?.data) {
-      throw new Error(body?.message || '이메일 인증번호 발송 실패');
-    }
-
-    return body.data;
-  } catch (error) {
-    throw error;
+    throw new Error(body?.message || '이메일 인증번호 발송 실패');
   }
+
+  if (!body?.data) {
+    throw new Error(body?.message || '이메일 인증번호 발송 실패');
+  }
+
+  return body.data;
 };
 
 export const verifyEmailCode = async (email: string, code: string): Promise<EmailVerifyData> => {
-  try {
-    const response = await fetch(buildAuthUrl('/api/v1/auth/email-verify'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, code }),
-    });
+  const response = await fetch(buildAuthUrl('/api/v1/auth/email-verify'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, code }),
+  });
 
-    const body = await parseJsonSafely<BaseResponse<EmailVerifyData>>(response);
+  const body = await parseJsonSafely<BaseResponse<EmailVerifyData>>(response);
 
-    if (!response.ok) {
-      throw new Error(body?.message || '이메일 인증번호 확인 실패');
-    }
-
-    if (!body?.data) {
-      throw new Error(body?.message || '이메일 인증번호 확인 실패');
-    }
-
-    return body.data;
-  } catch (error) {
-    throw error;
+  if (!response.ok) {
+    throw new Error(body?.message || '이메일 인증번호 확인 실패');
   }
+
+  if (!body?.data) {
+    throw new Error(body?.message || '이메일 인증번호 확인 실패');
+  }
+
+  return body.data;
 };
 
 export const postSignUp = async (payload: SignUpRequest): Promise<SignUpResult> => {
+  const requestUrl = buildAuthUrl('/api/v1/auth/signup');
+
   try {
-    const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/signup`, {
+    const response = await fetchWithTimeout(requestUrl, {
       method: 'POST',
       headers: {
         accept: 'application/json',
