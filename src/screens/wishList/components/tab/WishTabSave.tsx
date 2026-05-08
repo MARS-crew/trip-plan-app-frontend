@@ -2,7 +2,16 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { EmptyLocation } from '@/assets/icons';
 import { PlaceCard } from '@/screens/wishList/components';
-import type { WishTabSaveProps } from '@/screens/wishList/types';
+import type { WishPlace, WishTabSaveProps } from '@/types/wishlist';
+
+const SavePlaceItem = React.memo<{
+  item: WishPlace;
+  isLiked: boolean;
+  onToggleLike: (id: string) => void;
+}>(({ item, isLiked, onToggleLike }) => (
+  <PlaceCard place={item} isLiked={isLiked} onToggleLike={onToggleLike} />
+));
+SavePlaceItem.displayName = 'SavePlaceItem';
 // 빈 상태 — 변하지 않으므로 memo로 완전히 고정
 const WishSaveEmptyState = React.memo(() => (
   <View className="mx-[1px] items-center py-4">

@@ -17,7 +17,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 import BackArrow from '@/assets/icons/backArrow.svg';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
-import { COLORS } from '@/constants';
+import { CARD_SHADOW_DARK, COLORS } from '@/constants';
 import { getProfile } from '@/services';
 import type { Gender } from '@/types/mypage';
 
@@ -161,13 +161,6 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
   );
 };
 
-const cardStyle = {
-  shadowColor: COLORS.black,
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.25,
-  shadowRadius: 3,
-  elevation: 1,
-};
 
 const ProfileEditDetailScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -270,7 +263,7 @@ const ProfileEditDetailScreen: React.FC = () => {
       </View>
 
       <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
-        <View className="mt-3 rounded-lg bg-white px-6 pb-6 pt-6" style={cardStyle}>
+        <View className="mt-3 rounded-lg bg-white px-6 pb-6 pt-6" style={CARD_SHADOW_DARK}>
           <Text className="text-h3 font-pretendardSemiBold text-black">계정 정보</Text>
 
           <View className="mt-4">
@@ -316,7 +309,7 @@ const ProfileEditDetailScreen: React.FC = () => {
           </View>
         </View>
 
-        <View className="mt-5 rounded-lg bg-white px-6 pb-6 pt-6" style={cardStyle}>
+        <View className="mt-5 rounded-lg bg-white px-6 pb-6 pt-6" style={CARD_SHADOW_DARK}>
           <Text className="text-h3 font-pretendardSemiBold text-black">개인 정보</Text>
 
           <View className="mt-4">

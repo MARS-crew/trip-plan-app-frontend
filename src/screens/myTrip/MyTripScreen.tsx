@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { PlusIcon } from '@/assets/icons';
@@ -13,17 +13,15 @@ import TripTimeline from '@/screens/myTrip/components/TripTimeline';
 import type {
   MyTripItem,
   TripFilterStatus,
-  TripCardStatus,
   TripCardViewModel,
   TripFilter,
-  TripSchedulesByDateData,
-  TripTimelineItem,
   TripTimelineStateItem,
 } from '@/types/myTrip.types';
 import {
   getMyTrips,
   getTripSchedulesByDate,
 } from '@/services';
+import { filterTripsByChip, mapSchedulesToTimelineItems, mapTripToCardViewModel } from '@/utils';
 
 type MyTripNavigation = NativeStackNavigationProp<RootStackParamList>;
 
@@ -33,46 +31,6 @@ const CHIP_TO_FILTER_STATUS: Record<TripFilter, TripFilterStatus> = {
   '예정된 여행': 'UPCOMING',
   '지난 여행': 'PAST',
 };
-
-const mapTripStatus = (status: MyTripItem['tripStatus']): TripCardStatus => {
-  if (status === 'ONGOING') return 'traveling';
-  if (status === 'COMPLETED' || status === 'PAST') return 'completed';
-  return 'scheduled';
-};
-
-const formatDateText = (startDate: string, endDate: string): string =>
-  `${startDate.replaceAll('-', '.')} - ${endDate.replaceAll('-', '.')}`;
-
-const mapTripToCardViewModel = (trip: MyTripItem): TripCardViewModel => ({
-  id: trip.tripId,
-  city: trip.title,
-  startDate: trip.startDate,
-  dateText: formatDateText(trip.startDate, trip.endDate),
-  scheduleText: String(trip.scheduleCount),
-  scheduleCountText: String(trip.tripDayCount),
-  imageSource: trip.imageUrl ? { uri: trip.imageUrl } : require('@/assets/images/thumnail2.png'),
-  status: mapTripStatus(trip.tripStatus),
-});
-
-const filterTripsByChip = (trips: MyTripItem[], chip: TripFilter): MyTripItem[] => {
-  if (chip === '전체') return trips;
-  if (chip === '예정된 여행') {
-    return trips.filter((trip) => trip.tripStatus === 'PLANNED' || trip.tripStatus === 'UPCOMING');
-  }
-  return trips.filter((trip) => trip.tripStatus === 'COMPLETED' || trip.tripStatus === 'PAST');
-};
-
-const mapSchedulesToTimelineItems = (
-  schedules: TripSchedulesByDateData['schedules'],
-): TripTimelineItem[] =>
-  schedules.map((schedule) => ({
-    id: String(schedule.tripScheduleId),
-    startTime: schedule.startTime,
-    endTime: schedule.endTime,
-    title: schedule.title,
-    location: schedule.placeName || schedule.address,
-    description: schedule.memo,
-  }));
 
 const MyTripScreen: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState<TripFilter>('전체');
@@ -92,7 +50,7 @@ const MyTripScreen: React.FC = () => {
         filterStatus: CHIP_TO_FILTER_STATUS[selectedChip],
         signal,
       });
-      if (signal?.aborted || result.error === 'REQUEST_ABORTED') return;
+      if (signal?.aborted || result.error?.code === 'REQUEST_ABORTED') return;
       if (result.error) {
         setIsLoading(false);
         return;
@@ -129,7 +87,7 @@ const MyTripScreen: React.FC = () => {
         targetDate,
         signal: abortController.signal,
       });
-      if (abortController.signal.aborted || result.error === 'REQUEST_ABORTED') return;
+      if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
       if (result.error || !result.data) {
         setTripTimelineByCardId((prev) => ({
           ...prev,
@@ -180,15 +138,17 @@ const MyTripScreen: React.FC = () => {
     [fetchTripTimeline],
   );
 
-  useEffect(() => {
-    const abortController = new AbortController();
-    fetchMyTrips(abortController.signal);
+  useFocusEffect(
+    useCallback(() => {
+      const abortController = new AbortController();
+      fetchMyTrips(abortController.signal);
 
-    return () => {
-      abortController.abort();
-      timelineAbortControllerRef.current?.abort();
-    };
-  }, [fetchMyTrips]);
+      return () => {
+        abortController.abort();
+        timelineAbortControllerRef.current?.abort();
+      };
+    }, [fetchMyTrips]),
+  );
 
   // Hooks
   const handleNavigateToDetail = useCallback(() => {
