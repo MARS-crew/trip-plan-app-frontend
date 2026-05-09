@@ -263,51 +263,68 @@ const ScheduleMapScreen: React.FC = () => {
     }
   }, []);
 
-  const handlePressMap = useCallback(
-    async (coordinate: { latitude: number; longitude: number }) => {
-      const tempPoint: RoutePoint = {
-        id: `map-${Date.now()}`,
-        day: 0,
-        order: 0,
-        latitude: coordinate.latitude,
-        longitude: coordinate.longitude,
-        title: '주변 장소 불러오는 중...',
-        location: '주소 불러오는 중...',
-        description: '',
-        placeCardDescription: '주변 장소 정보를 불러오는 중입니다.',
-        startTime: '',
-        endTime: '',
-        image: null,
-        imageText: '이미지를 불러오고 있습니다.',
-        categories: [],
-      };
+  const createTempPoint = useCallback(
+    (coordinate: { latitude: number; longitude: number }, titleOverride?: string): RoutePoint => ({
+      id: `${titleOverride ? 'poi' : 'map'}-${Date.now()}`,
+      day: 0,
+      order: 0,
+      latitude: coordinate.latitude,
+      longitude: coordinate.longitude,
+      title: titleOverride ?? '주변 장소 불러오는 중...',
+      location: '주소 불러오는 중...',
+      description: '',
+      placeCardDescription: '주변 장소 정보를 불러오는 중입니다.',
+      startTime: '',
+      endTime: '',
+      image: null,
+      imageText: '이미지를 불러오는 중입니다.',
+      categories: [],
+    }),
+    [],
+  );
+
+  const handleSelectPoint = useCallback(
+    async (
+      coordinate: { latitude: number; longitude: number },
+      titleOverride?: string,
+    ): Promise<void> => {
+      const tempPoint = createTempPoint(coordinate, titleOverride);
 
       setSelectedPointId(null);
       setMapPlaceCardPoint(tempPoint);
       setIsMapPlaceCardVisible(true);
 
+      const [placeResult, addressResult] = await Promise.all([
+        fetchNearestKoreanPlaceName(coordinate.latitude, coordinate.longitude),
+        fetchKoreanAddress(coordinate.latitude, coordinate.longitude),
+      ]);
+
+      const nextPoint: RoutePoint = {
+        ...tempPoint,
+        title:
+          titleOverride ??
+          (placeResult.error ? tempPoint.title : (placeResult.name ?? tempPoint.title)),
+        placeCardDescription: placeResult.summary ?? tempPoint.placeCardDescription,
+        categories: placeResult.types.length > 0 ? placeResult.types : tempPoint.categories,
+        image: placeResult.photoUrl ? { uri: placeResult.photoUrl } : tempPoint.image,
+        imageText: placeResult.photoUrl ? undefined : tempPoint.imageText,
+        location: addressResult.error ? tempPoint.location : addressResult.address,
+      };
+
+      setMapPlaceCardPoint(nextPoint);
+    },
+    [createTempPoint],
+  );
+
+  const handlePressMap = useCallback(
+    async (coordinate: { latitude: number; longitude: number }) => {
       try {
-        const [placeResult, addressResult] = await Promise.all([
-          fetchNearestKoreanPlaceName(coordinate.latitude, coordinate.longitude),
-          fetchKoreanAddress(coordinate.latitude, coordinate.longitude),
-        ]);
-
-        const nextPoint: RoutePoint = {
-          ...tempPoint,
-          title: placeResult.error ? tempPoint.title : (placeResult.name ?? tempPoint.title),
-          placeCardDescription: placeResult.summary ?? tempPoint.placeCardDescription,
-          categories: placeResult.types.length > 0 ? placeResult.types : tempPoint.categories,
-          image: placeResult.photoUrl ? { uri: placeResult.photoUrl } : tempPoint.image,
-          imageText: placeResult.photoUrl ? undefined : tempPoint.imageText,
-          location: addressResult.error ? tempPoint.location : addressResult.address,
-        };
-
-        setMapPlaceCardPoint(nextPoint);
+        await handleSelectPoint(coordinate);
       } catch (error) {
         console.error('handlePressMap Error:', error);
       }
     },
-    [],
+    [handleSelectPoint],
   );
 
   const handlePressPoi = useCallback(
@@ -318,50 +335,13 @@ const ScheduleMapScreen: React.FC = () => {
 
       if (!coordinate) return;
 
-      const tempPoint: RoutePoint = {
-        id: `poi-${Date.now()}`,
-        day: 0,
-        order: 0,
-        latitude: coordinate.latitude,
-        longitude: coordinate.longitude,
-        title: name ?? '주변 장소 불러오는 중...',
-        location: '주소 불러오는 중...',
-        description: '',
-        placeCardDescription: '주변 장소 정보를 불러오는 중입니다.',
-        startTime: '',
-        endTime: '',
-        image: null,
-        imageText: '이미지를 불러오는 중입니다.',
-        categories: [],
-      };
-
-      setSelectedPointId(null);
-      setMapPlaceCardPoint(tempPoint);
-      setIsMapPlaceCardVisible(true);
-
       try {
-        const [placeResult, addressResult] = await Promise.all([
-          fetchNearestKoreanPlaceName(coordinate.latitude, coordinate.longitude),
-          fetchKoreanAddress(coordinate.latitude, coordinate.longitude),
-        ]);
-
-        const nextPoint: RoutePoint = {
-          ...tempPoint,
-          title:
-            name ?? (placeResult.error ? tempPoint.title : (placeResult.name ?? tempPoint.title)),
-          placeCardDescription: placeResult.summary ?? tempPoint.placeCardDescription,
-          categories: placeResult.types.length > 0 ? placeResult.types : tempPoint.categories,
-          image: placeResult.photoUrl ? { uri: placeResult.photoUrl } : tempPoint.image,
-          imageText: placeResult.photoUrl ? undefined : tempPoint.imageText,
-          location: addressResult.error ? tempPoint.location : addressResult.address,
-        };
-
-        setMapPlaceCardPoint(nextPoint);
+        await handleSelectPoint(coordinate, name);
       } catch (error) {
         console.error('handlePressPoi Error:', error);
       }
     },
-    [],
+    [handleSelectPoint],
   );
 
   const panResponder = useMemo(

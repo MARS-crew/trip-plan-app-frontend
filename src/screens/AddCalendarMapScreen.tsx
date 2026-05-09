@@ -79,13 +79,8 @@ const AddCalendarMapScreen: React.FC = () => {
   );
 
   // 지도 클릭 → 마커
-  const handlePressMap = useCallback(
-    async (event: { nativeEvent: { coordinate: { latitude: number; longitude: number } } }) => {
-      Keyboard.dismiss();
-
-      const { latitude, longitude } = event.nativeEvent.coordinate;
-      console.log('지도 탭됨:', { latitude, longitude });
-
+  const handleSelectLocation = useCallback(
+    async (latitude: number, longitude: number, titleOverride?: string) => {
       setIsLoadingPlace(true);
 
       try {
@@ -97,7 +92,7 @@ const AddCalendarMapScreen: React.FC = () => {
         const place: PlaceMarker = {
           latitude,
           longitude,
-          title: placeInfo.name || '선택한 위치',
+          title: titleOverride || placeInfo.name || '선택한 위치',
           address,
           categories: placeInfo.types ?? [],
           photoUrl: placeInfo.photoUrl ?? null,
@@ -114,13 +109,27 @@ const AddCalendarMapScreen: React.FC = () => {
           },
           300,
         );
-      } catch (error) {
-        console.error('지도 탭 처리 오류:', error);
       } finally {
         setIsLoadingPlace(false);
       }
     },
     [fetchAddress, fetchNearbyPlace],
+  );
+
+  const handlePressMap = useCallback(
+    async (event: { nativeEvent: { coordinate: { latitude: number; longitude: number } } }) => {
+      Keyboard.dismiss();
+
+      const { latitude, longitude } = event.nativeEvent.coordinate;
+      console.log('지도 탭됨:', { latitude, longitude });
+
+      try {
+        await handleSelectLocation(latitude, longitude);
+      } catch (error) {
+        console.error('지도 탭 처리 오류:', error);
+      }
+    },
+    [handleSelectLocation],
   );
 
   const handlePoiClick = useCallback(
@@ -134,41 +143,13 @@ const AddCalendarMapScreen: React.FC = () => {
 
       console.log('POI 탭됨:', event.nativeEvent);
 
-      setIsLoadingPlace(true);
-
       try {
-        const [address, placeInfo] = await Promise.all([
-          fetchAddress(latitude, longitude),
-          fetchNearbyPlace(latitude, longitude),
-        ]);
-
-        const place: PlaceMarker = {
-          latitude,
-          longitude,
-          title: name || placeInfo.name || '선택한 위치',
-          address,
-          categories: placeInfo.types ?? [],
-          photoUrl: placeInfo.photoUrl ?? null,
-        };
-
-        setSelectedPlace(place);
-
-        mapRef.current?.animateToRegion(
-          {
-            latitude,
-            longitude,
-            latitudeDelta: 0.02,
-            longitudeDelta: 0.02,
-          },
-          300,
-        );
+        await handleSelectLocation(latitude, longitude, name);
       } catch (error) {
         console.error('POI 탭 처리 오류:', error);
-      } finally {
-        setIsLoadingPlace(false);
       }
     },
-    [fetchAddress, fetchNearbyPlace],
+    [handleSelectLocation],
   );
 
   // 등록 버튼

@@ -23,6 +23,13 @@ export const fetchKoreanAddress = async (
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&language=ko&key=${apiKey}`,
     );
     const data = await response.json();
+    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+      return {
+        address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
+        error: 'GEOCODING_REQUEST_FAILED',
+      };
+    }
+
     const address =
       data.results?.[0]?.formatted_address || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
 
@@ -56,9 +63,19 @@ export const fetchNearestKoreanPlaceName = async (
   try {
     // 1. 주변 장소 검색
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&rankby=distance&language=ko&key=${apiKey}`,
+      `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&rankby=distance&type=point_of_interest&language=ko&key=${apiKey}`,
     );
     const data = await response.json();
+    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+      return {
+        name: '알 수 없는 장소',
+        types: [],
+        placeId: null,
+        photoUrl: null,
+        summary: null,
+        error: 'PLACES_REQUEST_FAILED',
+      };
+    }
     const place = data.results?.[0];
 
     if (!place) {
