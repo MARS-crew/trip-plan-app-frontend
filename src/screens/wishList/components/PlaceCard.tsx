@@ -7,13 +7,21 @@ import type { PlaceCardProps } from '@/types/wishlist';
 
 export const PlaceCard = React.memo<PlaceCardProps>(
   ({ place, isLiked, onToggleLike, isTrending = false }) => {
+    const hasImage = Boolean(place.image);
+
     if (isTrending) {
       return (
         <View className="mb-3 mr-[1px]">
           <WishContentContainer>
             <View className="flex-row items-center">
               <View className="w-28 h-28 rounded-l-lg overflow-hidden shrink-0">
-                <Image source={place.image} className="w-full h-full" resizeMode="cover" />
+                {hasImage ? (
+                  <Image source={place.image} className="w-full h-full" resizeMode="cover" />
+                ) : (
+                  <View className="h-full w-full items-center justify-center bg-chip px-2">
+                    <Text className="text-center text-p text-gray">이미지 없음</Text>
+                  </View>
+                )}
               </View>
               <View className="flex-1 ml-3 pr-5">
                 <Text className="text-h3 text-black font-pretendardSemiBold">{place.title}</Text>
@@ -48,7 +56,13 @@ export const PlaceCard = React.memo<PlaceCardProps>(
         <WishContentContainer>
           <View className="flex-row items-center">
             <View className="w-28 h-28 rounded-l-lg overflow-hidden shrink-0">
-              <Image source={place.image} className="w-full h-full" resizeMode="cover" />
+              {hasImage ? (
+                <Image source={place.image} className="w-full h-full" resizeMode="cover" />
+              ) : (
+                <View className="h-full w-full items-center justify-center bg-chip px-2">
+                  <Text className="text-center text-p text-gray">이미지 없음</Text>
+                </View>
+              )}
             </View>
             <View className="flex-1 ml-3 pr-8">
               <Text className="text-h3 text-black font-pretendardSemiBold">{place.title}</Text>

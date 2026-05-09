@@ -8,7 +8,7 @@ export interface WishPlace {
   title: string;
   location?: string;
   description: string;
-  image: ImageSourcePropType;
+  image?: ImageSourcePropType;
   categories?: string[];
 }
 

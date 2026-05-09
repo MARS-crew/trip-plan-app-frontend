@@ -125,25 +125,6 @@ const WISHLIST_PLACES: PlaceCardProps['place'][] = [
   },
 ];
 
-const SEARCH_PLACES: PlaceCardProps['place'][] = [
-  {
-    id: 'place_6',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'place_1',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-];
-
 const TABS: WishlistTabConfig[] = [
   { id: 'trending', label: '실시간 추천' },
   { id: 'saved', label: '저장된 장소' },
@@ -345,23 +326,23 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     return { opacity, pointerEvents: opacity < 0.1 ? 'none' : 'auto' };
   }); //  뒤로가기 버튼 핸들링 + 모달 상태 초기화
 
-useEffect(() => {
-  const timer = setTimeout(() => {
-    requestLocationPermission();
-  }, 500); // 화면 먼저 뜨고 요청
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      requestLocationPermission();
+    }, 500); // 화면 먼저 뜨고 요청
 
-  return () => clearTimeout(timer);
-}, []);
-  
- const requestLocationPermission = async () => {
-  if (Platform.OS === 'android') {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-    );
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
-  }
-  return true;
-};
+    return () => clearTimeout(timer);
+  }, []);
+
+  const requestLocationPermission = async () => {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    }
+    return true;
+  };
   useFocusEffect(
     useCallback(() => {
       setShowAddModal(false);
@@ -558,7 +539,7 @@ useEffect(() => {
           <WishlistSearchOverlay
             isVisible={isSearchFocused}
             selectedCategory={selectedCategory}
-            places={SEARCH_PLACES}
+            searchQuery={searchQuery}
             isLiked={(id) =>
               isLikedInTab(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
             }

@@ -1,6 +1,11 @@
 import Config from 'react-native-config';
 import type { BaseResponse } from '@/types';
-import type { GetRecentSearch, GetRecentSearchData, GetPopularSearchData } from '@/types/search';
+import type {
+  GetRecentSearch,
+  GetRecentSearchData,
+  GetPopularSearchData,
+  GetSearchResultsData,
+} from '@/types/search';
 import { useAuthStore } from '@/store';
 
 export const deleteRecentSearch = async (recentSearchId: number): Promise<void> => {
@@ -59,5 +64,25 @@ export const deleteAllRecentSearch = async (): Promise<void> => {
   });
   if (!response.ok) {
     throw new Error('최근 검색어 전체 삭제 실패');
+  }
+};
+
+export const getSearchResults = async (keyword: string): Promise<GetSearchResultsData> => {
+  const { accessToken } = useAuthStore.getState();
+  try {
+    const response = await fetch(
+      `${Config.API_BASE_URL}/api/v1/search/results?keyword=${encodeURIComponent(keyword)}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+    if (!response.ok) {
+      throw new Error('검색 결과 조회 실패');
+    }
+    const json: BaseResponse<GetSearchResultsData> = await response.json();
+    return json.data ?? { keyword, resultCount: 0, searchResults: [] };
+  } catch (error) {
+    console.error('getSearchResults Error:', error);
+    throw error;
   }
 };
