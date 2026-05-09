@@ -87,34 +87,33 @@ const NotificationSettingsScreen: React.FC = () => {
   const updateAgree = React.useCallback(
     async (next: { isPushEnabled: boolean; isNightPushEnabled: boolean }): Promise<void> => {
       try {
-        await patchAgree({
+        const data = await patchAgree({
           marketingAgreed: toFlag(next.isPushEnabled),
           nightMarketingAgreed: toFlag(next.isNightPushEnabled),
         });
+        // 서버에서 반영된 최신 값으로 동기화
+        setIsPushEnabled(data.marketingAgreed === 'Y');
+        setIsNightPushEnabled(data.nightMarketingAgreed === 'Y');
       } catch {
         // 실패 시 토글 원복
-        setIsPushEnabled((prev) => (prev === next.isPushEnabled ? !prev : prev));
-        setIsNightPushEnabled((prev) => (prev === next.isNightPushEnabled ? !prev : prev));
+        setIsPushEnabled(!next.isPushEnabled);
+        setIsNightPushEnabled(!next.isNightPushEnabled);
       }
     },
     [],
   );
 
   const handleTogglePush = React.useCallback((): void => {
-    setIsPushEnabled((prev) => {
-      const nextValue = !prev;
-      void updateAgree({ isPushEnabled: nextValue, isNightPushEnabled });
-      return nextValue;
-    });
-  }, [isNightPushEnabled, updateAgree]);
+    const nextValue = !isPushEnabled;
+    setIsPushEnabled(nextValue);
+    void updateAgree({ isPushEnabled: nextValue, isNightPushEnabled });
+  }, [isPushEnabled, isNightPushEnabled, updateAgree]);
 
   const handleToggleNightPush = React.useCallback((): void => {
-    setIsNightPushEnabled((prev) => {
-      const nextValue = !prev;
-      void updateAgree({ isPushEnabled, isNightPushEnabled: nextValue });
-      return nextValue;
-    });
-  }, [isPushEnabled, updateAgree]);
+    const nextValue = !isNightPushEnabled;
+    setIsNightPushEnabled(nextValue);
+    void updateAgree({ isPushEnabled, isNightPushEnabled: nextValue });
+  }, [isPushEnabled, isNightPushEnabled, updateAgree]);
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
