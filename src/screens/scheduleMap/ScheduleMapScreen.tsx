@@ -49,6 +49,7 @@ const ScheduleMapScreen: React.FC = () => {
   const dragAxisRef = useRef<'horizontal' | 'vertical' | null>(null);
   const [currentCardHeight, setCurrentCardHeight] = useState(0);
   const [shouldTrackMarkers, setShouldTrackMarkers] = useState(true);
+  const [tripTitle, setTripTitle] = useState('');
   const DRAG_RESISTANCE = 0.42;
   const MAX_DRAG_DISTANCE = 72;
   const [routePoints, setRoutePoints] = useState<RoutePoint[]>(EMPTY_ROUTE_POINTS);
@@ -123,6 +124,7 @@ const ScheduleMapScreen: React.FC = () => {
       }));
 
       setRoutePoints(nextPoints);
+      setTripTitle(result.data.tripTitle);
     };
 
     loadScheduleLocations();
@@ -313,8 +315,7 @@ const ScheduleMapScreen: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1" edges={['top']}>
-      <TopBar title="도쿄" onPress={() => navigation.goBack()} />
-
+      <TopBar title={tripTitle || '일정 지도'} onPress={() => navigation.goBack()} />
       <MapView ref={mapRef} style={{ flex: 1 }} initialRegion={initialRegion}>
         {dayPoints.length >= 2 && (
           <Polyline
