@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { EmptyLocation } from '@/assets/icons';
 import { PlaceCard } from '@/screens/wishList/components';
-import type { WishPlace, WishTabSaveProps } from '@/screens/wishList/types';
+import type { WishPlace, WishTabSaveProps } from '@/types/wishlist';
 
 const SavePlaceItem = React.memo<{
   item: WishPlace;
