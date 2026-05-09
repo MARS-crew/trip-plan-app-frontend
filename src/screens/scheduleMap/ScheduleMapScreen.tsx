@@ -114,6 +114,7 @@ const ScheduleMapScreen: React.FC = () => {
       });
       if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
       if (result.error || !result.data) {
+        showToast('일정 정보를 불러오는 데 실패했습니다.');
         setRoutePoints(EMPTY_ROUTE_POINTS);
         setTripTitle('');
         return;
@@ -195,7 +196,7 @@ const ScheduleMapScreen: React.FC = () => {
             }
 
             const result = await postVisitedPlace({
-              tripId: route.params.tripId,
+              tripId,
               payload: {
                 placeId,
                 tripScheduleId: Number(currentPoint.id),
@@ -460,7 +461,7 @@ const ScheduleMapScreen: React.FC = () => {
             style={{
               minHeight: currentCardHeight + (previewPoint ? 10 : 0),
             }}>
-            {previewPoint && (
+            {previewPoint && previewPoint.id !== currentPoint?.id && (
               <View
                 pointerEvents="none"
                 style={{
