@@ -1,4 +1,10 @@
-import type { LoginWarningType, ReissueTokenWarningType } from '@/types/auth';
+import type {
+  FindIdWarningType,
+  LoginWarningType,
+  ReissueTokenWarningType,
+  SignUpWarningType,
+} from '@/types/auth';
+import type { IdCheckStatus } from '@/types/signup';
 
 export const AUTH_REQUEST_TIMEOUT_MS = 10000;
 export const REQUEST_TIMEOUT_ERROR_MESSAGE = 'REQUEST_TIMEOUT';
@@ -53,8 +59,57 @@ export const getReissueWarningType = (status: number, code = ''): ReissueTokenWa
   return 'UNKNOWN_ERROR';
 };
 
+export const getFindIdWarningType = (status: number, code = ''): FindIdWarningType => {
+  if (status >= 500 || code === 'INTERNAL_ERROR') return 'SERVER_ERROR';
+  if (code === 'INVALID_INPUT' || status === 400) return 'INVALID_INPUT';
+  if (code === 'USER_NOT_FOUND' || status === 404) return 'USER_NOT_FOUND';
+  return 'UNKNOWN_ERROR';
+};
+
+export const getSignUpWarningType = (status: number, code = ''): SignUpWarningType => {
+  if (status >= 500 || code === 'INTERNAL_ERROR') return 'SERVER_ERROR';
+  if (code === 'DUPLICATE_USER' || status === 409) return 'DUPLICATE_USER';
+  if (code === 'INVALID_INPUT' || status === 400) return 'INVALID_INPUT';
+  return 'UNKNOWN_ERROR';
+};
+
+export const getSignUpIdCheckMessage = (idCheckStatus: IdCheckStatus) => {
+  if (idCheckStatus === 'available') {
+    return {
+      idMessage: '사용 가능한 아이디입니다.',
+      idMessageClass: 'text-statusSuccess',
+      idInputClass: 'bg-emailBackground',
+    };
+  }
+
+  if (idCheckStatus === 'duplicate') {
+    return {
+      idMessage: '중복된 아이디입니다.',
+      idMessageClass: 'text-statusError',
+      idInputClass: '',
+    };
+  }
+
+  if (idCheckStatus === 'error') {
+    return {
+      idMessage: '아이디 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.',
+      idMessageClass: 'text-statusError',
+      idInputClass: '',
+    };
+  }
+
+  return {
+    idMessage: '',
+    idMessageClass: 'text-transparent',
+    idInputClass: '',
+  };
+};
 export class ApiError extends Error {
-  constructor(message: string, public status: number, public code?: string) {
+  constructor(
+    message: string,
+    public status: number,
+    public code?: string,
+  ) {
     super(message);
     this.name = 'ApiError';
   }

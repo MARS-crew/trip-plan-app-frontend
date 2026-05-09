@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TextInput, ScrollView } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -7,20 +7,11 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { SearchStackParamList } from '@/navigation/types';
 import { InputSearchIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
-import { getRecentSearches, deleteRecentSearch } from '@/services';
+import { getRecentSearches, deleteRecentSearch, deleteAllRecentSearch, getPopularSearches } from '@/services';
 import { SearchList } from '@/screens/search/components/SearchList';
 import { PopularList } from '@/screens/search/components/PopularList';
 import { CategoryChip } from '@/screens/search/components/CategoryChip';
 import type { GetRecentSearch } from '@/types/search';
-
-// dummy data
-const popularSearch = [
-  '오사카 벚꽃',
-  '다낭 리조트',
-  '방콕 야시장',
-  '싱가포르 마리나',
-  '후쿠오카 온천',
-];
 
 // ============ Constants ============
 const category = [
@@ -36,6 +27,9 @@ const SearchScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const [query, setQuery] = useState('');
   const [recentSearches, setRecentSearches] = useState<GetRecentSearch[]>([]);
+  const [popularSearches, setPopularSearches] = useState<string[]>([]);
+
+  const POPULAR_SEARCH_COUNT = 5;
 
   const fetchRecentSearches = useCallback(async () => {
     try {
@@ -46,13 +40,27 @@ const SearchScreen: React.FC = () => {
     }
   }, []);
 
+  const fetchPopularSearches = useCallback(async () => {
+    try {
+      const data = await getPopularSearches();
+      const padded = Array.from(
+        { length: POPULAR_SEARCH_COUNT },
+        (_, i) => data[i] ?? '-',
+      );
+      setPopularSearches(padded);
+    } catch (error) {
+      console.error('fetchPopularSearches Error:', error);
+    }
+  }, []);
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setQuery('');
       fetchRecentSearches();
+      fetchPopularSearches();
     });
     return unsubscribe;
-  }, [navigation, fetchRecentSearches]);
+  }, [navigation, fetchRecentSearches, fetchPopularSearches]);
 
   const handleDelete = useCallback(async (recentSearchId: number) => {
     try {
@@ -60,6 +68,15 @@ const SearchScreen: React.FC = () => {
       setRecentSearches(prev => prev.filter(s => s.recentSearchId !== recentSearchId));
     } catch (error) {
       console.error('handleDelete Error:', error);
+    }
+  }, []);
+
+  const handleDeleteAll = useCallback(async () => {
+    try {
+      await deleteAllRecentSearch();
+      setRecentSearches([]);
+    } catch (error) {
+      console.error('handleDeleteAll Error:', error);
     }
   }, []);
 
@@ -113,7 +130,9 @@ const SearchScreen: React.FC = () => {
             <View>
               <View className="mb-4 flex-row justify-between">
                 <Text className="font-pretendardSemiBold text-h3">최근 검색</Text>
-                <Text className="text-p text-gray">전체 삭제</Text>
+                <TouchableOpacity onPress={handleDeleteAll}>
+                  <Text className="text-p text-gray">전체 삭제</Text>
+                </TouchableOpacity>
               </View>
               <View>
                 {recentSearches.length === 0 ? (
@@ -139,7 +158,7 @@ const SearchScreen: React.FC = () => {
                 containerStyle={{ marginBottom: 24 }}
                 stretch>
                 <View className="rounded-xl bg-white">
-                  {popularSearch.map((item, index) => (
+                  {popularSearches.map((item, index) => (
                     <PopularList key={index} index={index} item={item} onPress={handleNavigate} />
                   ))}
                 </View>

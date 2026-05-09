@@ -82,6 +82,18 @@ export type {
   GetMyTripsOptions,
   GetTripSchedulesByDateOptions,
 } from './trip';
+
+export type {
+  Gender,
+  GetMyPageData,
+  GetPapagoPhrase,
+  GetProfileData,
+  PapagoTargetLang,
+  SettingItem,
+  SettingItemType,
+  StatItem,
+  StatItemType,
+} from './mypage';
 export type { GetTripSchedulesOptions, GetTripSchedulesResult } from './tripDetail.types';
 export type {
   GetNearbyRecommendedPlacesData,

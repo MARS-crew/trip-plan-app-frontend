@@ -11,14 +11,14 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/navigation/types';
 import BackArrow from '@/assets/icons/backArrow.svg';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
-import { COLORS } from '@/constants';
-import { getProfile, patchProfile } from '@/services';
+import { getProfileDetail } from '@/services';
+import { CARD_SHADOW_DARK, COLORS } from '@/constants';
 import type { Gender } from '@/types/mypage';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -31,9 +31,9 @@ const GENDER_API_TO_LABEL: Record<Gender, GenderType> = {
 };
 
 const GENDER_LABEL_TO_API: Record<GenderType, Gender> = {
-  '남성': 'MALE',
-  '여성': 'FEMALE',
-  '기타': 'OTHER',
+  남성: 'MALE',
+  여성: 'FEMALE',
+  기타: 'OTHER',
 };
 
 const COUNTRIES = ['대한민국', '미국', '일본', '중국', '영국', '프랑스', '독일'] as const;
@@ -64,10 +64,7 @@ const getDatePickerOptions = (
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const selectedMonth = months.includes(month) ? month : months[0];
 
-  const days = Array.from(
-    { length: getDaysInMonth(selectedYear, selectedMonth) },
-    (_, i) => i + 1,
-  );
+  const days = Array.from({ length: getDaysInMonth(selectedYear, selectedMonth) }, (_, i) => i + 1);
   const selectedDay = days.includes(day) ? day : days[0];
 
   return { years, months, days, selectedYear, selectedMonth, selectedDay };
@@ -136,8 +133,7 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
           paddingBottom: ITEM_HEIGHT * 2,
         }}
         onMomentumScrollEnd={handleScrollEnd}
-        onScrollEndDrag={handleScrollEnd}
-      >
+        onScrollEndDrag={handleScrollEnd}>
         {items.map((item, idx) => {
           const isSelected = idx === selectedIndex;
 
@@ -148,15 +144,13 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
                 height: ITEM_HEIGHT,
                 justifyContent: 'center',
                 alignItems: 'center',
-              }}
-            >
+              }}>
               <Text
                 style={{
                   fontSize: 15,
                   fontWeight: isSelected ? '600' : '400',
                   color: isSelected ? COLORS.black : COLORS.gray,
-                }}
-              >
+                }}>
                 {format(item)}
               </Text>
             </View>
@@ -165,14 +159,6 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
       </ScrollView>
     </View>
   );
-};
-
-const cardStyle = {
-  shadowColor: COLORS.black,
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.25,
-  shadowRadius: 3,
-  elevation: 1,
 };
 
 const ProfileEditDetailScreen: React.FC = () => {
@@ -193,7 +179,7 @@ const ProfileEditDetailScreen: React.FC = () => {
 
   const fetchProfile = React.useCallback(async () => {
     try {
-      const data = await getProfile();
+      const data = await getProfileDetail();
       setName(data.name);
       setNickname(data.nickname);
       setBirthDate(data.birth);
@@ -204,14 +190,16 @@ const ProfileEditDetailScreen: React.FC = () => {
     }
   }, []);
 
-  React.useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchProfile();
+    }, [fetchProfile]),
+  );
 
   const isPasswordMismatch = passwordConfirm.length > 0 && password !== passwordConfirm;
 
   const handleToggleCountryPicker = React.useCallback((): void => {
-    setShowCountryPicker(prev => !prev);
+    setShowCountryPicker((prev) => !prev);
   }, []);
 
   const handleSelectCountry = React.useCallback((selectedCountry: string): void => {
@@ -280,18 +268,21 @@ const ProfileEditDetailScreen: React.FC = () => {
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={navigation.goBack}
-          className="mr-1 ml-1 h-10 w-10 items-start justify-center">
+          className="ml-1 mr-1 h-10 w-10 items-start justify-center">
           <BackArrow width={20} height={20} />
         </TouchableOpacity>
-        <Text className="text-h font-pretendardBold text-black">프로필 수정</Text>
+        <Text className="font-pretendardBold text-h text-black">프로필 수정</Text>
       </View>
 
-      <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
-        <View className="mt-3 rounded-lg bg-white px-6 pb-6 pt-6" style={cardStyle}>
-          <Text className="text-h3 font-pretendardSemiBold text-black">계정 정보</Text>
+      <ScrollView
+        className="flex-1 px-4"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 24 }}>
+        <View className="mt-3 rounded-lg bg-white px-6 pb-6 pt-6" style={CARD_SHADOW_DARK}>
+          <Text className="font-pretendardSemiBold text-h3 text-black">계정 정보</Text>
 
           <View className="mt-4">
-            <Text className="text-h3 font-pretendardSemiBold text-black">닉네임</Text>
+            <Text className="font-pretendardSemiBold text-h3 text-black">닉네임</Text>
             <TextInput
               value={nickname}
               onChangeText={setNickname}
@@ -301,8 +292,8 @@ const ProfileEditDetailScreen: React.FC = () => {
 
           <View className="mt-4">
             <View className="flex-row items-center">
-              <Text className="text-h3 font-pretendardSemiBold text-black">비밀번호</Text>
-              <Text className="ml-0.5 text-p1 font-pretendardMedium text-statusError">*</Text>
+              <Text className="font-pretendardSemiBold text-h3 text-black">비밀번호</Text>
+              <Text className="ml-0.5 font-pretendardMedium text-p1 text-statusError">*</Text>
             </View>
             <TextInput
               value={password}
@@ -316,8 +307,8 @@ const ProfileEditDetailScreen: React.FC = () => {
 
           <View className="mt-4">
             <View className="flex-row items-center">
-              <Text className="text-h3 font-pretendardSemiBold text-black">비밀번호 확인</Text>
-              <Text className="ml-0.5 text-p1 font-pretendardMedium text-statusError">*</Text>
+              <Text className="font-pretendardSemiBold text-h3 text-black">비밀번호 확인</Text>
+              <Text className="ml-0.5 font-pretendardMedium text-p1 text-statusError">*</Text>
             </View>
             <TextInput
               value={passwordConfirm}
@@ -333,11 +324,11 @@ const ProfileEditDetailScreen: React.FC = () => {
           </View>
         </View>
 
-        <View className="mt-5 rounded-lg bg-white px-6 pb-6 pt-6" style={cardStyle}>
-          <Text className="text-h3 font-pretendardSemiBold text-black">개인 정보</Text>
+        <View className="mt-5 rounded-lg bg-white px-6 pb-6 pt-6" style={CARD_SHADOW_DARK}>
+          <Text className="font-pretendardSemiBold text-h3 text-black">개인 정보</Text>
 
           <View className="mt-4">
-            <Text className="text-h3 font-pretendardSemiBold text-black">이름</Text>
+            <Text className="font-pretendardSemiBold text-h3 text-black">이름</Text>
             <TextInput
               value={name}
               editable={false}
@@ -347,8 +338,8 @@ const ProfileEditDetailScreen: React.FC = () => {
 
           <View className="mt-4">
             <View className="flex-row items-center">
-              <Text className="text-h3 font-pretendardSemiBold text-black">생년월일</Text>
-              <Text className="ml-0.5 text-p1 font-pretendardMedium text-statusError">*</Text>
+              <Text className="font-pretendardSemiBold text-h3 text-black">생년월일</Text>
+              <Text className="ml-0.5 font-pretendardMedium text-p1 text-statusError">*</Text>
             </View>
             <Pressable
               onPress={handleOpenBirthDatePicker}
@@ -360,11 +351,11 @@ const ProfileEditDetailScreen: React.FC = () => {
 
           <View className="mt-4">
             <View className="flex-row items-center">
-              <Text className="text-h3 font-pretendardSemiBold text-black">성별</Text>
-              <Text className="ml-0.5 text-p1 font-pretendardMedium text-statusError">*</Text>
+              <Text className="font-pretendardSemiBold text-h3 text-black">성별</Text>
+              <Text className="ml-0.5 font-pretendardMedium text-p1 text-statusError">*</Text>
             </View>
             <View className="mt-2 flex-row justify-between">
-              {(['남성', '여성', '기타'] as GenderType[]).map(option => {
+              {(['남성', '여성', '기타'] as GenderType[]).map((option) => {
                 const isActive = option === gender;
                 return (
                   <TouchableOpacity
@@ -372,7 +363,10 @@ const ProfileEditDetailScreen: React.FC = () => {
                     activeOpacity={0.85}
                     onPress={() => setGender(option)}
                     className={`h-[46px] w-[31%] items-center justify-center rounded-xl border ${isActive ? 'border-main bg-main/10' : 'border-borderGray bg-white'}`}>
-                    <Text className={`text-p1 font-pretendardMedium ${isActive ? 'text-main' : 'text-gray'}`}>{option}</Text>
+                    <Text
+                      className={`font-pretendardMedium text-p1 ${isActive ? 'text-main' : 'text-gray'}`}>
+                      {option}
+                    </Text>
                   </TouchableOpacity>
                 );
               })}
@@ -381,8 +375,8 @@ const ProfileEditDetailScreen: React.FC = () => {
 
           <View className={`relative mt-4 ${showCountryPicker ? 'z-20 mb-60' : ''}`}>
             <View className="flex-row items-center">
-              <Text className="text-h3 font-pretendardSemiBold text-black">국가</Text>
-              <Text className="ml-0.5 text-p1 font-pretendardMedium text-statusError">*</Text>
+              <Text className="font-pretendardSemiBold text-h3 text-black">국가</Text>
+              <Text className="ml-0.5 font-pretendardMedium text-p1 text-statusError">*</Text>
             </View>
 
             <Pressable
@@ -397,7 +391,7 @@ const ProfileEditDetailScreen: React.FC = () => {
             </Pressable>
 
             {showCountryPicker && (
-              <View className="absolute left-0 right-0 top-full z-50 mt-2 h-46 rounded-xl border border-borderGray bg-white">
+              <View className="h-46 absolute left-0 right-0 top-full z-50 mt-2 rounded-xl border border-borderGray bg-white">
                 {COUNTRIES.map((option, index) => {
                   const isSelectedCountry = country === option;
                   const isLastItem = index === COUNTRIES.length - 1;
@@ -423,8 +417,8 @@ const ProfileEditDetailScreen: React.FC = () => {
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={handleSubmitProfileEdit}
-          className="mt-5 mb-16 h-11 items-center justify-center rounded-lg bg-main">
-          <Text className="text-p1 font-pretendardSemiBold text-white">수정하기</Text>
+          className="mb-16 mt-5 h-11 items-center justify-center rounded-lg bg-main">
+          <Text className="font-pretendardSemiBold text-p1 text-white">수정하기</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -435,7 +429,9 @@ const ProfileEditDetailScreen: React.FC = () => {
         onRequestClose={handleCloseBirthDatePicker}>
         <View className="flex-1 items-center justify-center bg-black/25 px-4">
           <View className="w-full rounded-xl bg-white px-4 pb-4 pt-4" style={{ maxWidth: 360 }}>
-            <Text className="text-center text-h3 font-pretendardSemiBold text-black">생년월일 선택</Text>
+            <Text className="text-center font-pretendardSemiBold text-h3 text-black">
+              생년월일 선택
+            </Text>
 
             <View className="mt-4 flex-row">
               <SpinnerColumn
@@ -463,13 +459,13 @@ const ProfileEditDetailScreen: React.FC = () => {
                 activeOpacity={0.85}
                 onPress={handleCloseBirthDatePicker}
                 className="h-11 w-[48%] items-center justify-center rounded-lg bg-chip">
-                <Text className="text-h3 font-pretendardSemiBold text-gray">취소</Text>
+                <Text className="font-pretendardSemiBold text-h3 text-gray">취소</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.85}
                 onPress={handleConfirmBirthDate}
                 className="h-11 w-[48%] items-center justify-center rounded-lg bg-main">
-                <Text className="text-h3 font-pretendardSemiBold text-white">확인</Text>
+                <Text className="font-pretendardSemiBold text-h3 text-white">확인</Text>
               </TouchableOpacity>
             </View>
           </View>
