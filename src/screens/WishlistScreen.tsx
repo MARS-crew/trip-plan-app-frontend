@@ -111,7 +111,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   const route = useRoute();
   const navigation = useNavigation<NavigationProp>();
   const translateY = useSharedValue(SNAP_LOW);
-  const tripId = (route.params as { tripId?: number })?.tripId ?? 5;
+  const tripId = (route.params as { tripId?: number })?.tripId;
 
   const [savedPlaces, setSavedPlaces] = useState<PlaceCardProps['place'][]>([]);
   const [wishlistPlaces, setWishlistPlaces] = useState<PlaceCardProps['place'][]>([]);
