@@ -1,19 +1,23 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, ScrollView, Share, ToastAndroid } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getTripRoute, getTripSchedules, getTripShare } from '@/services';
+import { deleteTrip, getTripRoute, getTripSchedules, getTripShare } from '@/services';
+import type { RootStackParamList } from '@/navigation/types';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
 import type {
+  TripDetailCardItem,
   TripDetailHeader,
   TripDetailRoute,
   TripDetailSection,
 } from '@/types/tripDetail.types';
 import {
+  getServiceErrorMessage,
   getTripDeleteErrorToastMessage,
-  getTripShareErrorMessage,
+  getTripRouteErrorToastMessage,
   mergeSectionsWithDayFallback,
   normalizeTripDetailData,
 } from '@/utils';
@@ -28,8 +32,10 @@ import { KEBAB_SHEET_HEIGHT } from './components/KebabMenuSheet';
 
 const KEBAB_ANIMATION_DURATION = 250;
 const CARD_MENU_ANIMATION_DURATION = 220;
+type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetail'>;
 
 const TripDetailScreen: React.FC = () => {
+  const navigation = useNavigation<TripDetailNavigation>();
   const route = useRoute<TripDetailRoute>();
   const tripId = route.params?.tripId;
 
@@ -38,6 +44,8 @@ const TripDetailScreen: React.FC = () => {
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [isKebabMenuVisible, setIsKebabMenuVisible] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [isDeletingTrip, setIsDeletingTrip] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [selectedCardTop, setSelectedCardTop] = useState(0);
   const [headerData, setHeaderData] = useState<TripDetailHeader>({
@@ -168,7 +176,7 @@ const TripDetailScreen: React.FC = () => {
 
   const handleRouteFailure = useCallback((errorCode: string, message: string): void => {
     console.error(`[tripRoute] 길찾기 실패 errorCode=${errorCode} message=${message}`);
-    ToastAndroid.show('길찾기 요청에 실패하였습니다', ToastAndroid.SHORT);
+    ToastAndroid.show(getTripRouteErrorToastMessage(), ToastAndroid.SHORT);
   }, []);
 
   const handlePressShareInKebab = useCallback(() => {
@@ -179,6 +187,32 @@ const TripDetailScreen: React.FC = () => {
       );
     });
   }, [handleCloseKebabMenu, handleShareTrip]);
+
+  const handleOpenDeleteModal = useCallback(() => {
+    handleCloseKebabMenu();
+    handleCloseCardMenu();
+    setIsDeleteModalVisible(true);
+  }, [handleCloseCardMenu, handleCloseKebabMenu]);
+
+  const handleCloseDeleteModal = useCallback(() => {
+    setIsDeleteModalVisible(false);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!tripId || isDeletingTrip) return;
+
+    setIsDeletingTrip(true);
+    const result = await deleteTrip({ tripId });
+    setIsDeletingTrip(false);
+
+    if (result.error) {
+      ToastAndroid.show(getTripDeleteErrorToastMessage(result.error), ToastAndroid.SHORT);
+      return;
+    }
+
+    setIsDeleteModalVisible(false);
+    navigation.navigate('MainTabs', { screen: 'MyTrip' });
+  }, [isDeletingTrip, navigation, tripId]);
 
   const handlePressRouteInCard = useCallback(
     async (card: TripDetailCardItem): Promise<void> => {
@@ -258,6 +292,7 @@ const TripDetailScreen: React.FC = () => {
               handleRouteFailure('INTERNAL_ERROR', '서버 오류가 발생했습니다.');
             });
           }}
+          onPressDelete={handleOpenDeleteModal}
           onClose={handleCloseCardMenu}
         />
       )}
@@ -267,6 +302,17 @@ const TripDetailScreen: React.FC = () => {
         translateY={kebabTranslateY}
         onClose={handleCloseKebabMenu}
         onPressShare={handlePressShareInKebab}
+        onPressDelete={handleOpenDeleteModal}
+      />
+
+      <DeleteWarningModal
+        visible={isDeleteModalVisible}
+        onConfirm={() => {
+          handleConfirmDelete().catch(() => {
+            ToastAndroid.show(getTripDeleteErrorToastMessage(null), ToastAndroid.SHORT);
+          });
+        }}
+        onClose={handleCloseDeleteModal}
       />
     </SafeAreaView>
   );

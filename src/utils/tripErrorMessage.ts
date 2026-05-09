@@ -32,8 +32,15 @@ export const getTripDeleteErrorToastMessage = (error: ServiceError | null): stri
     case 'REQUEST_ABORTED':
       return '요청이 취소되었습니다.';
     default:
-      return '알 수 없는 오류로 삭제에 실패하였습니다';
+      return '여행 삭제에 실패하였습니다';
   }
 };
 
 export const getCreateTripErrorMessage = (): string => '여행 생성에 실패했습니다.';
+
+export const getServiceErrorMessage = (error: ServiceError | null): string => {
+  if (!error) return '서버 오류가 발생했습니다.';
+  return error.message?.trim() || error.code || '서버 오류가 발생했습니다.';
+};
+
+export const getTripRouteErrorToastMessage = (): string => '길찾기 요청에 실패하였습니다';
