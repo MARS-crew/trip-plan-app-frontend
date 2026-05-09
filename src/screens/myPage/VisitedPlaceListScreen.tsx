@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
-import { COLORS } from '@/constants';
+import { CARD_SHADOW_SUBTLE } from '@/constants';
 import { TopBar } from '@/components/ui';
 import LocationOrangeIcon from '@/assets/icons/location_orange.svg';
 import MarkerGrayIcon from '@/assets/icons/marker-gray.svg';
@@ -61,13 +61,6 @@ const mapVisitedPlace = (place: VisitedPlace): VisitedPlaceItem => ({
   imageUrl: place.imageUrl,
 });
 
-const cardStyle = {
-  shadowColor: COLORS.black,
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.08,
-  shadowRadius: 1.5,
-  elevation: 1,
-};
 
 const VisitedPlaceListScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -167,7 +160,7 @@ const VisitedPlaceListScreen: React.FC = () => {
                   <View
                     key={item.id}
                     className="overflow-hidden rounded-lg bg-white"
-                    style={cardStyle}>
+                    style={CARD_SHADOW_SUBTLE}>
                     <TouchableOpacity
                       activeOpacity={0.8}
                       onPress={() =>

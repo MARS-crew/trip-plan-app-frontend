@@ -1,258 +1,33 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, Share } from 'react-native';
+import { Linking, ScrollView, Share, ToastAndroid } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getTripSchedules, getTripShare } from '@/services';
+import { getTripRoute, getTripSchedules, getTripShare } from '@/services';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
-import type { ServiceError } from '@/types/trip';
 import type {
-  TripDetailCardItem,
   TripDetailHeader,
   TripDetailRoute,
   TripDetailSection,
 } from '@/types/tripDetail.types';
-import { Header, DaySection, KebabMenuSheet, CardContextMenu } from './components';
+import {
+  getTripDeleteErrorToastMessage,
+  getTripShareErrorMessage,
+  mergeSectionsWithDayFallback,
+  normalizeTripDetailData,
+} from '@/utils';
+import {
+  Header,
+  DaySection,
+  KebabMenuSheet,
+  CardContextMenu,
+  DeleteWarningModal,
+} from './components';
 import { KEBAB_SHEET_HEIGHT } from './components/KebabMenuSheet';
 
 const KEBAB_ANIMATION_DURATION = 250;
 const CARD_MENU_ANIMATION_DURATION = 220;
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null;
-
-const toStringValue = (value: unknown): string | null => {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  return trimmed ? trimmed : null;
-};
-
-const toNumberValue = (value: unknown): number | null => {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  const parsed = Number(trimmed);
-  return Number.isFinite(parsed) ? parsed : null;
-};
-
-const toRecordArray = (value: unknown): Record<string, unknown>[] =>
-  Array.isArray(value) ? value.filter(isRecord) : [];
-
-const getScheduleListFromGroup = (group: Record<string, unknown>): Record<string, unknown>[] => {
-  const scheduleListKeys = ['schedules', 'tripSchedules', 'scheduleList', 'items', 'cards'];
-  for (const key of scheduleListKeys) {
-    const list = toRecordArray(group[key]);
-    if (list.length) return list;
-  }
-  return [];
-};
-
-const formatTripDateText = (startDate: string | null, endDate: string | null): string => {
-  if (!startDate || !endDate) return '';
-  return `${startDate.replaceAll('-', '.')} - ${endDate.replaceAll('-', '.')}`;
-};
-
-const formatDayLabel = (dayNo: number, scheduleDate: string | null): string => {
-  if (!scheduleDate) return `${dayNo}일차`;
-  const [yearString, monthString, dayString] = scheduleDate.split('-');
-  const year = Number(yearString);
-  const month = Number(monthString);
-  const day = Number(dayString);
-  if (!year || !month || !day) return `${dayNo}일차`;
-  const monthText = String(month).padStart(2, '0');
-  const dayText = String(day).padStart(2, '0');
-  return `${dayNo}일차 / ${monthText}.${dayText}`;
-};
-
-const formatDateByOffset = (startDate: string, offset: number): string | null => {
-  const [yearString, monthString, dayString] = startDate.split('-');
-  const year = Number(yearString);
-  const month = Number(monthString);
-  const day = Number(dayString);
-  if (!year || !month || !day) return null;
-  const date = new Date(year, month - 1, day + offset);
-  const monthText = String(date.getMonth() + 1).padStart(2, '0');
-  const dayText = String(date.getDate()).padStart(2, '0');
-  return `${monthText}.${dayText}`;
-};
-
-const buildEmptyDaySections = (tripDayCount: number, startDate?: string): TripDetailSection[] => {
-  const safeDayCount = Math.max(1, tripDayCount || 1);
-  return Array.from({ length: safeDayCount }, (_, index) => {
-    const dayNo = index + 1;
-    const dateText = startDate ? formatDateByOffset(startDate, index) : null;
-    return {
-      dayNo,
-      dayLabel: dateText ? `${dayNo}일차 / ${dateText}` : `${dayNo}일차`,
-      cards: [],
-      showMapIcon: dayNo === 1,
-    };
-  });
-};
-
-const mergeSectionsWithDayFallback = (
-  sections: TripDetailSection[],
-  tripDayCount: number,
-  startDate?: string,
-): TripDetailSection[] => {
-  const emptySections = buildEmptyDaySections(tripDayCount, startDate);
-  if (!sections.length) return emptySections;
-
-  const sectionMap = new Map<number, TripDetailSection>(
-    sections.map((section) => [section.dayNo, section]),
-  );
-  return emptySections.map((emptySection) => sectionMap.get(emptySection.dayNo) ?? emptySection);
-};
-
-const formatScheduleTime = (time: string | null): string => {
-  if (!time) return '';
-  const matched = time.match(/^(\d{2}):(\d{2})/);
-  if (!matched) return time;
-  return `${matched[1]}:${matched[2]}`;
-};
-
-const mapScheduleToCardItem = (
-  schedule: Record<string, unknown>,
-  order: number,
-  isCurrentSchedule: boolean,
-): TripDetailCardItem => ({
-  id: toNumberValue(schedule.tripScheduleId) ?? toNumberValue(schedule.id) ?? order,
-  order,
-  title: toStringValue(schedule.title) ?? '',
-  location: toStringValue(schedule.placeName) ?? toStringValue(schedule.address) ?? '',
-  description: toStringValue(schedule.memo) ?? '',
-  startTime: formatScheduleTime(toStringValue(schedule.startTime)),
-  endTime: formatScheduleTime(toStringValue(schedule.endTime)),
-  isCurrentSchedule,
-});
-
-const normalizeTripDetailData = (
-  rawData: unknown,
-): { header: TripDetailHeader; sections: TripDetailSection[] } => {
-  if (Array.isArray(rawData)) {
-    const flatSchedules = toRecordArray(rawData);
-    const sections = flatSchedules.length
-      ? [
-          {
-            dayNo: 1,
-            dayLabel: '1일차',
-            cards: flatSchedules.map((schedule, index) =>
-              mapScheduleToCardItem(schedule, index + 1, index === 0),
-            ),
-            showMapIcon: true,
-          },
-        ]
-      : [];
-    return { header: { title: '', dateText: '', tripDayCount: 1 }, sections };
-  }
-
-  if (!isRecord(rawData)) {
-    return { header: { title: '', dateText: '', tripDayCount: 1 }, sections: [] };
-  }
-
-  const title = toStringValue(rawData.tripTitle) ?? toStringValue(rawData.title) ?? '';
-  const startDate = toStringValue(rawData.startDate) ?? undefined;
-  const endDate = toStringValue(rawData.endDate);
-  const tripDayCount =
-    toNumberValue(rawData.tripDayCount) ??
-    toNumberValue(rawData.dayCount) ??
-    toNumberValue(rawData.totalDayCount) ??
-    1;
-  const dateText = formatTripDateText(startDate ?? null, endDate);
-  const imageUrl = toStringValue(rawData.imageUrl) ?? undefined;
-
-  const header: TripDetailHeader = { title, dateText, imageUrl, startDate, tripDayCount };
-
-  const dayGroupKeys = [
-    'daySchedules',
-    'schedulesByDate',
-    'days',
-    'scheduleGroups',
-    'dailySchedules',
-    'tripScheduleGroups',
-  ];
-  for (const key of dayGroupKeys) {
-    const dayGroups = toRecordArray(rawData[key]);
-    if (!dayGroups.length) continue;
-
-    const sections = dayGroups.map((group, sectionIndex) => {
-      const dayNo =
-        toNumberValue(group.dayNo) ?? toNumberValue(group.selectedDayNo) ?? sectionIndex + 1;
-      const scheduleDate = toStringValue(group.scheduleDate) ?? toStringValue(group.date);
-      const selectedDayLabel = toStringValue(group.selectedDayLabel);
-      const cards = getScheduleListFromGroup(group).map((schedule, cardIndex) =>
-        mapScheduleToCardItem(schedule, cardIndex + 1, sectionIndex === 0 && cardIndex === 0),
-      );
-      return {
-        dayNo,
-        dayLabel: selectedDayLabel ?? formatDayLabel(dayNo, scheduleDate),
-        cards,
-        showMapIcon: sectionIndex === 0,
-      };
-    });
-
-    return { header, sections: sections.filter((section) => section.cards.length > 0) };
-  }
-
-  const flatScheduleKeys = ['schedules', 'tripSchedules', 'scheduleList', 'items', 'cards'];
-  let flatSchedules: Record<string, unknown>[] = [];
-  for (const key of flatScheduleKeys) {
-    const list = toRecordArray(rawData[key]);
-    if (list.length) {
-      flatSchedules = list;
-      break;
-    }
-  }
-
-  if (!flatSchedules.length) {
-    return { header, sections: [] };
-  }
-
-  const grouped = new Map<
-    string,
-    { dayNo: number; scheduleDate: string | null; items: Record<string, unknown>[] }
-  >();
-  flatSchedules.forEach((schedule) => {
-    const dayNo = toNumberValue(schedule.dayNo) ?? 1;
-    const scheduleDate = toStringValue(schedule.scheduleDate) ?? null;
-    const key = `${dayNo}-${scheduleDate ?? 'none'}`;
-    const targetGroup = grouped.get(key);
-    if (targetGroup) {
-      targetGroup.items.push(schedule);
-      return;
-    }
-    grouped.set(key, { dayNo, scheduleDate, items: [schedule] });
-  });
-
-  const sections = Array.from(grouped.values())
-    .sort((a, b) => a.dayNo - b.dayNo)
-    .map((group, sectionIndex) => ({
-      dayNo: group.dayNo,
-      dayLabel: formatDayLabel(group.dayNo, group.scheduleDate),
-      cards: group.items.map((schedule, cardIndex) =>
-        mapScheduleToCardItem(schedule, cardIndex + 1, sectionIndex === 0 && cardIndex === 0),
-      ),
-      showMapIcon: sectionIndex === 0,
-    }));
-
-  return { header, sections };
-};
-
-const getTripShareErrorMessage = (error: ServiceError | null): string => {
-  if (!error) return '서버 오류가 발생했습니다.';
-  switch (error.code) {
-    case 'INVALID_INPUT':
-      return '잘못된 요청입니다.';
-    case 'USER_NOT_FOUND':
-      return '사용자를 찾을 수 없습니다.';
-    case 'INTERNAL_ERROR':
-      return '서버 오류가 발생했습니다.';
-    default:
-      return '서버 오류가 발생했습니다.';
-  }
-};
 
 const TripDetailScreen: React.FC = () => {
   const route = useRoute<TripDetailRoute>();
@@ -371,7 +146,7 @@ const TripDetailScreen: React.FC = () => {
     const result = await getTripShare({ tripId });
     if (result.error || !result.data) {
       if (result.error?.code === 'REQUEST_ABORTED') return;
-      console.error(`[tripShare] ${getTripShareErrorMessage(result.error)}`);
+      console.error(`[tripShare] ${getServiceErrorMessage(result.error)}`);
       return;
     }
 
@@ -391,10 +166,54 @@ const TripDetailScreen: React.FC = () => {
     }
   }, [tripId]);
 
+  const handleRouteFailure = useCallback((errorCode: string, message: string): void => {
+    console.error(`[tripRoute] 길찾기 실패 errorCode=${errorCode} message=${message}`);
+    ToastAndroid.show('길찾기 요청에 실패하였습니다', ToastAndroid.SHORT);
+  }, []);
+
   const handlePressShareInKebab = useCallback(() => {
     handleCloseKebabMenu();
-    void handleShareTrip();
+    handleShareTrip().catch(() => {
+      console.error('[tripShare] 공유 실패 errorCode=INTERNAL_ERROR message=서버 오류가 발생했습니다.');
+    });
   }, [handleCloseKebabMenu, handleShareTrip]);
+
+  const handlePressRouteInCard = useCallback(
+    async (card: TripDetailCardItem): Promise<void> => {
+      if (!tripId) return;
+      const tripScheduleId = card.tripScheduleId;
+      if (!tripScheduleId) {
+        handleRouteFailure('INVALID_INPUT', '잘못된 요청입니다.');
+        return;
+      }
+
+      const result = await getTripRoute({ tripId, tripScheduleId });
+      if (result.error || !result.data) {
+        if (result.error?.code === 'REQUEST_ABORTED') return;
+        handleRouteFailure(result.error?.code ?? 'INTERNAL_ERROR', getServiceErrorMessage(result.error));
+        return;
+      }
+
+      const routeUrl = result.data.googleDirectionsUrl?.trim();
+      if (!routeUrl) {
+        handleRouteFailure('INTERNAL_ERROR', '서버 오류가 발생했습니다.');
+        return;
+      }
+
+      try {
+        const canOpen = await Linking.canOpenURL(routeUrl);
+        if (!canOpen) {
+          handleRouteFailure('CLIENT_ERROR', '길찾기를 실행할 수 있는 앱이 없습니다.');
+          return;
+        }
+        await Linking.openURL(routeUrl);
+        handleCloseCardMenu();
+      } catch {
+        handleRouteFailure('INTERNAL_ERROR', '서버 오류가 발생했습니다.');
+      }
+    },
+    [handleCloseCardMenu, handleRouteFailure, tripId],
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
@@ -428,6 +247,11 @@ const TripDetailScreen: React.FC = () => {
           opacity={cardMenuOpacity}
           topOffset={selectedCardTop}
           accentColor={selectedCardAccentColor}
+          onPressRoute={(card) => {
+            handlePressRouteInCard(card).catch(() => {
+              handleRouteFailure('INTERNAL_ERROR', '서버 오류가 발생했습니다.');
+            });
+          }}
           onClose={handleCloseCardMenu}
         />
       )}

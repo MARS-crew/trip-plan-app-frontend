@@ -2,10 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { ContentContainer } from '@/components/ui';
 import { AirplaneIcon, PlusIcon } from '@/assets/icons';
-
-interface MainTripCardEmptyProps {
-  onAddTrip: () => void;
-}
+import type { MainTripCardEmptyProps } from '@/types/home';
 
 const MainTripCardEmpty: React.FC<MainTripCardEmptyProps> = ({ onAddTrip }) => {
   return (
