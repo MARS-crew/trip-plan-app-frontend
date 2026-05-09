@@ -134,6 +134,22 @@ export interface GetTripScheduleLocationsResult {
   error: ServiceError | null;
 }
 
+export interface PostVisitedPlacePayload {
+  placeId: number;
+  tripScheduleId: number;
+}
+
+export interface PostVisitedPlaceOptions {
+  tripId: number;
+  payload: PostVisitedPlacePayload;
+  signal?: AbortSignal;
+}
+
+export interface PostVisitedPlaceResult {
+  data: unknown;
+  error: ServiceError | null;
+}
+
 export interface TripShareData {
   tripId: number;
   tripTitle: string;

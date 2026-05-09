@@ -2,6 +2,7 @@ import type { ImageSourcePropType } from 'react-native';
 
 export interface RoutePoint {
   id: string;
+  placeId: number;
   day: number;
   order: number;
   latitude: number;
@@ -14,6 +15,9 @@ export interface RoutePoint {
   endTime: string;
   image: ImageSourcePropType | null;
   categories?: string[];
+  current: boolean;
+  canAddVisitedPlace: boolean;
+  visited: boolean;
 }
 
 export interface DayGroup {

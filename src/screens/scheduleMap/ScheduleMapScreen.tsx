@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, PanResponder, View } from 'react-native';
+import {
+  Alert,
+  Animated,
+  Easing,
+  PanResponder,
+  PermissionsAndroid,
+  Platform,
+  ToastAndroid,
+  View,
+} from 'react-native';
 import MapView, { Marker, Polyline, Region } from 'react-native-maps';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -7,6 +16,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@/navigation/types';
 import { COLORS } from '@/constants/colors';
+import Geolocation from '@react-native-community/geolocation';
+import { getDistanceMeters } from '@/utils/location';
 
 import { TopBar } from '@/components';
 import TripDetailCard from '@/components/ui/TripDetailCard';
@@ -20,7 +31,7 @@ import {
   getSelectedDayColor,
   groupRoutePointsByDay,
 } from './utils';
-import { getTripScheduleLocations } from '@/services';
+import { getTripScheduleLocations, postVisitedPlace } from '@/services';
 
 type ScheduleMapScreenNavigation = NativeStackNavigationProp<RootStackParamList>;
 type ScheduleMapRoute = RouteProp<RootStackParamList, 'ScheduleMap'>;
@@ -76,7 +87,7 @@ const ScheduleMapScreen: React.FC = () => {
   const selectedItemIndex = selectedItemIndexByDay[selectedDay?.day ?? -1] ?? 0;
   const currentPoint = dayPoints[selectedItemIndex] ?? dayPoints[0];
   const selectedDayColor = getSelectedDayColor(selectedDay, dayColorMap);
-  const showTravelLogAction = currentPoint?.day === 1 && currentPoint?.order === 1;
+  const showTravelLogAction = currentPoint?.current === true;
   const previewPoint = useMemo(
     () =>
       getPreviewPoint(dayPoints, selectedItemIndex, groupedDays, selectedDayIndex, currentPoint),
@@ -104,11 +115,13 @@ const ScheduleMapScreen: React.FC = () => {
       if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
       if (result.error || !result.data) {
         setRoutePoints(EMPTY_ROUTE_POINTS);
+        setTripTitle('');
         return;
       }
 
       const nextPoints: RoutePoint[] = result.data.schedules.map((schedule) => ({
         id: String(schedule.tripScheduleId),
+        placeId: schedule.placeId,
         day: schedule.dayNo,
         order: schedule.pinOrder,
         latitude: schedule.latitude,
@@ -121,6 +134,9 @@ const ScheduleMapScreen: React.FC = () => {
         endTime: schedule.endTime,
         image: schedule.imageUrl ? { uri: schedule.imageUrl } : null,
         categories: [],
+        current: schedule.current,
+        canAddVisitedPlace: schedule.canAddVisitedPlace,
+        visited: schedule.visited,
       }));
 
       setRoutePoints(nextPoints);
@@ -133,6 +149,90 @@ const ScheduleMapScreen: React.FC = () => {
       abortController.abort();
     };
   }, [tripId]);
+
+  const requestLocationPermission = async (): Promise<boolean> => {
+    if (Platform.OS !== 'android') return true;
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    );
+    return granted === PermissionsAndroid.RESULTS.GRANTED;
+  };
+
+  const showToast = (message: string): void => {
+    if (Platform.OS === 'android') {
+      ToastAndroid.show(message, ToastAndroid.SHORT);
+      return;
+    }
+    Alert.alert(message);
+  };
+
+  const handleVerifyLocation = useCallback(async () => {
+    if (!currentPoint || !tripId) return;
+
+    try {
+      const { placeId } = currentPoint;
+      const hasPermission = await requestLocationPermission();
+
+      if (!hasPermission) {
+        showToast('위치 권한을 허용해주세요.');
+        return;
+      }
+
+      Geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            const distance = getDistanceMeters(
+              latitude,
+              longitude,
+              currentPoint.latitude,
+              currentPoint.longitude,
+            );
+
+            if (distance > 1000) {
+              showToast(`해당 장소에서 ${Math.round(distance)}m 떨어져 있습니다.`);
+              return;
+            }
+
+            const result = await postVisitedPlace({
+              tripId: route.params.tripId,
+              payload: {
+                placeId,
+                tripScheduleId: Number(currentPoint.id),
+              },
+            });
+
+            if (result.error) {
+              showToast('저장에 실패했습니다. 다시 시도해주세요.');
+              return;
+            }
+
+            setRoutePoints((prev) =>
+              prev.map((point) =>
+                point.id === currentPoint.id
+                  ? { ...point, visited: true, canAddVisitedPlace: false }
+                  : point,
+              ),
+            );
+
+            showToast('방문지가 저장되었습니다!');
+          } catch {
+            showToast('위치 확인 중 오류가 발생했습니다.');
+          }
+        },
+        () => {
+          showToast('GPS를 확인해주세요.');
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        },
+      );
+    } catch {
+      showToast('위치 인증을 시작하지 못했습니다.');
+    }
+  }, [currentPoint, tripId]);
 
   useEffect(() => {
     if (!mapRef.current || dayPoints.length < 2) return;
@@ -404,16 +504,13 @@ const ScheduleMapScreen: React.FC = () => {
                   endTime={currentPoint.endTime}
                   isCurrentSchedule={showTravelLogAction}
                   actionLayout="fullWidth"
-                  actionLabel="여행지 기록하기"
-                  onPressAction={() =>
-                    navigation.navigate(
-                      'MainTabs' as never,
-                      {
-                        screen: 'Search',
-                        params: { screen: 'ReviewWrite' },
-                      } as never,
-                    )
+                  actionLabel={
+                    currentPoint.visited || !currentPoint.canAddVisitedPlace
+                      ? '이미 저장된 장소입니다.'
+                      : '여행지 기록하기'
                   }
+                  actionDisabled={currentPoint.visited || !currentPoint.canAddVisitedPlace}
+                  onPressAction={handleVerifyLocation}
                   accentColor={selectedDayColor}
                 />
               )}

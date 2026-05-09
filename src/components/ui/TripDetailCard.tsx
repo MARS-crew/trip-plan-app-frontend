@@ -22,6 +22,7 @@ export interface TripDetailCardProps {
   currentStatusText?: string;
   actionLabel?: string;
   onPressAction?: () => void;
+  actionDisabled?: boolean;
   actionLayout?: 'inline' | 'fullWidth';
   onPressCard?: () => void;
   accentColor?: string;
@@ -39,6 +40,7 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
   currentStatusText = '현재 진행 중인 일정입니다',
   actionLabel = '방문지 저장',
   onPressAction,
+  actionDisabled = false,
   actionLayout = 'inline',
   onPressCard,
   accentColor = COLORS.main,
@@ -84,9 +86,14 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={onPressAction}
+              disabled={actionDisabled}
               className="h-[44px] w-full items-center justify-center rounded-[8px] bg-main"
-              style={{ backgroundColor: accentColor }}>
-              <Text className="font-pretendardSemiBold text-h3 text-white">{actionLabel}</Text>
+              style={{ backgroundColor: actionDisabled ? COLORS.chip : accentColor }}>
+              <Text
+                className="font-pretendardSemiBold text-h3"
+                style={{ color: actionDisabled ? COLORS.black : COLORS.white }}>
+                {actionLabel}
+              </Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -96,6 +103,7 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => {
+                if (actionDisabled) return;
                 if (onPressAction) {
                   onPressAction();
                   return;
@@ -103,9 +111,15 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
                 if (!tripId) return;
                 navigation.navigate('ScheduleMap', { tripId });
               }}
+              disabled={actionDisabled}
               className="h-[36px] flex-row items-center justify-center rounded-[6px] p-[10px]"
-              style={{ backgroundColor: accentColor }}>
-              <Text className="text-center text-p text-white" style={ACTION_LABEL_TEXT_STYLE}>
+              style={{ backgroundColor: actionDisabled ? COLORS.chip : accentColor }}>
+              <Text
+                className="text-center text-p"
+                style={{
+                  ...ACTION_LABEL_TEXT_STYLE,
+                  color: actionDisabled ? COLORS.black : COLORS.white,
+                }}>
                 {actionLabel}
               </Text>
             </TouchableOpacity>

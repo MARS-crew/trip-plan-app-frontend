@@ -18,3 +18,4 @@ export { default as AddTripCalendarScreen } from './addTrip/AddTripCalendarScree
 export { default as AddScheduleScreen } from './addSchedule/AddScheduleScreen';
 export { default as TripDetailScreen } from './tripDetail/TripDetailScreen';
 export { default as EmptyMapScreen } from './myTrip/EmptyMapScreen';
+export { default as ScheduleMapScreen } from './scheduleMap/ScheduleMapScreen';
