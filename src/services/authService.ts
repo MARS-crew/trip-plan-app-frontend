@@ -178,9 +178,12 @@ export const postReissueToken = async (
 
 export const deleteAccount = async (payload: WithdrawRequest): Promise<void> => {
   const { accessToken } = useAuthStore.getState();
+  if (!accessToken) {
+    throw new Error('로그인이 필요합니다.');
+  }
 
   try {
-    const response = await fetch(buildAuthUrl('/api/v1/auth/withdraw'), {
+    const response = await fetchWithTimeout(buildAuthUrl('/api/v1/auth/withdraw'), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

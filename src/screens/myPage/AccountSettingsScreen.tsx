@@ -15,11 +15,9 @@ import type { RootStackParamList } from '@/navigation';
 import { deleteAccount } from '@/services';
 import { useAuthStore } from '@/store';
 import type { WithdrawRequest } from '@/types/auth';
-import {
-  WithdrawConfirmModal,
-  WithdrawWarningModal,
-  WithdrawReasonModal,
-} from './components';
+import { showToastMessage } from '@/utils';
+import { handleError } from '@/utils/error';
+import { WithdrawConfirmModal, WithdrawWarningModal, WithdrawReasonModal } from './components';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -39,7 +37,6 @@ const profileItems: ProfileItem[] = [
   { id: 'gender', label: '성별', value: '여자', type: 'gender' },
   { id: 'country', label: '국가', value: '대한민국', type: 'country' },
 ];
-
 
 const ProfileItemIcon: React.FC<{ type: ProfileItem['type'] }> = ({ type }) => {
   if (type === 'nickname') {
@@ -77,13 +74,16 @@ const AccountSettingsScreen: React.FC = () => {
     async (payload: WithdrawRequest): Promise<void> => {
       try {
         await deleteAccount(payload);
-      } catch {
+      } catch (error) {
+        showToastMessage(
+          handleError(error) || '회원 탈퇴에 실패했습니다. 잠시 후 다시 시도해주세요.',
+        );
         return;
       }
 
       handleCloseWithdrawModal();
-      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
       useAuthStore.getState().clearTokens();
+      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
     },
     [handleCloseWithdrawModal, navigation],
   );
