@@ -5,6 +5,7 @@
 export {
   getTripShareErrorMessage,
   getTripDeleteErrorToastMessage,
+  getTripScheduleDeleteErrorToastMessage,
   getCreateTripErrorMessage,
   getServiceErrorMessage,
   getTripRouteErrorToastMessage,

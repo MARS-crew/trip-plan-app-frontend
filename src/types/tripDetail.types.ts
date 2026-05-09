@@ -143,3 +143,13 @@ export interface DeleteTripOptions {
 export interface DeleteTripResult {
   error: ServiceError | null;
 }
+
+export interface DeleteTripScheduleOptions {
+  tripId: number;
+  tripScheduleId: number;
+  signal?: AbortSignal;
+}
+
+export interface DeleteTripScheduleResult {
+  error: ServiceError | null;
+}

@@ -15,6 +15,8 @@ import type {
 } from '@/types/myTrip.types';
 import type { TripRequestConfig, TripRequestConfigError } from '@/types/trip';
 import type {
+  DeleteTripScheduleOptions,
+  DeleteTripScheduleResult,
   DeleteTripOptions,
   DeleteTripResult,
   GetTripRouteData,
@@ -282,6 +284,37 @@ export const deleteTrip = async ({ tripId, signal }: DeleteTripOptions): Promise
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}`;
+    const response = await fetch(requestUrl, {
+      method: 'DELETE',
+      headers: requestConfig.headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { error };
+    }
+
+    return { error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { error };
+  }
+};
+
+export const deleteTripSchedule = async ({
+  tripId,
+  tripScheduleId,
+  signal,
+}: DeleteTripScheduleOptions): Promise<DeleteTripScheduleResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/${tripScheduleId}`;
     const response = await fetch(requestUrl, {
       method: 'DELETE',
       headers: requestConfig.headers,
