@@ -1,5 +1,26 @@
 import type { ImageSourcePropType } from 'react-native';
 
+export interface SearchResultItem {
+  placeId: number;
+  name: string;
+  countryName: string;
+  cityName: string;
+  imageUrl: string;
+  description: string;
+  placeType: string;
+  latitude: number;
+  longitude: number;
+  ratingAvg: number;
+  reviewCount: number;
+  tags: string[];
+}
+
+export interface GetSearchResultsData {
+  keyword: string;
+  resultCount: number;
+  searchResults: SearchResultItem[];
+}
+
 export interface GetTravelItemData {
   id: string;
   name: string;

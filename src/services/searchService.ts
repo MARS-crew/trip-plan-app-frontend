@@ -1,7 +1,12 @@
 import Config from 'react-native-config';
 import type { BaseResponse } from '@/types';
 import type { PlaceSelectionResponse } from '@/types/wishlist';
-import type { GetRecentSearch, GetRecentSearchData, GetPopularSearchData } from '@/types/search';
+import type {
+  GetRecentSearch,
+  GetRecentSearchData,
+  GetPopularSearchData,
+  GetSearchResultsData,
+} from '@/types/search';
 import { useAuthStore } from '@/store';
 
 export const deleteRecentSearch = async (recentSearchId: number): Promise<void> => {
@@ -88,5 +93,40 @@ export const deleteAllRecentSearch = async (): Promise<void> => {
   });
   if (!response.ok) {
     throw new Error('최근 검색어 전체 삭제 실패');
+  }
+};
+
+export const getSearchResults = async (keyword: string): Promise<GetSearchResultsData> => {
+  const apiBase = Config.API_BASE_URL;
+  const accessToken = useAuthStore.getState().accessToken?.trim();
+
+  if (!apiBase) {
+    console.error('[searchService] API_BASE_URL is missing');
+    throw new Error('API_BASE_URL이 설정되지 않았습니다.');
+  }
+
+  if (!accessToken) {
+    console.error('[searchService] AUTH_TOKEN_MISSING');
+    throw new Error('인증 토큰이 없습니다.');
+  }
+
+  try {
+    const response = await fetch(
+      `${apiBase}/api/v1/search/results?keyword=${encodeURIComponent(keyword)}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+
+    if (!response.ok) {
+      console.error('[searchService] getSearchResults response not ok', response.status);
+      throw new Error('검색 결과 조회 실패');
+    }
+
+    const json: BaseResponse<GetSearchResultsData> = await response.json();
+    return json.data ?? { keyword, resultCount: 0, searchResults: [] };
+  } catch (error) {
+    console.error('getSearchResults Error:', error);
+    throw error;
   }
 };
