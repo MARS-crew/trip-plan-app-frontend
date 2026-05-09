@@ -7,7 +7,13 @@ import type { RootStackParamList } from '@/navigation';
 import LogoutIcon from '@/assets/icons/logout.svg';
 import { getMyPageInfo, getPapagoPhrases, postExchange, postLogout } from '@/services';
 import { useAuthStore } from '@/store/authStore';
-import { showToastMessage } from '@/utils';
+import {
+  buildRateText,
+  convertCurrency,
+  formatAmountWithCommas,
+  parseAmount,
+  showToastMessage,
+} from '@/utils';
 import { handleError } from '@/utils/error';
 import {
   MyPageAccountSection,
@@ -67,27 +73,6 @@ const settingItems: MyPageSettingItem[] = [
 
 const KRW_TO_JPY_RATE = 0.11;
 const JPY_TO_KRW_RATE = 9.090909;
-
-const formatAmountWithCommas = (input: string): string => {
-  const digitsOnly = input.replace(/\D/g, '');
-  if (!digitsOnly) return '';
-  const normalized = digitsOnly.replace(/^0+(?=\d)/, '');
-  return normalized.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-};
-
-const parseAmount = (formatted: string): number => {
-  const digits = formatted.replace(/\D/g, '');
-  return digits ? Number(digits) : 0;
-};
-
-const convertCurrency = (amount: number, rate: number): string => {
-  const result = Math.round(amount * rate);
-  return formatAmountWithCommas(String(result));
-};
-
-const buildRateText = (fromCurrency: 'KRW' | 'JPY', toCurrency: 'KRW' | 'JPY', rate: number) => {
-  return `1 ${fromCurrency} = ${rate.toFixed(6)} ${toCurrency}`;
-};
 
 const MyPageScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
