@@ -128,8 +128,12 @@ const AddTripCalendarScreen: React.FC = () => {
         ToastAndroid.show(getCreateTripErrorMessage(), ToastAndroid.SHORT);
         return;
       }
+      if (!result.data?.tripId) {
+        ToastAndroid.show(getCreateTripErrorMessage(), ToastAndroid.SHORT);
+        return;
+      }
 
-      navigation.navigate('MainTabs', { screen: 'MyTrip' });
+      navigation.navigate('WishlistScreen', { tripId: result.data.tripId });
     } finally {
       setIsCreatingTrip(false);
     }
