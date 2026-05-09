@@ -3,7 +3,7 @@ import { TextInput, TouchableOpacity, View } from 'react-native';
 import { SearchArrowIcon, SearchingIcon } from '@/assets/icons';
 import { SearchContainer } from '@/components/ui';
 import { COLORS } from '@/constants';
-import type { WishlistSearchBarProps } from '@/screens/wishList/types';
+import type { WishlistSearchBarProps } from '@/types/wishlist';
 
 export const WishlistSearchBar = React.memo<WishlistSearchBarProps>(
   ({ searchInputRef, searchQuery, onChangeText, onFocus, onBlur, onFocusInput, onPressBack }) => {

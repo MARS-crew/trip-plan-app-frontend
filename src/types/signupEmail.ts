@@ -5,9 +5,10 @@ import type { SignUpFormData } from './signup';
 export interface EmailSectionProps {
   formData: SignUpFormData;
   isEmailVerified: boolean;
-  isEmailError: boolean;
+  emailErrorMessage: string;
   isEmailSent: boolean;
   isCodeError: boolean;
+  isVerifyingCode: boolean;
   isCodeFieldVisible: boolean;
   canSendCode: boolean;
   sendCodeButtonText: string;

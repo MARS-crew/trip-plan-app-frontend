@@ -52,3 +52,9 @@ export interface GetSavedPlaceCategoriesData {
   emptyMessage: string;
   totalSavedPlaceCount: number;
 }
+
+export interface DeleteSavedPlaceData {
+  savedPlaceId: number;
+  placeId: number;
+  saved: boolean;
+}

@@ -11,12 +11,9 @@ import {
   CHAT_PROFILE_TO_BUBBLE_GAP,
   CHAT_USER_BUBBLE_TOP_SPACING,
 } from '@/screens/home/constants';
+import type { ChatCaseContentProps } from '@/types/home';
 
 const AI_CHAT_IMAGE = require('@/assets/images/aichat.png');
-
-interface ChatCaseContentProps {
-  currentCaseIndex: number;
-}
 
 export const ChatCaseContent: React.FC<ChatCaseContentProps> = ({ currentCaseIndex }) => {
   if (currentCaseIndex === 1) {
