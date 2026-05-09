@@ -1,9 +1,26 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity, type ImageSourcePropType } from 'react-native';
 import { ContentContainer } from '@/components/ui';
 import { CategoryChip, WishContentContainer } from '@/screens/wishList/components';
 import { PlaceIcon, HeartIcon, ActiveHeartIcon, VectorIcon } from '@/assets/icons';
 import type { PlaceCardProps } from '@/types/wishlist';
+
+interface PlaceImageThumbnailProps {
+  hasImage: boolean;
+  image?: ImageSourcePropType;
+}
+
+const PlaceImageThumbnail: React.FC<PlaceImageThumbnailProps> = ({ hasImage, image }) => (
+  <View className="w-28 h-28 rounded-l-lg overflow-hidden shrink-0">
+    {hasImage ? (
+      <Image source={image} className="w-full h-full" resizeMode="cover" />
+    ) : (
+      <View className="h-full w-full items-center justify-center bg-chip px-2">
+        <Text className="text-center text-p text-gray">이미지 없음</Text>
+      </View>
+    )}
+  </View>
+);
 
 export const PlaceCard = React.memo<PlaceCardProps>(
   ({ place, isLiked, onToggleLike, isTrending = false }) => {
@@ -14,15 +31,7 @@ export const PlaceCard = React.memo<PlaceCardProps>(
         <View className="mb-3 mr-[1px]">
           <WishContentContainer>
             <View className="flex-row items-center">
-              <View className="w-28 h-28 rounded-l-lg overflow-hidden shrink-0">
-                {hasImage ? (
-                  <Image source={place.image} className="w-full h-full" resizeMode="cover" />
-                ) : (
-                  <View className="h-full w-full items-center justify-center bg-chip px-2">
-                    <Text className="text-center text-p text-gray">이미지 없음</Text>
-                  </View>
-                )}
-              </View>
+              <PlaceImageThumbnail hasImage={hasImage} image={place.image} />
               <View className="flex-1 ml-3 pr-5">
                 <Text className="text-h3 text-black font-pretendardSemiBold">{place.title}</Text>
                 <View className="mt-[2px]">
@@ -55,15 +64,7 @@ export const PlaceCard = React.memo<PlaceCardProps>(
       <View className=" pb-3 mr-[1px]">
         <WishContentContainer>
           <View className="flex-row items-center">
-            <View className="w-28 h-28 rounded-l-lg overflow-hidden shrink-0">
-              {hasImage ? (
-                <Image source={place.image} className="w-full h-full" resizeMode="cover" />
-              ) : (
-                <View className="h-full w-full items-center justify-center bg-chip px-2">
-                  <Text className="text-center text-p text-gray">이미지 없음</Text>
-                </View>
-              )}
-            </View>
+            <PlaceImageThumbnail hasImage={hasImage} image={place.image} />
             <View className="flex-1 ml-3 pr-8">
               <Text className="text-h3 text-black font-pretendardSemiBold">{place.title}</Text>
               <View className="flex-row mt-1">

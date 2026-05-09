@@ -51,8 +51,8 @@ export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
 
       let isActive = true;
       const timer = setTimeout(async () => {
+        setIsLoading(true);
         try {
-          setIsLoading(true);
           const result = await getSearchResults(keyword);
           const items = result.searchResults ?? [];
 
