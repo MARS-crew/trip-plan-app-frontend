@@ -19,3 +19,11 @@ export interface GetRecentSearchData {
   searchCount: number;
   recentSearches: GetRecentSearch[];
 }
+
+export interface GetPopularSearch {
+  keyword: string;
+}
+
+export interface GetPopularSearchData {
+  popularSearches: GetPopularSearch[];
+}

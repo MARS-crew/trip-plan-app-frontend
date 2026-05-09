@@ -3,6 +3,9 @@ import { getEnvConfig } from '@/config/env';
 import { useAuthStore } from '@/store';
 import type { ServiceError } from '@/types/trip';
 import type {
+  CreateTripData,
+  CreateTripOptions,
+  CreateTripResult,
   GetMyTripsData,
   GetMyTripsOptions,
   GetMyTripsResult,
@@ -12,6 +15,9 @@ import type {
 } from '@/types/myTrip.types';
 import type { TripRequestConfig, TripRequestConfigError } from '@/types/trip';
 import type {
+  GetTripRouteData,
+  GetTripRouteOptions,
+  GetTripRouteResult,
   GetTripSchedulesOptions,
   GetTripSchedulesResult,
   GetTripShareOptions,
@@ -29,11 +35,9 @@ const createServiceError = (code: string, message?: string): ServiceError => ({
   message: message?.trim() || code,
 });
 
-const getResolvedToken = (): string | undefined => {
-  const storeToken = useAuthStore.getState().accessToken?.trim();
-  if (storeToken) {
-    return storeToken;
-  }
+const getAccessToken = (): string | undefined => {
+  const accessToken = useAuthStore.getState().accessToken?.trim();
+  if (accessToken) return accessToken;
   return undefined;
 };
 
@@ -108,6 +112,41 @@ export const getMyTrips = async ({
   } catch {
     const error = getRequestError(signal);
     return { data: [], error };
+  }
+};
+
+export const createTrip = async ({
+  payload,
+  signal,
+}: CreateTripOptions): Promise<CreateTripResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/create`;
+    const response = await fetch(requestUrl, {
+      method: 'POST',
+      headers: {
+        ...requestConfig.headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    const json: BaseResponse<CreateTripData> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
   }
 };
 
@@ -195,6 +234,37 @@ export const getTripShare = async ({
     }
 
     const json: BaseResponse<TripShareData> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
+  }
+};
+
+export const getTripRoute = async ({
+  tripId,
+  tripScheduleId,
+  signal,
+}: GetTripRouteOptions): Promise<GetTripRouteResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/${tripScheduleId}/route`;
+    const response = await fetch(requestUrl, {
+      headers: requestConfig.headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    const json: BaseResponse<GetTripRouteData> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
     const error = getRequestError(signal);

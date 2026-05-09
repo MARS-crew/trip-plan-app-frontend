@@ -1,77 +1,19 @@
 import { DeletButton, PhotoCamera } from '@/assets';
+import { Asset, PhotoUploaderProps, ReviewPhoto, ReviewPhotoItemProps } from '@/types/review';
 import { memo, useCallback } from 'react';
 import { Alert, Image, Pressable, Text, View } from 'react-native';
-import { Platform } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
 
-const launchImageLibrary = async (options: any): Promise<any> => {
-  // 더미 이미지 목록
-  const mockAssets = [
-    {
-      uri: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=300&q=80',
-      fileName: 'mock_photo_1.jpg',
-      type: 'image/jpeg',
-    },
-    {
-      uri: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=300&q=80',
-      fileName: 'mock_photo_2.jpg',
-      type: 'image/jpeg',
-    },
-    {
-      uri: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=300&q=80',
-      fileName: 'mock_photo_3.jpg',
-      type: 'image/jpeg',
-    },
-  ];
+const ALLOWED_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
-  const limit = options?.selectionLimit ?? 1;
-
-  return {
-    didCancel: false,
-    errorCode: undefined,
-    assets: mockAssets.slice(0, limit),
-  };
-};
-
-// 타입도 임시로 선언
-type Asset = {
-  uri?: string;
-  fileName?: string;
-  type?: string;
-};
-
-type ImageLibraryOptions = {
-  mediaType?: string;
-  selectionLimit?: number;
-  quality?: number;
-};
-
-
-
-
-
-const IMAGE_LIBRARY_OPTIONS: ImageLibraryOptions = {
-  mediaType: 'photo',
+const IMAGE_LIBRARY_OPTIONS = {
+  mediaType: 'photo' as const,
   selectionLimit: 0,
-  quality: 0.8,
+  quality: 0.8 as const,
+  includeExtra: true,
 };
-
-export interface ReviewPhoto {
-  id: string;
-  uri: string;
-  fileName?: string;
-  type?: string;
-}
-
-interface PhotoUploaderProps {
-  photos: ReviewPhoto[];
-  maxPhotos?: number;
-  onChangePhotos: (photos: ReviewPhoto[]) => void;
-}
-
-interface ReviewPhotoItemProps {
-  photo: ReviewPhoto;
-  onRemove: (photoId: string) => void;
-}
 
 const createPhotoId = (asset: Asset, index: number): string => {
   const assetKey = asset.fileName ?? asset.uri ?? `photo-${index}`;
@@ -89,36 +31,38 @@ const mapAssetsToPhotos = (assets: Asset[]): ReviewPhoto[] => {
     }));
 };
 
-const ReviewPhotoItem = memo(
-  ({ photo, onRemove }: ReviewPhotoItemProps) => {
-    return (
-      <View className="relative h-[72px] w-[72px] mr-3 mb-3">
-        <Image
-          source={{ uri: photo.uri }}
-          className="h-[72px] w-[72px] rounded-xl"
-          resizeMode="cover"
-        />
+const validatePhoto = (asset: Asset): string | null => {
+  if (asset.type && !ALLOWED_TYPES.includes(asset.type)) {
+    return `${asset.fileName}: png, jpg, jpeg, webp만 업로드 가능해요.`;
+  }
+  if (asset.fileSize && asset.fileSize > MAX_FILE_SIZE_BYTES) {
+    return `${asset.fileName}: 10MB 이하 파일만 업로드 가능해요.`;
+  }
+  return null;
+};
 
-        <Pressable
-          className="items-center justify-center absolute -right-2 -top-2 h-5 w-5 rounded-full bg-gray"
-          onPress={() => onRemove(photo.id)}
-          accessibilityRole="button"
-          accessibilityLabel="사진 삭제"
-        >
-          <DeletButton className="w-5 h-5" />
-        </Pressable>
-      </View>
-    );
-  },
-);
+const ReviewPhotoItem = memo(({ photo, onRemove }: ReviewPhotoItemProps) => {
+  return (
+    <View className="relative mb-3 mr-3 h-[72px] w-[72px]">
+      <Image
+        source={{ uri: photo.uri }}
+        className="h-[72px] w-[72px] rounded-xl"
+        resizeMode="cover"
+      />
+      <Pressable
+        className="absolute -right-2 -top-2 h-5 w-5 items-center justify-center rounded-full bg-gray"
+        onPress={() => onRemove(photo.id)}
+        accessibilityRole="button"
+        accessibilityLabel="사진 삭제">
+        <DeletButton className="h-5 w-5" />
+      </Pressable>
+    </View>
+  );
+});
 
 ReviewPhotoItem.displayName = 'ReviewPhotoItem';
 
-const PhotoUploader = ({
-  photos,
-  maxPhotos = 3,
-  onChangePhotos,
-}: PhotoUploaderProps) => {
+const PhotoUploader = ({ photos, maxPhotos = 3, onChangePhotos }: PhotoUploaderProps) => {
   const isPhotoLimitReached = photos.length >= maxPhotos;
 
   const handleRemovePhoto = useCallback(
@@ -142,20 +86,22 @@ const PhotoUploader = ({
       selectionLimit: remainingPhotoCount,
     });
 
-    if (result.didCancel) {
-      return;
-    }
-
+    if (result.didCancel) return;
     if (result.errorCode) {
       Alert.alert('오류', '사진을 불러오지 못했어요.');
       return;
     }
 
-    const nextPhotos = mapAssetsToPhotos(result.assets ?? []);
+    const assets = result.assets ?? [];
 
-    if (nextPhotos.length === 0) {
+    const errors = assets.map(validatePhoto).filter(Boolean);
+    if (errors.length > 0) {
+      Alert.alert('업로드 불가', errors.join('\n'));
       return;
     }
+
+    const nextPhotos = mapAssetsToPhotos(assets);
+    if (nextPhotos.length === 0) return;
 
     onChangePhotos([...photos, ...nextPhotos].slice(0, maxPhotos));
   }, [isPhotoLimitReached, maxPhotos, onChangePhotos, photos]);
@@ -166,13 +112,10 @@ const PhotoUploader = ({
     <View>
       <View className="mb-2 flex-row flex-wrap items-start">
         <Pressable
-          className={`mr-3 mb-3 h-[72px] w-[72px] items-center justify-center rounded-lg border border-borderGray ${
-            addButtonBackgroundClass
-          }`}
+          className={`mb-3 mr-3 h-[72px] w-[72px] items-center justify-center rounded-lg border border-borderGray ${addButtonBackgroundClass}`}
           onPress={handleAddPhoto}
           accessibilityRole="button"
-          accessibilityLabel="사진 추가"
-        >
+          accessibilityLabel="사진 추가">
           <PhotoCamera />
           <Text className="mt-1 text-p text-black">
             사진 {photos.length}/{maxPhotos}
@@ -180,11 +123,7 @@ const PhotoUploader = ({
         </Pressable>
 
         {photos.map((photo) => (
-          <ReviewPhotoItem
-            key={photo.id}
-            photo={photo}
-            onRemove={handleRemovePhoto}
-          />
+          <ReviewPhotoItem key={photo.id} photo={photo} onRemove={handleRemovePhoto} />
         ))}
       </View>
 
@@ -199,4 +138,3 @@ const PhotoUploader = ({
 
 export { PhotoUploader };
 export default PhotoUploader;
-

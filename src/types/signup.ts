@@ -22,6 +22,35 @@ export interface TermsAgreement {
   serviceTerms: boolean;
   privacyPolicy: boolean;
   marketingConsent: boolean;
+  nightMarketingConsent: boolean;
 }
 
 export type AccountFieldKey = 'accountId' | 'nickname' | 'password' | 'passwordConfirm';
+export type EmailStatus = 'none' | 'sent' | 'error';
+export type CodeStatus = 'none' | 'success' | 'error';
+export type IdCheckStatus = 'idle' | 'available' | 'duplicate' | 'error';
+export type RequiredFieldKey =
+  | 'accountId'
+  | 'nickname'
+  | 'password'
+  | 'passwordConfirm'
+  | 'name'
+  | 'birthDate'
+  | 'gender'
+  | 'country'
+  | 'email';
+export type SectionKey = 'account' | 'profile' | 'email';
+
+export type CountryDropdownLayout = {
+  left: number;
+  top: number;
+  width: number;
+  maxHeight: number;
+};
+
+export interface SpinnerColumnProps {
+  items: number[];
+  selectedIndex: number;
+  onSelect: (index: number) => void;
+  format?: (n: number) => string;
+}
