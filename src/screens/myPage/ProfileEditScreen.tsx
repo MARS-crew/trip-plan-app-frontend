@@ -7,7 +7,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 import { TopBar } from '@/components/ui';
 import { CARD_SHADOW_DARK, COLORS } from '@/constants';
-import { requestEmailVerification, verifyEmailCode } from '@/services';
+import { requestMyPageEmailVerification, verifyMyPageEmailCode } from '@/services';
 import { showToastMessage } from '@/utils';
 import { handleError } from '@/utils/error';
 
@@ -59,10 +59,9 @@ const ProfileEditScreen: React.FC = () => {
     setIsRequestingCode(true);
 
     try {
-      await requestEmailVerification(email.trim());
+      await requestMyPageEmailVerification(email.trim());
       setIsCodeSent(true);
     } catch (error) {
-      console.error('handlePressSendCode Error:', error);
       setIsCodeSent(false);
       setIsCodeVerified(false);
       setVerificationCode('');
@@ -103,7 +102,7 @@ const ProfileEditScreen: React.FC = () => {
     setIsVerifyingCode(true);
 
     try {
-      const result = await verifyEmailCode(email.trim(), verificationCode);
+      const result = await verifyMyPageEmailCode(email.trim(), verificationCode);
       if (result.email_verified === 'Y') {
         setIsCodeVerified(true);
       } else {
@@ -111,7 +110,6 @@ const ProfileEditScreen: React.FC = () => {
         setCodeError('인증번호가 일치하지 않습니다.');
       }
     } catch (error) {
-      console.error('handleConfirmCode Error:', error);
       setIsCodeVerified(false);
       setCodeError('');
       showToastMessage(handleError(error) || '인증번호 확인에 실패했습니다. 다시 시도해주세요.');
@@ -191,11 +189,11 @@ const ProfileEditScreen: React.FC = () => {
 
                     <TouchableOpacity
                       onPress={handleConfirmCode}
-                      disabled={isVerifyingCode}
+                      disabled={isVerifyingCode || isCodeVerified}
                       activeOpacity={0.85}
                       className="ml-2 h-[46px] w-[107px] items-center justify-center rounded-xl border border-borderGray bg-white">
                       <Text className="text-p text-gray">
-                        {isVerifyingCode ? '확인 중...' : '확인'}
+                        {isVerifyingCode ? '확인 중...' : isCodeVerified ? '인증 완료' : '확인'}
                       </Text>
                     </TouchableOpacity>
                   </View>

@@ -1,5 +1,6 @@
 import { getEnvConfig } from '@/config/env';
 
+import { useAuthStore } from '@/store';
 import type {
   FindIdRequest,
   FindIdData,
@@ -230,6 +231,7 @@ export const postSignUp = async (payload: SignUpRequest): Promise<SignUpResult> 
       headers: {
         accept: 'application/json',
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(payload),
     });
