@@ -12,7 +12,7 @@ export interface RoutePoint {
   placeCardDescription: string;
   startTime: string;
   endTime: string;
-  image: ImageSourcePropType;
+  image: ImageSourcePropType | null;
   categories?: string[];
 }
 

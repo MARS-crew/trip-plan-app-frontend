@@ -36,7 +36,14 @@ export interface TripDetailHeader {
 
 export type TripDetailCardMenuItem = Pick<
   TripDetailCardProps,
-  'id' | 'order' | 'title' | 'location' | 'description' | 'startTime' | 'endTime' | 'isCurrentSchedule'
+  | 'id'
+  | 'order'
+  | 'title'
+  | 'location'
+  | 'description'
+  | 'startTime'
+  | 'endTime'
+  | 'isCurrentSchedule'
 > & { id: number };
 
 export interface HeaderProps {
@@ -51,6 +58,7 @@ export interface DaySectionProps {
   dayLabel: string;
   cards?: TripDetailCardMenuItem[];
   showMapIcon?: boolean;
+  tripId?: number;
   onPressCard: (id: number, yOffset: number) => void;
   onPressAction: (id: number) => void;
 }
@@ -79,6 +87,51 @@ export interface GetTripSchedulesResult {
 export interface GetTripSchedulesOptions {
   tripId: number;
   signal?: AbortSignal;
+}
+
+export interface TripScheduleLocationItem {
+  tripScheduleId: number;
+  title: string;
+  placeName: string;
+  address: string;
+  startTime: string;
+  endTime: string;
+  description: string;
+  memo?: string;
+  scheduleOrder: number;
+  pinOrder: number;
+  scheduleDate: string;
+  dayNo: number;
+  placeId: number;
+  latitude: number;
+  longitude: number;
+  hasLocation: boolean;
+  imageUrl?: string | null;
+  canAddVisitedPlace: boolean;
+  current: boolean;
+  visited: boolean;
+}
+
+export interface TripScheduleLocationsData {
+  tripId: number;
+  tripTitle: string;
+  tripStatus: string;
+  startDate: string;
+  endDate: string;
+  totalScheduleCount: number;
+  locationScheduleCount: number;
+  visitVerificationRadiusMeters: number;
+  schedules: TripScheduleLocationItem[];
+}
+
+export interface GetTripScheduleLocationsOptions {
+  tripId: number;
+  signal?: AbortSignal;
+}
+
+export interface GetTripScheduleLocationsResult {
+  data: TripScheduleLocationsData | null;
+  error: ServiceError | null;
 }
 
 export interface TripShareData {

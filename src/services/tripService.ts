@@ -18,11 +18,14 @@ import type {
   GetTripRouteData,
   GetTripRouteOptions,
   GetTripRouteResult,
+  GetTripScheduleLocationsOptions,
+  GetTripScheduleLocationsResult,
   GetTripSchedulesOptions,
   GetTripSchedulesResult,
   GetTripShareOptions,
   GetTripShareResult,
   TripShareData,
+  TripScheduleLocationsData,
 } from '@/types/tripDetail.types';
 
 const logErrorCode = (errorCode: string): void => {
@@ -43,7 +46,7 @@ const getAccessToken = (): string | undefined => {
 
 const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
   const { apiBaseUrl } = getEnvConfig();
-  const resolvedToken = getResolvedToken();
+  const resolvedToken = getAccessToken();
 
   if (!apiBaseUrl) {
     const error = createServiceError('API_BASE_URL_MISSING', 'API_BASE_URL이 설정되지 않았습니다.');
@@ -204,6 +207,36 @@ export const getTripSchedules = async ({
     }
 
     const json: BaseResponse<unknown> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
+  }
+};
+
+export const getTripScheduleLocations = async ({
+  tripId,
+  signal,
+}: GetTripScheduleLocationsOptions): Promise<GetTripScheduleLocationsResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/locations`;
+    const response = await fetch(requestUrl, {
+      headers: requestConfig.headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    const json: BaseResponse<TripScheduleLocationsData> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
     const error = getRequestError(signal);

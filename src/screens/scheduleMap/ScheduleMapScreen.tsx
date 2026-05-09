@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Animated, Easing, PanResponder, View } from 'react-native';
 import MapView, { Marker, Polyline, Region } from 'react-native-maps';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@/navigation/types';
 import { COLORS } from '@/constants/colors';
 
@@ -19,8 +20,10 @@ import {
   getSelectedDayColor,
   groupRoutePointsByDay,
 } from './utils';
+import { getTripScheduleLocations } from '@/services';
 
 type ScheduleMapScreenNavigation = NativeStackNavigationProp<RootStackParamList>;
+type ScheduleMapRoute = RouteProp<RootStackParamList, 'ScheduleMap'>;
 
 const FALLBACK_REGION: Region = {
   latitude: 35.6762,
@@ -29,71 +32,12 @@ const FALLBACK_REGION: Region = {
   longitudeDelta: 0.05,
 };
 
-const ROUTE_POINTS: RoutePoint[] = [
-  {
-    id: 'p1',
-    day: 1,
-    order: 1,
-    latitude: 35.714765,
-    longitude: 139.796655,
-    title: '아사쿠사 센소지',
-    location: '아사쿠사, 도쿄',
-    description: '도쿄에서 가장 오래된 사원 방문',
-    placeCardDescription: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시...',
-    startTime: '09:00',
-    endTime: '11:00',
-    image: require('../../assets/images/thumnail4.png'),
-    categories: ['관광지', '문화', '역사'],
-  },
-  {
-    id: 'p2',
-    day: 1,
-    order: 2,
-    latitude: 35.665486,
-    longitude: 139.770667,
-    title: '츠키지 시장',
-    location: '츄오구, 도쿄',
-    description: '신선한 스시와 해산물 즐기기',
-    placeCardDescription: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시...',
-    startTime: '12:00',
-    endTime: '14:00',
-    image: require('../../assets/images/thumnail4.png'),
-    categories: ['관광지', '문화', '역사'],
-  },
-  {
-    id: 'p3',
-    day: 2,
-    order: 1,
-    latitude: 35.658581,
-    longitude: 139.745433,
-    title: '도쿄 타워',
-    location: '미나토구, 도쿄',
-    description: '도쿄 전망 감상',
-    placeCardDescription: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시...',
-    startTime: '10:00',
-    endTime: '11:30',
-    image: require('../../assets/images/thumnail4.png'),
-    categories: ['관광지', '문화', '역사'],
-  },
-  {
-    id: 'p4',
-    day: 2,
-    order: 2,
-    latitude: 35.689487,
-    longitude: 139.691706,
-    title: '신주쿠',
-    location: '신주쿠구, 도쿄',
-    description: '쇼핑',
-    placeCardDescription: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시...',
-    startTime: '13:00',
-    endTime: '16:00',
-    image: require('../../assets/images/thumnail4.png'),
-    categories: ['관광지', '문화', '역사'],
-  },
-];
+const EMPTY_ROUTE_POINTS: RoutePoint[] = [];
 
 const ScheduleMapScreen: React.FC = () => {
   const navigation = useNavigation<ScheduleMapScreenNavigation>();
+  const route = useRoute<ScheduleMapRoute>();
+  const tripId = route.params?.tripId;
   const mapRef = useRef<MapView>(null);
   const insets = useSafeAreaInsets();
   const [selectedPointId, setSelectedPointId] = useState<string | null>(null);
@@ -104,10 +48,12 @@ const ScheduleMapScreen: React.FC = () => {
   const cardTranslate = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
   const dragAxisRef = useRef<'horizontal' | 'vertical' | null>(null);
   const [currentCardHeight, setCurrentCardHeight] = useState(0);
+  const [shouldTrackMarkers, setShouldTrackMarkers] = useState(true);
   const DRAG_RESISTANCE = 0.42;
   const MAX_DRAG_DISTANCE = 72;
+  const [routePoints, setRoutePoints] = useState<RoutePoint[]>(EMPTY_ROUTE_POINTS);
 
-  const groupedDays = useMemo(() => groupRoutePointsByDay(ROUTE_POINTS), []);
+  const groupedDays = useMemo(() => groupRoutePointsByDay(routePoints), [routePoints]);
   const initialRegion = useMemo<Region>(() => {
     const firstPoint = groupedDays[0]?.points[0];
 
@@ -131,9 +77,60 @@ const ScheduleMapScreen: React.FC = () => {
   const selectedDayColor = getSelectedDayColor(selectedDay, dayColorMap);
   const showTravelLogAction = currentPoint?.day === 1 && currentPoint?.order === 1;
   const previewPoint = useMemo(
-    () => getPreviewPoint(dayPoints, selectedItemIndex, groupedDays, selectedDayIndex, currentPoint),
+    () =>
+      getPreviewPoint(dayPoints, selectedItemIndex, groupedDays, selectedDayIndex, currentPoint),
     [currentPoint, dayPoints, groupedDays, selectedDayIndex, selectedItemIndex],
   );
+
+  useEffect(() => {
+    setShouldTrackMarkers(true);
+    const timer = setTimeout(() => setShouldTrackMarkers(false), 300);
+    return () => clearTimeout(timer);
+  }, [dayPoints.length, selectedDayIndex]);
+
+  useEffect(() => {
+    if (!tripId) {
+      setRoutePoints(EMPTY_ROUTE_POINTS);
+      return;
+    }
+
+    const abortController = new AbortController();
+    const loadScheduleLocations = async (): Promise<void> => {
+      const result = await getTripScheduleLocations({
+        tripId,
+        signal: abortController.signal,
+      });
+      if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
+      if (result.error || !result.data) {
+        setRoutePoints(EMPTY_ROUTE_POINTS);
+        return;
+      }
+
+      const nextPoints: RoutePoint[] = result.data.schedules.map((schedule) => ({
+        id: String(schedule.tripScheduleId),
+        day: schedule.dayNo,
+        order: schedule.pinOrder,
+        latitude: schedule.latitude,
+        longitude: schedule.longitude,
+        title: schedule.placeName || schedule.title,
+        location: schedule.address,
+        description: schedule.description ?? '',
+        placeCardDescription: schedule.memo ?? '',
+        startTime: schedule.startTime,
+        endTime: schedule.endTime,
+        image: schedule.imageUrl ? { uri: schedule.imageUrl } : null,
+        categories: [],
+      }));
+
+      setRoutePoints(nextPoints);
+    };
+
+    loadScheduleLocations();
+
+    return () => {
+      abortController.abort();
+    };
+  }, [tripId]);
 
   useEffect(() => {
     if (!mapRef.current || dayPoints.length < 2) return;
@@ -170,29 +167,35 @@ const ScheduleMapScreen: React.FC = () => {
     );
   }, [currentPoint]);
 
-  const updateVerticalIndex = useCallback((next: boolean) => {
-    if (!selectedDay || dayPoints.length === 0) return;
+  const updateVerticalIndex = useCallback(
+    (next: boolean) => {
+      if (!selectedDay || dayPoints.length === 0) return;
 
-    setSelectedItemIndexByDay((prev) => {
-      const current = prev[selectedDay.day] ?? 0;
-      const lastIndex = dayPoints.length - 1;
-      const nextIndex = next
-        ? (current + 1) % dayPoints.length
-        : current === 0
-          ? lastIndex
-          : current - 1;
+      setSelectedItemIndexByDay((prev) => {
+        const current = prev[selectedDay.day] ?? 0;
+        const lastIndex = dayPoints.length - 1;
+        const nextIndex = next
+          ? (current + 1) % dayPoints.length
+          : current === 0
+            ? lastIndex
+            : current - 1;
 
-      if (nextIndex === current) return prev;
-      return { ...prev, [selectedDay.day]: nextIndex };
-    });
-  }, [dayPoints.length, selectedDay]);
+        if (nextIndex === current) return prev;
+        return { ...prev, [selectedDay.day]: nextIndex };
+      });
+    },
+    [dayPoints.length, selectedDay],
+  );
 
-  const updateHorizontalDay = useCallback((next: boolean) => {
-    setSelectedDayIndex((prev) => {
-      if (next) return Math.min(prev + 1, groupedDays.length - 1);
-      return Math.max(prev - 1, 0);
-    });
-  }, [groupedDays.length]);
+  const updateHorizontalDay = useCallback(
+    (next: boolean) => {
+      setSelectedDayIndex((prev) => {
+        if (next) return Math.min(prev + 1, groupedDays.length - 1);
+        return Math.max(prev - 1, 0);
+      });
+    },
+    [groupedDays.length],
+  );
 
   const animateCardToCenter = useCallback(() => {
     Animated.spring(cardTranslate, {
@@ -203,28 +206,31 @@ const ScheduleMapScreen: React.FC = () => {
     }).start();
   }, [cardTranslate]);
 
-  const animateCardSwitch = useCallback((axis: 'horizontal' | 'vertical', direction: number) => {
-    const toValue =
-      axis === 'horizontal' ? { x: direction * 140, y: 0 } : { x: 0, y: direction * 140 };
+  const animateCardSwitch = useCallback(
+    (axis: 'horizontal' | 'vertical', direction: number) => {
+      const toValue =
+        axis === 'horizontal' ? { x: direction * 140, y: 0 } : { x: 0, y: direction * 140 };
 
-    Animated.timing(cardTranslate, {
-      toValue,
-      duration: 180,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start(() => {
-      if (axis === 'horizontal') {
-        updateHorizontalDay(direction < 0);
-      } else {
-        updateVerticalIndex(direction < 0);
-      }
+      Animated.timing(cardTranslate, {
+        toValue,
+        duration: 180,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start(() => {
+        if (axis === 'horizontal') {
+          updateHorizontalDay(direction < 0);
+        } else {
+          updateVerticalIndex(direction < 0);
+        }
 
-      cardTranslate.setValue(
-        axis === 'horizontal' ? { x: -direction * 24, y: 0 } : { x: 0, y: -direction * 24 },
-      );
-      animateCardToCenter();
-    });
-  }, [animateCardToCenter, cardTranslate, updateHorizontalDay, updateVerticalIndex]);
+        cardTranslate.setValue(
+          axis === 'horizontal' ? { x: -direction * 24, y: 0 } : { x: 0, y: -direction * 24 },
+        );
+        animateCardToCenter();
+      });
+    },
+    [animateCardToCenter, cardTranslate, updateHorizontalDay, updateVerticalIndex],
+  );
 
   const handlePressMarker = useCallback((point: RoutePoint) => {
     setSelectedPointId(point.id);
@@ -295,18 +301,21 @@ const ScheduleMapScreen: React.FC = () => {
           dragAxisRef.current = null;
         },
       }),
-    [animateCardSwitch, animateCardToCenter, cardTranslate, dayPoints.length, groupedDays.length, selectedDayIndex],
+    [
+      animateCardSwitch,
+      animateCardToCenter,
+      cardTranslate,
+      dayPoints.length,
+      groupedDays.length,
+      selectedDayIndex,
+    ],
   );
 
   return (
     <SafeAreaView className="flex-1" edges={['top']}>
       <TopBar title="도쿄" onPress={() => navigation.goBack()} />
 
-      <MapView
-        ref={mapRef}
-        style={{ flex: 1 }}
-        initialRegion={initialRegion}
-      >
+      <MapView ref={mapRef} style={{ flex: 1 }} initialRegion={initialRegion}>
         {dayPoints.length >= 2 && (
           <Polyline
             coordinates={dayPoints.map((p) => ({
@@ -322,11 +331,10 @@ const ScheduleMapScreen: React.FC = () => {
 
         {dayPoints.map((point) => (
           <Marker
-            key={`${point.id}-${selectedPointId === point.id ? 'selected' : 'default'}`}
+            key={point.id}
             coordinate={{ latitude: point.latitude, longitude: point.longitude }}
             onPress={() => handlePressMarker(point)}
-            tracksViewChanges
-          >
+            tracksViewChanges={shouldTrackMarkers || selectedPointId === point.id}>
             <IndexMarker
               index={point.order}
               day={point.day}
@@ -340,24 +348,17 @@ const ScheduleMapScreen: React.FC = () => {
       {isMapPlaceCardVisible ? (
         <View
           className="absolute bottom-0 left-0 right-0 z-10 border-t border-borderGray bg-white"
-          style={{ paddingBottom: insets.bottom }}
-        >
+          style={{ paddingBottom: insets.bottom }}>
           <View className="h-[160px] w-full items-center px-4 py-6">
-            {mapPlaceCardPoint && (
-              <MapPlaceCard place={mapPlaceCardPoint} />
-            )}
+            {mapPlaceCardPoint && <MapPlaceCard place={mapPlaceCardPoint} />}
           </View>
         </View>
       ) : (
-        <View
-          className="absolute left-4 right-4 z-10"
-          style={{ bottom: insets.bottom + 10 }}
-        >
+        <View className="absolute left-4 right-4 z-10" style={{ bottom: insets.bottom + 10 }}>
           <View
             style={{
               minHeight: currentCardHeight + (previewPoint ? 10 : 0),
-            }}
-          >
+            }}>
             {previewPoint && (
               <View
                 pointerEvents="none"
@@ -368,8 +369,7 @@ const ScheduleMapScreen: React.FC = () => {
                   right: 0,
                   transform: [{ scale: 0.985 }],
                   opacity: 0.68,
-                }}
-              >
+                }}>
                 <TripDetailCard
                   order={previewPoint.order}
                   title={previewPoint.title}
@@ -392,8 +392,7 @@ const ScheduleMapScreen: React.FC = () => {
               style={{
                 transform: [{ translateX: cardTranslate.x }, { translateY: cardTranslate.y }],
               }}
-              {...panResponder.panHandlers}
-            >
+              {...panResponder.panHandlers}>
               {currentPoint && (
                 <TripDetailCard
                   order={currentPoint.order}
@@ -406,10 +405,13 @@ const ScheduleMapScreen: React.FC = () => {
                   actionLayout="fullWidth"
                   actionLabel="여행지 기록하기"
                   onPressAction={() =>
-                    navigation.navigate('MainTabs' as never, {
-                      screen: 'Search',
-                      params: { screen: 'ReviewWrite' },
-                    } as never)
+                    navigation.navigate(
+                      'MainTabs' as never,
+                      {
+                        screen: 'Search',
+                        params: { screen: 'ReviewWrite' },
+                      } as never,
+                    )
                   }
                   accentColor={selectedDayColor}
                 />

@@ -3,7 +3,11 @@ import type { NavigatorScreenParams } from '@react-navigation/native';
 export type SearchStackParamList = {
   SearchMain: undefined;
   SearchResult: { query: string };
-  DestinationDetail: { destinationId: string; origin?: 'search' | 'bookmark'; initialTab?: 'info' | 'review' };
+  DestinationDetail: {
+    destinationId: string;
+    origin?: 'search' | 'bookmark';
+    initialTab?: 'info' | 'review';
+  };
   SelectTrip: undefined;
   ReviewWrite: undefined;
 };
@@ -40,9 +44,8 @@ export type RootStackParamList = {
   TripDetail: { tripId: number } | undefined;
   AddSchedule: undefined;
   AddCalendarMapScreen: undefined;
-  ScheduleMap: undefined;
+  ScheduleMap: { tripId: number };
 };
-
 
 export type HomeStackParamList = {
   HomeMain: undefined;

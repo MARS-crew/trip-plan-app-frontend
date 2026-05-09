@@ -174,7 +174,9 @@ const TripDetailScreen: React.FC = () => {
   const handlePressShareInKebab = useCallback(() => {
     handleCloseKebabMenu();
     handleShareTrip().catch(() => {
-      console.error('[tripShare] 공유 실패 errorCode=INTERNAL_ERROR message=서버 오류가 발생했습니다.');
+      console.error(
+        '[tripShare] 공유 실패 errorCode=INTERNAL_ERROR message=서버 오류가 발생했습니다.',
+      );
     });
   }, [handleCloseKebabMenu, handleShareTrip]);
 
@@ -190,7 +192,10 @@ const TripDetailScreen: React.FC = () => {
       const result = await getTripRoute({ tripId, tripScheduleId });
       if (result.error || !result.data) {
         if (result.error?.code === 'REQUEST_ABORTED') return;
-        handleRouteFailure(result.error?.code ?? 'INTERNAL_ERROR', getServiceErrorMessage(result.error));
+        handleRouteFailure(
+          result.error?.code ?? 'INTERNAL_ERROR',
+          getServiceErrorMessage(result.error),
+        );
         return;
       }
 
@@ -235,6 +240,7 @@ const TripDetailScreen: React.FC = () => {
             dayLabel={dayLabel}
             cards={cards}
             showMapIcon={showMapIcon}
+            tripId={tripId}
             onPressCard={handleOpenCardMenu}
             onPressAction={() => {}}
           />

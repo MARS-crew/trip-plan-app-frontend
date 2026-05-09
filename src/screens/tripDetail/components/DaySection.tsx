@@ -15,6 +15,7 @@ const DaySection = ({
   dayLabel,
   cards = [],
   showMapIcon = false,
+  tripId,
   onPressCard,
   onPressAction,
 }: DaySectionProps) => {
@@ -28,12 +29,15 @@ const DaySection = ({
   };
 
   return (
-    <View className="bg-screenBackground pt-[19px] pb-3">
+    <View className="bg-screenBackground pb-3 pt-[19px]">
       <View className="flex-row items-center justify-between px-4">
         <Text className="text-h3 font-semibold">{dayLabel}</Text>
         {showMapIcon && (
           <TouchableOpacity
-            onPress={() => navigation.navigate('ScheduleMap')}>
+            onPress={() => {
+              if (!tripId) return;
+              navigation.navigate('ScheduleMap', { tripId });
+            }}>
             <Map2Icon width={20} height={20} />
           </TouchableOpacity>
         )}
@@ -44,10 +48,13 @@ const DaySection = ({
       {cards.map((card) => (
         <View
           key={card.id}
-          ref={(ref) => { cardRefs.current[card.id] = ref; }}
+          ref={(ref) => {
+            cardRefs.current[card.id] = ref;
+          }}
           className="mt-[12px] px-4">
           <TripDetailCard
             {...card}
+            tripId={tripId}
             accentColor={getTripDayColor(dayNo)}
             onPressAction={() => onPressAction(card.id)}
             onPressCard={() => handlePressCard(card.id)}
@@ -59,7 +66,7 @@ const DaySection = ({
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => navigation.navigate('AddSchedule')}
-          className="h-[50px] w-full flex-row items-center justify-center rounded-[8px] border border-borderGray border-dashed">
+          className="h-[50px] w-full flex-row items-center justify-center rounded-[8px] border border-dashed border-borderGray">
           <PlusGrayIcon />
           <Text className="ml-[2px] text-p1 text-gray">일정 추가하기</Text>
         </TouchableOpacity>
