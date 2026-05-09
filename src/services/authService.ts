@@ -1,6 +1,10 @@
 import { getEnvConfig } from '@/config/env';
 
 import type {
+  FindIdRequest,
+  FindIdData,
+  FindIdResult,
+  FindIdResponse,
   EmailRequestData,
   EmailVerifyData,
   LoginRequest,
@@ -23,6 +27,7 @@ import {
   getLoginWarningType,
   getReissueWarningType,
   getSignUpWarningType,
+  getFindIdWarningType,
 } from '@/utils/error';
 
 interface CheckIdErrorBody {
@@ -263,6 +268,57 @@ export const postSignUp = async (payload: SignUpRequest): Promise<SignUpResult> 
       ok: false,
       warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
       message: isNetworkError ? '네트워크 연결을 확인해주세요.' : '알 수 없는 에러가 발생했습니다.',
+    };
+  }
+};
+
+export const postFindId = async (payload: FindIdRequest): Promise<FindIdResult> => {
+  const requestUrl = buildAuthUrl('/api/v1/auth/find-id');
+
+  try {
+    const response = await fetchWithTimeout(requestUrl, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const json = await parseJsonSafely<FindIdResponse>(response);
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        warningType: getFindIdWarningType(response.status, json?.code ?? ''),
+        message: json?.message ?? getDefaultMessageByStatus(response.status),
+      };
+    }
+
+    if (!json?.success || !json.data?.usersId) {
+      return {
+        ok: false,
+        warningType: 'UNKNOWN_ERROR',
+        message: json?.message ?? '응답 형식이 올바르지 않습니다.',
+      };
+    }
+
+    return { ok: true, data: json.data };
+  } catch (error) {
+    if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      return {
+        ok: false,
+        warningType: 'NETWORK_ERROR',
+        message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
+      };
+    }
+
+    const isNetworkError = error instanceof TypeError;
+
+    return {
+      ok: false,
+      warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
+      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : undefined,
     };
   }
 };

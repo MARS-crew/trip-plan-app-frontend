@@ -1,4 +1,9 @@
-import type { LoginWarningType, ReissueTokenWarningType, SignUpWarningType } from '@/types/auth';
+import type {
+  FindIdWarningType,
+  LoginWarningType,
+  ReissueTokenWarningType,
+  SignUpWarningType,
+} from '@/types/auth';
 import type { IdCheckStatus } from '@/types/signup';
 
 export const AUTH_REQUEST_TIMEOUT_MS = 10000;
@@ -54,6 +59,13 @@ export const getReissueWarningType = (status: number, code = ''): ReissueTokenWa
   return 'UNKNOWN_ERROR';
 };
 
+export const getFindIdWarningType = (status: number, code = ''): FindIdWarningType => {
+  if (status >= 500 || code === 'INTERNAL_ERROR') return 'SERVER_ERROR';
+  if (code === 'INVALID_INPUT' || status === 400) return 'INVALID_INPUT';
+  if (code === 'USER_NOT_FOUND' || status === 404) return 'USER_NOT_FOUND';
+  return 'UNKNOWN_ERROR';
+};
+
 export const getSignUpWarningType = (status: number, code = ''): SignUpWarningType => {
   if (status >= 500 || code === 'INTERNAL_ERROR') return 'SERVER_ERROR';
   if (code === 'DUPLICATE_USER' || status === 409) return 'DUPLICATE_USER';
@@ -92,7 +104,6 @@ export const getSignUpIdCheckMessage = (idCheckStatus: IdCheckStatus) => {
     idInputClass: '',
   };
 };
-
 export class ApiError extends Error {
   constructor(
     message: string,
