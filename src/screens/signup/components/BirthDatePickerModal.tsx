@@ -1,0 +1,108 @@
+import React, { useCallback, useMemo } from 'react';
+import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
+
+import SpinnerColumn from '@/components/ui/SpinnerColumn';
+import { ITEM_HEIGHT, VISIBLE_ITEMS, YEARS, MONTHS, getDaysInMonth, pad } from '../constants';
+
+interface BirthDatePickerModalProps {
+  visible: boolean;
+  tempYear: number;
+  tempMonth: number;
+  tempDay: number;
+  onChangeYear: (year: number) => void;
+  onChangeMonth: (month: number) => void;
+  onChangeDay: (day: number) => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+export const BirthDatePickerModal: React.FC<BirthDatePickerModalProps> = ({
+  visible,
+  tempYear,
+  tempMonth,
+  tempDay,
+  onChangeYear,
+  onChangeMonth,
+  onChangeDay,
+  onConfirm,
+  onCancel,
+}) => {
+  const days = useMemo(
+    () => Array.from({ length: getDaysInMonth(tempYear, tempMonth) }, (_, i) => i + 1),
+    [tempYear, tempMonth],
+  );
+
+  const handleYearSelect = useCallback(
+    (index: number) => {
+      onChangeYear(YEARS[index]);
+    },
+    [onChangeYear],
+  );
+
+  const handleMonthSelect = useCallback(
+    (index: number) => {
+      onChangeMonth(MONTHS[index]);
+    },
+    [onChangeMonth],
+  );
+
+  const handleDaySelect = useCallback(
+    (index: number) => {
+      onChangeDay(days[index]);
+    },
+    [onChangeDay, days],
+  );
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onCancel}
+      statusBarTranslucent>
+      <View className="flex-1 justify-end">
+        <Pressable className="flex-1 bg-black/30" onPress={onCancel} />
+
+        <View className="rounded-t-[16px] bg-white px-6 pb-10 pt-4">
+          <View className="mb-4 flex-row items-center justify-between">
+            <TouchableOpacity onPress={onCancel}>
+              <Text className="text-p1 text-gray">취소</Text>
+            </TouchableOpacity>
+
+            <Text className="font-pretendardSemiBold text-h3 text-black">생년월일 선택</Text>
+
+            <TouchableOpacity onPress={onConfirm}>
+              <Text className="font-pretendardSemiBold text-p1 text-main">완료</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View className="flex-row" style={{ height: ITEM_HEIGHT * VISIBLE_ITEMS }}>
+            <SpinnerColumn
+              items={YEARS}
+              selectedIndex={Math.max(0, YEARS.indexOf(tempYear))}
+              onSelect={handleYearSelect}
+              format={(n) => `${n}년`}
+            />
+            <SpinnerColumn
+              items={MONTHS}
+              selectedIndex={Math.max(0, MONTHS.indexOf(tempMonth))}
+              onSelect={handleMonthSelect}
+              format={(n) => `${pad(n)}월`}
+            />
+            <SpinnerColumn
+              items={days}
+              selectedIndex={Math.min(
+                days.indexOf(tempDay) >= 0 ? days.indexOf(tempDay) : 0,
+                days.length - 1,
+              )}
+              onSelect={handleDaySelect}
+              format={(n) => `${pad(n)}일`}
+            />
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+BirthDatePickerModal.displayName = 'BirthDatePickerModal';

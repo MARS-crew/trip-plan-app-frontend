@@ -72,8 +72,8 @@ export const TermsSection: React.FC<TermsSectionProps> = ({
           <View className="flex-row items-center justify-between">
             <View className="flex-1 flex-row items-center">
               <Pressable
-                onPress={() => onTermsChange('privacyPolicy', !termsAgreement.privacyPolicy)}>
-                {termsAgreement.privacyPolicy ? (
+                onPress={() => onTermsChange('nightMarketingConsent', !termsAgreement.nightMarketingConsent)}>
+                {termsAgreement.nightMarketingConsent ? (
                   <CheckedCircleIcon width={16} height={16} />
                 ) : (
                   <UncheckedCircleIcon width={16} height={16} />

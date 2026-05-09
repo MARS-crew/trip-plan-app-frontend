@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { EmptyWish } from '@/assets/icons';
 import { PlaceCard } from '@/screens/wishList/components';
-import type { WishPlace, WishTabWishlistProps } from '@/screens/wishList/types';
+import type { WishPlace, WishTabWishlistProps } from '@/types/wishlist';
 
 // FlatList 아이템 → .map()으로 간단히 렌더링
 const WishlistPlaceItem = React.memo<{
