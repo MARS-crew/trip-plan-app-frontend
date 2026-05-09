@@ -59,3 +59,21 @@ export interface MyPageExchangeSectionProps {
   onChangeTopAmount: (text: string) => void;
   onChangeBottomAmount: (text: string) => void;
 }
+
+export type ProfileEditGenderLabel = '남성' | '여성' | '기타';
+
+export interface ProfileEditDatePickerOptions {
+  years: number[];
+  months: number[];
+  days: number[];
+  selectedYear: number;
+  selectedMonth: number;
+  selectedDay: number;
+}
+
+export interface ProfileEditSpinnerColumnProps {
+  items: number[];
+  selectedIndex: number;
+  onSelect: (index: number) => void;
+  format?: (n: number) => string;
+}

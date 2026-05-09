@@ -55,22 +55,20 @@ export interface GetPapagoPhrase {
   pronounce: string;
 }
 
-export type StatItemType = 'map' | 'bookmark' | 'marker';
-
-export interface StatItem {
-  id: string;
-  label: string;
-  value: number;
-  type: StatItemType;
+export interface PatchProfileRequest {
+  nickname?: string;
+  password?: string;
+  passwordConfirm?: string;
+  gender?: Gender;
+  birth?: string;
+  countryCode?: string;
 }
 
-export type SettingItemType = 'account' | 'notification';
-
-export interface SettingItem {
-  id: string;
-  title: string;
-  description: string;
-  type: SettingItemType;
+export interface PatchProfileData {
+  birth: string;
+  countryCode: string;
+  gender: Gender;
+  nickname: string;
 }
 
 export type ExchangeCurrencyUnit = 'JPY';
