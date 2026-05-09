@@ -11,25 +11,28 @@ import type {
   PapagoTargetLang,
 } from '@/types/mypage';
 
-export const getMyPage = async (): Promise<GetMyPageData> => {
-  const { accessToken } = useAuthStore.getState();
+const accessToken = (): string => {
+  const accessToken = useAuthStore.getState().accessToken;
+  if (!accessToken) {
+    throw new Error('로그인이 필요합니다.');
+  }
+  return accessToken;
+};
+
+export const getMyPageInfo = async (): Promise<GetMyPageData> => {
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/mypage`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: { Authorization: `Bearer ${accessToken()}` },
     });
-    if (!response.ok) {
-      throw new Error('마이페이지 조회 실패');
-    }
+    if (!response.ok) throw new Error('마이페이지 조회 실패');
     const json: BaseResponse<GetMyPageData> = await response.json();
     return json.data;
   } catch (error) {
-    console.error('getMyPage Error:', error);
     throw error;
   }
 };
 
-export const getProfile = async (): Promise<GetProfileData> => {
-  const { accessToken } = useAuthStore.getState();
+export const getProfileDetail = async (): Promise<GetProfileData> => {
   try {
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -40,7 +43,7 @@ export const getProfile = async (): Promise<GetProfileData> => {
     const json: BaseResponse<GetProfileData> = await response.json();
     return json.data;
   } catch (error) {
-    console.error('getProfile Error:', error);
+    console.error('getProfileDetail Error:', error);
     throw error;
   }
 };
