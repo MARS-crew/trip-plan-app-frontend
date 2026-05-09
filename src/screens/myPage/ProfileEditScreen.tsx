@@ -6,7 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/navigation/types';
 import { TopBar } from '@/components/ui';
-import { COLORS } from '@/constants';
+import { CARD_SHADOW_DARK, COLORS } from '@/constants';
 import { requestMyPageEmailVerification, verifyMyPageEmailCode } from '@/services';
 import { showToastMessage } from '@/utils';
 import { handleError } from '@/utils/error';

@@ -10,4 +10,7 @@ export type {
   MyPageStatItem,
   MyPageStatsSectionProps,
   MyPageStatType,
+  ProfileEditDatePickerOptions,
+  ProfileEditGenderLabel,
+  ProfileEditSpinnerColumnProps,
 } from './myPage.types';
