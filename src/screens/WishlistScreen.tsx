@@ -38,6 +38,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Shadow } from 'react-native-shadow-2';
+import { addWishlistPlace } from '@/services';
 import { getPlaceSelection } from '@/services/searchService';
 import type { PlaceSelectionPlace } from '@/types/wishlist';
 
@@ -224,6 +225,151 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     [likedIdsByTab],
   );
 
+  const addWishlistPlaceById = useCallback(
+    async (tab: LikeTabId, id: string): Promise<boolean> => {
+      if (typeof tripId !== 'number') {
+        return false;
+      }
+
+      const placeId = Number(id);
+      if (!Number.isInteger(placeId)) {
+        console.warn('유효하지 않은 placeId:', id);
+        return false;
+      }
+
+      const sourceType = tab === 'saved' ? 'SAVED' : 'RECOMMEND';
+
+      try {
+        const result = await addWishlistPlace(tripId, { placeId, sourceType });
+        return result.added;
+      } catch (error) {
+        console.error('위시리스트 추가 실패:', error);
+        return false;
+      }
+    },
+    [tripId],
+  );
+
+  const handleToggleLikeWithApi = useCallback(
+    (tab: LikeTabId, id: string): void => {
+      const currentlyLiked = isLikedInTab(tab, id);
+      const wasWishlistLiked = isLikedInTab('wishlist', id);
+
+      if (currentlyLiked) {
+        if (tab === 'saved') {
+          setLikedIdsByTab((prev) => {
+            const nextSaved = new Set(prev.saved);
+            const nextWishlist = new Set(prev.wishlist);
+
+            nextSaved.delete(id);
+            nextWishlist.delete(id);
+
+            return {
+              ...prev,
+              saved: nextSaved,
+              wishlist: nextWishlist,
+            };
+          });
+
+          setWishlistPlaces((prev) => prev.filter((place) => place.id !== id));
+          return;
+        }
+
+        if (tab === 'wishlist') {
+          setLikedIdsByTab((prev) => {
+            const nextWishlist = new Set(prev.wishlist);
+            const nextSaved = new Set(prev.saved);
+
+            nextWishlist.delete(id);
+            nextSaved.delete(id);
+
+            return {
+              ...prev,
+              wishlist: nextWishlist,
+              saved: nextSaved,
+            };
+          });
+          setWishlistPlaces((prev) => prev.filter((place) => place.id !== id));
+          return;
+        }
+
+        toggleLike(tab, id);
+        return;
+      }
+
+      if (!Number.isInteger(Number(id))) {
+        // 더미 데이터(place_1 등)는 API 대신 로컬 토글만 수행
+        toggleLike(tab, id);
+        return;
+      }
+
+      // 낙관적 업데이트: 클릭 즉시 UI 반영
+      toggleLike(tab, id);
+
+      if (tab === 'saved' && !wasWishlistLiked) {
+        setLikedIdsByTab((prev) => {
+          if (prev.wishlist.has(id)) {
+            return prev;
+          }
+
+          const nextWishlist = new Set(prev.wishlist);
+          nextWishlist.add(id);
+          return { ...prev, wishlist: nextWishlist };
+        });
+
+        setWishlistPlaces((prev) => {
+          if (prev.some((place) => place.id === id)) {
+            return prev;
+          }
+
+          const matchedPlace = savedPlaces.find((place) => place.id === id);
+          if (!matchedPlace) {
+            return prev;
+          }
+
+          return [matchedPlace, ...prev];
+        });
+      }
+
+      void (async () => {
+        const added = await addWishlistPlaceById(tab, id);
+        if (!added) {
+          // 서버 반영 실패 시 원상복구
+          toggleLike(tab, id);
+
+          if (tab === 'saved' && !wasWishlistLiked) {
+            setLikedIdsByTab((prev) => {
+              if (!prev.wishlist.has(id)) {
+                return prev;
+              }
+
+              const nextWishlist = new Set(prev.wishlist);
+              nextWishlist.delete(id);
+              return { ...prev, wishlist: nextWishlist };
+            });
+
+            setWishlistPlaces((prev) => prev.filter((place) => place.id !== id));
+          }
+
+          return;
+        }
+
+        if (tab === 'saved') {
+          setLikedIdsByTab((prev) => {
+            if (prev.wishlist.has(id)) {
+              return prev;
+            }
+
+            const nextWishlist = new Set(prev.wishlist);
+            nextWishlist.add(id);
+            return { ...prev, wishlist: nextWishlist };
+          });
+        }
+      })();
+    },
+    [addWishlistPlaceById, isLikedInTab, savedPlaces, toggleLike],
+  );
+
   const [selectedCategory, setSelectedCategory] = useState<TabId>(INITIAL_CATEGORY);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -351,12 +497,12 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   }, [animateSheetTo, isSheetExpanded, SNAP_LOW]); // 좋아요 토글 핸들러 + 상태 조회 함수 (탭별)
 
   const handleToggleSaved = useCallback(
-    (id: string): void => toggleLike('saved', id),
-    [toggleLike],
+    (id: string): void => handleToggleLikeWithApi('saved', id),
+    [handleToggleLikeWithApi],
   );
   const handleToggleWishlist = useCallback(
-    (id: string): void => toggleLike('wishlist', id),
-    [toggleLike],
+    (id: string): void => handleToggleLikeWithApi('wishlist', id),
+    [handleToggleLikeWithApi],
   );
   const isSavedLiked = useCallback(
     (id: string): boolean => isLikedInTab('saved', id),
@@ -490,7 +636,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
         return (
           <WishTabTrending
             places={TRENDING_PLACES}
-            onToggleLike={(id) => toggleLike('wishlist', id)}
+            onToggleLike={(id) => handleToggleLikeWithApi('wishlist', id)}
           />
         );
       case 'saved':
@@ -598,7 +744,10 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
               isLikedInTab(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
             }
             onToggleLike={(id) =>
-              toggleLike(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
+              handleToggleLikeWithApi(
+                selectedCategory === 'trending' ? 'wishlist' : selectedCategory,
+                id,
+              )
             }
           />
         )}
