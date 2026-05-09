@@ -61,6 +61,7 @@ export interface CardContextMenuProps {
   topOffset: number;
   accentColor?: string;
   onPressRoute: (card: TripDetailCardItem) => void;
+  onPressDelete: (card: TripDetailCardItem) => void;
   onClose: () => void;
 }
 
@@ -69,6 +70,15 @@ export interface KebabMenuSheetProps {
   translateY: SharedValue<number>;
   onClose: () => void;
   onPressShare?: () => void;
+  onPressDelete?: () => void;
+}
+
+export interface DeleteWarningModalProps {
+  visible: boolean;
+  title?: string;
+  confirmLabel?: string;
+  onConfirm: () => void;
+  onClose: () => void;
 }
 
 export interface GetTripSchedulesResult {
@@ -122,5 +132,14 @@ export interface GetTripRouteOptions {
 
 export interface GetTripRouteResult {
   data: GetTripRouteData | null;
+  error: ServiceError | null;
+}
+
+export interface DeleteTripOptions {
+  tripId: number;
+  signal?: AbortSignal;
+}
+
+export interface DeleteTripResult {
   error: ServiceError | null;
 }
