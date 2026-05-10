@@ -1,15 +1,16 @@
-import React from 'react';
-import { Image, ScrollView, TouchableOpacity, View, Text } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Image, ScrollView, TouchableOpacity, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
-import { CARD_SHADOW_SUBTLE } from '@/constants';
+import { CARD_SHADOW_SUBTLE, COLORS } from '@/constants';
 import { TopBar } from '@/components/ui';
 import LocationOrangeIcon from '@/assets/icons/location_orange.svg';
 import MarkerGrayIcon from '@/assets/icons/marker-gray.svg';
 import VectorGrayIcon from '@/assets/icons/vectorgray.svg';
 import { getVisitedPlaces } from '@/services';
+import { useAuthStore } from '@/store';
 import type { VisitedPlace, VisitedPlaceItem } from '@/types/mypage';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -50,26 +51,34 @@ const buildTags = (placeType: string): string[] => {
   return [PLACE_TYPE_LABEL[placeType] ?? placeType];
 };
 
-const mapVisitedPlace = (place: VisitedPlace): VisitedPlaceItem => ({
-  id: String(place.visitedPlaceId),
-  date: formatVisitedDate(place.visitedAt),
-  title: place.placeName,
-  location: buildLocation(place.cityName, place.countryName),
-  tags: buildTags(place.placeType),
-  reviewCta: '리뷰 쓰기',
-  hasReview: false,
-  imageUrl: place.imageUrl,
-});
+const mapVisitedPlace = (place: VisitedPlace): VisitedPlaceItem => {
+  const hasReview = place.reviewWrittenYn === 'Y';
+  return {
+    id: String(place.visitedPlaceId),
+    date: formatVisitedDate(place.visitedAt),
+    title: place.placeName,
+    location: buildLocation(place.cityName, place.countryName),
+    tags: buildTags(place.placeType),
+    reviewCta: hasReview ? '리뷰 확인하기' : '리뷰 쓰기',
+    hasReview,
+    imageUrl: place.imageUrl,
+  };
+};
 
 
 const VisitedPlaceListScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
-  const [visitedPlaces, setVisitedPlaces] = React.useState<VisitedPlaceItem[]>([]);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const [visitedPlaces, setVisitedPlaces] = useState<VisitedPlaceItem[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (!accessToken) return;
+
     let isActive = true;
 
     const fetchVisited = async (): Promise<void> => {
+      setIsLoading(true);
       try {
         const data = await getVisitedPlaces();
         if (isActive) {
@@ -79,6 +88,10 @@ const VisitedPlaceListScreen: React.FC = () => {
         if (isActive) {
           setVisitedPlaces([]);
         }
+      } finally {
+        if (isActive) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -87,9 +100,9 @@ const VisitedPlaceListScreen: React.FC = () => {
     return () => {
       isActive = false;
     };
-  }, []);
+  }, [accessToken]);
 
-  const groupedByDate = React.useMemo(() => {
+  const groupedByDate = useMemo(() => {
     const map = new Map<string, VisitedPlaceItem[]>();
 
     visitedPlaces.forEach((item) => {
@@ -104,7 +117,7 @@ const VisitedPlaceListScreen: React.FC = () => {
     return Array.from(map.entries());
   }, [visitedPlaces]);
 
-  const handleReviewPress = React.useCallback(
+  const handleReviewPress = useCallback(
     (item: VisitedPlaceItem): void => {
       if (item.hasReview) {
         navigation.navigate('MainTabs', {
@@ -119,13 +132,28 @@ const VisitedPlaceListScreen: React.FC = () => {
           screen: 'Search',
           params: {
             screen: 'ReviewWrite',
-            params: { placeName: item.title, visitedDate: item.date },
+            params: {
+              visitedPlaceId: Number(item.id),
+              placeName: item.title,
+              visitedDate: item.date,
+            },
           },
         } as never);
       }
     },
     [navigation],
   );
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
+        <TopBar title="방문한 장소 리스트" onPress={navigation.goBack} />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator color={COLORS.main} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (visitedPlaces.length === 0) {
     return (

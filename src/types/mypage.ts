@@ -95,6 +95,7 @@ export interface VisitedPlace {
   countryName: string;
   imageUrl: string | null;
   placeType: string;
+  reviewWrittenYn: 'Y' | 'N';
 }
 
 export interface VisitedPlaceItem {
