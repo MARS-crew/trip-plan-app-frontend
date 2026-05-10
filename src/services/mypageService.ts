@@ -11,6 +11,7 @@ import type {
   GetMyPageData,
   GetPapagoPhrase,
   GetProfileData,
+  GetSettingData,
   PapagoTargetLang,
   PatchProfileData,
   PatchProfileRequest,
@@ -50,6 +51,22 @@ export const getProfileDetail = async (): Promise<GetProfileData> => {
     return json.data;
   } catch (error) {
     console.error('getProfileDetail Error:', error);
+    throw error;
+  }
+};
+
+export const getSetting = async (): Promise<GetSettingData> => {
+  try {
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/setting`, {
+      headers: { Authorization: `Bearer ${accessToken()}` },
+    });
+    if (!response.ok) {
+      throw new Error('계정 정보 조회 실패');
+    }
+    const json: BaseResponse<GetSettingData> = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error('getSetting Error:', error);
     throw error;
   }
 };

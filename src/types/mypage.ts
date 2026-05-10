@@ -87,6 +87,13 @@ export interface GetExchangeData {
   searchDate: string;
 }
 
+export interface GetSettingData {
+  birth: string;
+  countryCode: string;
+  email: string;
+  gender: Gender;
+  nickname: string;
+}
 export type AgreeFlag = 'Y' | 'N';
 
 export interface AgreeData {
