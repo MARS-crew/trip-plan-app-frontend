@@ -16,12 +16,9 @@ import type {
   TempPasswordStatus,
 } from '@/types/findPassword';
 import { EmailSection, CodeSection, ResultCard } from '@/screens/findPassword/components';
-import { showToastMessage } from '@/utils';
+import { showToastMessage, EMAIL_REGEX } from '@/utils';
 
 // ============ Constants ============
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-// ============ Component ============
 const FindPasswordScreen: React.FC = () => {
   const navigation = useNavigation<FindPasswordScreenNavigationProp>();
   const [userId, setUserId] = useState<string>('');
@@ -169,7 +166,7 @@ const FindPasswordScreen: React.FC = () => {
     setIsVerifyingCode(false);
   }, [code, email, isVerifyingCode, userId]);
 
-  const handleSendTemporaryPassword = useCallback(() => {
+  const handleSendTemporaryPassword = useCallback(async () => {
     const trimmedUserId = userId.trim();
     const trimmedEmail = email.trim();
 
@@ -178,20 +175,16 @@ const FindPasswordScreen: React.FC = () => {
       return;
     }
 
-    setTempPwStatus('sent');
-
-    postFindPasswordReset({
+    const result = await postFindPasswordReset({
       usersId: trimmedUserId,
       email: trimmedEmail,
-    })
-      .then((result) => {
-        if (!result.ok) {
-          showToastMessage(result.message || '임시 비밀번호 전송에 실패했습니다.');
-        }
-      })
-      .catch(() => {
-        showToastMessage('임시 비밀번호 전송에 실패했습니다.');
-      });
+    });
+
+    if (result.ok) {
+      setTempPwStatus('sent');
+    } else {
+      showToastMessage(result.message || '임시 비밀번호 전송에 실패했습니다.');
+    }
   }, [email, userId]);
 
   const handleNavigateToLogin = useCallback(() => {

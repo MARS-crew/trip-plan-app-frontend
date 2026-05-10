@@ -405,6 +405,13 @@ export const postFindPasswordEmailRequest = async (payload: {
 
     return { ok: true };
   } catch (error) {
+    if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      return {
+        ok: false,
+        message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
+      };
+    }
+
     const isNetworkError = error instanceof TypeError;
     return {
       ok: false,
@@ -448,6 +455,13 @@ export const postFindPasswordEmailVerify = async (payload: {
 
     return { ok: true };
   } catch (error) {
+    if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      return {
+        ok: false,
+        message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
+      };
+    }
+
     const isNetworkError = error instanceof TypeError;
     return {
       ok: false,
