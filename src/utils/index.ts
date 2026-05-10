@@ -21,3 +21,9 @@ export {
   mergeSectionsWithDayFallback,
   normalizeTripDetailData,
 } from './tripDetailFormat';
+export {
+  buildRateText,
+  convertCurrency,
+  formatAmountWithCommas,
+  parseAmount,
+} from './formatter';
