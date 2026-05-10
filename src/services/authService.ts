@@ -17,6 +17,7 @@ import type {
   SignUpRequest,
   SignUpResponse,
   SignUpResult,
+  WithdrawRequest,
 } from '@/types/auth';
 import type { BaseResponse } from '@/types';
 
@@ -175,9 +176,33 @@ export const postReissueToken = async (
   }
 };
 
+export const deleteAccount = async (payload: WithdrawRequest): Promise<void> => {
+  const { accessToken } = useAuthStore.getState();
+  if (!accessToken) {
+    throw new Error('로그인이 필요합니다.');
+  }
+
+  try {
+    const response = await fetchWithTimeout(buildAuthUrl('/api/v1/auth/withdraw'), {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error('회원 탈퇴 실패');
+    }
+  } catch (error) {
+    console.error('deleteAccount Error:', error);
+    throw error;
+  }
+};
+
 export const postLogout = async (accessToken: string, refreshToken: string): Promise<void> => {
   try {
-    const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/logout`, {
+    const response = await fetchWithTimeout(buildAuthUrl('/api/v1/auth/logout'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -250,7 +275,6 @@ export const postSignUp = async (payload: SignUpRequest): Promise<SignUpResult> 
       headers: {
         accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(payload),
     });

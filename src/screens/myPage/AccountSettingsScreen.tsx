@@ -12,8 +12,9 @@ import SecessionIcon from '@/assets/icons/secession.svg';
 import { COLORS } from '@/constants';
 import { TopBar } from '@/components/ui';
 import type { RootStackParamList } from '@/navigation';
-import { getSetting } from '@/services';
+import { deleteAccount, getSetting } from '@/services';
 import { useAuthStore } from '@/store';
+import type { WithdrawRequest } from '@/types/auth';
 import type { Gender, GetSettingData } from '@/types/mypage';
 import { showToastMessage } from '@/utils';
 import { handleError } from '@/utils/error';
@@ -47,7 +48,6 @@ const buildProfileItems = (data: GetSettingData): ProfileItem[] => [
   { id: 'gender', label: '성별', value: GENDER_LABEL[data.gender] ?? '-', type: 'gender' },
   { id: 'country', label: '국가', value: data.countryCode, type: 'country' },
 ];
-
 
 const ProfileItemIcon: React.FC<{ type: ProfileItem['type'] }> = ({ type }) => {
   if (type === 'nickname') {
@@ -119,10 +119,23 @@ const AccountSettingsScreen: React.FC = () => {
     setWithdrawModalStep('step1');
   }, []);
 
-  const handleWithdraw = React.useCallback((): void => {
-    handleCloseWithdrawModal();
-    navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
-  }, [handleCloseWithdrawModal, navigation]);
+  const handleWithdraw = React.useCallback(
+    async (payload: WithdrawRequest): Promise<void> => {
+      try {
+        await deleteAccount(payload);
+      } catch (error) {
+        showToastMessage(
+          handleError(error) || '회원 탈퇴에 실패했습니다. 잠시 후 다시 시도해주세요.',
+        );
+        return;
+      }
+
+      handleCloseWithdrawModal();
+      useAuthStore.getState().clearTokens();
+      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+    },
+    [handleCloseWithdrawModal, navigation],
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
