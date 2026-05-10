@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, TextInput, TouchableOpacity, View, Text } from 'react-native';
 import SecessionIcon from '@/assets/icons/secession.svg';
 import { COLORS } from '@/constants';
+import type { WithdrawReasonType, WithdrawRequest } from '@/types/auth';
 
 type WithdrawReason = 'access' | 'review' | 'recommend' | 'other';
 
@@ -17,9 +18,16 @@ const WITHDRAW_REASONS: WithdrawReasonItem[] = [
   { id: 'other', label: '기타' },
 ];
 
+const REASON_TYPE_MAP: Record<WithdrawReason, WithdrawReasonType> = {
+  access: 'NOT_ENOUGH_ACCESS',
+  review: 'LOW_REVIEW_TRUST',
+  recommend: 'INAPPROPRIATE_TRIP',
+  other: 'OTHER',
+};
+
 interface WithdrawReasonModalProps {
   visible: boolean;
-  onWithdraw: () => void;
+  onWithdraw: (payload: WithdrawRequest) => void;
   onBack: () => void;
   onClose: () => void;
 }
@@ -33,6 +41,9 @@ const WithdrawReasonModal: React.FC<WithdrawReasonModalProps> = ({
   const [selectedReason, setSelectedReason] = React.useState<WithdrawReason | null>(null);
   const [otherReason, setOtherReason] = React.useState<string>('');
   const isOtherReasonSelected = selectedReason === 'other';
+  const trimmedOtherReason = otherReason.trim();
+  const canSubmit =
+    selectedReason !== null && (!isOtherReasonSelected || trimmedOtherReason.length > 0);
 
   const handleSelectReason = React.useCallback((reason: WithdrawReason): void => {
     setSelectedReason(reason);
@@ -52,6 +63,20 @@ const WithdrawReasonModal: React.FC<WithdrawReasonModalProps> = ({
     resetState();
     onClose();
   }, [resetState, onClose]);
+
+  const handleWithdraw = React.useCallback((): void => {
+    if (!selectedReason || !canSubmit) {
+      return;
+    }
+
+    const reasonType = REASON_TYPE_MAP[selectedReason];
+    const payload: WithdrawRequest =
+      reasonType === 'OTHER'
+        ? { reasonType, reasonText: trimmedOtherReason }
+        : { reasonType };
+
+    onWithdraw(payload);
+  }, [selectedReason, canSubmit, trimmedOtherReason, onWithdraw]);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
@@ -114,9 +139,11 @@ const WithdrawReasonModal: React.FC<WithdrawReasonModalProps> = ({
             className={`-mx-6 flex-row justify-between px-4 ${isOtherReasonSelected ? 'mt-6' : 'mt-4'}`}>
             <TouchableOpacity
               activeOpacity={0.85}
-              onPress={onWithdraw}
-              className="w-[48%] rounded-lg bg-chip py-3">
-              <Text className="text-center font-pretendardSemiBold text-sm text-gray">
+              onPress={handleWithdraw}
+              disabled={!canSubmit}
+              className={`w-[48%] rounded-lg py-3 ${canSubmit ? 'bg-statusError' : 'bg-chip'}`}>
+              <Text
+                className={`text-center font-pretendardSemiBold text-sm ${canSubmit ? 'text-white' : 'text-gray'}`}>
                 탈퇴 하기
               </Text>
             </TouchableOpacity>

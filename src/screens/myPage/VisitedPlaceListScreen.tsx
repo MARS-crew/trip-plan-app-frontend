@@ -1,66 +1,108 @@
-import React from 'react';
-import { Image, ScrollView, TouchableOpacity, View, Text } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Image, ScrollView, TouchableOpacity, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
-import { CARD_SHADOW_SUBTLE } from '@/constants';
+import { CARD_SHADOW_SUBTLE, COLORS } from '@/constants';
 import { TopBar } from '@/components/ui';
 import LocationOrangeIcon from '@/assets/icons/location_orange.svg';
 import MarkerGrayIcon from '@/assets/icons/marker-gray.svg';
 import VectorGrayIcon from '@/assets/icons/vectorgray.svg';
+import { getVisitedPlaces } from '@/services';
+import { useAuthStore } from '@/store';
+import type { VisitedPlace, VisitedPlaceItem } from '@/types/mypage';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-interface VisitedPlaceItem {
-  id: string;
-  date: string;
-  title: string;
-  location: string;
-  tags: string[];
-  reviewCta: string;
-  hasReview: boolean;
-  imageSource: number;
-}
+const PLACEHOLDER_IMAGE = require('@/assets/images/thumnail.png');
 
-const visitedPlaces: VisitedPlaceItem[] = [
-  {
-    id: 'visited-1',
-    date: '2026.02.05',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    tags: ['관광지', '문화', '역사'],
-    reviewCta: '리뷰 확인하기',
-    hasReview: true,
-    imageSource: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'visited-2',
-    date: '2026.02.05',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    tags: ['관광지', '문화', '역사'],
-    reviewCta: '리뷰 쓰기',
-    hasReview: false,
-    imageSource: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'visited-3',
-    date: '2026.02.03',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    tags: ['관광지', '문화', '역사'],
-    reviewCta: '리뷰 쓰기',
-    hasReview: false,
-    imageSource: require('@/assets/images/thumnail.png'),
-  },
-];
+const PLACE_TYPE_LABEL: Record<string, string> = {
+  ATTRACTION: '관광지',
+  RESTAURANT: '음식점',
+  BEACH: '해변',
+  NATURE: '자연',
+  LANDMARK: '명소',
+  ACCOMMODATION: '숙소',
+  SHOPPING: '쇼핑',
+  CULTURE: '문화',
+};
+
+const formatVisitedDate = (visitedAt: string): string => {
+  if (!visitedAt) {
+    return '';
+  }
+
+  const datePart = visitedAt.split('T')[0];
+  return datePart.replace(/-/g, '.');
+};
+
+const buildLocation = (cityName: string, countryName: string): string => {
+  if (cityName && countryName) {
+    return `${cityName}, ${countryName}`;
+  }
+  return cityName || countryName || '';
+};
+
+const buildTags = (placeType: string): string[] => {
+  if (!placeType) {
+    return [];
+  }
+  return [PLACE_TYPE_LABEL[placeType] ?? placeType];
+};
+
+const mapVisitedPlace = (place: VisitedPlace): VisitedPlaceItem => {
+  const hasReview = place.reviewWrittenYn === 'Y';
+  return {
+    id: String(place.visitedPlaceId),
+    date: formatVisitedDate(place.visitedAt),
+    title: place.placeName,
+    location: buildLocation(place.cityName, place.countryName),
+    tags: buildTags(place.placeType),
+    reviewCta: hasReview ? '리뷰 확인하기' : '리뷰 쓰기',
+    hasReview,
+    imageUrl: place.imageUrl,
+  };
+};
 
 
 const VisitedPlaceListScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const [visitedPlaces, setVisitedPlaces] = useState<VisitedPlaceItem[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const groupedByDate = React.useMemo(() => {
+  useEffect(() => {
+    if (!accessToken) return;
+
+    let isActive = true;
+
+    const fetchVisited = async (): Promise<void> => {
+      setIsLoading(true);
+      try {
+        const data = await getVisitedPlaces();
+        if (isActive) {
+          setVisitedPlaces(data.map(mapVisitedPlace));
+        }
+      } catch {
+        if (isActive) {
+          setVisitedPlaces([]);
+        }
+      } finally {
+        if (isActive) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchVisited();
+
+    return () => {
+      isActive = false;
+    };
+  }, [accessToken]);
+
+  const groupedByDate = useMemo(() => {
     const map = new Map<string, VisitedPlaceItem[]>();
 
     visitedPlaces.forEach((item) => {
@@ -73,9 +115,9 @@ const VisitedPlaceListScreen: React.FC = () => {
     });
 
     return Array.from(map.entries());
-  }, []);
+  }, [visitedPlaces]);
 
-  const handleReviewPress = React.useCallback(
+  const handleReviewPress = useCallback(
     (item: VisitedPlaceItem): void => {
       if (item.hasReview) {
         navigation.navigate('MainTabs', {
@@ -90,13 +132,28 @@ const VisitedPlaceListScreen: React.FC = () => {
           screen: 'Search',
           params: {
             screen: 'ReviewWrite',
-            params: { placeName: item.title, visitedDate: item.date },
+            params: {
+              visitedPlaceId: Number(item.id),
+              placeName: item.title,
+              visitedDate: item.date,
+            },
           },
         } as never);
       }
     },
     [navigation],
   );
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
+        <TopBar title="방문한 장소 리스트" onPress={navigation.goBack} />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator color={COLORS.main} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (visitedPlaces.length === 0) {
     return (
@@ -145,7 +202,7 @@ const VisitedPlaceListScreen: React.FC = () => {
                       }
                       className="flex-row px-3 py-3">
                       <Image
-                        source={item.imageSource}
+                        source={item.imageUrl ? { uri: item.imageUrl } : PLACEHOLDER_IMAGE}
                         className="h-28 w-28 rounded-lg"
                         resizeMode="cover"
                       />

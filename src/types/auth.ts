@@ -92,6 +92,17 @@ export interface ReissueTokenFailureResult {
 
 export type ReissueTokenResult = ReissueTokenSuccessResult | ReissueTokenFailureResult;
 
+export type WithdrawReasonType =
+  | 'NOT_ENOUGH_ACCESS'
+  | 'LOW_REVIEW_TRUST'
+  | 'INAPPROPRIATE_TRIP'
+  | 'OTHER';
+
+export interface WithdrawRequest {
+  reasonType: WithdrawReasonType;
+  reasonText?: string;
+}
+
 export interface EmailRequestData {
   email: string;
 }
