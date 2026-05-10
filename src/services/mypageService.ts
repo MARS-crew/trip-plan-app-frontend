@@ -4,6 +4,8 @@ import { useAuthStore } from '@/store';
 import type { BaseResponse } from '@/types';
 import type { EmailRequestData, EmailVerifyData } from '@/types/auth';
 import type {
+  AgreeData,
+  AgreeUpdateRequest,
   GetExchangeData,
   GetExchangeRequest,
   GetMyPageData,
@@ -172,6 +174,43 @@ export const postExchange = async (payload: GetExchangeRequest): Promise<GetExch
     return json.data;
   } catch (error) {
     console.error('postExchange Error:', error);
+    throw error;
+  }
+};
+
+export const getAgree = async (): Promise<AgreeData> => {
+  try {
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/agree`, {
+      headers: { Authorization: `Bearer ${accessToken()}` },
+    });
+    if (!response.ok) {
+      throw new Error('알림 설정 조회 실패');
+    }
+    const json: BaseResponse<AgreeData> = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error('getAgree Error:', error);
+    throw error;
+  }
+};
+
+export const patchAgree = async (payload: AgreeUpdateRequest): Promise<AgreeData> => {
+  try {
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/agree`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken()}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error('알림 설정 수정 실패');
+    }
+    const json: BaseResponse<AgreeData> = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error('patchAgree Error:', error);
     throw error;
   }
 };
