@@ -94,6 +94,7 @@ export interface GetSettingData {
   gender: Gender;
   nickname: string;
 }
+
 export type AgreeFlag = 'Y' | 'N';
 
 export interface AgreeData {
@@ -104,4 +105,26 @@ export interface AgreeData {
 export interface AgreeUpdateRequest {
   marketingAgreed: AgreeFlag;
   nightMarketingAgreed: AgreeFlag;
+}
+
+export interface VisitedPlace {
+  visitedPlaceId: number;
+  visitedAt: string;
+  placeName: string;
+  cityName: string;
+  countryName: string;
+  imageUrl: string | null;
+  placeType: string;
+  reviewWrittenYn: 'Y' | 'N';
+}
+
+export interface VisitedPlaceItem {
+  id: string;
+  date: string;
+  title: string;
+  location: string;
+  tags: string[];
+  reviewCta: string;
+  hasReview: boolean;
+  imageUrl: string | null;
 }

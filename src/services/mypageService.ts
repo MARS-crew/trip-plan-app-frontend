@@ -15,6 +15,7 @@ import type {
   PapagoTargetLang,
   PatchProfileData,
   PatchProfileRequest,
+  VisitedPlace,
 } from '@/types/mypage';
 import { parseJsonSafely } from '@/utils/error';
 
@@ -67,6 +68,22 @@ export const getSetting = async (): Promise<GetSettingData> => {
     return json.data;
   } catch (error) {
     console.error('getSetting Error:', error);
+    throw error;
+  }
+};
+
+export const getVisitedPlaces = async (): Promise<VisitedPlace[]> => {
+  try {
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/visited`, {
+      headers: { Authorization: `Bearer ${accessToken()}` },
+    });
+    if (!response.ok) {
+      throw new Error('방문한 장소 조회 실패');
+    }
+    const json: BaseResponse<VisitedPlace[]> = await response.json();
+    return json.data ?? [];
+  } catch (error) {
+    console.error('getVisitedPlaces Error:', error);
     throw error;
   }
 };
