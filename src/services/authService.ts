@@ -175,6 +175,25 @@ export const postReissueToken = async (
   }
 };
 
+export const postLogout = async (accessToken: string, refreshToken: string): Promise<void> => {
+  try {
+    const response = await fetchWithTimeout(`${Config.API_BASE_URL}/api/v1/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ refreshToken }),
+    });
+    if (!response.ok) {
+      throw new Error('로그아웃 실패');
+    }
+  } catch (error) {
+    console.error('postLogout Error:', error);
+    throw error;
+  }
+};
+
 export const requestEmailVerification = async (email: string): Promise<EmailRequestData> => {
   const response = await fetch(buildAuthUrl('/api/v1/auth/email-request'), {
     method: 'POST',

@@ -94,3 +94,14 @@ export interface GetSettingData {
   gender: Gender;
   nickname: string;
 }
+export type AgreeFlag = 'Y' | 'N';
+
+export interface AgreeData {
+  marketingAgreed: AgreeFlag;
+  nightMarketingAgreed: AgreeFlag;
+}
+
+export interface AgreeUpdateRequest {
+  marketingAgreed: AgreeFlag;
+  nightMarketingAgreed: AgreeFlag;
+}
