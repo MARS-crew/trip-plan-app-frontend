@@ -42,6 +42,7 @@ export interface NaverSignUpData {
   name: string;
   gender: string;
   birth: string;
+  birthYear?: string;
 }
 
 export interface NaverLoginData {

@@ -46,14 +46,6 @@ export const useSignUpSubmit = (socialSignUpData?: NaverSignUpData) => {
         return true;
       } else {
         const errorMessage = result.message || '회원가입 실패';
-        console.error('[useSignUpSubmit] signup failed', {
-          warningType: result.warningType,
-          message: result.message,
-          isSocialSignup,
-          loginType: payloadForSignUp.loginType,
-          usersId: payloadForSignUp.usersId,
-          email: payloadForSignUp.email,
-        });
         showToastMessage(errorMessage);
         return false;
       }

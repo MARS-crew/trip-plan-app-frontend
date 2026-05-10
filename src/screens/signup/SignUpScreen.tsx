@@ -39,9 +39,24 @@ import { getDaysInMonth } from './constants';
 const normalizeSocialGender = (gender?: string): 'male' | 'female' | 'other' | '' => {
   const normalized = gender?.trim().toUpperCase();
 
-  if (normalized === 'MALE') return 'male';
-  if (normalized === 'FEMALE') return 'female';
-  if (normalized === 'OTHER') return 'other';
+  if (normalized === 'MALE' || normalized === 'M') return 'male';
+  if (normalized === 'FEMALE' || normalized === 'F') return 'female';
+  if (normalized === 'OTHER' || normalized === 'U') return 'other';
+
+  return '';
+};
+
+const normalizeSocialBirthDate = (birth?: string, birthYear?: string): string => {
+  const trimmedBirth = birth?.trim() ?? '';
+  const trimmedBirthYear = birthYear?.trim() ?? '';
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmedBirth)) {
+    return trimmedBirth;
+  }
+
+  if (/^\d{2}-\d{2}$/.test(trimmedBirth) && /^\d{4}$/.test(trimmedBirthYear)) {
+    return `${trimmedBirthYear}-${trimmedBirth}`;
+  }
 
   return '';
 };
@@ -104,7 +119,7 @@ const SignUpScreen: React.FC = () => {
       name: socialSignUpData.name || prev.name,
       email: socialSignUpData.email || prev.email,
       nickname: socialSignUpData.nickname || prev.nickname,
-      birthDate: socialSignUpData.birth || prev.birthDate,
+      birthDate: normalizeSocialBirthDate(socialSignUpData.birth, socialSignUpData.birthYear) || prev.birthDate,
       gender: normalizeSocialGender(socialSignUpData.gender) || prev.gender,
     }));
     emailVerification.setIsEmailVerified(true);
