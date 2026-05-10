@@ -1,5 +1,6 @@
 import type {
   FindIdWarningType,
+  FindPasswordResetWarningType,
   LoginWarningType,
   ReissueTokenWarningType,
   SignUpWarningType,
@@ -61,6 +62,17 @@ export const getReissueWarningType = (status: number, code = ''): ReissueTokenWa
 
 export const getFindIdWarningType = (status: number, code = ''): FindIdWarningType => {
   if (status >= 500 || code === 'INTERNAL_ERROR') return 'SERVER_ERROR';
+  if (code === 'INVALID_INPUT' || status === 400) return 'INVALID_INPUT';
+  if (code === 'USER_NOT_FOUND' || status === 404) return 'USER_NOT_FOUND';
+  return 'UNKNOWN_ERROR';
+};
+
+export const getFindPasswordResetWarningType = (
+  status: number,
+  code = '',
+): FindPasswordResetWarningType => {
+  if (status >= 500 || code === 'INTERNAL_ERROR') return 'SERVER_ERROR';
+  if (code === 'EMAIL_SEND_FAIL') return 'EMAIL_SEND_FAIL';
   if (code === 'INVALID_INPUT' || status === 400) return 'INVALID_INPUT';
   if (code === 'USER_NOT_FOUND' || status === 404) return 'USER_NOT_FOUND';
   return 'UNKNOWN_ERROR';

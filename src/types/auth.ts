@@ -33,22 +33,6 @@ export interface LoginResponse {
   data?: LoginData | null;
 }
 
-export interface ReissueTokenRequest {
-  refreshToken: string;
-}
-
-export interface ReissueTokenData {
-  accessToken: string;
-  refreshToken: string;
-}
-
-export interface ReissueTokenResponse {
-  success: boolean;
-  code: string;
-  message: string;
-  data?: ReissueTokenData | null;
-}
-
 export type LoginWarningType =
   | 'EMPTY_FIELDS'
   | 'INVALID_INPUT'
@@ -70,6 +54,22 @@ export interface LoginFailureResult {
 }
 
 export type LoginResult = LoginSuccessResult | LoginFailureResult;
+
+export interface ReissueTokenRequest {
+  refreshToken: string;
+}
+
+export interface ReissueTokenData {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface ReissueTokenResponse {
+  success: boolean;
+  code: string;
+  message: string;
+  data?: ReissueTokenData | null;
+}
 
 export type ReissueTokenWarningType =
   | 'INVALID_TOKEN'
@@ -99,6 +99,59 @@ export interface EmailRequestData {
 export interface EmailVerifyData {
   email: string;
   email_verified: 'Y' | 'N';
+}
+
+export type SocialLoginWarningType =
+  | 'NAVER_LOGIN_CANCELLED'
+  | 'NAVER_LOGIN_FAILED'
+  | 'INVALID_NAVER_TOKEN'
+  | 'USER_NOT_FOUND'
+  | 'SERVER_ERROR'
+  | 'NETWORK_ERROR'
+  | 'UNKNOWN_ERROR';
+
+export interface SocialLoginResult {
+  success: boolean;
+  warningType?: SocialLoginWarningType;
+  message?: string;
+  isNewUser?: boolean;
+  // When login succeeds this will contain the login tokens + user details.
+  data?: LoginData;
+  // When backend indicates a signup is required, this contains prefilled signup data.
+  signupResponse?: {
+    loginType: string;
+    socialProviderId: string;
+    nickname: string;
+    email: string;
+    name: string;
+    gender?: string;
+    birth?: string;
+  };
+}
+
+export interface NaverSocialLoginResponse {
+  message: string;
+  code: string;
+  data?: {
+    registered: boolean;
+    nextAction: 'login' | 'signup';
+    login?: {
+      accessToken: string;
+      refreshToken: string;
+      userDetails: LoginUserDetails;
+    };
+  };
+  signupResponse?: {
+    registered: boolean;
+    loginType: string;
+    socialProviderId: string;
+    nickname: string;
+    email: string;
+    name: string;
+    gender: string;
+    birth: string;
+  };
+  success: boolean;
 }
 
 export interface FindIdRequest {
@@ -198,3 +251,43 @@ export interface SignUpFailureResult {
 }
 
 export type SignUpResult = SignUpSuccessResult | SignUpFailureResult;
+
+export interface FindPasswordResetRequest {
+  usersId: string;
+  email: string;
+}
+
+export interface FindPasswordResetData {
+  usersId: string;
+  email: string;
+}
+
+export interface FindPasswordResetResponse {
+  success: boolean;
+  code: string;
+  message: string;
+  data?: FindPasswordResetData | null;
+}
+
+export type FindPasswordResetWarningType =
+  | 'INVALID_INPUT'
+  | 'USER_NOT_FOUND'
+  | 'EMAIL_SEND_FAIL'
+  | 'SERVER_ERROR'
+  | 'NETWORK_ERROR'
+  | 'UNKNOWN_ERROR';
+
+export interface FindPasswordResetSuccessResult {
+  ok: true;
+  data: FindPasswordResetData;
+}
+
+export interface FindPasswordResetFailureResult {
+  ok: false;
+  warningType: FindPasswordResetWarningType;
+  message?: string;
+}
+
+export type FindPasswordResetResult =
+  | FindPasswordResetSuccessResult
+  | FindPasswordResetFailureResult;
