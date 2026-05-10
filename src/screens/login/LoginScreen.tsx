@@ -15,44 +15,11 @@ import { LabeledInput } from '@/components';
 import { COLORS } from '@/constants';
 import { postLogin } from '@/services';
 import { useAuthStore } from '@/store';
-import type { LoginFailureResult } from '@/types/auth';
 import type { LoginScreenNavigationProp } from '@/types/login';
+import { getLoginWarningMessage, getNaverLoginWarningMessage, showToastMessage } from '@/utils';
 
 import SocialLoginButton from './SocialLoginButton';
-
-const getLoginWarningMessage = (failure: LoginFailureResult): string => {
-  const serverMessage = failure.message?.trim();
-
-  if (serverMessage) {
-    return serverMessage;
-  }
-
-  if (failure.warningType === 'EMPTY_FIELDS') {
-    return '아이디와 비밀번호를 입력해주세요.';
-  }
-
-  if (failure.warningType === 'INVALID_INPUT') {
-    return '잘못된 요청입니다.';
-  }
-
-  if (failure.warningType === 'PASSWORD_MISMATCH') {
-    return '비밀번호가 일치하지 않습니다.';
-  }
-
-  if (failure.warningType === 'USER_NOT_FOUND') {
-    return '사용자를 찾을 수 없습니다.';
-  }
-
-  if (failure.warningType === 'SERVER_ERROR') {
-    return '서버가 불안정합니다. 잠시 후 다시 시도해주세요.';
-  }
-
-  if (failure.warningType === 'NETWORK_ERROR') {
-    return '네트워크 연결을 확인해주세요.';
-  }
-
-  return '로그인에 실패했습니다. 다시 시도해주세요.';
-};
+import { useSocialLogin } from './hooks';
 
 const LoginScreen: React.FC = () => {
   // Hooks
@@ -62,6 +29,13 @@ const LoginScreen: React.FC = () => {
   const [password, setPassword] = useState<string>('');
   const [loginWarningMessage, setLoginWarningMessage] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { handleNaverLogin } = useSocialLogin({
+    navigation,
+    isSubmitting,
+    setIsSubmitting,
+    setLoginWarningMessage,
+    setAuthFromLoginData,
+  });
 
   // Derived values
   const hasLoginWarning = loginWarningMessage.length > 0;
@@ -232,6 +206,8 @@ const LoginScreen: React.FC = () => {
                   bgClassName="bg-naverGreen"
                   textClassName="text-white"
                   icon={<NaverIcon width={18} height={18} />}
+                  onPress={handleNaverLogin}
+                  disabled={isSubmitting}
                 />
                 <SocialLoginButton
                   label="Google로 시작하기"

@@ -34,12 +34,15 @@ export const useFormValidation = () => {
       isPasswordValid: boolean,
       isPasswordMatched: boolean,
       isEmailVerified: boolean,
+      isSocialSignup = false,
     ): RequiredFieldKey | null => {
       if (formData.accountId.trim().length === 0 || !isIdVerified) return 'accountId';
       if (formData.nickname.trim().length === 0) return 'nickname';
-      if (formData.password.trim().length === 0 || !isPasswordValid) return 'password';
-      if (formData.passwordConfirm.trim().length === 0 || !isPasswordMatched)
-        return 'passwordConfirm';
+      if (!isSocialSignup) {
+        if (formData.password.trim().length === 0 || !isPasswordValid) return 'password';
+        if (formData.passwordConfirm.trim().length === 0 || !isPasswordMatched)
+          return 'passwordConfirm';
+      }
       if (formData.name.trim().length === 0) return 'name';
       if (formData.birthDate.trim().length === 0) return 'birthDate';
       if (formData.gender.length === 0) return 'gender';

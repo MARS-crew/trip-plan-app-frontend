@@ -6,6 +6,7 @@ import type { AccountSectionProps } from '@/types/signupAccount';
 
 export const AccountSection: React.FC<AccountSectionProps> = ({
   formData,
+  hidePasswordFields = false,
   idCheckStatus,
   idMessage,
   idMessageClass,
@@ -76,49 +77,55 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
           />
         </View>
 
-        <View onLayout={onPasswordLayout}>
-          <LabeledInput
-            label="비밀번호"
-            required={true}
-            placeholder="8~20자, 영문/숫자/특수문자 포함"
-            value={formData.password}
-            onChangeText={onChangePassword}
-            inputClassName={
-              showFieldErrors && (formData.password.trim().length === 0 || !isPasswordValid)
-                ? 'border-statusError'
-                : passwordInputClassName
-            }
-            secureTextEntry={true}
-            containerClassName=""
-          />
-        </View>
+        {!hidePasswordFields && (
+          <>
+            <View onLayout={onPasswordLayout}>
+              <LabeledInput
+                label="비밀번호"
+                required={true}
+                placeholder="8~20자, 영문/숫자/특수문자 포함"
+                value={formData.password}
+                onChangeText={onChangePassword}
+                inputClassName={
+                  showFieldErrors && (formData.password.trim().length === 0 || !isPasswordValid)
+                    ? 'border-statusError'
+                    : passwordInputClassName
+                }
+                secureTextEntry={true}
+                containerClassName=""
+              />
+            </View>
 
-        {hasPasswordError && (
-          <Text className="mt-2 text-p text-statusError">
-            영문,숫자,특수기호 를 포함한 8자리 이상으로 작성해 주세요.
-          </Text>
+            {hasPasswordError && (
+              <Text className="mt-2 text-p text-statusError">
+                영문,숫자,특수기호 를 포함한 8자리 이상으로 작성해 주세요.
+              </Text>
+            )}
+
+            <View className="mt-4" onLayout={onPasswordConfirmLayout}>
+              <LabeledInput
+                label="비밀번호 확인"
+                required={true}
+                placeholder="비밀번호를 다시 입력하세요"
+                value={formData.passwordConfirm}
+                onChangeText={onChangePasswordConfirm}
+                inputClassName={
+                  showFieldErrors &&
+                  (formData.passwordConfirm.trim().length === 0 || !isPasswordMatched)
+                    ? 'border-statusError'
+                    : ''
+                }
+                secureTextEntry={true}
+                containerClassName=""
+              />
+              {formData.passwordConfirm.length > 0 && !isPasswordMatched && (
+                <Text className="mb-5 mt-2 text-p text-statusError">
+                  비밀번호가 일치하지 않습니다.
+                </Text>
+              )}
+            </View>
+          </>
         )}
-
-        <View className="mt-4" onLayout={onPasswordConfirmLayout}>
-          <LabeledInput
-            label="비밀번호 확인"
-            required={true}
-            placeholder="비밀번호를 다시 입력하세요"
-            value={formData.passwordConfirm}
-            onChangeText={onChangePasswordConfirm}
-            inputClassName={
-              showFieldErrors &&
-              (formData.passwordConfirm.trim().length === 0 || !isPasswordMatched)
-                ? 'border-statusError'
-                : ''
-            }
-            secureTextEntry={true}
-            containerClassName=""
-          />
-          {formData.passwordConfirm.length > 0 && !isPasswordMatched && (
-            <Text className="mb-5 mt-2 text-p text-statusError">비밀번호가 일치하지 않습니다.</Text>
-          )}
-        </View>
       </ContentContainer>
     </View>
   );

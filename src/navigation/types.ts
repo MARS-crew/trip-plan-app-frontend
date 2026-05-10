@@ -1,9 +1,15 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 
+import type { NaverSignUpData } from '@/types/auth';
+
 export type SearchStackParamList = {
   SearchMain: undefined;
   SearchResult: { query: string };
-  DestinationDetail: { destinationId: string; origin?: 'search' | 'bookmark'; initialTab?: 'info' | 'review' };
+  DestinationDetail: {
+    destinationId: string;
+    origin?: 'search' | 'bookmark';
+    initialTab?: 'info' | 'review';
+  };
   SelectTrip: undefined;
   ReviewWrite: undefined;
 };
@@ -17,7 +23,7 @@ export type RootTabParamList = {
 };
 export type RootStackParamList = {
   Login: undefined;
-  SignUp: undefined;
+  SignUp: { socialSignUpData?: NaverSignUpData } | undefined;
   MainTabs: { screen?: keyof RootTabParamList } | undefined;
   PrivacyPolicyScreen: undefined;
   NightMarketingScreen: undefined;
@@ -42,7 +48,6 @@ export type RootStackParamList = {
   AddCalendarMapScreen: undefined;
   ScheduleMap: undefined;
 };
-
 
 export type HomeStackParamList = {
   HomeMain: undefined;

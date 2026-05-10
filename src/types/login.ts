@@ -11,4 +11,6 @@ export interface SocialLoginButtonProps {
   textClassName: string;
   icon: ReactElement;
   outlined?: boolean;
+  onPress?: () => void;
+  disabled?: boolean;
 }
