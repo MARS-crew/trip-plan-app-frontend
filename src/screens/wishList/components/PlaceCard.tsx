@@ -28,12 +28,20 @@ export const PlaceCard = React.memo<PlaceCardProps>(
 
     if (isTrending) {
       return (
-        <View className="mb-3 mr-[1px]">
+        <View className="mx-[1px] mb-3">
           <WishContentContainer>
             <View className="flex-row items-center">
+<<<<<<< HEAD
               <PlaceImageThumbnail hasImage={hasImage} image={place.image} />
               <View className="flex-1 ml-3 pr-5">
                 <Text className="text-h3 text-black font-pretendardSemiBold">{place.title}</Text>
+=======
+              <View className="h-28 w-28 shrink-0 overflow-hidden rounded-l-lg">
+                <Image source={place.image} className="h-full w-full" resizeMode="cover" />
+              </View>
+              <View className="ml-3 flex-1 pr-5">
+                <Text className="font-pretendardSemiBold text-h3 text-black">{place.title}</Text>
+>>>>>>> f6035190d7f1b55cb21b4ba84ae66fa8aa266524
                 <View className="mt-[2px]">
                   <Text className="text-p text-gray" numberOfLines={2}>
                     {place.description}
@@ -46,13 +54,13 @@ export const PlaceCard = React.memo<PlaceCardProps>(
                       <CategoryChip
                         key={idx}
                         label={cat}
-                        className="mr-2 px-2 py-[2px] rounded-2xl"
+                        className="mr-2 rounded-2xl px-2 py-[2px]"
                       />
                     ))}
                   </View>
                 )}
               </View>
-              <TouchableOpacity className="mr-4 " onPress={() => onToggleLike(place.id)}>
+              <TouchableOpacity className="mr-4" onPress={() => onToggleLike(place.id)}>
                 <VectorIcon />
               </TouchableOpacity>
             </View>
@@ -61,26 +69,36 @@ export const PlaceCard = React.memo<PlaceCardProps>(
       );
     }
     return (
-      <View className=" pb-3 mr-[1px]">
+      <View className="mx-[1px] pb-3">
         <WishContentContainer>
           <View className="flex-row items-center">
+<<<<<<< HEAD
             <PlaceImageThumbnail hasImage={hasImage} image={place.image} />
             <View className="flex-1 ml-3 pr-8">
               <Text className="text-h3 text-black font-pretendardSemiBold">{place.title}</Text>
               <View className="flex-row mt-1">
                 <View className="w-3 h-3 top-[2px] mr-1">
+=======
+            <View className="h-28 w-28 shrink-0 overflow-hidden rounded-l-lg">
+              <Image source={place.image} className="h-full w-full" resizeMode="cover" />
+            </View>
+            <View className="ml-3 flex-1 pr-8">
+              <Text className="font-pretendardSemiBold text-h3 text-black">{place.title}</Text>
+              <View className="mt-1 flex-row">
+                <View className="top-[2px] mr-1 h-3 w-3">
+>>>>>>> f6035190d7f1b55cb21b4ba84ae66fa8aa266524
                   <PlaceIcon />
                 </View>
-                <Text className="text-p text-gray font-pretendardRegular">{place.location}</Text>
+                <Text className="font-pretendardRegular text-p text-gray">{place.location}</Text>
               </View>
               <View className="mt-2">
-                <Text className="text-p text-gray font-pretendardRegular" numberOfLines={2}>
+                <Text className="font-pretendardRegular text-p text-gray" numberOfLines={2}>
                   {place.description}
                 </Text>
               </View>
             </View>
             <TouchableOpacity
-              className="mr-4 self-start mt-4 shrink-0"
+              className="mr-4 mt-4 shrink-0 self-start"
               onPress={() => onToggleLike(place.id)}>
               {isLiked ? <ActiveHeartIcon /> : <HeartIcon />}
             </TouchableOpacity>

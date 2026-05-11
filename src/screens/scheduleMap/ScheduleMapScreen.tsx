@@ -9,6 +9,7 @@ import { COLORS } from '@/constants/colors';
 
 import { TopBar } from '@/components';
 import TripDetailCard from '@/components/ui/TripDetailCard';
+import { fetchKoreanAddress, fetchNearestKoreanPlaceName } from '@/services/mapPlaceService';
 import IndexMarker from './components/IndexMarker';
 import MapPlaceCard from './components/MapPlaceCard';
 
@@ -131,7 +132,8 @@ const ScheduleMapScreen: React.FC = () => {
   const selectedDayColor = getSelectedDayColor(selectedDay, dayColorMap);
   const showTravelLogAction = currentPoint?.day === 1 && currentPoint?.order === 1;
   const previewPoint = useMemo(
-    () => getPreviewPoint(dayPoints, selectedItemIndex, groupedDays, selectedDayIndex, currentPoint),
+    () =>
+      getPreviewPoint(dayPoints, selectedItemIndex, groupedDays, selectedDayIndex, currentPoint),
     [currentPoint, dayPoints, groupedDays, selectedDayIndex, selectedItemIndex],
   );
 
@@ -170,29 +172,35 @@ const ScheduleMapScreen: React.FC = () => {
     );
   }, [currentPoint]);
 
-  const updateVerticalIndex = useCallback((next: boolean) => {
-    if (!selectedDay || dayPoints.length === 0) return;
+  const updateVerticalIndex = useCallback(
+    (next: boolean) => {
+      if (!selectedDay || dayPoints.length === 0) return;
 
-    setSelectedItemIndexByDay((prev) => {
-      const current = prev[selectedDay.day] ?? 0;
-      const lastIndex = dayPoints.length - 1;
-      const nextIndex = next
-        ? (current + 1) % dayPoints.length
-        : current === 0
-          ? lastIndex
-          : current - 1;
+      setSelectedItemIndexByDay((prev) => {
+        const current = prev[selectedDay.day] ?? 0;
+        const lastIndex = dayPoints.length - 1;
+        const nextIndex = next
+          ? (current + 1) % dayPoints.length
+          : current === 0
+            ? lastIndex
+            : current - 1;
 
-      if (nextIndex === current) return prev;
-      return { ...prev, [selectedDay.day]: nextIndex };
-    });
-  }, [dayPoints.length, selectedDay]);
+        if (nextIndex === current) return prev;
+        return { ...prev, [selectedDay.day]: nextIndex };
+      });
+    },
+    [dayPoints.length, selectedDay],
+  );
 
-  const updateHorizontalDay = useCallback((next: boolean) => {
-    setSelectedDayIndex((prev) => {
-      if (next) return Math.min(prev + 1, groupedDays.length - 1);
-      return Math.max(prev - 1, 0);
-    });
-  }, [groupedDays.length]);
+  const updateHorizontalDay = useCallback(
+    (next: boolean) => {
+      setSelectedDayIndex((prev) => {
+        if (next) return Math.min(prev + 1, groupedDays.length - 1);
+        return Math.max(prev - 1, 0);
+      });
+    },
+    [groupedDays.length],
+  );
 
   const animateCardToCenter = useCallback(() => {
     Animated.spring(cardTranslate, {
@@ -203,34 +211,138 @@ const ScheduleMapScreen: React.FC = () => {
     }).start();
   }, [cardTranslate]);
 
-  const animateCardSwitch = useCallback((axis: 'horizontal' | 'vertical', direction: number) => {
-    const toValue =
-      axis === 'horizontal' ? { x: direction * 140, y: 0 } : { x: 0, y: direction * 140 };
+  const animateCardSwitch = useCallback(
+    (axis: 'horizontal' | 'vertical', direction: number) => {
+      const toValue =
+        axis === 'horizontal' ? { x: direction * 140, y: 0 } : { x: 0, y: direction * 140 };
 
-    Animated.timing(cardTranslate, {
-      toValue,
-      duration: 180,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start(() => {
-      if (axis === 'horizontal') {
-        updateHorizontalDay(direction < 0);
-      } else {
-        updateVerticalIndex(direction < 0);
-      }
+      Animated.timing(cardTranslate, {
+        toValue,
+        duration: 180,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start(() => {
+        if (axis === 'horizontal') {
+          updateHorizontalDay(direction < 0);
+        } else {
+          updateVerticalIndex(direction < 0);
+        }
 
-      cardTranslate.setValue(
-        axis === 'horizontal' ? { x: -direction * 24, y: 0 } : { x: 0, y: -direction * 24 },
-      );
-      animateCardToCenter();
-    });
-  }, [animateCardToCenter, cardTranslate, updateHorizontalDay, updateVerticalIndex]);
+        cardTranslate.setValue(
+          axis === 'horizontal' ? { x: -direction * 24, y: 0 } : { x: 0, y: -direction * 24 },
+        );
+        animateCardToCenter();
+      });
+    },
+    [animateCardToCenter, cardTranslate, updateHorizontalDay, updateVerticalIndex],
+  );
 
-  const handlePressMarker = useCallback((point: RoutePoint) => {
+  const handlePressMarker = useCallback(async (point: RoutePoint) => {
     setSelectedPointId(point.id);
     setMapPlaceCardPoint(point);
     setIsMapPlaceCardVisible(true);
+
+    try {
+      const [placeResult, addressResult] = await Promise.all([
+        fetchNearestKoreanPlaceName(point.latitude, point.longitude),
+        fetchKoreanAddress(point.latitude, point.longitude),
+      ]);
+
+      const nextPoint: RoutePoint = {
+        ...point,
+        title: placeResult.error ? point.title : (placeResult.name ?? point.title),
+        placeCardDescription: placeResult.summary ?? point.placeCardDescription,
+        categories: placeResult.types.length > 0 ? placeResult.types : point.categories,
+        image: placeResult.photoUrl ? { uri: placeResult.photoUrl } : point.image,
+        location: addressResult.error ? point.location : addressResult.address,
+      };
+
+      setMapPlaceCardPoint(nextPoint);
+    } catch (error) {
+      console.error('handlePressMarker Error:', error);
+    }
   }, []);
+
+  const createTempPoint = useCallback(
+    (coordinate: { latitude: number; longitude: number }, titleOverride?: string): RoutePoint => ({
+      id: `${titleOverride ? 'poi' : 'map'}-${Date.now()}`,
+      day: 0,
+      order: 0,
+      latitude: coordinate.latitude,
+      longitude: coordinate.longitude,
+      title: titleOverride ?? '주변 장소 불러오는 중...',
+      location: '주소 불러오는 중...',
+      description: '',
+      placeCardDescription: '주변 장소 정보를 불러오는 중입니다.',
+      startTime: '',
+      endTime: '',
+      image: null,
+      imageText: '이미지를 불러오는 중입니다.',
+      categories: [],
+    }),
+    [],
+  );
+
+  const handleSelectPoint = useCallback(
+    async (
+      coordinate: { latitude: number; longitude: number },
+      titleOverride?: string,
+    ): Promise<void> => {
+      const tempPoint = createTempPoint(coordinate, titleOverride);
+
+      setSelectedPointId(null);
+      setMapPlaceCardPoint(tempPoint);
+      setIsMapPlaceCardVisible(true);
+
+      const [placeResult, addressResult] = await Promise.all([
+        fetchNearestKoreanPlaceName(coordinate.latitude, coordinate.longitude),
+        fetchKoreanAddress(coordinate.latitude, coordinate.longitude),
+      ]);
+
+      const nextPoint: RoutePoint = {
+        ...tempPoint,
+        title:
+          titleOverride ??
+          (placeResult.error ? tempPoint.title : (placeResult.name ?? tempPoint.title)),
+        placeCardDescription: placeResult.summary ?? tempPoint.placeCardDescription,
+        categories: placeResult.types.length > 0 ? placeResult.types : tempPoint.categories,
+        image: placeResult.photoUrl ? { uri: placeResult.photoUrl } : tempPoint.image,
+        imageText: placeResult.photoUrl ? undefined : tempPoint.imageText,
+        location: addressResult.error ? tempPoint.location : addressResult.address,
+      };
+
+      setMapPlaceCardPoint(nextPoint);
+    },
+    [createTempPoint],
+  );
+
+  const handlePressMap = useCallback(
+    async (coordinate: { latitude: number; longitude: number }) => {
+      try {
+        await handleSelectPoint(coordinate);
+      } catch (error) {
+        console.error('handlePressMap Error:', error);
+      }
+    },
+    [handleSelectPoint],
+  );
+
+  const handlePressPoi = useCallback(
+    async (event: {
+      nativeEvent: { coordinate?: { latitude: number; longitude: number }; name?: string };
+    }) => {
+      const { coordinate, name } = event.nativeEvent ?? {};
+
+      if (!coordinate) return;
+
+      try {
+        await handleSelectPoint(coordinate, name);
+      } catch (error) {
+        console.error('handlePressPoi Error:', error);
+      }
+    },
+    [handleSelectPoint],
+  );
 
   const panResponder = useMemo(
     () =>
@@ -295,7 +407,14 @@ const ScheduleMapScreen: React.FC = () => {
           dragAxisRef.current = null;
         },
       }),
-    [animateCardSwitch, animateCardToCenter, cardTranslate, dayPoints.length, groupedDays.length, selectedDayIndex],
+    [
+      animateCardSwitch,
+      animateCardToCenter,
+      cardTranslate,
+      dayPoints.length,
+      groupedDays.length,
+      selectedDayIndex,
+    ],
   );
 
   return (
@@ -306,7 +425,8 @@ const ScheduleMapScreen: React.FC = () => {
         ref={mapRef}
         style={{ flex: 1 }}
         initialRegion={initialRegion}
-      >
+        onPress={(event) => handlePressMap(event.nativeEvent.coordinate)}
+        onPoiClick={handlePressPoi}>
         {dayPoints.length >= 2 && (
           <Polyline
             coordinates={dayPoints.map((p) => ({
@@ -325,8 +445,7 @@ const ScheduleMapScreen: React.FC = () => {
             key={`${point.id}-${selectedPointId === point.id ? 'selected' : 'default'}`}
             coordinate={{ latitude: point.latitude, longitude: point.longitude }}
             onPress={() => handlePressMarker(point)}
-            tracksViewChanges
-          >
+            tracksViewChanges>
             <IndexMarker
               index={point.order}
               day={point.day}
@@ -340,24 +459,17 @@ const ScheduleMapScreen: React.FC = () => {
       {isMapPlaceCardVisible ? (
         <View
           className="absolute bottom-0 left-0 right-0 z-10 border-t border-borderGray bg-white"
-          style={{ paddingBottom: insets.bottom }}
-        >
+          style={{ paddingBottom: insets.bottom }}>
           <View className="h-[160px] w-full items-center px-4 py-6">
-            {mapPlaceCardPoint && (
-              <MapPlaceCard place={mapPlaceCardPoint} />
-            )}
+            {mapPlaceCardPoint && <MapPlaceCard place={mapPlaceCardPoint} />}
           </View>
         </View>
       ) : (
-        <View
-          className="absolute left-4 right-4 z-10"
-          style={{ bottom: insets.bottom + 10 }}
-        >
+        <View className="absolute left-4 right-4 z-10" style={{ bottom: insets.bottom + 10 }}>
           <View
             style={{
               minHeight: currentCardHeight + (previewPoint ? 10 : 0),
-            }}
-          >
+            }}>
             {previewPoint && (
               <View
                 pointerEvents="none"
@@ -368,8 +480,7 @@ const ScheduleMapScreen: React.FC = () => {
                   right: 0,
                   transform: [{ scale: 0.985 }],
                   opacity: 0.68,
-                }}
-              >
+                }}>
                 <TripDetailCard
                   order={previewPoint.order}
                   title={previewPoint.title}
@@ -392,8 +503,7 @@ const ScheduleMapScreen: React.FC = () => {
               style={{
                 transform: [{ translateX: cardTranslate.x }, { translateY: cardTranslate.y }],
               }}
-              {...panResponder.panHandlers}
-            >
+              {...panResponder.panHandlers}>
               {currentPoint && (
                 <TripDetailCard
                   order={currentPoint.order}
@@ -406,10 +516,13 @@ const ScheduleMapScreen: React.FC = () => {
                   actionLayout="fullWidth"
                   actionLabel="여행지 기록하기"
                   onPressAction={() =>
-                    navigation.navigate('MainTabs' as never, {
-                      screen: 'Search',
-                      params: { screen: 'ReviewWrite' },
-                    } as never)
+                    navigation.navigate(
+                      'MainTabs' as never,
+                      {
+                        screen: 'Search',
+                        params: { screen: 'ReviewWrite' },
+                      } as never,
+                    )
                   }
                   accentColor={selectedDayColor}
                 />
