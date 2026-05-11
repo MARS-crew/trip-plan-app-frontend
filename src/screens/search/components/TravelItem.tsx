@@ -2,16 +2,9 @@ import { ActiveStar, MarkerGrayIcon, TimeB, VectorGrayIcon, X } from '@/assets';
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { CategoryChip } from '@/screens/wishList/components';
-import type { TravelItemData } from '../types';
+import type { TravelItemProps } from '@/types/search';
 import { Shadow } from 'react-native-shadow-2';
 
-// ============ Types ============
-export interface TravelItemProps {
-  item: TravelItemData;
-  onPress?: (item: TravelItemData) => void;
-}
-
-// ============ Component ============
 export const TravelItem = React.memo<TravelItemProps>(({ item, onPress }) => {
   return (
     <Shadow
