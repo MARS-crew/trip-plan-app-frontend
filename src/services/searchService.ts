@@ -1,6 +1,13 @@
 import Config from 'react-native-config';
 import type { BaseResponse } from '@/types';
-import type { GetRecentSearch, GetRecentSearchData, GetPopularSearchData } from '@/types/search';
+import type {
+  GetRecentSearch,
+  GetRecentSearchData,
+  GetPopularSearchData,
+  SearchResult,
+  SearchResultData,
+} from '@/types/search';
+import type { PlaceSelectionResponse } from '@/types/wishlist';
 import { useAuthStore } from '@/store';
 
 export const deleteRecentSearch = async (recentSearchId: number): Promise<void> => {
@@ -34,6 +41,34 @@ export const getRecentSearches = async (): Promise<GetRecentSearch[]> => {
   }
 };
 
+export const getPlaceSelection = async (tripId: number): Promise<PlaceSelectionResponse> => {
+  const { accessToken } = useAuthStore.getState();
+  try {
+    const response = await fetch(`${Config.API_BASE_URL}/api/v1/trips/${tripId}/place-selection`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!response.ok) {
+      let detailMessage = '';
+
+      try {
+        const errorJson = await response.json();
+        detailMessage = errorJson?.message ?? '';
+      } catch {
+        // ignore json parse error and use status text
+      }
+
+      const reason = detailMessage || response.statusText || '알 수 없는 오류';
+      throw new Error(`장소 선택 데이터 조회 실패 (${response.status}): ${reason}`);
+    }
+
+    const json: PlaceSelectionResponse = await response.json();
+    return json;
+  } catch (error) {
+    console.error('getPlaceSelection Error:', error);
+    throw error;
+  }
+};
 export const getPopularSearches = async (): Promise<string[]> => {
   const { accessToken } = useAuthStore.getState();
   try {
@@ -59,5 +94,40 @@ export const deleteAllRecentSearch = async (): Promise<void> => {
   });
   if (!response.ok) {
     throw new Error('최근 검색어 전체 삭제 실패');
+  }
+};
+
+export const getSearchResults = async (keyword: string): Promise<SearchResult[]> => {
+  const apiBase = Config.API_BASE_URL;
+  const accessToken = useAuthStore.getState().accessToken?.trim();
+
+  if (!apiBase) {
+    console.error('[searchService] API_BASE_URL is missing');
+    throw new Error('API_BASE_URL이 설정되지 않았습니다.');
+  }
+
+  if (!accessToken) {
+    console.error('[searchService] AUTH_TOKEN_MISSING');
+    throw new Error('인증 토큰이 없습니다.');
+  }
+
+  try {
+    const response = await fetch(
+      `${apiBase}/api/v1/search/results?keyword=${encodeURIComponent(keyword)}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+
+    if (!response.ok) {
+      console.error('[searchService] getSearchResults response not ok', response.status);
+      throw new Error('검색 결과 조회 실패');
+    }
+
+    const json: BaseResponse<SearchResultData> = await response.json();
+    return json.data?.searchResults ?? [];
+  } catch (error) {
+    console.error('getSearchResults Error:', error);
+    throw error;
   }
 };

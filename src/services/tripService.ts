@@ -43,7 +43,7 @@ const getAccessToken = (): string | undefined => {
 
 const getTripRequestConfig = (): TripRequestConfig | TripRequestConfigError => {
   const { apiBaseUrl } = getEnvConfig();
-  const resolvedToken = getResolvedToken();
+  const resolvedToken = getAccessToken();
 
   if (!apiBaseUrl) {
     const error = createServiceError('API_BASE_URL_MISSING', 'API_BASE_URL이 설정되지 않았습니다.');

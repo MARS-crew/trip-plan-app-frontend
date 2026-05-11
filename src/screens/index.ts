@@ -11,7 +11,7 @@ export { default as DestinationDetailScreen } from './DestinationDetailScreen';
 export { default as VisitedPlaceListScreen } from './myPage/VisitedPlaceListScreen';
 export { default as SelectTripScreen } from './SelectTripScreen';
 export { default as WishlistScreen } from './WishlistScreen';
-export { default as FindPasswordScreen } from './FindPasswordScreen';
+export { default as FindPasswordScreen } from './findPassword/FindPasswordScreen';
 export { default as MyTripScreen } from './myTrip/MyTripScreen';
 export { default as AddTripScreen } from './addTrip';
 export { default as AddTripCalendarScreen } from './addTrip/AddTripCalendarScreen';

@@ -41,7 +41,7 @@ export type RootStackParamList = {
   };
   VisitedPlaceListScreen: undefined;
   FindId: undefined;
-  WishlistScreen: undefined;
+  WishlistScreen: { tripId: number };
   FindPassword: undefined;
   TripDetail: { tripId: number } | undefined;
   AddSchedule: undefined;

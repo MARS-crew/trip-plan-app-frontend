@@ -36,11 +36,19 @@ export interface TripDetailHeader {
 
 export type TripDetailCardMenuItem = Pick<
   TripDetailCardProps,
-  'id' | 'order' | 'title' | 'location' | 'description' | 'startTime' | 'endTime' | 'isCurrentSchedule'
+  | 'id'
+  | 'order'
+  | 'title'
+  | 'location'
+  | 'description'
+  | 'startTime'
+  | 'endTime'
+  | 'isCurrentSchedule'
 > & { id: number };
 
 export interface HeaderProps {
   onPressKebab: () => void;
+  tripId?: number;
   title?: string;
   dateText?: string;
   imageUrl?: string;

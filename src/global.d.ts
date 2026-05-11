@@ -6,6 +6,7 @@ declare module 'react-native-config' {
     NAVER_CLIENT_ID: string;
     NAVER_CLIENT_SECRET: string;
     TEMP_TOKEN: string;
+    GOOGLE_MAP_API_KEY: string;
   }
   const Config: NativeConfig;
   export default Config;
