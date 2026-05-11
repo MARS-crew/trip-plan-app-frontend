@@ -21,6 +21,9 @@ const EditTitleModal = ({
             value={value}
             onChangeText={onChangeValue}
             maxLength={maxLength}
+            autoFocus
+            returnKeyType="done"
+            onSubmitEditing={onSubmit}
             placeholder="여행명을 입력하세요"
             className="rounded-lg border border-borderGray px-3 py-2 text-p1 text-black"
           />
