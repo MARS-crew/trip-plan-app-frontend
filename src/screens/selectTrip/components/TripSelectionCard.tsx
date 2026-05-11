@@ -15,6 +15,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import { DateIcon, MarkerGrayIcon, VectorGrayIcon } from '@/assets/icons';
 import { COLORS } from '@/constants';
 import { TripStatusChip } from '@/components/ui';
+import { mapTripStatus } from '@/utils';
+import type { TripStatus } from '@/types/myTrip.types';
 
 export interface TripDateItem {
   date: string;
@@ -32,6 +34,13 @@ export interface TripSelectionCardProps {
   onCardPress: (index: number) => void;
   onDatePress: (cardIndex: number, dateIndex: number) => void;
   onScroll: (index: number, event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+  title: string;
+  imageUrl: string | null;
+  startDate: string;
+  endDate: string;
+  scheduleCount: number;
+  tripDayCount: number;
+  tripStatus: TripStatus;
 }
 
 export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
@@ -45,10 +54,18 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
   onCardPress,
   onDatePress,
   onScroll,
+  title,
+  imageUrl,
+  startDate,
+  endDate,
+  scheduleCount,
+  tripDayCount,
+  tripStatus,
 }) => {
   const scrollRef = useRef<ScrollView>(null);
   const [contentWidth, setContentWidth] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [imageError, setImageError] = useState(false);
   const SLIDE_STEP = 93;
 
   const maxScrollX = Math.max(0, contentWidth - containerWidth);
@@ -76,17 +93,22 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
               borderTopRightRadius: 8,
             }}
           >
-            <Image source={require('@/assets/images/thumnail2.png')} className="w-full" resizeMode="cover" />
-            {cardIndex === 0 ? (
-              <View className="absolute top-[13px] left-[15px]">
-                <TripStatusChip status="traveling" />
-              </View>
-            ) : null}
+            <Image
+              source={!imageError && imageUrl ? { uri: imageUrl } : require('@/assets/images/thumnail2.png')}
+              className="w-full h-[144px]"
+              resizeMode="cover"
+              onError={() => setImageError(true)}
+            />
+            <View className="absolute top-[13px] left-[15px]">
+              <TripStatusChip status={mapTripStatus(tripStatus)} />
+            </View>
             <View className="absolute bottom-[14px] left-3">
-              <Text className="text-h1 text-white font-pretendardBold mb-1">도쿄</Text>
+              <Text className="text-h1 text-white font-pretendardBold mb-1">{title}</Text>
               <View className="flex-row items-center">
                 <DateIcon width={12} height={12} />
-                <Text className="text-p text-white font-pretendardRegular ml-[2px]">2026.02.28 - 2026.03.03</Text>
+                <Text className="text-p text-white font-pretendardRegular ml-[2px]">
+                  {startDate.replace(/-/g, '.')} - {endDate.replace(/-/g, '.')}
+                </Text>
               </View>
             </View>
           </View>
@@ -123,8 +145,8 @@ export const TripSelectionCard: React.FC<TripSelectionCardProps> = ({
                   width={14}
                   height={14}
                 />
-                <Text className="text-p text-gray font-pretendardRegular ml-1">5개의 일정</Text>
-                <Text className="text-p text-gray font-pretendardRegular ml-3">4일간</Text>
+                <Text className="text-p text-gray font-pretendardRegular ml-1">{scheduleCount}개의 일정</Text>
+                <Text className="text-p text-gray font-pretendardRegular ml-3">{tripDayCount}일간</Text>
               </View>
             </View>
           </TouchableOpacity>

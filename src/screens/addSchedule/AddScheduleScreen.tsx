@@ -11,10 +11,13 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
+import type { RootStackParamList } from '@/navigation/types';
 
 import { TopBar } from '@/components';
 import { COLORS } from '@/constants/colors';
+import { createSchedule } from '@/services/tripService';
 
 const ITEM_HEIGHT = 44;
 const VISIBLE_ITEMS = 5;
@@ -193,24 +196,38 @@ const getDatePickerOptions = (today: Date, year: number, month: number, day: num
 
 const AddScheduleScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute<RouteProp<RootStackParamList, 'AddSchedule'>>();
+  const params = route.params;
   const today = new Date();
+
   const handleNavigateToTripDetail = () => {
-      navigation.navigate('TripDetail')
-      };
+    if (params?.tripId) {
+      navigation.navigate('TripDetail', { tripId: params.tripId });
+    } else {
+      navigation.navigate('TripDetail');
+    }
+  };
   const handleNavigateToAddCalendarMap = () => {
       navigation.navigate('AddCalendarMapScreen')
       };
 
+  const initialDate: DateValue | null = (() => {
+    if (!params?.date) return null;
+    const [y, m, d] = params.date.split('-').map(Number);
+    return { year: y, month: m, day: d };
+  })();
+
   const [formValues, setFormValues] = useState<FormValues>({
-    title: '',
-    date: null,
+    title: params?.placeName ?? '',
+    date: initialDate,
     startTime: null,
     endTime: null,
-    location: '',
+    location: params?.address ?? '',
     memo: '',
   });
 
   const [pickerMode, setPickerMode] = useState<PickerMode>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [tempYear, setTempYear] = useState(today.getFullYear());
   const [tempMonth, setTempMonth] = useState(today.getMonth() + 1);
@@ -281,7 +298,40 @@ const AddScheduleScreen = () => {
   const timeLabel = (timeValue: TimeValue | null, placeholder: string) => {
     return timeValue ? `${pad(timeValue.hour)}:${pad(timeValue.minute)}` : placeholder;
   };
-  const isSubmitEnabled = formValues.title.trim().length > 0 && formValues.date !== null;
+  const isSubmitEnabled = formValues.title.trim().length > 0 && formValues.date !== null && !isSubmitting;
+
+  const handleSubmit = async (): Promise<void> => {
+    if (!formValues.date || !params?.tripId) return;
+
+    const scheduleDate = `${formValues.date.year}-${pad(formValues.date.month)}-${pad(formValues.date.day)}`;
+    const startTime = formValues.startTime
+      ? `${pad(formValues.startTime.hour)}:${pad(formValues.startTime.minute)}`
+      : undefined;
+    const endTime = formValues.endTime
+      ? `${pad(formValues.endTime.hour)}:${pad(formValues.endTime.minute)}`
+      : undefined;
+
+    setIsSubmitting(true);
+    const { error } = await createSchedule({
+      tripId: params.tripId,
+      payload: {
+        title: formValues.title.trim(),
+        scheduleDate,
+        startTime,
+        endTime,
+        placeName: params.placeName,
+        address: params.address,
+        latitude: params.latitude,
+        longitude: params.longitude,
+        memo: formValues.memo.trim() || undefined,
+      },
+    });
+    setIsSubmitting(false);
+
+    if (!error) {
+      handleNavigateToTripDetail();
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
@@ -384,7 +434,7 @@ const AddScheduleScreen = () => {
         <View className="mt-6 items-center">
           <TouchableOpacity
             disabled={!isSubmitEnabled}
-            onPress={handleNavigateToTripDetail}
+            onPress={() => { void handleSubmit(); }}
             activeOpacity={0.8}
             className="h-[44px] w-full items-center justify-center rounded-[8px]"
             style={{ backgroundColor: isSubmitEnabled ? COLORS.main : '#DF6C2080' }}
