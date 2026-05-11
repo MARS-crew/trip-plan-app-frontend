@@ -115,7 +115,7 @@ export const getRecommendedPlaces = async ({
     return { data: [], error };
   }
 
-  const requestUrl = `${apiBaseUrl}/api/v1/places/recommended?limit=${encodeURIComponent(String(limit))}`;
+  const requestUrl = `${apiBaseUrl}/api/v1/places/recommended?requestDto.limit=${encodeURIComponent(String(limit))}`;
   const result = await performPlaceRequest<GetRecommendedPlacesData>({
     requestUrl,
     signal,
@@ -135,10 +135,10 @@ export const getPlaceDetail = async ({
   }
 
   try {
-    const response = await fetch(
-      `${requestConfig.apiBaseUrl}/api/v1/places/${placeId}`,
-      { headers: requestConfig.headers, signal },
-    );
+    const response = await fetch(`${requestConfig.apiBaseUrl}/api/v1/places/${placeId}`, {
+      headers: requestConfig.headers,
+      signal,
+    });
 
     if (!response.ok) {
       const errorCode = await getResponseErrorCode(response);
