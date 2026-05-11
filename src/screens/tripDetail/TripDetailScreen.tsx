@@ -13,7 +13,6 @@ import {
   getTripShare,
   updateTripTitle,
 } from '@/services';
-
 import type { RootStackParamList } from '@/navigation/types';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
 import type {
