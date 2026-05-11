@@ -324,7 +324,36 @@ export const updateTripDate = async ({
   payload,
   signal,
 }: UpdateTripDateOptions): Promise<UpdateTripDateResult> => {
-  
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/date`;
+    const response = await fetch(requestUrl, {
+      method: 'PATCH',
+      headers: {
+        ...requestConfig.headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { error };
+    }
+
+    return { error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { error };
+  }
+};
+
 export const deleteTrip = async ({ tripId, signal }: DeleteTripOptions): Promise<DeleteTripResult> => {
   const requestConfig = getTripRequestConfig();
   if ('error' in requestConfig) {
@@ -394,7 +423,6 @@ export const updateTripTitle = async ({
   }
 
   try {
-    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/date`;
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/title`;
     const response = await fetch(requestUrl, {
       method: 'PATCH',
