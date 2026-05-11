@@ -114,7 +114,7 @@ const mapScheduleToCardItem = (
   description: toStringValue(schedule.memo) ?? '',
   startTime: formatScheduleTime(toStringValue(schedule.startTime)),
   endTime: formatScheduleTime(toStringValue(schedule.endTime)),
-  isCurrentSchedule,
+  isCurrentSchedule: Boolean(schedule.current) || isCurrentSchedule,
 });
 
 export const normalizeTripDetailData = (
@@ -171,9 +171,10 @@ export const normalizeTripDetailData = (
         toNumberValue(group.dayNo) ?? toNumberValue(group.selectedDayNo) ?? sectionIndex + 1;
       const scheduleDate = toStringValue(group.scheduleDate) ?? toStringValue(group.date);
       const selectedDayLabel = toStringValue(group.selectedDayLabel);
-      const cards = getScheduleListFromGroup(group).map((schedule, cardIndex) =>
-        mapScheduleToCardItem(schedule, cardIndex + 1, sectionIndex === 0 && cardIndex === 0),
-      );
+      const cards = getScheduleListFromGroup(group).map((schedule, cardIndex) => {
+        const isCurrentSchedule = Boolean(schedule.current);
+        return mapScheduleToCardItem(schedule, cardIndex + 1, isCurrentSchedule);
+      });
       return {
         dayNo,
         dayLabel: selectedDayLabel ?? formatDayLabel(dayNo, scheduleDate),
@@ -182,7 +183,7 @@ export const normalizeTripDetailData = (
       };
     });
 
-    return { header, sections: sections.filter((section) => section.cards.length > 0) };
+    return { header, sections };
   }
 
   const flatScheduleKeys = ['schedules', 'tripSchedules', 'scheduleList', 'items', 'cards'];
@@ -220,9 +221,10 @@ export const normalizeTripDetailData = (
     .map((group, sectionIndex) => ({
       dayNo: group.dayNo,
       dayLabel: formatDayLabel(group.dayNo, group.scheduleDate),
-      cards: group.items.map((schedule, cardIndex) =>
-        mapScheduleToCardItem(schedule, cardIndex + 1, sectionIndex === 0 && cardIndex === 0),
-      ),
+      cards: group.items.map((schedule, cardIndex) => {
+        const isCurrentSchedule = Boolean(schedule.current);
+        return mapScheduleToCardItem(schedule, cardIndex + 1, isCurrentSchedule);
+      }),
       showMapIcon: sectionIndex === 0,
     }));
 

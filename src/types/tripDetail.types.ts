@@ -69,6 +69,7 @@ export interface CardContextMenuProps {
   topOffset: number;
   accentColor?: string;
   onPressRoute: (card: TripDetailCardItem) => void;
+  onPressDelete: (card: TripDetailCardItem) => void;
   onClose: () => void;
 }
 
@@ -76,7 +77,27 @@ export interface KebabMenuSheetProps {
   isVisible: boolean;
   translateY: SharedValue<number>;
   onClose: () => void;
+  onPressEditTitle?: () => void;
   onPressShare?: () => void;
+  onPressDelete?: () => void;
+}
+
+export interface DeleteWarningModalProps {
+  visible: boolean;
+  title?: string;
+  confirmLabel?: string;
+  onConfirm: () => void;
+  onClose: () => void;
+}
+
+export interface EditTitleModalProps {
+  visible: boolean;
+  value: string;
+  maxLength: number;
+  isSubmitting?: boolean;
+  onChangeValue: (value: string) => void;
+  onSubmit: () => void;
+  onClose: () => void;
 }
 
 export interface GetTripSchedulesResult {
@@ -130,5 +151,38 @@ export interface GetTripRouteOptions {
 
 export interface GetTripRouteResult {
   data: GetTripRouteData | null;
+  error: ServiceError | null;
+}
+
+export interface DeleteTripOptions {
+  tripId: number;
+  signal?: AbortSignal;
+}
+
+export interface DeleteTripResult {
+  error: ServiceError | null;
+}
+
+export interface DeleteTripScheduleOptions {
+  tripId: number;
+  tripScheduleId: number;
+  signal?: AbortSignal;
+}
+
+export interface DeleteTripScheduleResult {
+  error: ServiceError | null;
+}
+
+export interface UpdateTripTitleRequest {
+  title: string;
+}
+
+export interface UpdateTripTitleOptions {
+  tripId: number;
+  payload: UpdateTripTitleRequest;
+  signal?: AbortSignal;
+}
+
+export interface UpdateTripTitleResult {
   error: ServiceError | null;
 }
