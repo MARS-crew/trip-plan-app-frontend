@@ -95,7 +95,7 @@ export type {
   StatItem,
   StatItemType,
 } from './mypage';
-export type { GetTripSchedulesOptions, GetTripSchedulesResult } from './tripDetail.types';
+export type { GetTripDetailOptions, GetTripDetailResult } from './tripDetail.types';
 export type {
   GetNearbyRecommendedPlacesData,
   GetNearbyRecommendedPlacesOptions,

@@ -36,6 +36,10 @@ export type RootStackParamList = {
   AddTripCalendar: {
     title: string;
     imageUrl: string;
+    mode?: 'create' | 'editDate';
+    tripId?: number;
+    startDate?: string;
+    endDate?: string;
   };
   VisitedPlaceListScreen: undefined;
   FindId: undefined;

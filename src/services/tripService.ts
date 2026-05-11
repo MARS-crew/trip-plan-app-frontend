@@ -18,6 +18,8 @@ import type {
 } from '@/types/myTrip.types';
 import type { TripRequestConfig, TripRequestConfigError } from '@/types/trip';
 import type {
+  UpdateTripDateOptions,
+  UpdateTripDateResult,
   DeleteTripScheduleOptions,
   DeleteTripScheduleResult,
   DeleteTripOptions,
@@ -25,8 +27,8 @@ import type {
   GetTripRouteData,
   GetTripRouteOptions,
   GetTripRouteResult,
-  GetTripSchedulesOptions,
-  GetTripSchedulesResult,
+  GetTripDetailOptions,
+  GetTripDetailResult,
   GetTripShareOptions,
   GetTripShareResult,
   TripShareData,
@@ -226,10 +228,10 @@ export const getTripSchedulesByDate = async ({
   }
 };
 
-export const getTripSchedules = async ({
+export const getTripDetail = async ({
   tripId,
   signal,
-}: GetTripSchedulesOptions): Promise<GetTripSchedulesResult> => {
+}: GetTripDetailOptions): Promise<GetTripDetailResult> => {
   const requestConfig = getTripRequestConfig();
   if ('error' in requestConfig) {
     return { data: null, error: requestConfig.error };
@@ -317,6 +319,12 @@ export const getTripRoute = async ({
   }
 };
 
+export const updateTripDate = async ({
+  tripId,
+  payload,
+  signal,
+}: UpdateTripDateOptions): Promise<UpdateTripDateResult> => {
+  
 export const deleteTrip = async ({ tripId, signal }: DeleteTripOptions): Promise<DeleteTripResult> => {
   const requestConfig = getTripRequestConfig();
   if ('error' in requestConfig) {
@@ -386,6 +394,7 @@ export const updateTripTitle = async ({
   }
 
   try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/date`;
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/title`;
     const response = await fetch(requestUrl, {
       method: 'PATCH',

@@ -31,6 +31,7 @@ export interface TripDetailHeader {
   dateText: string;
   imageUrl?: string;
   startDate?: string;
+  endDate?: string;
   tripDayCount?: number;
 }
 
@@ -78,6 +79,7 @@ export interface KebabMenuSheetProps {
   translateY: SharedValue<number>;
   onClose: () => void;
   onPressEditTitle?: () => void;
+  onPressEditDate?: () => void;
   onPressShare?: () => void;
   onPressDelete?: () => void;
 }
@@ -100,12 +102,12 @@ export interface EditTitleModalProps {
   onClose: () => void;
 }
 
-export interface GetTripSchedulesResult {
+export interface GetTripDetailResult {
   data: unknown;
   error: ServiceError | null;
 }
 
-export interface GetTripSchedulesOptions {
+export interface GetTripDetailOptions {
   tripId: number;
   signal?: AbortSignal;
 }
@@ -184,5 +186,20 @@ export interface UpdateTripTitleOptions {
 }
 
 export interface UpdateTripTitleResult {
+  error: ServiceError | null;
+}
+
+export interface UpdateTripDateRequest {
+  startDate: string;
+  endDate: string;
+}
+
+export interface UpdateTripDateOptions {
+  tripId: number;
+  payload: UpdateTripDateRequest;
+  signal?: AbortSignal;
+}
+
+export interface UpdateTripDateResult {
   error: ServiceError | null;
 }
