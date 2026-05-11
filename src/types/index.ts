@@ -96,6 +96,7 @@ export type {
   StatItemType,
 } from './mypage';
 export type { GetTripSchedulesOptions, GetTripSchedulesResult } from './tripDetail.types';
+export type { ChatRequest, ChatResponse, ChatMessage } from './chat';
 export type {
   GetNearbyRecommendedPlacesData,
   GetNearbyRecommendedPlacesOptions,

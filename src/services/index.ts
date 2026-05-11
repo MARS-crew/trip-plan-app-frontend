@@ -6,3 +6,4 @@ export * from './mypageService';
 export * from './savedPlaceService';
 export * from './placeService';
 export * from './mapPlaceService';
+export * from './chatService';
