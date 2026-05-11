@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type {
@@ -38,20 +38,26 @@ const SearchResultScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchResults = async (): Promise<void> => {
       setIsLoading(true);
       try {
         const data = await getSearchResults(query);
-        setResults(data.map(toGetTravelItemData));
+        if (isMounted) setResults(data.map(toGetTravelItemData));
       } catch (error) {
         console.error('fetchResults Error:', error);
-        setResults([]);
+        if (isMounted) setResults([]);
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     };
 
     fetchResults();
+
+    return () => {
+      isMounted = false;
+    };
   }, [query]);
 
   const handlePressItem = useCallback(
@@ -60,6 +66,13 @@ const SearchResultScreen: React.FC = () => {
     },
     [navigation],
   );
+
+  const renderItem = useCallback(
+    ({ item }: { item: GetTravelItemData }) => <TravelItem item={item} onPress={handlePressItem} />,
+    [handlePressItem],
+  );
+
+  const keyExtractor = useCallback((item: GetTravelItemData) => item.id, []);
 
   // 렌더링
   return (
@@ -79,32 +92,27 @@ const SearchResultScreen: React.FC = () => {
         </View>
       </View>
 
-      <ScrollView>
-        <View className="px-4">
-          {isLoading ? (
-            <ActivityIndicator size="large" color={COLORS.main} className="py-20" />
-          ) : (
-            <>
-              <Text className="mb-3 text-p text-gray">
-                "{query}" 검색 결과 {results.length}건
-              </Text>
-              {results.length > 0 ? (
-                <View>
-                  {results.map((item, index) => (
-                    <View key={item.id} className={index < results.length - 1 ? 'mb-3' : ''}>
-                      <TravelItem item={item} onPress={handlePressItem} />
-                    </View>
-                  ))}
-                </View>
-              ) : (
-                <View className="flex-1 items-center justify-center py-20">
-                  <Text className="text-gray">검색 결과가 없습니다.</Text>
-                </View>
-              )}
-            </>
-          )}
-        </View>
-      </ScrollView>
+      {isLoading ? (
+        <ActivityIndicator size="large" color={COLORS.main} className="py-20" />
+      ) : (
+        <FlatList
+          data={results}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          contentContainerStyle={{ paddingHorizontal: 16 }}
+          ItemSeparatorComponent={() => <View className="mb-3" />}
+          ListHeaderComponent={
+            <Text className="mb-3 text-p text-gray">
+              "{query}" 검색 결과 {results.length}건
+            </Text>
+          }
+          ListEmptyComponent={
+            <View className="flex-1 items-center justify-center py-20">
+              <Text className="text-gray">검색 결과가 없습니다.</Text>
+            </View>
+          }
+        />
+      )}
     </SafeAreaView>
   );
 };
