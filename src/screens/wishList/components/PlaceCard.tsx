@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, type ImageSourcePropType } from 'react-native';
-import { ContentContainer } from '@/components/ui';
 import { CategoryChip, WishContentContainer } from '@/screens/wishList/components';
 import { PlaceIcon, HeartIcon, ActiveHeartIcon, VectorIcon } from '@/assets/icons';
 import type { PlaceCardProps } from '@/types/wishlist';

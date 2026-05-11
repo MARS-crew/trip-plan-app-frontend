@@ -23,6 +23,7 @@ export type {
 export type { FindPasswordCodeSectionProps } from './findPasswordCodeSection';
 export type { FindPasswordEmailSectionProps } from './findPasswordEmailSection';
 export type { FindPasswordResultCardProps } from './findPasswordResultCard';
+export type { FetchAddressResult, FetchPlaceNameResult } from './mapPlace';
 export type {
   ChatCaseContentProps,
   HomeScreenNavigationProp,

@@ -5,8 +5,10 @@ import type {
   GetRecentSearch,
   GetRecentSearchData,
   GetPopularSearchData,
-  GetSearchResultsData,
+  SearchResult,
+  SearchResultData,
 } from '@/types/search';
+
 import { useAuthStore } from '@/store';
 
 export const deleteRecentSearch = async (recentSearchId: number): Promise<void> => {
@@ -96,7 +98,7 @@ export const deleteAllRecentSearch = async (): Promise<void> => {
   }
 };
 
-export const getSearchResults = async (keyword: string): Promise<GetSearchResultsData> => {
+export const getSearchResults = async (keyword: string): Promise<SearchResult[]> => {
   const apiBase = Config.API_BASE_URL;
   const accessToken = useAuthStore.getState().accessToken?.trim();
 
@@ -123,8 +125,8 @@ export const getSearchResults = async (keyword: string): Promise<GetSearchResult
       throw new Error('검색 결과 조회 실패');
     }
 
-    const json: BaseResponse<GetSearchResultsData> = await response.json();
-    return json.data ?? { keyword, resultCount: 0, searchResults: [] };
+    const json: BaseResponse<SearchResultData> = await response.json();
+    return json.data?.searchResults ?? [];
   } catch (error) {
     console.error('getSearchResults Error:', error);
     throw error;
