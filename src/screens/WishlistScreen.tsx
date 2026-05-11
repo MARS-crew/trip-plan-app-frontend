@@ -1,16 +1,15 @@
 import React, { useCallback, useRef, useEffect, useState } from 'react';
+
 import {
   View,
   TextInput,
   TouchableOpacity,
-  Text,
   Keyboard,
   Platform,
   PermissionsAndroid,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MyLocation, WishStar } from '@/assets/icons';
 import { WishModal } from './wishList/components/WishModal';
@@ -39,84 +38,25 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Shadow } from 'react-native-shadow-2';
+import { getPlaceSelection } from '@/services/searchService';
+import type { PlaceSelectionPlace } from '@/types/wishlist';
 
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type TabId = WishlistBottomSheetTabId;
+
+const convertPlaceDataToWishPlace = (place: PlaceSelectionPlace): PlaceCardProps['place'] => ({
+  id: place.placeId.toString(),
+  title: place.name,
+  location: `${place.cityName}, ${place.countryName}`,
+  description: place.address,
+  categories: [place.placeType],
+  image: { uri: place.imageUrl },
+});
 //더미 데이터 - 실제 API 연동 시 제거 예정
 const TRENDING_PLACES: PlaceCardProps['place'][] = [
   {
     id: 'place_1',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-];
-
-const SAVED_PLACES: PlaceCardProps['place'][] = [
-  {
-    id: 'placeS_1',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'placeS_2',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-];
-
-const WISHLIST_PLACES: PlaceCardProps['place'][] = [
-  {
-    id: 'placeW_1',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'placeW_2',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'placeW_3',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'placeW_4',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'placeW_5',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-  {
-    id: 'placeW_6',
     title: '센소지 아사쿠사',
     location: '도쿄, 일본',
     description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
@@ -168,12 +108,47 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   const SNAP_TRENDING = SHEET_HEIGHT - SECOND_SNAP_VISIBLE_HEIGHT;
   const SEARCH_BUTTON_BOTTOM = BOTTOM_SHEET_MIN_HEIGHT + 10;
 
+  const route = useRoute();
+  const navigation = useNavigation<NavigationProp>();
   const translateY = useSharedValue(SNAP_LOW);
+  const tripId = (route.params as { tripId?: number })?.tripId;
+
+  const [savedPlaces, setSavedPlaces] = useState<PlaceCardProps['place'][]>([]);
+  const [wishlistPlaces, setWishlistPlaces] = useState<PlaceCardProps['place'][]>([]);
 
   const [likedIdsByTab, setLikedIdsByTab] = useState<LikedIdsByTab>(() => ({
     saved: new Set<string>(),
-    wishlist: new Set(WISHLIST_PLACES.map((place) => place.id)),
+    wishlist: new Set<string>(),
   }));
+  useEffect(() => {
+    const loadPlaceSelection = async () => {
+      try {
+        const response = await getPlaceSelection(tripId);
+
+        const convertedSavedPlaces = response.data.savedPlaces.map(convertPlaceDataToWishPlace);
+        const convertedWishlistPlaces = response.data.wishlistPlaces.map(
+          convertPlaceDataToWishPlace,
+        );
+
+        setSavedPlaces(convertedSavedPlaces);
+        setWishlistPlaces(convertedWishlistPlaces);
+        setLikedIdsByTab({
+          saved: new Set<string>(),
+          wishlist: new Set(convertedWishlistPlaces.map((place) => place.id)),
+        });
+      } catch (err) {
+        console.error('Failed to load place selection:', err);
+        setSavedPlaces([]);
+        setWishlistPlaces([]);
+        setLikedIdsByTab({
+          saved: new Set<string>(),
+          wishlist: new Set<string>(),
+        });
+      }
+    };
+
+    loadPlaceSelection();
+  }, [tripId]);
 
   const toggleLike = useCallback((tab: LikeTabId, id: string): void => {
     setLikedIdsByTab((prev) => {
@@ -188,7 +163,6 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     [likedIdsByTab],
   );
 
-  const navigation = useNavigation<NavigationProp>();
   const [selectedCategory, setSelectedCategory] = useState<TabId>(INITIAL_CATEGORY);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -345,23 +319,23 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     return { opacity, pointerEvents: opacity < 0.1 ? 'none' : 'auto' };
   }); //  뒤로가기 버튼 핸들링 + 모달 상태 초기화
 
-useEffect(() => {
-  const timer = setTimeout(() => {
-    requestLocationPermission();
-  }, 500); // 화면 먼저 뜨고 요청
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      requestLocationPermission();
+    }, 500); // 화면 먼저 뜨고 요청
 
-  return () => clearTimeout(timer);
-}, []);
-  
- const requestLocationPermission = async () => {
-  if (Platform.OS === 'android') {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-    );
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
-  }
-  return true;
-};
+    return () => clearTimeout(timer);
+  }, []);
+
+  const requestLocationPermission = async () => {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    }
+    return true;
+  };
   useFocusEffect(
     useCallback(() => {
       setShowAddModal(false);
@@ -461,7 +435,7 @@ useEffect(() => {
       case 'saved':
         return (
           <WishTabSave
-            places={SAVED_PLACES}
+            places={savedPlaces}
             isLiked={isSavedLiked}
             onToggleLike={handleToggleSaved}
           />
@@ -469,7 +443,7 @@ useEffect(() => {
       case 'wishlist':
         return (
           <WishTabWishlist
-            places={WISHLIST_PLACES}
+            places={wishlistPlaces}
             isLiked={isWishlistLiked}
             onToggleLike={handleToggleWishlist}
           />
