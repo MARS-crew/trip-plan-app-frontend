@@ -12,6 +12,7 @@ export const EmailSection: React.FC<FindPasswordEmailSectionProps> = ({
   sendCodeButtonText,
   isEmailSent,
   isEmailError,
+  emailErrorMessage,
   isCodeVerified,
   onChangeEmail,
   onSendVerification,
@@ -65,7 +66,7 @@ export const EmailSection: React.FC<FindPasswordEmailSectionProps> = ({
 
       {isEmailError ? (
         <Text className="mt-2 font-pretendardRegular text-p text-statusError">
-          가입된 이메일이 없습니다.
+          {emailErrorMessage || '가입된 이메일이 없습니다.'}
         </Text>
       ) : null}
     </View>

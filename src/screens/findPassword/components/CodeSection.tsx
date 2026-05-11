@@ -9,6 +9,7 @@ import type { FindPasswordCodeSectionProps } from '@/types/findPasswordCodeSecti
 export const CodeSection: React.FC<FindPasswordCodeSectionProps> = ({
   code,
   isCodeError,
+  isVerifyingCode = false,
   onChangeCode,
   onVerifyCode,
 }) => {
@@ -33,11 +34,14 @@ export const CodeSection: React.FC<FindPasswordCodeSectionProps> = ({
         />
 
         <TouchableOpacity
-          className="ml-2 h-[46px] items-center justify-center rounded-xl border border-borderGray bg-white px-11"
+          className={`ml-2 h-[46px] items-center justify-center rounded-xl border border-borderGray px-11 ${
+            isVerifyingCode ? 'bg-white/60' : 'bg-white'
+          }`}
           onPress={onVerifyCode}
+          disabled={isVerifyingCode}
           accessibilityRole="button"
           accessibilityLabel="인증번호 확인">
-          <Text className="text-p text-gray">확인</Text>
+          <Text className="text-p text-gray">{isVerifyingCode ? '확인중' : '확인'}</Text>
         </TouchableOpacity>
       </View>
 

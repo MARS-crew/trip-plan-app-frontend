@@ -1,17 +1,27 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { TouchableOpacity, View, Text } from 'react-native';
 
 import { ContentContainer } from '@/components/ui';
-import { AddressIcon, PlaceIcon, TimeIcon, VectorIcon } from '@/assets/icons';
-import { getNearbyRecommendedPlaces } from '@/services';
+import { AddressIcon, ChevronDownIcon, ChevronUpIcon, PlaceIcon, TimeIcon, VectorIcon } from '@/assets/icons';
+import { getNearbyRecommendedPlaces } from '@/services/placeService';
+import { formatOpeningHours } from '@/utils';
 import type { NearbyRecommendedPlace } from '@/types/place';
 
 interface InfoTabContentProps {
   placeId: number;
+  description?: string;
+  address?: string;
+  openingHours?: string | null;
 }
 
-export const InfoTabContent: React.FC<InfoTabContentProps> = ({ placeId }) => {
-  const [recommendedPlaces, setRecommendedPlaces] = React.useState<NearbyRecommendedPlace[]>([]);
+export const InfoTabContent: React.FC<InfoTabContentProps> = ({
+  placeId,
+  description,
+  address,
+  openingHours,
+}) => {
+  const [isHoursExpanded, setIsHoursExpanded] = React.useState(false);
+  const [nearbyPlaces, setNearbyPlaces] = React.useState<NearbyRecommendedPlace[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
@@ -26,32 +36,27 @@ export const InfoTabContent: React.FC<InfoTabContentProps> = ({ placeId }) => {
     setIsLoading(true);
     setErrorMessage(null);
 
-    const fetchRecommendedPlaces = async (): Promise<void> => {
+    const fetchNearbyPlaces = async (): Promise<void> => {
       const { data, error } = await getNearbyRecommendedPlaces({
         placeId,
         signal: controller.signal,
       });
 
-      if (controller.signal.aborted) {
-        return;
-      }
+      if (controller.signal.aborted) return;
 
       if (error) {
-        setRecommendedPlaces([]);
         setErrorMessage('주변 추천 장소를 불러오지 못했습니다.');
         setIsLoading(false);
         return;
       }
 
-      setRecommendedPlaces(data);
+      setNearbyPlaces(data);
       setIsLoading(false);
     };
 
-    void fetchRecommendedPlaces();
+    void fetchNearbyPlaces();
 
-    return () => {
-      controller.abort();
-    };
+    return () => controller.abort();
   }, [placeId]);
 
   return (
@@ -59,51 +64,80 @@ export const InfoTabContent: React.FC<InfoTabContentProps> = ({ placeId }) => {
       <ContentContainer className="p-4">
         <Text className="text-h3 font-pretendardSemiBold mb-2">소개</Text>
         <Text className="text-p text-gray font-pretendardMedium">
-          도쿄에서 가장 오래된 불교 사원으로, 웅장한 카미나리몬과 나카미세 거리가 유명합니다.
+          {description || '해당 장소의 소개글이 없습니다.'}
         </Text>
       </ContentContainer>
 
       <View className="mt-5">
-        <ContentContainer className="w-[181px]">
-          <View className="flex-row items-center ml-4 mr-[44px] mt-[14px] mb-[14px]">
-            <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center">
-              <TimeIcon />
-            </View>
-            <View className="ml-[13px]">
-              <Text className="text-p text-gray">영업시간</Text>
-              <View className="mt-1">
-                <Text className="text-p text-black">06:00 - 17:00</Text>
+        <ContentContainer compact>
+          {openingHours ? (
+            <TouchableOpacity
+              className="flex-row items-center ml-4 mr-4 mt-[14px] mb-[14px]"
+              style={{ minWidth: 181 }}
+              onPress={() => setIsHoursExpanded((prev) => !prev)}
+              activeOpacity={0.7}>
+              <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center shrink-0">
+                <TimeIcon />
+              </View>
+              <View className="ml-[13px] mr-2">
+                <Text className="text-p text-gray">영업시간</Text>
+                <View className="mt-1">
+                  <Text
+                    className="text-p text-black leading-6"
+                    numberOfLines={isHoursExpanded ? undefined : 1}>
+                    {formatOpeningHours(openingHours)}
+                  </Text>
+                </View>
+              </View>
+              <View className="shrink-0">
+                {isHoursExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <View
+              className="flex-row items-center ml-4 mr-4 mt-[14px] mb-[14px]"
+              style={{ minWidth: 181 }}>
+              <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center shrink-0">
+                <TimeIcon />
+              </View>
+              <View className="ml-[13px]">
+                <Text className="text-p text-gray">영업시간</Text>
+                <View className="mt-1">
+                  <Text className="text-p text-black">정보 없음</Text>
+                </View>
               </View>
             </View>
-          </View>
+          )}
         </ContentContainer>
       </View>
 
-      <View className="mt-5">
-        <ContentContainer>
-          <View className="flex-row items-center ml-4 mt-[14px] mb-[14px]">
-            <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center">
-              <AddressIcon />
-            </View>
-            <View className="ml-[13px]">
-              <Text className="text-p text-gray">주소</Text>
-              <View className="mt-1">
-                <Text className="text-p text-black">2 Chrome-3-1 Asakusa, Taito City, Tokyo</Text>
+      {address ? (
+        <View className="mt-5">
+          <ContentContainer>
+            <View className="flex-row items-start ml-4 mr-4 mt-[14px] mb-[14px]">
+              <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center shrink-0">
+                <AddressIcon />
+              </View>
+              <View className="ml-[13px] flex-1">
+                <Text className="text-p text-gray">주소</Text>
+                <View className="mt-1">
+                  <Text className="text-p text-black">{address}</Text>
+                </View>
               </View>
             </View>
-          </View>
-        </ContentContainer>
-      </View>
+          </ContentContainer>
+        </View>
+      ) : null}
 
       <View className="mt-5">
         <Text className="text-h3 text-black font-pretendardSemiBold">주변 추천 장소</Text>
       </View>
 
-      {!isLoading && !errorMessage && recommendedPlaces.length > 0 ? (
-        recommendedPlaces.map((place, index) => (
+      {!isLoading && !errorMessage && nearbyPlaces.length > 0 ? (
+        nearbyPlaces.map((place, index) => (
           <View
             key={place.placeId}
-            className={`${index === 0 ? 'mt-3' : 'mt-2'} ${index === recommendedPlaces.length - 1 ? 'mb-[26px]' : ''}`}>
+            className={`${index === 0 ? 'mt-3' : 'mt-2'} ${index === nearbyPlaces.length - 1 ? 'mb-[26px]' : ''}`}>
             <ContentContainer>
               <View className="flex-row items-center justify-between ml-4 my-3">
                 <View className="flex-row items-center">

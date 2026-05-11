@@ -13,11 +13,7 @@ interface MapPlaceCardProps {
   onPressAction?: () => void;
 }
 
-const MapPlaceCard: React.FC<MapPlaceCardProps> = ({
-  place,
-  showAction = true,
-  onPressAction,
-}) => {
+const MapPlaceCard: React.FC<MapPlaceCardProps> = ({ place, showAction = true, onPressAction }) => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
@@ -29,28 +25,31 @@ const MapPlaceCard: React.FC<MapPlaceCardProps> = ({
         shadowOpacity: 1,
         shadowRadius: 4,
         elevation: 2,
-      }}
-    >
+      }}>
       <View className="h-[112px] flex-row pr-4">
-        <View className="h-28 w-28 shrink-0 overflow-hidden rounded-l-lg">
-          <Image source={place.image} className="h-full w-full" resizeMode="cover" />
+        <View className="bg-gray-100 h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-l-lg">
+          {place.image ? (
+            <Image source={place.image} className="h-full w-full" resizeMode="cover" />
+          ) : (
+            <Text className="px-2 text-center text-[12px] text-gray">
+              {place.imageText ?? '이미지 준비 중'}
+            </Text>
+          )}
         </View>
 
-        <View className="ml-3 h-full flex-1 pt-4 pb-3">
+        <View className="ml-3 h-full flex-1 pb-3 pt-4">
           <Text
-            className="text-h3 font-pretendardBold text-black"
+            className="font-pretendardBold text-h3 text-black"
             numberOfLines={1}
-            style={{ includeFontPadding: false }}
-          >
+            style={{ includeFontPadding: false }}>
             {place.title}
           </Text>
 
           <View className="mt-1 flex-row items-center">
             <Text
-              className="text-p text-gray w-[172px] h-[32px]"
+              className="h-[32px] w-[172px] text-p text-gray"
               numberOfLines={2}
-              style={{ includeFontPadding: false }}
-            >
+              style={{ includeFontPadding: false }}>
               {place.placeCardDescription}
             </Text>
           </View>
@@ -72,7 +71,7 @@ const MapPlaceCard: React.FC<MapPlaceCardProps> = ({
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onPressAction ?? (() => navigation.navigate('AddSchedule'))}
-            className="self-center px-3 h-[36px] w-[36px] items-center justify-center rounded-[6px] bg-main">
+            className="h-[36px] w-[36px] items-center justify-center self-center rounded-[6px] bg-main px-3">
             <ScheduleIcon width={16} height={16} />
           </TouchableOpacity>
         )}

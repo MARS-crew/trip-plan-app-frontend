@@ -228,6 +228,7 @@ const TripDetailScreen: React.FC = () => {
         contentContainerStyle={{ paddingBottom: 310 }}>
         <Header
           onPressKebab={handleOpenKebabMenu}
+          tripId={tripId}
           title={headerData.title}
           dateText={headerData.dateText}
           imageUrl={headerData.imageUrl}

@@ -48,6 +48,7 @@ export type TripDetailCardMenuItem = Pick<
 
 export interface HeaderProps {
   onPressKebab: () => void;
+  tripId?: number;
   title?: string;
   dateText?: string;
   imageUrl?: string;

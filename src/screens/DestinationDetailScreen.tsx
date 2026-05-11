@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Image, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, View, Image, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -22,16 +22,17 @@ import {
   ActiveReviewIcon,
 } from '@/assets/icons';
 import type { RootTabParamList, SearchStackParamList } from '@/navigation/types';
+import { getPlaceDetail } from '@/services/placeService';
 import { getReviewList } from '@/services/reviewService';
+import type { PlaceDetail } from '@/types/place';
 import type { ReviewData } from '@/types/review';
 
-//예시 값
-const ratings = [
-  { label: '5점', count: 20000 },
-  { label: '4점', count: 13000 },
-  { label: '3점', count: 2500 },
-  { label: '2점', count: 800 },
-  { label: '1점', count: 489 },
+const FALLBACK_RATINGS = [
+  { label: '5점', count: 0 },
+  { label: '4점', count: 0 },
+  { label: '3점', count: 0 },
+  { label: '2점', count: 0 },
+  { label: '1점', count: 0 },
 ];
 
 // ============ Types ============
@@ -50,7 +51,9 @@ const DestinationDetailScreen: React.FC = () => {
   // Hooks
   const [activeTab, setActiveTab] = React.useState(initialTab);
   const [isBookmarked, setIsBookmarked] = React.useState(false);
-
+  const [placeDetail, setPlaceDetail] = useState<PlaceDetail | null>(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(true);
+  const [imageLoadError, setImageLoadError] = useState(false);
   const [reviewData, setReviewData] = useState<ReviewData | null>(null);
 
   const handleGoBack = useCallback((): void => {
@@ -72,15 +75,38 @@ const DestinationDetailScreen: React.FC = () => {
   }, [navigation, origin]);
 
   useEffect(() => {
-    const fetchReviews = async () => {
+    const controller = new AbortController();
+    setIsDetailLoading(true);
+
+    const fetchDetail = async (): Promise<void> => {
+      const { data, error } = await getPlaceDetail({ placeId, signal: controller.signal });
+      if (controller.signal.aborted) return;
+      if (!error && data) {
+        setPlaceDetail(data);
+        setIsBookmarked(data.saved);
+      }
+      setIsDetailLoading(false);
+    };
+
+    void fetchDetail();
+    return () => controller.abort();
+  }, [placeId]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchReviews = async (): Promise<void> => {
       try {
         const fetched = await getReviewList(placeId);
+        if (controller.signal.aborted) return;
         setReviewData(fetched);
       } catch {
-        setReviewData(null);
+        if (!controller.signal.aborted) setReviewData(null);
       }
     };
-    fetchReviews();
+
+    void fetchReviews();
+    return () => controller.abort();
   }, [placeId]);
 
   const handleSave = useCallback((): void => {
@@ -98,8 +124,14 @@ const DestinationDetailScreen: React.FC = () => {
   }, []);
 
   const handleAddToSchedule = useCallback((): void => {
-    navigation.navigate('SelectTrip');
-  }, [navigation]);
+    navigation.navigate('SelectTrip', {
+      placeId,
+      placeName: placeDetail?.name ?? '',
+      address: placeDetail?.address ?? '',
+      latitude: placeDetail?.latitude ?? 0,
+      longitude: placeDetail?.longitude ?? 0,
+    });
+  }, [navigation, placeId, placeDetail]);
 
   // 파생 값
   const tabs = React.useMemo(
@@ -111,7 +143,7 @@ const DestinationDetailScreen: React.FC = () => {
   );
 
   const ratingDisplayRows = React.useMemo(() => {
-    if (!reviewData) return ratings;
+    if (!reviewData) return FALLBACK_RATINGS;
 
     const dist = reviewData.ratingDistribution;
     return ([5, 4, 3, 2, 1] as const).map((stars) => ({
@@ -122,17 +154,34 @@ const DestinationDetailScreen: React.FC = () => {
 
   const maxCount = Math.max(...ratingDisplayRows.map((r) => r.count), 1);
 
+  const displayTags = React.useMemo(
+    () => (placeDetail?.tags.length ? placeDetail.tags : placeDetail?.placeType ? [placeDetail.placeType] : []),
+    [placeDetail],
+  );
+
   // 렌더링
+  if (isDetailLoading) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-screenBackground" edges={['top']}>
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* 헤더 이미지 영역 */}
         <View className="relative w-full">
           <Image
-            source={require('@/assets/images/thumnail.png')}
-            className="w-full"
+            source={!imageLoadError && placeDetail?.imageUrl
+              ? { uri: placeDetail.imageUrl }
+              : require('@/assets/images/thumnail.png')}
+            onError={() => setImageLoadError(true)}
+            className="w-full h-[256px]"
             resizeMode="cover"
           />
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.3)' }} />
 
           {/* 왼쪽: 뒤로가기 버튼 */}
           <View className="absolute left-4 top-4">
@@ -159,11 +208,13 @@ const DestinationDetailScreen: React.FC = () => {
           {/* 좌측 하단: 위치 정보 */}
           <View className="absolute bottom-[19px] left-4">
             <Text className="mb-[7px] font-pretendardBold text-title text-white">
-              센소지 아사쿠사
+              {placeDetail?.name ?? ''}
             </Text>
             <View className="flex-row items-center">
               <MarkerIcon />
-              <Text className="ml-[6px] text-p text-white">도쿄, 일본</Text>
+              <Text className="ml-[6px] text-p text-white">
+                {placeDetail ? `${placeDetail.cityName}, ${placeDetail.countryName}` : ''}
+              </Text>
             </View>
           </View>
         </View>
@@ -171,8 +222,12 @@ const DestinationDetailScreen: React.FC = () => {
         <View className="mt-7 flex-row items-center justify-between px-4">
           <View className="flex-row items-center">
             <StarIcon />
-            <Text className="ml-1 font-pretendardBold text-h2">4.6</Text>
-            <Text className="ml-3 font-pretendardMedium text-p1 text-gray">리뷰 56,789개</Text>
+            <Text className="ml-1 font-pretendardBold text-h2">
+              {placeDetail?.ratingAvg.toFixed(1) ?? '-'}
+            </Text>
+            <Text className="ml-3 font-pretendardMedium text-p1 text-gray">
+              리뷰 {(placeDetail?.reviewCount ?? 0).toLocaleString()}개
+            </Text>
           </View>
 
           <TouchableOpacity
@@ -184,11 +239,13 @@ const DestinationDetailScreen: React.FC = () => {
         </View>
 
         {/* 카테고리 Chip */}
-        <View className="mt-7 flex-row px-4">
-          <Chip label="관광지" className="mr-2" />
-          <Chip label="문화" className="mr-2" />
-          <Chip label="역사" />
-        </View>
+        {displayTags.length > 0 && (
+          <View className="mt-7 flex-row px-4">
+            {displayTags.map((tag, idx) => (
+              <Chip key={tag} label={tag} className={idx < displayTags.length - 1 ? 'mr-2' : ''} />
+            ))}
+          </View>
+        )}
 
         {/* 탭 네비게이션 */}
         <View className="mb-5 mt-[34px] px-4">
@@ -198,7 +255,12 @@ const DestinationDetailScreen: React.FC = () => {
         {/* 컨텐츠 영역 */}
         <View className="px-4">
           {activeTab === 'info' ? (
-            <InfoTabContent placeId={placeId} />
+            <InfoTabContent
+              placeId={placeId}
+              description={placeDetail?.description}
+              address={placeDetail?.address}
+              openingHours={placeDetail?.openingHours}
+            />
           ) : (
             <>
               <View className="mb-4">

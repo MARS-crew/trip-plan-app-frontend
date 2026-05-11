@@ -6,10 +6,11 @@ import { Shadow } from 'react-native-shadow-2';
 export interface ContentContainerProps {
   children: React.ReactNode;
   className?: string;
+  compact?: boolean;
 }
 
 // ============ Component ============
-export const ContentContainer = React.memo<ContentContainerProps>(({ children, className }) => {
+export const ContentContainer = React.memo<ContentContainerProps>(({ children, className, compact }) => {
   // 파생 값
   const { widthClass, otherClasses } = useMemo(() => {
     if (!className) return { widthClass: null, otherClasses: undefined };
@@ -31,6 +32,21 @@ export const ContentContainer = React.memo<ContentContainerProps>(({ children, c
   }, [className]);
 
   // 렌더링
+  if (compact) {
+    return (
+      <Shadow
+        distance={2}
+        startColor="#00000025"
+        endColor="#00000000"
+        offset={[0, 0]}
+        paintInside={false}
+        containerStyle={{ alignSelf: 'flex-start' }}
+        style={{ borderRadius: 8 }}>
+        <View className={`rounded-lg bg-white self-start ${otherClasses ?? ''}`}>{children}</View>
+      </Shadow>
+    );
+  }
+
   return (
     <View className={widthClass || undefined}>
       <Shadow

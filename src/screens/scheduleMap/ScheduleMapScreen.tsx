@@ -21,6 +21,7 @@ import { getDistanceMeters } from '@/utils/location';
 
 import { TopBar } from '@/components';
 import TripDetailCard from '@/components/ui/TripDetailCard';
+import { fetchKoreanAddress, fetchNearestKoreanPlaceName } from '@/services/mapPlaceService';
 import IndexMarker from './components/IndexMarker';
 import MapPlaceCard from './components/MapPlaceCard';
 
@@ -335,11 +336,116 @@ const ScheduleMapScreen: React.FC = () => {
     [animateCardToCenter, cardTranslate, updateHorizontalDay, updateVerticalIndex],
   );
 
-  const handlePressMarker = useCallback((point: RoutePoint) => {
+  const handlePressMarker = useCallback(async (point: RoutePoint) => {
     setSelectedPointId(point.id);
     setMapPlaceCardPoint(point);
     setIsMapPlaceCardVisible(true);
+
+    try {
+      const [placeResult, addressResult] = await Promise.all([
+        fetchNearestKoreanPlaceName(point.latitude, point.longitude),
+        fetchKoreanAddress(point.latitude, point.longitude),
+      ]);
+
+      const nextPoint: RoutePoint = {
+        ...point,
+        title: placeResult.error ? point.title : (placeResult.name ?? point.title),
+        placeCardDescription: placeResult.summary ?? point.placeCardDescription,
+        categories: placeResult.types.length > 0 ? placeResult.types : point.categories,
+        image: placeResult.photoUrl ? { uri: placeResult.photoUrl } : point.image,
+        location: addressResult.error ? point.location : addressResult.address,
+      };
+
+      setMapPlaceCardPoint(nextPoint);
+    } catch (error) {
+      console.error('handlePressMarker Error:', error);
+    }
   }, []);
+
+  const createTempPoint = useCallback(
+    (coordinate: { latitude: number; longitude: number }, titleOverride?: string): RoutePoint => ({
+      id: `${titleOverride ? 'poi' : 'map'}-${Date.now()}`,
+      placeId: 0,
+      day: 0,
+      order: 0,
+      latitude: coordinate.latitude,
+      longitude: coordinate.longitude,
+      title: titleOverride ?? '주변 장소 불러오는 중...',
+      location: '주소 불러오는 중...',
+      description: '',
+      placeCardDescription: '주변 장소 정보를 불러오는 중입니다.',
+      startTime: '',
+      endTime: '',
+      image: null,
+      imageText: '이미지를 불러오는 중입니다.',
+      categories: [],
+      current: false,
+      canAddVisitedPlace: false,
+      visited: false,
+    }),
+    [],
+  );
+
+  const handleSelectPoint = useCallback(
+    async (
+      coordinate: { latitude: number; longitude: number },
+      titleOverride?: string,
+    ): Promise<void> => {
+      const tempPoint = createTempPoint(coordinate, titleOverride);
+
+      setSelectedPointId(null);
+      setMapPlaceCardPoint(tempPoint);
+      setIsMapPlaceCardVisible(true);
+
+      const [placeResult, addressResult] = await Promise.all([
+        fetchNearestKoreanPlaceName(coordinate.latitude, coordinate.longitude),
+        fetchKoreanAddress(coordinate.latitude, coordinate.longitude),
+      ]);
+
+      const nextPoint: RoutePoint = {
+        ...tempPoint,
+        title:
+          titleOverride ??
+          (placeResult.error ? tempPoint.title : (placeResult.name ?? tempPoint.title)),
+        placeCardDescription: placeResult.summary ?? tempPoint.placeCardDescription,
+        categories: placeResult.types.length > 0 ? placeResult.types : tempPoint.categories,
+        image: placeResult.photoUrl ? { uri: placeResult.photoUrl } : tempPoint.image,
+        imageText: placeResult.photoUrl ? undefined : tempPoint.imageText,
+        location: addressResult.error ? tempPoint.location : addressResult.address,
+      };
+
+      setMapPlaceCardPoint(nextPoint);
+    },
+    [createTempPoint],
+  );
+
+  const handlePressMap = useCallback(
+    async (coordinate: { latitude: number; longitude: number }) => {
+      try {
+        await handleSelectPoint(coordinate);
+      } catch (error) {
+        console.error('handlePressMap Error:', error);
+      }
+    },
+    [handleSelectPoint],
+  );
+
+  const handlePressPoi = useCallback(
+    async (event: {
+      nativeEvent: { coordinate?: { latitude: number; longitude: number }; name?: string };
+    }) => {
+      const { coordinate, name } = event.nativeEvent ?? {};
+
+      if (!coordinate) return;
+
+      try {
+        await handleSelectPoint(coordinate, name);
+      } catch (error) {
+        console.error('handlePressPoi Error:', error);
+      }
+    },
+    [handleSelectPoint],
+  );
 
   const panResponder = useMemo(
     () =>
@@ -417,7 +523,13 @@ const ScheduleMapScreen: React.FC = () => {
   return (
     <SafeAreaView className="flex-1" edges={['top']}>
       <TopBar title={tripTitle || '일정 지도'} onPress={() => navigation.goBack()} />
-      <MapView ref={mapRef} style={{ flex: 1 }} initialRegion={initialRegion}>
+
+      <MapView
+        ref={mapRef}
+        style={{ flex: 1 }}
+        initialRegion={initialRegion}
+        onPress={(event) => handlePressMap(event.nativeEvent.coordinate)}
+        onPoiClick={handlePressPoi}>
         {dayPoints.length >= 2 && (
           <Polyline
             coordinates={dayPoints.map((p) => ({
@@ -436,7 +548,7 @@ const ScheduleMapScreen: React.FC = () => {
             key={point.id}
             coordinate={{ latitude: point.latitude, longitude: point.longitude }}
             onPress={() => handlePressMarker(point)}
-            tracksViewChanges={shouldTrackMarkers || selectedPointId === point.id}>
+            tracksViewChanges>
             <IndexMarker
               index={point.order}
               day={point.day}

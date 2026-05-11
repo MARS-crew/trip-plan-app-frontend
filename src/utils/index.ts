@@ -9,6 +9,7 @@ export {
 } from './tripErrorMessage';
 export { getDateRange, getTodayString, toDate } from './addTripDate';
 export { showToastMessage } from './errfeedback';
+export { isValidEmail, isValidPassword, validatePasswordStrength, PHONE_REGEX, EMAIL_REGEX, PASSWORD_REGEX } from './validators';
 export {
   formatDateText,
   mapTripStatus,
@@ -21,3 +22,10 @@ export {
   mergeSectionsWithDayFallback,
   normalizeTripDetailData,
 } from './tripDetailFormat';
+export {
+  buildRateText,
+  convertCurrency,
+  formatAmountWithCommas,
+  parseAmount,
+} from './formatter';
+export { formatOpeningHours } from './placeFormatter';
