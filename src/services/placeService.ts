@@ -70,18 +70,18 @@ const getRequestErrorCode = (signal?: AbortSignal): string => {
   return 'NETWORK_ERROR';
 };
 
-const performPlaceRequest = async <T>({
+const performPlaceRequest = async <TResponse, TSelected>({
   requestUrl,
   signal,
   selector,
 }: {
   requestUrl: string;
   signal?: AbortSignal;
-  selector: (data: T | undefined) => unknown[] | undefined;
-}): Promise<{ data: unknown[]; error: string | null }> => {
+  selector: (data: TResponse | undefined) => TSelected | null;
+}): Promise<{ data: TSelected | null; error: string | null }> => {
   const requestConfig = getPlaceRequestConfig();
   if ('error' in requestConfig) {
-    return { data: [], error: requestConfig.error };
+    return { data: null, error: requestConfig.error };
   }
 
   try {
@@ -93,14 +93,14 @@ const performPlaceRequest = async <T>({
     if (!response.ok) {
       const errorCode = await getResponseErrorCode(response);
       logErrorCode(errorCode);
-      return { data: [], error: errorCode };
+      return { data: null, error: errorCode };
     }
 
-    const json: BaseResponse<T> = await response.json();
-    return { data: selector(json.data) ?? [], error: null };
+    const json: BaseResponse<TResponse> = await response.json();
+    return { data: selector(json.data), error: null };
   } catch {
     const errorCode = getRequestErrorCode(signal);
-    return { data: [], error: errorCode };
+    return { data: null, error: errorCode };
   }
 };
 
@@ -116,42 +116,36 @@ export const getRecommendedPlaces = async ({
   }
 
   const requestUrl = `${apiBaseUrl}/api/v1/places/recommended?requestDto.limit=${encodeURIComponent(String(limit))}`;
-  const result = await performPlaceRequest<GetRecommendedPlacesData>({
+  const result = await performPlaceRequest<
+    GetRecommendedPlacesData,
+    GetRecommendedPlacesResult['data']
+  >({
     requestUrl,
     signal,
-    selector: (data) => data?.recommendedPlaces,
+    selector: (data) => data?.recommendedPlaces ?? null,
   });
 
-  return { data: result.data as GetRecommendedPlacesResult['data'], error: result.error };
+  return { data: result.data ?? [], error: result.error };
 };
 
 export const getPlaceDetail = async ({
   placeId,
   signal,
 }: GetPlaceDetailOptions): Promise<GetPlaceDetailResult> => {
-  const requestConfig = getPlaceRequestConfig();
-  if ('error' in requestConfig) {
-    return { data: null, error: requestConfig.error };
+  const { apiBaseUrl } = getEnvConfig();
+  if (!apiBaseUrl) {
+    const error = 'API_BASE_URL_MISSING';
+    logErrorCode(error);
+    return { data: null, error };
   }
 
-  try {
-    const response = await fetch(`${requestConfig.apiBaseUrl}/api/v1/places/${placeId}`, {
-      headers: requestConfig.headers,
-      signal,
-    });
+  const result = await performPlaceRequest<PlaceDetail, PlaceDetail>({
+    requestUrl: `${apiBaseUrl}/api/v1/places/${placeId}`,
+    signal,
+    selector: (data) => data ?? null,
+  });
 
-    if (!response.ok) {
-      const errorCode = await getResponseErrorCode(response);
-      logErrorCode(errorCode);
-      return { data: null, error: errorCode };
-    }
-
-    const json: BaseResponse<PlaceDetail> = await response.json();
-    return { data: json.data ?? null, error: null };
-  } catch {
-    const errorCode = getRequestErrorCode(signal);
-    return { data: null, error: errorCode };
-  }
+  return { data: result.data, error: result.error };
 };
 
 export const getNearbyRecommendedPlaces = async ({
@@ -166,11 +160,14 @@ export const getNearbyRecommendedPlaces = async ({
   }
 
   const requestUrl = `${apiBaseUrl}/api/v1/places/${placeId}/nearby-recommendations`;
-  const result = await performPlaceRequest<GetNearbyRecommendedPlacesData>({
+  const result = await performPlaceRequest<
+    GetNearbyRecommendedPlacesData,
+    GetNearbyRecommendedPlacesResult['data']
+  >({
     requestUrl,
     signal,
-    selector: (data) => data?.nearbyRecommendedPlaces,
+    selector: (data) => data?.nearbyRecommendedPlaces ?? null,
   });
 
-  return { data: result.data as GetNearbyRecommendedPlacesResult['data'], error: result.error };
+  return { data: result.data ?? [], error: result.error };
 };

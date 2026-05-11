@@ -228,53 +228,54 @@ const HomeScreen: React.FC = () => {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, gap: 16 }}>
-            {recommendedPlaces.map((item) => (
-              <Shadow
-                key={item.placeId}
-                distance={10}
-                offset={[0, 0]}
-                startColor="#00000025"
-                endColor="#00000000"
-                paintInside={false}
-                style={{ borderRadius: 8, width: 260 }}>
-                <View className="overflow-hidden rounded-lg bg-white">
-                  <View className="relative h-40">
-                    <Image
-                      source={
-                        item.imageUrl
-                          ? { uri: item.imageUrl }
-                          : require('@/assets/images/mainjeju.png')
-                      }
-                      className="h-full w-full"
-                      resizeMode="cover"
-                    />
-                    <View className="absolute bottom-3 left-4">
-                      <Text className="font-pretendardSemiBold text-h2 text-white">
-                        {item.name}
-                      </Text>
-                      <Text className="mt-1 font-pretendardSemiBold text-p text-white">
-                        {item.countryName}
-                      </Text>
+            {recommendedPlaces.length > 0 &&
+              recommendedPlaces.map((item) => (
+                <Shadow
+                  key={item.placeId}
+                  distance={10}
+                  offset={[0, 0]}
+                  startColor="#00000025"
+                  endColor="#00000000"
+                  paintInside={false}
+                  style={{ borderRadius: 8, width: 260 }}>
+                  <View className="overflow-hidden rounded-lg bg-white">
+                    <View className="relative h-40">
+                      <Image
+                        source={
+                          item.imageUrl
+                            ? { uri: item.imageUrl }
+                            : require('@/assets/images/mainjeju.png')
+                        }
+                        className="h-full w-full"
+                        resizeMode="cover"
+                      />
+                      <View className="absolute bottom-3 left-4">
+                        <Text className="font-pretendardSemiBold text-h2 text-white">
+                          {item.name}
+                        </Text>
+                        <Text className="mt-1 font-pretendardSemiBold text-p text-white">
+                          {item.countryName}
+                        </Text>
+                      </View>
                     </View>
-                  </View>
 
-                  <View className="p-4">
-                    <Text className="mb-4 text-p text-gray" numberOfLines={2}>
-                      {`지금 ${item.cityName}에서 인기 있는 추천 장소예요`}
-                    </Text>
-                    <View className="flex-row">
-                      {(item.tags ?? []).slice(0, 3).map((tag, index) => (
-                        <MainRecChip
-                          key={`${item.placeId}-${tag}-${index}`}
-                          label={tag}
-                          className={'mr-[6px]'}
-                        />
-                      ))}
+                    <View className="p-4">
+                      <Text className="mb-4 text-p text-gray" numberOfLines={2}>
+                        {`지금 ${item.cityName}에서 인기 있는 추천 장소예요`}
+                      </Text>
+                      <View className="flex-row">
+                        {(item.tags ?? []).slice(0, 3).map((tag, index) => (
+                          <MainRecChip
+                            key={`${item.placeId}-${tag}-${index}`}
+                            label={tag}
+                            className={'mr-[6px]'}
+                          />
+                        ))}
+                      </View>
                     </View>
                   </View>
-                </View>
-              </Shadow>
-            ))}
+                </Shadow>
+              ))}
           </ScrollView>
         </View>
       </ScrollView>
