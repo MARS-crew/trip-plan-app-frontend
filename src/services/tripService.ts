@@ -12,6 +12,9 @@ import type {
   GetTripSchedulesByDateOptions,
   GetTripSchedulesByDateResult,
   TripSchedulesByDateData,
+  NearbyScheduleData,
+  GetNearbyScheduleOptions,
+  GetNearbyScheduleResult,
 } from '@/types/myTrip.types';
 import type { TripRequestConfig, TripRequestConfigError } from '@/types/trip';
 import type {
@@ -265,6 +268,38 @@ export const getTripRoute = async ({
     }
 
     const json: BaseResponse<GetTripRouteData> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
+  }
+};
+
+export const getNearbySchedule = async ({ userId, signal }: GetNearbyScheduleOptions = {}): Promise<GetNearbyScheduleResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/nearby-schedule`;
+    const response = await fetch(requestUrl, {
+      method: 'POST',
+      headers: {
+        ...requestConfig.headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userId ? { userId } : {}),
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    const json: BaseResponse<NearbyScheduleData> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
     const error = getRequestError(signal);

@@ -155,3 +155,27 @@ export interface CreateTripOptions {
   payload: CreateTripRequest;
   signal?: AbortSignal;
 }
+
+export interface NearbyScheduleData {
+  hasNearbyTrip: boolean;
+  tripId?: number;
+  tripTitle?: string;
+  tripStatus?: string;
+  startDate?: string;
+  endDate?: string;
+  tripDayCount?: number;
+  daysUntilTrip?: number;
+  progressRate?: number;
+  scheduleCount?: number;
+  nextSchedules?: TripScheduleItem[];
+}
+
+export interface GetNearbyScheduleResult {
+  data: NearbyScheduleData | null;
+  error: ServiceError | null;
+}
+
+export interface GetNearbyScheduleOptions {
+  userId?: number;
+  signal?: AbortSignal;
+}

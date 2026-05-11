@@ -23,6 +23,9 @@ import { RobotIcon, SendIcon, X, NoticeIcon, LogoIcon, LogoLetter, ChatIcon } fr
 import { COLORS } from '@/constants/colors';
 import { ChatCaseContent, MainTripCard } from '@/screens/home/components';
 import { getUnreadAlert } from '@/services/alertService';
+import { getNearbySchedule } from '@/services/tripService';
+import { useAuthStore } from '@/store';
+import type { NearbyScheduleData } from '@/types/myTrip.types';
 import type { HomeScreenNavigationProp } from '@/types/home';
 import {
   CHAT_HEADER_HEIGHT,
@@ -59,6 +62,7 @@ const HomeScreen: React.FC = () => {
   const [chatCaseOrder, setChatCaseOrder] = useState(-1);
   const [hasPlannedTrip, setHasPlannedTrip] = useState(false);
   const [isInTripScheduleView, setIsInTripScheduleView] = useState(false);
+  const [nearbyTrip, setNearbyTrip] = useState<NearbyScheduleData | null>(null);
   const currentCaseIndex = chatCaseOrder < 0 ? 0 : chatCaseOrder;
   const [hasNotification, setHasNotification] = useState<boolean>(false);
 
@@ -81,6 +85,41 @@ const HomeScreen: React.FC = () => {
 
       fetchUnread();
 
+      // fetch nearby schedule (top card) when screen focused
+      const fetchNearby = async (): Promise<void> => {
+        const controller = new AbortController();
+        try {
+          const userId = useAuthStore.getState().user?.id;
+          const result = await getNearbySchedule({ userId, signal: controller.signal });
+          if (!isActive) return;
+
+          const data = result.data;
+          if (!data || !data.hasNearbyTrip) {
+            setHasPlannedTrip(false);
+            setIsInTripScheduleView(false);
+            setNearbyTrip(null);
+          } else {
+            setNearbyTrip(data);
+            setHasPlannedTrip(true);
+            // determine whether to show in-progress view based on tripStatus
+            const status = (data.tripStatus ?? '').toUpperCase();
+            if (status === 'ONGOING' || status === 'TRAVELING') {
+              setIsInTripScheduleView(true);
+            } else {
+              setIsInTripScheduleView(false);
+            }
+          }
+        } catch {
+          if (isActive) {
+            setHasPlannedTrip(false);
+            setIsInTripScheduleView(false);
+            setNearbyTrip(null);
+          }
+        }
+      };
+
+      void fetchNearby();
+
       return () => {
         isActive = false;
       };
@@ -92,17 +131,22 @@ const HomeScreen: React.FC = () => {
   }, [navigation]);
 
   const handleNavigateToAddTrip = useCallback(() => {
-    setHasPlannedTrip(true);
-    setIsInTripScheduleView(false);
-  }, []);
+    navigation.navigate('AddTripScreen');
+  }, [navigation]);
 
   const handleOpenTripSchedule = useCallback(() => {
-    setIsInTripScheduleView(true);
-  }, []);
+    if (nearbyTrip?.tripId) {
+      navigation.navigate('TripDetail', { tripId: nearbyTrip.tripId });
+    }
+  }, [navigation, nearbyTrip]);
 
   const handleNavigateToMyTrip = useCallback(() => {
-    navigation.navigate('MainTabs', { screen: 'MyTrip' });
-  }, [navigation]);
+    if (nearbyTrip?.tripId) {
+      navigation.navigate('TripDetail', { tripId: nearbyTrip.tripId });
+    } else {
+      navigation.navigate('MainTabs', { screen: 'MyTrip' });
+    }
+  }, [navigation, nearbyTrip]);
 
   const handleOpenChat = useCallback(() => {
     setChatCaseOrder((prev) => (prev + 1) % 3);
@@ -171,6 +215,7 @@ const HomeScreen: React.FC = () => {
             onAddTrip={handleNavigateToAddTrip}
             onOpenTripSchedule={handleOpenTripSchedule}
             onViewAllSchedule={handleNavigateToMyTrip}
+            nearbyTrip={nearbyTrip}
           />
         </View>
 
