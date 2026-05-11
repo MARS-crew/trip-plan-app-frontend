@@ -46,8 +46,36 @@ export type RootStackParamList = {
   WishlistScreen: { tripId: number };
   FindPassword: undefined;
   TripDetail: { tripId: number } | undefined;
-  AddSchedule: { tripId: number; tripTitle: string; date: string; placeId?: number; placeName?: string; address?: string; latitude?: number; longitude?: number } | undefined;
-  AddCalendarMapScreen: undefined;
+  AddSchedule:
+    | {
+        mode?: 'create' | 'edit';
+        tripId: number;
+        tripTitle: string;
+        date: string;
+        tripScheduleId?: number;
+        placeId?: number;
+        placeName?: string;
+        address?: string;
+        latitude?: number;
+        longitude?: number;
+        title?: string;
+        startTime?: string;
+        endTime?: string;
+        memo?: string;
+      }
+    | undefined;
+  AddCalendarMapScreen:
+    | {
+        tripId?: number;
+        tripTitle?: string;
+        date?: string;
+        tripScheduleId?: number;
+        title?: string;
+        startTime?: string;
+        endTime?: string;
+        memo?: string;
+      }
+    | undefined;
   ScheduleMap: undefined;
 };
 

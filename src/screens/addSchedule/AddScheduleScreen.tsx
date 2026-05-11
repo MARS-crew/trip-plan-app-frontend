@@ -1,8 +1,9 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  ToastAndroid,
   Pressable,
   ScrollView,
   Text,
@@ -13,14 +14,17 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 
 import { TopBar } from '@/components';
 import { COLORS } from '@/constants/colors';
-import { createSchedule } from '@/services/tripService';
+import { createSchedule, updateTripSchedule } from '@/services/tripService';
+import { getTripScheduleUpdateErrorToastMessage } from '@/utils';
 
 const ITEM_HEIGHT = 44;
 const VISIBLE_ITEMS = 5;
+const SCHEDULE_TITLE_MAX_LENGTH = 10;
 
 const YEARS = Array.from({ length: 10 }, (_, i) => 2024 + i);
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -29,7 +33,14 @@ const MINUTES = Array.from({ length: 60 }, (_, i) => i);
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const getDaysInMonth = (year: number, month: number) => new Date(year, month, 0).getDate();
-const getStartOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+const parseTimeToValue = (time?: string): TimeValue | null => {
+  if (!time) return null;
+  const [hourString, minuteString] = time.split(':');
+  const hour = Number(hourString);
+  const minute = Number(minuteString);
+  if (!Number.isFinite(hour) || !Number.isFinite(minute)) return null;
+  return { hour, minute };
+};
 
 interface SpinnerColumnProps {
   items: number[];
@@ -146,61 +157,38 @@ interface FormValues {
 }
 
 type PickerMode = 'date' | 'startTime' | 'endTime' | null;
-
-const clampDateToToday = (dateValue: DateValue | null, today: Date): DateValue => {
-  if (!dateValue) {
-    return {
-      year: today.getFullYear(),
-      month: today.getMonth() + 1,
-      day: today.getDate(),
-    };
-  }
-
-  const selectedDate = new Date(dateValue.year, dateValue.month - 1, dateValue.day);
-  const todayStart = getStartOfDay(today);
-
-  if (selectedDate < todayStart) {
-    return {
-      year: today.getFullYear(),
-      month: today.getMonth() + 1,
-      day: today.getDate(),
-    };
-  }
-
-  return dateValue;
-};
+type AddScheduleNavigation = NativeStackNavigationProp<RootStackParamList, 'AddSchedule'>;
 
 const getDatePickerOptions = (today: Date, year: number, month: number, day: number) => {
-  const todayYear = today.getFullYear();
-  const todayMonth = today.getMonth() + 1;
-  const todayDay = today.getDate();
-
-  const years = YEARS.filter((y) => y >= todayYear);
+  const years = YEARS;
   const selectedYear = years.includes(year) ? year : years[0];
 
-  const months = selectedYear === todayYear ? MONTHS.filter((m) => m >= todayMonth) : MONTHS;
+  const months = MONTHS;
   const selectedMonth = months.includes(month) ? month : months[0];
 
   const daysInMonth = Array.from(
     { length: getDaysInMonth(selectedYear, selectedMonth) },
     (_, i) => i + 1,
   );
-  const days =
-    selectedYear === todayYear && selectedMonth === todayMonth
-      ? daysInMonth.filter((d) => d >= todayDay)
-      : daysInMonth;
+  const days = daysInMonth;
   const selectedDay = days.includes(day) ? day : days[0];
 
   return { years, months, days, selectedYear, selectedMonth, selectedDay };
 };
 
 const AddScheduleScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<AddScheduleNavigation>();
   const route = useRoute<RouteProp<RootStackParamList, 'AddSchedule'>>();
   const params = route.params;
+  const isEditMode = params?.mode === 'edit';
   const today = new Date();
 
   const handleNavigateToTripDetail = () => {
+    if (isEditMode) {
+      navigation.popToTop();
+      return;
+    }
+
     if (params?.tripId) {
       navigation.navigate('TripDetail', { tripId: params.tripId });
     } else {
@@ -208,8 +196,21 @@ const AddScheduleScreen = () => {
     }
   };
   const handleNavigateToAddCalendarMap = () => {
-      navigation.navigate('AddCalendarMapScreen')
-      };
+    navigation.navigate('AddCalendarMapScreen', {
+      tripId: params?.tripId,
+      tripTitle: params?.tripTitle,
+      date: dateLabel !== '날짜' ? dateLabel : params?.date,
+      tripScheduleId: params?.tripScheduleId,
+      title: formValues.title,
+      startTime: formValues.startTime
+        ? `${pad(formValues.startTime.hour)}:${pad(formValues.startTime.minute)}`
+        : undefined,
+      endTime: formValues.endTime
+        ? `${pad(formValues.endTime.hour)}:${pad(formValues.endTime.minute)}`
+        : undefined,
+      memo: formValues.memo,
+    });
+  };
 
   const initialDate: DateValue | null = (() => {
     if (!params?.date) return null;
@@ -218,13 +219,22 @@ const AddScheduleScreen = () => {
   })();
 
   const [formValues, setFormValues] = useState<FormValues>({
-    title: params?.placeName ?? '',
+    title: params?.title ?? params?.placeName ?? '',
     date: initialDate,
-    startTime: null,
-    endTime: null,
+    startTime: parseTimeToValue(params?.startTime),
+    endTime: parseTimeToValue(params?.endTime),
     location: params?.address ?? '',
-    memo: '',
+    memo: params?.memo ?? '',
   });
+
+  useEffect(() => {
+    if (!params?.address && !params?.placeName) return;
+    setFormValues((prev) => ({
+      ...prev,
+      location: params.address ?? prev.location,
+      title: prev.title || params.placeName || prev.title,
+    }));
+  }, [params?.address, params?.placeName]);
 
   const [pickerMode, setPickerMode] = useState<PickerMode>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -243,7 +253,11 @@ const AddScheduleScreen = () => {
   }, []);
 
   const openDatePicker = () => {
-    const safeDate = clampDateToToday(formValues.date, today);
+    const safeDate = formValues.date ?? {
+      year: today.getFullYear(),
+      month: today.getMonth() + 1,
+      day: today.getDate(),
+    };
     setTempYear(safeDate.year);
     setTempMonth(safeDate.month);
     setTempDay(safeDate.day);
@@ -302,6 +316,12 @@ const AddScheduleScreen = () => {
 
   const handleSubmit = async (): Promise<void> => {
     if (!formValues.date || !params?.tripId) return;
+    if (formValues.title.trim().length > SCHEDULE_TITLE_MAX_LENGTH) {
+      ToastAndroid.show('일정명은 10자 이내로 입력해주세요.', ToastAndroid.SHORT);
+      return;
+    }
+    const tripScheduleId = params.tripScheduleId;
+    if (isEditMode && !tripScheduleId) return;
 
     const scheduleDate = `${formValues.date.year}-${pad(formValues.date.month)}-${pad(formValues.date.day)}`;
     const startTime = formValues.startTime
@@ -312,30 +332,58 @@ const AddScheduleScreen = () => {
       : undefined;
 
     setIsSubmitting(true);
-    const { error } = await createSchedule({
-      tripId: params.tripId,
-      payload: {
-        title: formValues.title.trim(),
-        scheduleDate,
-        startTime,
-        endTime,
-        placeName: params.placeName,
-        address: params.address,
-        latitude: params.latitude,
-        longitude: params.longitude,
-        memo: formValues.memo.trim() || undefined,
-      },
-    });
+    let error = null;
+    if (isEditMode && tripScheduleId) {
+      const result = await updateTripSchedule({
+        tripId: params.tripId,
+        tripScheduleId,
+        payload: {
+          title: formValues.title.trim(),
+          scheduleDate,
+          startTime,
+          endTime,
+          placeId: params.placeId,
+          placeName: params.placeName,
+          address: params.address,
+          latitude: params.latitude,
+          longitude: params.longitude,
+          memo: formValues.memo.trim() || undefined,
+        },
+      });
+      error = result.error;
+    } else {
+      const result = await createSchedule({
+        tripId: params.tripId,
+        payload: {
+          title: formValues.title.trim(),
+          scheduleDate,
+          startTime,
+          endTime,
+          placeName: params.placeName,
+          address: params.address,
+          latitude: params.latitude,
+          longitude: params.longitude,
+          memo: formValues.memo.trim() || undefined,
+        },
+      });
+      error = result.error;
+    }
     setIsSubmitting(false);
 
-    if (!error) {
-      handleNavigateToTripDetail();
+    if (error) {
+      const errorMessage = isEditMode
+        ? getTripScheduleUpdateErrorToastMessage(error)
+        : '일정 생성에 실패하였습니다.';
+      ToastAndroid.show(errorMessage, ToastAndroid.SHORT);
+      return;
     }
+
+    handleNavigateToTripDetail();
   };
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <TopBar title="일정 추가" onPress={() => navigation.goBack()} />
+      <TopBar title={isEditMode ? '일정 편집' : '일정 추가'} onPress={() => navigation.goBack()} />
 
       <ScrollView
         className="flex-1 px-4"
@@ -355,7 +403,7 @@ const AddScheduleScreen = () => {
               placeholder="일정명"
               placeholderTextColor={COLORS.gray}
               className="h-[46px] w-full rounded-[12px] border border-borderGray bg-screenBackground px-4 text-h3 text-black"
-              maxLength={30}
+              maxLength={SCHEDULE_TITLE_MAX_LENGTH}
             />
           </View>
 
@@ -439,7 +487,9 @@ const AddScheduleScreen = () => {
             className="h-[44px] w-full items-center justify-center rounded-[8px]"
             style={{ backgroundColor: isSubmitEnabled ? COLORS.main : '#DF6C2080' }}
           >
-            <Text className="text-h3 font-pretendardSemiBold text-white">등록하기</Text>
+            <Text className="text-h3 font-pretendardSemiBold text-white">
+              {isEditMode ? '수정하기' : '등록하기'}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

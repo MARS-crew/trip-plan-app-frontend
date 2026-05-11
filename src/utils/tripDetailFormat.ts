@@ -105,12 +105,16 @@ const mapScheduleToCardItem = (
   schedule: Record<string, unknown>,
   order: number,
   isCurrentSchedule: boolean,
+  scheduleDate?: string | null,
 ): TripDetailCardItem => ({
   id: toNumberValue(schedule.tripScheduleId) ?? toNumberValue(schedule.id) ?? order,
   tripScheduleId: toNumberValue(schedule.tripScheduleId) ?? toNumberValue(schedule.id) ?? undefined,
+  placeId: toNumberValue(schedule.placeId) ?? undefined,
+  scheduleDate: toStringValue(schedule.scheduleDate) ?? scheduleDate ?? undefined,
   order,
   title: toStringValue(schedule.title) ?? '',
   location: toStringValue(schedule.placeName) ?? toStringValue(schedule.address) ?? '',
+  address: toStringValue(schedule.address) ?? undefined,
   description: toStringValue(schedule.memo) ?? '',
   startTime: formatScheduleTime(toStringValue(schedule.startTime)),
   endTime: formatScheduleTime(toStringValue(schedule.endTime)),
@@ -180,7 +184,7 @@ export const normalizeTripDetailData = (
       const selectedDayLabel = toStringValue(group.selectedDayLabel);
       const cards = getScheduleListFromGroup(group).map((schedule, cardIndex) => {
         const isCurrentSchedule = Boolean(schedule.current);
-        return mapScheduleToCardItem(schedule, cardIndex + 1, isCurrentSchedule);
+        return mapScheduleToCardItem(schedule, cardIndex + 1, isCurrentSchedule, scheduleDate);
       });
       return {
         dayNo,

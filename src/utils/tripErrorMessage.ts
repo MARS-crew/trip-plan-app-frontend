@@ -66,3 +66,20 @@ export const getTripDateUpdateErrorToastMessage = (error: ServiceError | null): 
       return '여행 날짜 수정에 실패하였습니다.';
   }
 };
+
+export const getTripScheduleUpdateErrorToastMessage = (error: ServiceError | null): string => {
+  if (!error) return '일정 수정에 실패하였습니다.';
+
+  switch (error.code) {
+    case 'AUTH_TOKEN_MISSING':
+      return '로그인이 필요합니다.';
+    case 'HTTP_401':
+      return '인증이 만료되었습니다. 다시 로그인해주세요.';
+    case 'HTTP_403':
+      return '수정 권한이 없습니다.';
+    case 'INVALID_INPUT':
+      return '잘못된 요청입니다.';
+    default:
+      return '일정 수정에 실패하였습니다.';
+  }
+};

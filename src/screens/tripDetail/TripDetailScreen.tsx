@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, ScrollView, Share, ToastAndroid } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -23,6 +23,7 @@ import type {
 } from '@/types/tripDetail.types';
 import {
   getServiceErrorMessage,
+  getTripScheduleUpdateErrorToastMessage,
   getTripDeleteErrorToastMessage,
   getTripRouteErrorToastMessage,
   getTripScheduleDeleteErrorToastMessage,
@@ -94,31 +95,33 @@ const TripDetailScreen: React.FC = () => {
     return getTripDayColor(selectedSection?.dayNo ?? 1);
   }, [renderedSections, selectedCardId]);
 
-  useEffect(() => {
-    if (!tripId) {
-      setDaySections([]);
-      return;
-    }
-
-    const abortController = new AbortController();
-    const fetchTripDetailSchedules = async (): Promise<void> => {
-      const result = await getTripSchedules({ tripId, signal: abortController.signal });
-      if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
-      if (result.error) {
+  useFocusEffect(
+    useCallback(() => {
+      if (!tripId) {
         setDaySections([]);
-        return;
+        return () => {};
       }
-      const normalizedData = normalizeTripDetailData(result.data);
-      setHeaderData(normalizedData.header);
-      setDaySections(normalizedData.sections);
-    };
 
-    fetchTripDetailSchedules();
+      const abortController = new AbortController();
+      const fetchTripDetailSchedules = async (): Promise<void> => {
+        const result = await getTripSchedules({ tripId, signal: abortController.signal });
+        if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
+        if (result.error) {
+          setDaySections([]);
+          return;
+        }
+        const normalizedData = normalizeTripDetailData(result.data);
+        setHeaderData(normalizedData.header);
+        setDaySections(normalizedData.sections);
+      };
 
-    return () => {
-      abortController.abort();
-    };
-  }, [tripId]);
+      void fetchTripDetailSchedules();
+
+      return () => {
+        abortController.abort();
+      };
+    }, [tripId]),
+  );
 
   const clearCloseTimer = useCallback(() => {
     if (closeTimerRef.current) {
@@ -275,6 +278,38 @@ const TripDetailScreen: React.FC = () => {
     [handleCloseCardMenu],
   );
 
+  const handleOpenScheduleEditScreen = useCallback(
+    (card: TripDetailCardItem) => {
+      if (!tripId || !card.tripScheduleId) {
+        ToastAndroid.show(getTripScheduleUpdateErrorToastMessage(null), ToastAndroid.SHORT);
+        return;
+      }
+
+      const scheduleDate = card.scheduleDate ?? headerData.startDate;
+      if (!scheduleDate) {
+        ToastAndroid.show(getTripScheduleUpdateErrorToastMessage(null), ToastAndroid.SHORT);
+        return;
+      }
+
+      handleCloseCardMenu();
+      navigation.navigate('AddSchedule', {
+        mode: 'edit',
+        tripId,
+        tripTitle: headerData.title ?? '',
+        tripScheduleId: card.tripScheduleId,
+        date: scheduleDate,
+        placeId: card.placeId,
+        placeName: card.location,
+        address: card.address,
+        title: card.title,
+        startTime: card.startTime,
+        endTime: card.endTime,
+        memo: card.description,
+      });
+    },
+    [handleCloseCardMenu, headerData.startDate, headerData.title, navigation, tripId],
+  );
+
   const handleCloseDeleteModal = useCallback(() => {
     setIsDeleteModalVisible(false);
     setDeleteTarget(null);
@@ -371,13 +406,15 @@ const TripDetailScreen: React.FC = () => {
         />
 
         {renderedSections.map(({ dayNo, dayLabel, cards, showMapIcon }) => (
-          <DaySection
+        <DaySection
             key={`${dayNo}-${dayLabel}`}
             dayNo={dayNo}
             dayLabel={dayLabel}
             cards={cards}
             showMapIcon={showMapIcon}
             onPressCard={handleOpenCardMenu}
+            tripId={tripId}
+            tripTitle={headerData.title}
             onPressAction={() => {}}
           />
         ))}
@@ -389,6 +426,7 @@ const TripDetailScreen: React.FC = () => {
           opacity={cardMenuOpacity}
           topOffset={selectedCardTop}
           accentColor={selectedCardAccentColor}
+          onPressEdit={handleOpenScheduleEditScreen}
           onPressRoute={(card) => {
             handlePressRouteInCard(card).catch(() => {
               handleRouteFailure('INTERNAL_ERROR', '서버 오류가 발생했습니다.');

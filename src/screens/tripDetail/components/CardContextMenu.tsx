@@ -10,6 +10,7 @@ const CardContextMenu = ({
   opacity,
   topOffset,
   accentColor,
+  onPressEdit,
   onPressRoute,
   onPressDelete,
   onClose,
@@ -53,7 +54,7 @@ const CardContextMenu = ({
           <View className="mt-3 rounded-[8px] bg-white px-4 py-4">
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={onClose}
+              onPress={() => onPressEdit(card)}
               className="flex-row items-center px-2 py-3">
               <View className="mr-3 h-[32px] w-[32px] items-center justify-center rounded-[8px] bg-chip">
                 <KebabEditIcon />
