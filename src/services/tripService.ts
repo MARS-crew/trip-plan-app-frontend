@@ -3,9 +3,6 @@ import { getEnvConfig } from '@/config/env';
 import { useAuthStore } from '@/store';
 import type { ServiceError } from '@/types/trip';
 import type {
-  CreateScheduleData,
-  CreateScheduleOptions,
-  CreateScheduleResult,
   CreateTripData,
   CreateTripOptions,
   CreateTripResult,
@@ -20,20 +17,14 @@ import type { TripRequestConfig, TripRequestConfigError } from '@/types/trip';
 import type {
   UpdateTripDateOptions,
   UpdateTripDateResult,
-  DeleteTripScheduleOptions,
-  DeleteTripScheduleResult,
-  DeleteTripOptions,
-  DeleteTripResult,
   GetTripRouteData,
   GetTripRouteOptions,
   GetTripRouteResult,
-  GetTripDetailOptions,
-  GetTripDetailResult,
+  GetTripSchedulesOptions,
+  GetTripSchedulesResult,
   GetTripShareOptions,
   GetTripShareResult,
   TripShareData,
-  UpdateTripTitleOptions,
-  UpdateTripTitleResult,
 } from '@/types/tripDetail.types';
 
 const logErrorCode = (errorCode: string): void => {
@@ -161,42 +152,6 @@ export const createTrip = async ({
   }
 };
 
-export const createSchedule = async ({
-  tripId,
-  payload,
-  signal,
-}: CreateScheduleOptions): Promise<CreateScheduleResult> => {
-  const requestConfig = getTripRequestConfig();
-  if ('error' in requestConfig) {
-    return { data: null, error: requestConfig.error };
-  }
-
-  try {
-    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules`;
-    const response = await fetch(requestUrl, {
-      method: 'POST',
-      headers: {
-        ...requestConfig.headers,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-      signal,
-    });
-
-    if (!response.ok) {
-      const error = await getResponseError(response);
-      logErrorCode(error.code);
-      return { data: null, error };
-    }
-
-    const json: BaseResponse<CreateScheduleData> = await response.json();
-    return { data: json.data ?? null, error: null };
-  } catch {
-    const error = getRequestError(signal);
-    return { data: null, error };
-  }
-};
-
 export const getTripSchedulesByDate = async ({
   tripId,
   targetDate,
@@ -228,10 +183,10 @@ export const getTripSchedulesByDate = async ({
   }
 };
 
-export const getTripDetail = async ({
+export const getTripSchedules = async ({
   tripId,
   signal,
-}: GetTripDetailOptions): Promise<GetTripDetailResult> => {
+}: GetTripSchedulesOptions): Promise<GetTripSchedulesResult> => {
   const requestConfig = getTripRequestConfig();
   if ('error' in requestConfig) {
     return { data: null, error: requestConfig.error };
@@ -331,99 +286,6 @@ export const updateTripDate = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/date`;
-    const response = await fetch(requestUrl, {
-      method: 'PATCH',
-      headers: {
-        ...requestConfig.headers,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-      signal,
-    });
-
-    if (!response.ok) {
-      const error = await getResponseError(response);
-      logErrorCode(error.code);
-      return { error };
-    }
-
-    return { error: null };
-  } catch {
-    const error = getRequestError(signal);
-    return { error };
-  }
-};
-
-export const deleteTrip = async ({ tripId, signal }: DeleteTripOptions): Promise<DeleteTripResult> => {
-  const requestConfig = getTripRequestConfig();
-  if ('error' in requestConfig) {
-    return { error: requestConfig.error };
-  }
-
-  try {
-    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}`;
-    const response = await fetch(requestUrl, {
-      method: 'DELETE',
-      headers: requestConfig.headers,
-      signal,
-    });
-
-    if (!response.ok) {
-      const error = await getResponseError(response);
-      logErrorCode(error.code);
-      return { error };
-    }
-
-    return { error: null };
-  } catch {
-    const error = getRequestError(signal);
-    return { error };
-  }
-};
-
-export const deleteTripSchedule = async ({
-  tripId,
-  tripScheduleId,
-  signal,
-}: DeleteTripScheduleOptions): Promise<DeleteTripScheduleResult> => {
-  const requestConfig = getTripRequestConfig();
-  if ('error' in requestConfig) {
-    return { error: requestConfig.error };
-  }
-
-  try {
-    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/${tripScheduleId}`;
-    const response = await fetch(requestUrl, {
-      method: 'DELETE',
-      headers: requestConfig.headers,
-      signal,
-    });
-
-    if (!response.ok) {
-      const error = await getResponseError(response);
-      logErrorCode(error.code);
-      return { error };
-    }
-
-    return { error: null };
-  } catch {
-    const error = getRequestError(signal);
-    return { error };
-  }
-};
-
-export const updateTripTitle = async ({
-  tripId,
-  payload,
-  signal,
-}: UpdateTripTitleOptions): Promise<UpdateTripTitleResult> => {
-  const requestConfig = getTripRequestConfig();
-  if ('error' in requestConfig) {
-    return { error: requestConfig.error };
-  }
-
-  try {
-    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/title`;
     const response = await fetch(requestUrl, {
       method: 'PATCH',
       headers: {
