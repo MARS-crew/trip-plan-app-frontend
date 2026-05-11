@@ -9,7 +9,7 @@ export {
   getCreateTripErrorMessage,
   getServiceErrorMessage,
   getTripRouteErrorToastMessage,
-  getTripTitleUpdateErrorToastMessage,
+  getTripDateUpdateErrorToastMessage,
 } from './tripErrorMessage';
 export { getDateRange, getTodayString, toDate } from './addTripDate';
 export { showToastMessage } from './errfeedback';

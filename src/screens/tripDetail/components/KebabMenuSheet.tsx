@@ -11,6 +11,7 @@ const KebabMenuSheet = ({
   translateY,
   onClose,
   onPressEditTitle,
+  onPressEditDate,
   onPressShare,
   onPressDelete,
 }: KebabMenuSheetProps) => {
@@ -58,7 +59,7 @@ const KebabMenuSheet = ({
 
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={onClose}
+            onPress={onPressEditDate ?? onClose}
             className="h-14 w-full flex-row items-center px-4">
             <View className="mr-3">
               <KebabCalIcon />
