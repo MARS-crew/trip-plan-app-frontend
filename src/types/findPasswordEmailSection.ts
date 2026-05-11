@@ -4,6 +4,7 @@ export interface FindPasswordEmailSectionProps {
   sendCodeButtonText: string;
   isEmailSent: boolean;
   isEmailError: boolean;
+  emailErrorMessage?: string;
   isCodeVerified: boolean;
   onChangeEmail: (value: string) => void;
   onSendVerification: () => void;

@@ -6,6 +6,9 @@ import type {
   FindIdData,
   FindIdResult,
   FindIdResponse,
+  FindPasswordResetRequest,
+  FindPasswordResetResult,
+  FindPasswordResetResponse,
   EmailRequestData,
   EmailVerifyData,
   LoginRequest,
@@ -30,6 +33,7 @@ import {
   getReissueWarningType,
   getSignUpWarningType,
   getFindIdWarningType,
+  getFindPasswordResetWarningType,
 } from '@/utils/error';
 
 interface CheckIdErrorBody {
@@ -218,7 +222,6 @@ export const postLogout = async (accessToken: string, refreshToken: string): Pro
     throw error;
   }
 };
-
 export const requestEmailVerification = async (email: string): Promise<EmailRequestData> => {
   const response = await fetch(buildAuthUrl('/api/v1/auth/email-request'), {
     method: 'POST',
@@ -341,6 +344,158 @@ export const postFindId = async (payload: FindIdRequest): Promise<FindIdResult> 
     }
 
     if (!json?.success || !json.data?.usersId) {
+      return {
+        ok: false,
+        warningType: 'UNKNOWN_ERROR',
+        message: json?.message ?? '응답 형식이 올바르지 않습니다.',
+      };
+    }
+
+    return { ok: true, data: json.data };
+  } catch (error) {
+    if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      return {
+        ok: false,
+        warningType: 'NETWORK_ERROR',
+        message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
+      };
+    }
+
+    const isNetworkError = error instanceof TypeError;
+
+    return {
+      ok: false,
+      warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
+      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : undefined,
+    };
+  }
+};
+
+export const postFindPasswordEmailRequest = async (payload: {
+  usersId: string;
+  email: string;
+}): Promise<{ ok: boolean; message?: string }> => {
+  const requestUrl = buildAuthUrl('/api/v1/auth/password/email-request');
+
+  try {
+    const response = await fetchWithTimeout(requestUrl, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const json = await parseJsonSafely<BaseResponse<{ usersId: string; email: string }>>(response);
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: json?.message ?? getDefaultMessageByStatus(response.status),
+      };
+    }
+
+    if (!json?.success || !json.data) {
+      return {
+        ok: false,
+        message: json?.message ?? '응답 형식이 올바르지 않습니다.',
+      };
+    }
+
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      return {
+        ok: false,
+        message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
+      };
+    }
+
+    const isNetworkError = error instanceof TypeError;
+    return {
+      ok: false,
+      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : '인증번호 발송에 실패했습니다.',
+    };
+  }
+};
+
+export const postFindPasswordEmailVerify = async (payload: {
+  usersId: string;
+  email: string;
+  code: string;
+}): Promise<{ ok: boolean; message?: string }> => {
+  const requestUrl = buildAuthUrl('/api/v1/auth/password/email-verify');
+
+  try {
+    const response = await fetchWithTimeout(requestUrl, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const json = await parseJsonSafely<BaseResponse<{ usersId: string; email: string }>>(response);
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: json?.message ?? getDefaultMessageByStatus(response.status),
+      };
+    }
+
+    if (!json?.success || !json.data) {
+      return {
+        ok: false,
+        message: json?.message ?? '응답 형식이 올바르지 않습니다.',
+      };
+    }
+
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      return {
+        ok: false,
+        message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
+      };
+    }
+
+    const isNetworkError = error instanceof TypeError;
+    return {
+      ok: false,
+      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : '인증번호 확인에 실패했습니다.',
+    };
+  }
+};
+
+export const postFindPasswordReset = async (
+  payload: FindPasswordResetRequest,
+): Promise<FindPasswordResetResult> => {
+  const requestUrl = buildAuthUrl('/api/v1/auth/password/reset');
+
+  try {
+    const response = await fetchWithTimeout(requestUrl, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const json = await parseJsonSafely<FindPasswordResetResponse>(response);
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        warningType: getFindPasswordResetWarningType(response.status, json?.code ?? ''),
+        message: json?.message ?? getDefaultMessageByStatus(response.status),
+      };
+    }
+
+    if (!json?.success || !json.data?.usersId || !json.data?.email) {
       return {
         ok: false,
         warningType: 'UNKNOWN_ERROR',
