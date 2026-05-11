@@ -10,9 +10,12 @@ export type TripDetailRoute = RouteProp<RootStackParamList, 'TripDetail'>;
 export interface TripDetailCardItem {
   id: number;
   tripScheduleId?: number;
+  placeId?: number;
+  scheduleDate?: string;
   order: number;
   title: string;
   location: string;
+  address?: string;
   description: string;
   startTime: string;
   endTime: string;
@@ -60,15 +63,18 @@ export interface DaySectionProps {
   dayLabel: string;
   cards?: TripDetailCardMenuItem[];
   showMapIcon?: boolean;
+  tripId?: number;
+  tripTitle?: string;
   onPressCard: (id: number, yOffset: number) => void;
   onPressAction: (id: number) => void;
 }
 
 export interface CardContextMenuProps {
-  card: TripDetailCardMenuItem;
+  card: TripDetailCardItem;
   opacity: SharedValue<number>;
   topOffset: number;
   accentColor?: string;
+  onPressEdit: (card: TripDetailCardItem) => void;
   onPressRoute: (card: TripDetailCardItem) => void;
   onPressDelete: (card: TripDetailCardItem) => void;
   onClose: () => void;
@@ -201,5 +207,25 @@ export interface UpdateTripDateOptions {
 }
 
 export interface UpdateTripDateResult {
+  error: ServiceError | null;
+}
+
+export interface UpdateTripScheduleRequest {
+  title: string;
+  scheduleDate: string;
+  startTime?: string;
+  endTime?: string;
+  placeId?: number;
+  memo?: string;
+}
+
+export interface UpdateTripScheduleOptions {
+  tripId: number;
+  tripScheduleId: number;
+  payload: UpdateTripScheduleRequest;
+  signal?: AbortSignal;
+}
+
+export interface UpdateTripScheduleResult {
   error: ServiceError | null;
 }

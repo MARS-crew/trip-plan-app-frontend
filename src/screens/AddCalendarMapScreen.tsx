@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 
@@ -39,6 +40,8 @@ type AddCalendarMapNavigation = NativeStackNavigationProp<RootStackParamList>;
 
 const AddCalendarMapScreen: React.FC = () => {
   const navigation = useNavigation<AddCalendarMapNavigation>();
+  const route = useRoute<RouteProp<RootStackParamList, 'AddCalendarMapScreen'>>();
+  const params = route.params;
   const mapRef = useRef<MapView>(null);
   const insets = useSafeAreaInsets();
 
@@ -155,9 +158,25 @@ const AddCalendarMapScreen: React.FC = () => {
   // 등록 버튼
   // PLI-21 머지 후 navigation 연결 예정
   const handleRegister = useCallback(() => {
-    if (!selectedPlace) return;
-    navigation.goBack();
-  }, [navigation, selectedPlace]);
+    if (!selectedPlace || !params?.tripId) return;
+    navigation.dispatch(
+      CommonActions.navigate('AddSchedule', {
+        mode: params?.tripScheduleId ? 'edit' : 'create',
+        tripId: params.tripId,
+        tripTitle: params?.tripTitle ?? '',
+        tripScheduleId: params?.tripScheduleId,
+        date: params?.date ?? '',
+        title: params?.title ?? '',
+        startTime: params?.startTime,
+        endTime: params?.endTime,
+        memo: params?.memo ?? '',
+        placeName: selectedPlace.title,
+        address: selectedPlace.address,
+        latitude: selectedPlace.latitude,
+        longitude: selectedPlace.longitude,
+      }),
+    );
+  }, [navigation, params?.date, params?.endTime, params?.memo, params?.startTime, params?.title, params?.tripId, params?.tripScheduleId, params?.tripTitle, selectedPlace]);
 
   return (
     <SafeAreaView className="flex-1">
