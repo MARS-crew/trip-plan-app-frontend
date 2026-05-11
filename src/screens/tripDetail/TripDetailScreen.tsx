@@ -1,19 +1,22 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, ScrollView, Share, ToastAndroid } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getTripRoute, getTripSchedules, getTripShare } from '@/services';
+import type { RootStackParamList } from '@/navigation/types';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
 import type {
+  TripDetailCardItem,
   TripDetailHeader,
   TripDetailRoute,
   TripDetailSection,
 } from '@/types/tripDetail.types';
 import {
-  getTripDeleteErrorToastMessage,
-  getTripShareErrorMessage,
+  getServiceErrorMessage,
+  getTripRouteErrorToastMessage,
   mergeSectionsWithDayFallback,
   normalizeTripDetailData,
 } from '@/utils';
@@ -22,14 +25,15 @@ import {
   DaySection,
   KebabMenuSheet,
   CardContextMenu,
-  DeleteWarningModal,
 } from './components';
 import { KEBAB_SHEET_HEIGHT } from './components/KebabMenuSheet';
 
 const KEBAB_ANIMATION_DURATION = 250;
 const CARD_MENU_ANIMATION_DURATION = 220;
+type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetail'>;
 
 const TripDetailScreen: React.FC = () => {
+  const navigation = useNavigation<TripDetailNavigation>();
   const route = useRoute<TripDetailRoute>();
   const tripId = route.params?.tripId;
 
@@ -180,6 +184,19 @@ const TripDetailScreen: React.FC = () => {
     });
   }, [handleCloseKebabMenu, handleShareTrip]);
 
+  const handleOpenEditDateModal = useCallback(() => {
+    handleCloseKebabMenu();
+    if (!tripId) return;
+    navigation.navigate('AddTripCalendar', {
+      mode: 'editDate',
+      tripId,
+      title: headerData.title ?? '',
+      imageUrl: headerData.imageUrl ?? '',
+      startDate: headerData.startDate,
+      endDate: headerData.endDate,
+    });
+  }, [handleCloseKebabMenu, headerData.endDate, headerData.imageUrl, headerData.startDate, headerData.title, navigation, tripId]);
+
   const handlePressRouteInCard = useCallback(
     async (card: TripDetailCardItem): Promise<void> => {
       if (!tripId) return;
@@ -258,6 +275,7 @@ const TripDetailScreen: React.FC = () => {
               handleRouteFailure('INTERNAL_ERROR', '서버 오류가 발생했습니다.');
             });
           }}
+          onPressDelete={() => {}}
           onClose={handleCloseCardMenu}
         />
       )}
@@ -266,6 +284,7 @@ const TripDetailScreen: React.FC = () => {
         isVisible={isKebabMenuVisible}
         translateY={kebabTranslateY}
         onClose={handleCloseKebabMenu}
+        onPressEditDate={handleOpenEditDateModal}
         onPressShare={handlePressShareInKebab}
       />
     </SafeAreaView>

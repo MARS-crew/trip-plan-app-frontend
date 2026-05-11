@@ -15,6 +15,8 @@ import type {
 } from '@/types/myTrip.types';
 import type { TripRequestConfig, TripRequestConfigError } from '@/types/trip';
 import type {
+  UpdateTripDateOptions,
+  UpdateTripDateResult,
   GetTripRouteData,
   GetTripRouteOptions,
   GetTripRouteResult,
@@ -191,7 +193,7 @@ export const getTripSchedules = async ({
   }
 
   try {
-    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules`;
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}`;
     const response = await fetch(requestUrl, {
       headers: requestConfig.headers,
       signal,
@@ -269,5 +271,40 @@ export const getTripRoute = async ({
   } catch {
     const error = getRequestError(signal);
     return { data: null, error };
+  }
+};
+
+export const updateTripDate = async ({
+  tripId,
+  payload,
+  signal,
+}: UpdateTripDateOptions): Promise<UpdateTripDateResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/date`;
+    const response = await fetch(requestUrl, {
+      method: 'PATCH',
+      headers: {
+        ...requestConfig.headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { error };
+    }
+
+    return { error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { error };
   }
 };

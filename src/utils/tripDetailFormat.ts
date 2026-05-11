@@ -152,7 +152,14 @@ export const normalizeTripDetailData = (
   const dateText = formatTripDateText(startDate ?? null, endDate);
   const imageUrl = toStringValue(rawData.imageUrl) ?? undefined;
 
-  const header: TripDetailHeader = { title, dateText, imageUrl, startDate, tripDayCount };
+  const header: TripDetailHeader = {
+    title,
+    dateText,
+    imageUrl,
+    startDate,
+    endDate: endDate ?? undefined,
+    tripDayCount,
+  };
 
   const dayGroupKeys = [
     'daySchedules',
