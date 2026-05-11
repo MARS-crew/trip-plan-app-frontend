@@ -6,6 +6,24 @@ export interface GetMyPageData {
   visitedPlaceCount: number;
 }
 
+export type StatItemType = 'map' | 'bookmark' | 'marker';
+
+export interface StatItem {
+  id: string;
+  label: string;
+  value: number;
+  type: StatItemType;
+}
+
+export type SettingItemType = 'account' | 'notification';
+
+export interface SettingItem {
+  id: string;
+  title: string;
+  description: string;
+  type: SettingItemType;
+}
+
 export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
 
 export interface GetProfileData {
@@ -37,22 +55,20 @@ export interface GetPapagoPhrase {
   pronounce: string;
 }
 
-export type StatItemType = 'map' | 'bookmark' | 'marker';
-
-export interface StatItem {
-  id: string;
-  label: string;
-  value: number;
-  type: StatItemType;
+export interface PatchProfileRequest {
+  nickname?: string;
+  password?: string;
+  passwordConfirm?: string;
+  gender?: Gender;
+  birth?: string;
+  countryCode?: string;
 }
 
-export type SettingItemType = 'account' | 'notification';
-
-export interface SettingItem {
-  id: string;
-  title: string;
-  description: string;
-  type: SettingItemType;
+export interface PatchProfileData {
+  birth: string;
+  countryCode: string;
+  gender: Gender;
+  nickname: string;
 }
 
 export type ExchangeCurrencyUnit = 'JPY';
@@ -69,4 +85,46 @@ export interface GetExchangeData {
   dealBasR: number;
   convertedAmount: number;
   searchDate: string;
+}
+
+export interface GetSettingData {
+  birth: string;
+  countryCode: string;
+  email: string;
+  gender: Gender;
+  nickname: string;
+}
+
+export type AgreeFlag = 'Y' | 'N';
+
+export interface AgreeData {
+  marketingAgreed: AgreeFlag;
+  nightMarketingAgreed: AgreeFlag;
+}
+
+export interface AgreeUpdateRequest {
+  marketingAgreed: AgreeFlag;
+  nightMarketingAgreed: AgreeFlag;
+}
+
+export interface VisitedPlace {
+  visitedPlaceId: number;
+  visitedAt: string;
+  placeName: string;
+  cityName: string;
+  countryName: string;
+  imageUrl: string | null;
+  placeType: string;
+  reviewWrittenYn: 'Y' | 'N';
+}
+
+export interface VisitedPlaceItem {
+  id: string;
+  date: string;
+  title: string;
+  location: string;
+  tags: string[];
+  reviewCta: string;
+  hasReview: boolean;
+  imageUrl: string | null;
 }

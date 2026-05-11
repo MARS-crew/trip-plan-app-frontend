@@ -1,11 +1,20 @@
 ﻿import React from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScrollView, TouchableOpacity, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { RootStackParamList } from '@/navigation';
 import LogoutIcon from '@/assets/icons/logout.svg';
-import { getPapagoPhrases, postExchange } from '@/services';
+import { getMyPageInfo, getPapagoPhrases, postExchange, postLogout } from '@/services';
+import { useAuthStore } from '@/store/authStore';
+import {
+  buildRateText,
+  convertCurrency,
+  formatAmountWithCommas,
+  parseAmount,
+  showToastMessage,
+} from '@/utils';
+import { handleError } from '@/utils/error';
 import {
   MyPageAccountSection,
   MyPageExchangeSection,
@@ -14,7 +23,9 @@ import {
   MyPageStatsSection,
 } from '@/screens/myPage/components';
 import type { MyPageSettingItem, MyPageStatItem } from '@/screens/myPage/types';
-import type { GetPapagoPhrase, PapagoTargetLang } from '@/types/mypage';
+import type { GetMyPageData, GetPapagoPhrase, PapagoTargetLang } from '@/types/mypage';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const LANG_LABEL: Record<PapagoTargetLang, string> = {
   en: '영어',
@@ -31,12 +42,18 @@ const LANG_LABEL: Record<PapagoTargetLang, string> = {
   it: '이탈리아어',
 };
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+const INITIAL_MY_PAGE_DATA: GetMyPageData = {
+  nickname: '',
+  email: '',
+  tripCount: 0,
+  savedPlaceCount: 0,
+  visitedPlaceCount: 0,
+};
 
-const stats: MyPageStatItem[] = [
-  { id: 'trip-count', label: '여행 횟수', value: 12, type: 'map' },
-  { id: 'saved-place', label: '저장된 장소', value: 12, type: 'bookmark' },
-  { id: 'visited-place', label: '방문한 장소', value: 12, type: 'marker' },
+const buildStats = (data: GetMyPageData): MyPageStatItem[] => [
+  { id: 'trip-count', label: '여행 횟수', value: data.tripCount, type: 'map' },
+  { id: 'saved-place', label: '저장된 장소', value: data.savedPlaceCount, type: 'bookmark' },
+  { id: 'visited-place', label: '방문한 장소', value: data.visitedPlaceCount, type: 'marker' },
 ];
 
 const settingItems: MyPageSettingItem[] = [
@@ -57,36 +74,13 @@ const settingItems: MyPageSettingItem[] = [
 const KRW_TO_JPY_RATE = 0.11;
 const JPY_TO_KRW_RATE = 9.090909;
 
-const formatAmountWithCommas = (input: string): string => {
-  const digitsOnly = input.replace(/\D/g, '');
-  if (!digitsOnly) {
-    return '';
-  }
-
-  const normalized = digitsOnly.replace(/^0+(?=\d)/, '');
-  return normalized.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-};
-
-const parseAmount = (formatted: string): number => {
-  const digits = formatted.replace(/\D/g, '');
-  return digits ? Number(digits) : 0;
-};
-
-const convertCurrency = (amount: number, rate: number): string => {
-  const result = Math.round(amount * rate);
-  return formatAmountWithCommas(String(result));
-};
-
-const buildRateText = (fromCurrency: 'KRW' | 'JPY', toCurrency: 'KRW' | 'JPY', rate: number) => {
-  return `1 ${fromCurrency} = ${rate.toFixed(6)} ${toCurrency}`;
-};
-
 const MyPageScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const [krwAmount, setKrwAmount] = React.useState<string>('10,000');
   const [jpyAmount, setJpyAmount] = React.useState<string>('1,100');
   const [isKrwToJpy, setIsKrwToJpy] = React.useState<boolean>(true);
   const [phrases, setPhrases] = React.useState<GetPapagoPhrase[]>([]);
+  const [myPageData, setMyPageData] = React.useState<GetMyPageData>(INITIAL_MY_PAGE_DATA);
   const [krwToJpyRate, setKrwToJpyRate] = React.useState<number>(KRW_TO_JPY_RATE);
   const [jpyToKrwRate, setJpyToKrwRate] = React.useState<number>(JPY_TO_KRW_RATE);
   const exchangeRequestIdRef = React.useRef<number>(0);
@@ -99,6 +93,15 @@ const MyPageScreen: React.FC = () => {
     } catch (error) {
       console.error('fetchPapagoPhrases Error:', error);
       setPhrases([]);
+    }
+  }, []);
+
+  const fetchMyPage = React.useCallback(async (): Promise<void> => {
+    try {
+      const data = await getMyPageInfo();
+      setMyPageData(data ?? INITIAL_MY_PAGE_DATA);
+    } catch (error) {
+      showToastMessage(handleError(error) || '마이페이지 정보를 불러오지 못했습니다.');
     }
   }, []);
 
@@ -125,9 +128,7 @@ const MyPageScreen: React.FC = () => {
           fromKrw,
         });
 
-        if (requestId !== exchangeRequestIdRef.current) {
-          return;
-        }
+        if (requestId !== exchangeRequestIdRef.current) return;
 
         const converted = formatAmountWithCommas(String(Math.round(exchangeData.convertedAmount)));
 
@@ -146,9 +147,7 @@ const MyPageScreen: React.FC = () => {
           setKrwToJpyRate(1 / exchangeData.dealBasR);
         }
       } catch {
-        if (requestId !== exchangeRequestIdRef.current) {
-          return;
-        }
+        if (requestId !== exchangeRequestIdRef.current) return;
 
         const fallbackRate = fromKrw ? KRW_TO_JPY_RATE : JPY_TO_KRW_RATE;
         const converted = convertCurrency(amount, fallbackRate);
@@ -174,9 +173,7 @@ const MyPageScreen: React.FC = () => {
       const formatted = formatAmountWithCommas(text);
       setKrwAmount(formatted);
 
-      if (exchangeDebounceRef.current) {
-        clearTimeout(exchangeDebounceRef.current);
-      }
+      if (exchangeDebounceRef.current) clearTimeout(exchangeDebounceRef.current);
       exchangeDebounceRef.current = setTimeout(() => {
         requestExchange(formatted, true);
       }, 500);
@@ -189,9 +186,7 @@ const MyPageScreen: React.FC = () => {
       const formatted = formatAmountWithCommas(text);
       setJpyAmount(formatted);
 
-      if (exchangeDebounceRef.current) {
-        clearTimeout(exchangeDebounceRef.current);
-      }
+      if (exchangeDebounceRef.current) clearTimeout(exchangeDebounceRef.current);
       exchangeDebounceRef.current = setTimeout(() => {
         requestExchange(formatted, false);
       }, 500);
@@ -199,10 +194,25 @@ const MyPageScreen: React.FC = () => {
     [requestExchange],
   );
 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchPapagoPhrases();
+      fetchMyPage();
+    }, [fetchPapagoPhrases, fetchMyPage]),
+  );
+
+  // 환율은 최초 1회만 (포커스마다 재호출 X)
   React.useEffect(() => {
     requestExchange('10,000', true);
-    fetchPapagoPhrases();
-  }, [fetchPapagoPhrases, requestExchange]);
+  }, [requestExchange]);
+
+  const stats = React.useMemo<MyPageStatItem[]>(() => buildStats(myPageData), [myPageData]);
+
+  const phraseSectionTitle = React.useMemo((): string => {
+    const targetLang = phrases[0]?.targetLang;
+    if (!targetLang) return '일본 기본 회화';
+    return `${LANG_LABEL[targetLang]} 기본 회화`;
+  }, [phrases]);
 
   const topCurrencyCode = isKrwToJpy ? 'KRW' : 'JPY';
   const bottomCurrencyCode = isKrwToJpy ? 'JPY' : 'KRW';
@@ -218,25 +228,15 @@ const MyPageScreen: React.FC = () => {
   const bottomSymbolSpacingClass = bottomCurrencyCode === 'KRW' ? 'mr-[8px]' : 'mr-[15px]';
   const handleTopAmountChange = isKrwToJpy ? handleKrwChange : handleJpyChange;
   const handleBottomAmountChange = isKrwToJpy ? handleJpyChange : handleKrwChange;
-  const phraseSectionTitle = React.useMemo((): string => {
-    const targetLang = phrases[0]?.targetLang;
-    if (!targetLang) {
-      return '일본 기본 회화';
-    }
-
-    return `${LANG_LABEL[targetLang]} 기본 회화`;
-  }, [phrases]);
 
   const handleNavigateToProfileEdit = (): void => {
     const parentNavigation = navigation.getParent() as
       | { navigate: (...args: unknown[]) => void }
       | undefined;
-
     if (parentNavigation) {
       parentNavigation.navigate('ProfileEditScreen');
       return;
     }
-
     navigation.navigate('ProfileEditScreen');
   };
 
@@ -244,12 +244,10 @@ const MyPageScreen: React.FC = () => {
     const parentNavigation = navigation.getParent() as
       | { navigate: (...args: unknown[]) => void }
       | undefined;
-
     if (parentNavigation) {
       parentNavigation.navigate('AccountSettings');
       return;
     }
-
     navigation.navigate('AccountSettings');
   };
 
@@ -257,25 +255,36 @@ const MyPageScreen: React.FC = () => {
     const parentNavigation = navigation.getParent() as
       | { navigate: (...args: unknown[]) => void }
       | undefined;
-
     if (parentNavigation) {
       parentNavigation.navigate('NotificationSettings');
       return;
     }
-
     navigation.navigate('NotificationSettings');
   };
+
+  const handleLogout = React.useCallback(async (): Promise<void> => {
+    const { accessToken, refreshToken, clearTokens } = useAuthStore.getState();
+
+    try {
+      if (accessToken && refreshToken) {
+        await postLogout(accessToken, refreshToken);
+      }
+    } catch {
+      // 서버 요청이 실패해도 클라이언트 세션은 정리한다.
+    } finally {
+      clearTokens();
+      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+    }
+  }, [navigation]);
 
   const handleNavigateToVisitedPlaceList = (): void => {
     const parentNavigation = navigation.getParent() as
       | { navigate: (...args: unknown[]) => void }
       | undefined;
-
     if (parentNavigation) {
       parentNavigation.navigate('VisitedPlaceListScreen');
       return;
     }
-
     navigation.navigate('VisitedPlaceListScreen');
   };
 
@@ -286,8 +295,8 @@ const MyPageScreen: React.FC = () => {
           <Text className="mt-3.5 font-pretendardBold text-h text-black">마이페이지</Text>
 
           <MyPageProfileCard
-            nickname="여행자"
-            email="travel@gmail.com"
+            nickname={myPageData.nickname}
+            email={myPageData.email}
             locationLabel="일본"
             onPressEdit={handleNavigateToProfileEdit}
           />
@@ -320,7 +329,10 @@ const MyPageScreen: React.FC = () => {
             onPressNotificationSettings={handleNavigateToNotificationSettings}
           />
 
-          <TouchableOpacity activeOpacity={0.8} className="mt-[35px] items-center">
+          <TouchableOpacity
+            onPress={handleLogout}
+            activeOpacity={0.8}
+            className="mt-[35px] items-center">
             <View className="flex-row items-center">
               <LogoutIcon width={16} height={16} />
               <Text className="ml-1.5 font-pretendardMedium text-xs text-logoutRed">로그아웃</Text>

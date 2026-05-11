@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { EmptyWish } from '@/assets/icons';
 import { PlaceCard } from '@/screens/wishList/components';
+
 import type { WishPlace, WishTabWishlistProps } from '@/types/wishlist';
 
 // FlatList 아이템 → .map()으로 간단히 렌더링
@@ -16,7 +17,7 @@ WishlistPlaceItem.displayName = 'WishlistPlaceItem';
 
 // 빈 상태 — 변하지 않으므로 memo로 완전히 고정
 const WishlistEmptyState = React.memo(() => (
-  <View className="mr-[1px] items-center py-4">
+  <View className="mx-[1px] items-center py-4">
     <View className="mt-20">
       <EmptyWish />
     </View>
@@ -35,11 +36,11 @@ export const WishTabWishlist = React.memo<WishTabWishlistProps>(
     }
 
     return (
-      <View className="mr-[1px] py-4">
+      <View className="mx-[1px] py-4">
         {places.map((item) => (
-          <WishlistPlaceItem
+          <PlaceCard
             key={`wishlist-${item.id}`}
-            item={item}
+            place={item}
             isLiked={isLiked(item.id)}
             onToggleLike={onToggleLike}
           />

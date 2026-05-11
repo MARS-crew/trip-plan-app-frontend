@@ -92,6 +92,17 @@ export interface ReissueTokenFailureResult {
 
 export type ReissueTokenResult = ReissueTokenSuccessResult | ReissueTokenFailureResult;
 
+export type WithdrawReasonType =
+  | 'NOT_ENOUGH_ACCESS'
+  | 'LOW_REVIEW_TRUST'
+  | 'INAPPROPRIATE_TRIP'
+  | 'OTHER';
+
+export interface WithdrawRequest {
+  reasonType: WithdrawReasonType;
+  reasonText?: string;
+}
+
 export interface EmailRequestData {
   email: string;
 }
@@ -100,6 +111,42 @@ export interface EmailVerifyData {
   email: string;
   email_verified: 'Y' | 'N';
 }
+
+export interface FindIdRequest {
+  nickname: string;
+  email: string;
+}
+
+export interface FindIdData {
+  usersId: string;
+}
+
+export interface FindIdResponse {
+  success: boolean;
+  code: string;
+  message: string;
+  data?: FindIdData | null;
+}
+
+export type FindIdWarningType =
+  | 'INVALID_INPUT'
+  | 'USER_NOT_FOUND'
+  | 'SERVER_ERROR'
+  | 'NETWORK_ERROR'
+  | 'UNKNOWN_ERROR';
+
+export interface FindIdSuccessResult {
+  ok: true;
+  data: FindIdData;
+}
+
+export interface FindIdFailureResult {
+  ok: false;
+  warningType: FindIdWarningType;
+  message?: string;
+}
+
+export type FindIdResult = FindIdSuccessResult | FindIdFailureResult;
 
 export interface SignUpRequest {
   usersId: string;

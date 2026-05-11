@@ -8,6 +8,7 @@ export {
   getCreateTripErrorMessage,
 } from './tripErrorMessage';
 export { getDateRange, getTodayString, toDate } from './addTripDate';
+export { showToastMessage } from './errfeedback';
 export {
   formatDateText,
   mapTripStatus,
@@ -20,3 +21,9 @@ export {
   mergeSectionsWithDayFallback,
   normalizeTripDetailData,
 } from './tripDetailFormat';
+export {
+  buildRateText,
+  convertCurrency,
+  formatAmountWithCommas,
+  parseAmount,
+} from './formatter';

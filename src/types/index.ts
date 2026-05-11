@@ -23,6 +23,7 @@ export type {
 export type { FindPasswordCodeSectionProps } from './findPasswordCodeSection';
 export type { FindPasswordEmailSectionProps } from './findPasswordEmailSection';
 export type { FindPasswordResultCardProps } from './findPasswordResultCard';
+export type { FetchAddressResult, FetchPlaceNameResult } from './mapPlace';
 export type {
   ChatCaseContentProps,
   HomeScreenNavigationProp,
@@ -82,6 +83,18 @@ export type {
   GetMyTripsOptions,
   GetTripSchedulesByDateOptions,
 } from './trip';
+
+export type {
+  Gender,
+  GetMyPageData,
+  GetPapagoPhrase,
+  GetProfileData,
+  PapagoTargetLang,
+  SettingItem,
+  SettingItemType,
+  StatItem,
+  StatItemType,
+} from './mypage';
 export type { GetTripSchedulesOptions, GetTripSchedulesResult } from './tripDetail.types';
 export type {
   GetNearbyRecommendedPlacesData,

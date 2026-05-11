@@ -8,12 +8,7 @@ import type { HeaderProps } from '@/types/tripDetail.types';
 
 type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetail'>;
 
-const Header = ({
-  onPressKebab,
-  title,
-  dateText,
-  imageUrl,
-}: HeaderProps) => {
+const Header = ({ onPressKebab, tripId, title, dateText, imageUrl }: HeaderProps) => {
   const navigation = useNavigation<TripDetailNavigation>();
 
   return (
@@ -35,7 +30,10 @@ const Header = ({
 
         <View className="flex-row items-center">
           <TouchableOpacity
-            onPress={() => navigation.navigate('WishlistScreen')}
+            onPress={() => {
+              if (!tripId) return;
+              navigation.navigate('WishlistScreen', { tripId });
+            }}
             activeOpacity={0.8}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             className="mr-2 h-[36px] w-[36px] items-center justify-center rounded-full bg-[#FFFFFF4C]">
