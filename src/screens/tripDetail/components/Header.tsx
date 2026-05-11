@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -7,6 +7,15 @@ import { WishIcon, LeftArrowIcon, KebabMenuIcon, CalendarWhiteIcon } from '@/ass
 import type { HeaderProps } from '@/types/tripDetail.types';
 
 type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetail'>;
+const DEFAULT_TRIP_IMAGE = require('@/assets/images/thumnail.png');
+
+const getValidImageUrl = (rawImageUrl?: string): string | null => {
+  const trimmedImageUrl = rawImageUrl?.trim();
+  if (!trimmedImageUrl || trimmedImageUrl === 'null' || trimmedImageUrl === 'undefined') {
+    return null;
+  }
+  return trimmedImageUrl.startsWith('//') ? `https:${trimmedImageUrl}` : trimmedImageUrl;
+};
 
 const Header = ({
   onPressKebab,
@@ -15,11 +24,21 @@ const Header = ({
   imageUrl,
 }: HeaderProps) => {
   const navigation = useNavigation<TripDetailNavigation>();
+  const [hasImageLoadError, setHasImageLoadError] = useState(false);
+  const validImageUrl = getValidImageUrl(imageUrl);
+
+  useEffect(() => {
+    setHasImageLoadError(false);
+  }, [validImageUrl]);
+
+  const imageSource =
+    validImageUrl && !hasImageLoadError ? { uri: validImageUrl } : DEFAULT_TRIP_IMAGE;
 
   return (
     <View className="relative w-full">
       <Image
-        source={imageUrl ? { uri: imageUrl } : require('@/assets/images/thumnail.png')}
+        source={imageSource}
+        onError={() => setHasImageLoadError(true)}
         className="h-[181px] w-full"
         resizeMode="cover"
       />
