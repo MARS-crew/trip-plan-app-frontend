@@ -85,9 +85,8 @@ const HomeScreen: React.FC = () => {
 
       fetchUnread();
 
-      // fetch nearby schedule (top card) when screen focused
+      const controller = new AbortController();
       const fetchNearby = async (): Promise<void> => {
-        const controller = new AbortController();
         try {
           const userId = useAuthStore.getState().user?.id;
           const result = await getNearbySchedule({ userId, signal: controller.signal });
@@ -101,16 +100,12 @@ const HomeScreen: React.FC = () => {
           } else {
             setNearbyTrip(data);
             setHasPlannedTrip(true);
-            // determine whether to show in-progress view based on tripStatus
             const status = (data.tripStatus ?? '').toUpperCase();
-            if (status === 'ONGOING' || status === 'TRAVELING') {
-              setIsInTripScheduleView(true);
-            } else {
-              setIsInTripScheduleView(false);
-            }
+            // TripStatus 타입 정의에 맞춰 상태를 확인합니다.
+            setIsInTripScheduleView(status === 'ONGOING' || status === 'TRAVELING');
           }
-        } catch {
-          if (isActive) {
+        } catch (err) {
+          if (isActive && (err as Error).name !== 'AbortError') {
             setHasPlannedTrip(false);
             setIsInTripScheduleView(false);
             setNearbyTrip(null);
@@ -122,6 +117,7 @@ const HomeScreen: React.FC = () => {
 
       return () => {
         isActive = false;
+        controller.abort();
       };
     }, []),
   );

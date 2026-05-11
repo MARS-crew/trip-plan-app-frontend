@@ -24,12 +24,9 @@ const MainTripCardPlanned: React.FC<MainTripCardPlannedViewProps> = ({
   }, [daysUntilTrip]);
   const fmtDate = (iso?: string) => {
     if (!iso) return '';
-    try {
-      const d = new Date(iso);
-      return `${d.getMonth() + 1}/${d.getDate()}`;
-    } catch {
-      return iso;
-    }
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return `${d.getMonth() + 1}/${d.getDate()}`;
   };
   return (
     <Shadow

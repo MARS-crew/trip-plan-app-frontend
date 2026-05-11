@@ -314,7 +314,10 @@ export const getTripRoute = async ({
   }
 };
 
-export const getNearbySchedule = async ({ userId, signal }: GetNearbyScheduleOptions = {}): Promise<GetNearbyScheduleResult> => {
+export const getNearbySchedule = async ({
+  userId,
+  signal,
+}: GetNearbyScheduleOptions = {}): Promise<GetNearbyScheduleResult> => {
   const requestConfig = getTripRequestConfig();
   if ('error' in requestConfig) {
     return { data: null, error: requestConfig.error };
@@ -328,7 +331,7 @@ export const getNearbySchedule = async ({ userId, signal }: GetNearbyScheduleOpt
         ...requestConfig.headers,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(userId ? { userId } : {}),
+      body: JSON.stringify(userId !== undefined ? { userId } : {}),
       signal,
     });
 
