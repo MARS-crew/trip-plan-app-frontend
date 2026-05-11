@@ -65,9 +65,15 @@ const TRENDING_PLACES: PlaceCardProps['place'][] = [
   },
 ];
 
+<<<<<<< HEAD
+const SAVED_PLACES: PlaceCardProps['place'][] = [
+  {
+    id: 'placeS_1',
+=======
 const SEARCH_PLACES: PlaceCardProps['place'][] = [
   {
     id: 'place_6',
+>>>>>>> f6035190d7f1b55cb21b4ba84ae66fa8aa266524
     title: '센소지 아사쿠사',
     location: '도쿄, 일본',
     description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
@@ -75,7 +81,62 @@ const SEARCH_PLACES: PlaceCardProps['place'][] = [
     image: require('@/assets/images/thumnail.png'),
   },
   {
+<<<<<<< HEAD
+    id: 'placeS_2',
+    title: '센소지 아사쿠사',
+    location: '도쿄, 일본',
+    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+    categories: ['관광지', '문화', '역사'],
+    image: require('@/assets/images/thumnail.png'),
+  },
+];
+
+const WISHLIST_PLACES: PlaceCardProps['place'][] = [
+  {
+    id: 'placeW_1',
+    title: '센소지 아사쿠사',
+    location: '도쿄, 일본',
+    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+    categories: ['관광지', '문화', '역사'],
+    image: require('@/assets/images/thumnail.png'),
+  },
+  {
+    id: 'placeW_2',
+    title: '센소지 아사쿠사',
+    location: '도쿄, 일본',
+    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+    categories: ['관광지', '문화', '역사'],
+    image: require('@/assets/images/thumnail.png'),
+  },
+  {
+    id: 'placeW_3',
+    title: '센소지 아사쿠사',
+    location: '도쿄, 일본',
+    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+    categories: ['관광지', '문화', '역사'],
+    image: require('@/assets/images/thumnail.png'),
+  },
+  {
+    id: 'placeW_4',
+    title: '센소지 아사쿠사',
+    location: '도쿄, 일본',
+    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+    categories: ['관광지', '문화', '역사'],
+    image: require('@/assets/images/thumnail.png'),
+  },
+  {
+    id: 'placeW_5',
+    title: '센소지 아사쿠사',
+    location: '도쿄, 일본',
+    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
+    categories: ['관광지', '문화', '역사'],
+    image: require('@/assets/images/thumnail.png'),
+  },
+  {
+    id: 'placeW_6',
+=======
     id: 'place_1',
+>>>>>>> f6035190d7f1b55cb21b4ba84ae66fa8aa266524
     title: '센소지 아사쿠사',
     location: '도쿄, 일본',
     description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
@@ -532,7 +593,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           <WishlistSearchOverlay
             isVisible={isSearchFocused}
             selectedCategory={selectedCategory}
-            places={SEARCH_PLACES}
+            searchQuery={searchQuery}
             isLiked={(id) =>
               isLikedInTab(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
             }
