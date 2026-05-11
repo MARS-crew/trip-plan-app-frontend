@@ -68,17 +68,18 @@ export const InfoTabContent: React.FC<InfoTabContentProps> = ({
         </Text>
       </ContentContainer>
 
-      {openingHours ? (
-        <View className="mt-5">
-          <ContentContainer>
+      <View className="mt-5">
+        <ContentContainer compact>
+          {openingHours ? (
             <TouchableOpacity
               className="flex-row items-center ml-4 mr-4 mt-[14px] mb-[14px]"
+              style={{ minWidth: 181 }}
               onPress={() => setIsHoursExpanded((prev) => !prev)}
               activeOpacity={0.7}>
               <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center shrink-0">
                 <TimeIcon />
               </View>
-              <View className="ml-[13px] flex-1">
+              <View className="ml-[13px] mr-2">
                 <Text className="text-p text-gray">영업시간</Text>
                 <View className="mt-1">
                   <Text
@@ -88,22 +89,36 @@ export const InfoTabContent: React.FC<InfoTabContentProps> = ({
                   </Text>
                 </View>
               </View>
-              <View className="ml-2 shrink-0">
+              <View className="shrink-0">
                 {isHoursExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
               </View>
             </TouchableOpacity>
-          </ContentContainer>
-        </View>
-      ) : null}
+          ) : (
+            <View
+              className="flex-row items-center ml-4 mr-4 mt-[14px] mb-[14px]"
+              style={{ minWidth: 181 }}>
+              <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center shrink-0">
+                <TimeIcon />
+              </View>
+              <View className="ml-[13px]">
+                <Text className="text-p text-gray">영업시간</Text>
+                <View className="mt-1">
+                  <Text className="text-p text-black">정보 없음</Text>
+                </View>
+              </View>
+            </View>
+          )}
+        </ContentContainer>
+      </View>
 
       {address ? (
         <View className="mt-5">
           <ContentContainer>
-            <View className="flex-row items-center ml-4 mt-[14px] mb-[14px]">
-              <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center">
+            <View className="flex-row items-start ml-4 mr-4 mt-[14px] mb-[14px]">
+              <View className="w-9 h-9 bg-contentBackground rounded-lg items-center justify-center shrink-0">
                 <AddressIcon />
               </View>
-              <View className="ml-[13px]">
+              <View className="ml-[13px] flex-1">
                 <Text className="text-p text-gray">주소</Text>
                 <View className="mt-1">
                   <Text className="text-p text-black">{address}</Text>
