@@ -5,9 +5,12 @@ import type {
   GetNearbyRecommendedPlacesData,
   GetNearbyRecommendedPlacesOptions,
   GetNearbyRecommendedPlacesResult,
+  GetPlaceDetailOptions,
+  GetPlaceDetailResult,
   GetRecommendedPlacesData,
   GetRecommendedPlacesOptions,
   GetRecommendedPlacesResult,
+  PlaceDetail,
 } from '@/types/place';
 
 interface PlaceRequestConfig {
@@ -24,9 +27,9 @@ const logErrorCode = (errorCode: string): void => {
 };
 
 const getPlaceRequestConfig = (): PlaceRequestConfig | PlaceRequestConfigError => {
-  const { apiBaseUrl, tempToken } = getEnvConfig();
+  const { apiBaseUrl } = getEnvConfig();
   const accessToken = useAuthStore.getState().accessToken;
-  const resolvedToken = tempToken ?? accessToken ?? undefined;
+  const resolvedToken = accessToken ?? undefined;
 
   if (!apiBaseUrl) {
     const error = 'API_BASE_URL_MISSING';
@@ -120,6 +123,35 @@ export const getRecommendedPlaces = async ({
   });
 
   return { data: result.data as GetRecommendedPlacesResult['data'], error: result.error };
+};
+
+export const getPlaceDetail = async ({
+  placeId,
+  signal,
+}: GetPlaceDetailOptions): Promise<GetPlaceDetailResult> => {
+  const requestConfig = getPlaceRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const response = await fetch(
+      `${requestConfig.apiBaseUrl}/api/v1/places/${placeId}`,
+      { headers: requestConfig.headers, signal },
+    );
+
+    if (!response.ok) {
+      const errorCode = await getResponseErrorCode(response);
+      logErrorCode(errorCode);
+      return { data: null, error: errorCode };
+    }
+
+    const json: BaseResponse<PlaceDetail> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const errorCode = getRequestErrorCode(signal);
+    return { data: null, error: errorCode };
+  }
 };
 
 export const getNearbyRecommendedPlaces = async ({

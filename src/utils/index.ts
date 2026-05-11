@@ -28,3 +28,4 @@ export {
   formatAmountWithCommas,
   parseAmount,
 } from './formatter';
+export { formatOpeningHours } from './placeFormatter';
