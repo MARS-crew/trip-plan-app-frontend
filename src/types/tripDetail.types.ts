@@ -216,6 +216,10 @@ export interface UpdateTripScheduleRequest {
   startTime?: string;
   endTime?: string;
   placeId?: number;
+  placeName?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
   memo?: string;
 }
 

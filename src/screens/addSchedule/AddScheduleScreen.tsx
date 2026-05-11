@@ -185,7 +185,7 @@ const AddScheduleScreen = () => {
 
   const handleNavigateToTripDetail = () => {
     if (isEditMode) {
-      navigation.goBack();
+      navigation.popToTop();
       return;
     }
 
@@ -343,6 +343,10 @@ const AddScheduleScreen = () => {
           startTime,
           endTime,
           placeId: params.placeId,
+          placeName: params.placeName,
+          address: params.address,
+          latitude: params.latitude,
+          longitude: params.longitude,
           memo: formValues.memo.trim() || undefined,
         },
       });
