@@ -8,7 +8,7 @@ export type SearchStackParamList = {
     origin?: 'search' | 'bookmark';
     initialTab?: 'info' | 'review';
   };
-  SelectTrip: undefined;
+  SelectTrip: { placeId: number; placeName: string; address: string; latitude: number; longitude: number } | undefined;
   ReviewWrite: undefined;
 };
 
@@ -46,7 +46,7 @@ export type RootStackParamList = {
   WishlistScreen: { tripId: number };
   FindPassword: undefined;
   TripDetail: { tripId: number } | undefined;
-  AddSchedule: undefined;
+  AddSchedule: { tripId: number; tripTitle: string; date: string; placeId?: number; placeName?: string; address?: string; latitude?: number; longitude?: number } | undefined;
   AddCalendarMapScreen: undefined;
   ScheduleMap: undefined;
 };

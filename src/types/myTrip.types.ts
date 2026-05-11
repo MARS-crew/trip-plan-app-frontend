@@ -155,3 +155,32 @@ export interface CreateTripOptions {
   payload: CreateTripRequest;
   signal?: AbortSignal;
 }
+
+export interface CreateScheduleRequest {
+  title: string;
+  scheduleDate: string;
+  startTime?: string;
+  endTime?: string;
+  placeName?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  memo?: string;
+}
+
+export interface CreateScheduleData {
+  tripScheduleId: number;
+  title: string;
+  scheduleDate: string;
+}
+
+export interface CreateScheduleOptions {
+  tripId: number;
+  payload: CreateScheduleRequest;
+  signal?: AbortSignal;
+}
+
+export interface CreateScheduleResult {
+  data: CreateScheduleData | null;
+  error: ServiceError | null;
+}
