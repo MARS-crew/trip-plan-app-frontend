@@ -124,8 +124,14 @@ const DestinationDetailScreen: React.FC = () => {
   }, []);
 
   const handleAddToSchedule = useCallback((): void => {
-    navigation.navigate('SelectTrip');
-  }, [navigation]);
+    navigation.navigate('SelectTrip', {
+      placeId,
+      placeName: placeDetail?.name ?? '',
+      address: placeDetail?.address ?? '',
+      latitude: placeDetail?.latitude ?? 0,
+      longitude: placeDetail?.longitude ?? 0,
+    });
+  }, [navigation, placeId, placeDetail]);
 
   // 파생 값
   const tabs = React.useMemo(

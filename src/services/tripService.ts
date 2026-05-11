@@ -3,6 +3,9 @@ import { getEnvConfig } from '@/config/env';
 import { useAuthStore } from '@/store';
 import type { ServiceError } from '@/types/trip';
 import type {
+  CreateScheduleData,
+  CreateScheduleOptions,
+  CreateScheduleResult,
   CreateTripData,
   CreateTripOptions,
   CreateTripResult,
@@ -149,6 +152,42 @@ export const createTrip = async ({
     }
 
     const json: BaseResponse<CreateTripData> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
+  }
+};
+
+export const createSchedule = async ({
+  tripId,
+  payload,
+  signal,
+}: CreateScheduleOptions): Promise<CreateScheduleResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules`;
+    const response = await fetch(requestUrl, {
+      method: 'POST',
+      headers: {
+        ...requestConfig.headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    const json: BaseResponse<CreateScheduleData> = await response.json();
     return { data: json.data ?? null, error: null };
   } catch {
     const error = getRequestError(signal);
