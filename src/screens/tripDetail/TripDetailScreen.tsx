@@ -5,7 +5,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getTripRoute, getTripSchedules, getTripShare } from '@/services';
+import { getTripDetail, getTripRoute, getTripShare } from '@/services';
 import type { RootStackParamList } from '@/navigation/types';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
 import type {
@@ -81,7 +81,7 @@ const TripDetailScreen: React.FC = () => {
 
     const abortController = new AbortController();
     const fetchTripDetailSchedules = async (): Promise<void> => {
-      const result = await getTripSchedules({ tripId, signal: abortController.signal });
+      const result = await getTripDetail({ tripId, signal: abortController.signal });
       if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
       if (result.error) {
         setDaySections([]);

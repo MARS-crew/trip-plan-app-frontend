@@ -20,8 +20,8 @@ import type {
   GetTripRouteData,
   GetTripRouteOptions,
   GetTripRouteResult,
-  GetTripSchedulesOptions,
-  GetTripSchedulesResult,
+  GetTripDetailOptions,
+  GetTripDetailResult,
   GetTripShareOptions,
   GetTripShareResult,
   TripShareData,
@@ -183,10 +183,10 @@ export const getTripSchedulesByDate = async ({
   }
 };
 
-export const getTripSchedules = async ({
+export const getTripDetail = async ({
   tripId,
   signal,
-}: GetTripSchedulesOptions): Promise<GetTripSchedulesResult> => {
+}: GetTripDetailOptions): Promise<GetTripDetailResult> => {
   const requestConfig = getTripRequestConfig();
   if ('error' in requestConfig) {
     return { data: null, error: requestConfig.error };

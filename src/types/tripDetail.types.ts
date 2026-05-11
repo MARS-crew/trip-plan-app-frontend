@@ -102,12 +102,12 @@ export interface EditTitleModalProps {
   onClose: () => void;
 }
 
-export interface GetTripSchedulesResult {
+export interface GetTripDetailResult {
   data: unknown;
   error: ServiceError | null;
 }
 
-export interface GetTripSchedulesOptions {
+export interface GetTripDetailOptions {
   tripId: number;
   signal?: AbortSignal;
 }

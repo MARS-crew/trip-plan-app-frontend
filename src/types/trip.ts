@@ -17,8 +17,8 @@ export type {
 } from './myTrip.types';
 
 export type {
-  GetTripSchedulesResult,
-  GetTripSchedulesOptions,
+  GetTripDetailResult,
+  GetTripDetailOptions,
   TripShareData,
   GetTripShareOptions,
   GetTripShareResult,
