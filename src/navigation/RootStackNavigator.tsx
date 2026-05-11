@@ -19,7 +19,7 @@ import AccountSettingsScreen from '@/screens/myPage/AccountSettingsScreen';
 import { AddCalendarMapScreen } from '@/screens/AddCalendarMapScreen';
 import TripDetailScreen from '@/screens/tripDetail/TripDetailScreen';
 import { AddScheduleScreen } from '@/screens/addSchedule/AddScheduleScreen';
-import { ScheduleMapScreen } from '@/screens/scheduleMap/ScheduleMapScreen';
+import { ScheduleMapScreen } from '@/screens/scheduleMap';
 
 import EmptyMapScreen from '@/screens/myTrip/EmptyMapScreen';
 
