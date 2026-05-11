@@ -27,6 +27,8 @@ import type {
   GetTripShareOptions,
   GetTripShareResult,
   TripShareData,
+  UpdateTripTitleOptions,
+  UpdateTripTitleResult,
 } from '@/types/tripDetail.types';
 
 const logErrorCode = (errorCode: string): void => {
@@ -318,6 +320,41 @@ export const deleteTripSchedule = async ({
     const response = await fetch(requestUrl, {
       method: 'DELETE',
       headers: requestConfig.headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { error };
+    }
+
+    return { error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { error };
+  }
+};
+
+export const updateTripTitle = async ({
+  tripId,
+  payload,
+  signal,
+}: UpdateTripTitleOptions): Promise<UpdateTripTitleResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/title`;
+    const response = await fetch(requestUrl, {
+      method: 'PATCH',
+      headers: {
+        ...requestConfig.headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
       signal,
     });
 
