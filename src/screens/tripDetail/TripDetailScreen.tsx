@@ -5,7 +5,14 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { deleteTrip, deleteTripSchedule, getTripRoute, getTripSchedules, getTripShare } from '@/services';
+import {
+  deleteTrip,
+  deleteTripSchedule,
+  getTripRoute,
+  getTripSchedules,
+  getTripShare,
+  updateTripTitle,
+} from '@/services';
 import type { RootStackParamList } from '@/navigation/types';
 import { getTripDayColor } from '@/screens/scheduleMap/utils';
 import type {
@@ -19,6 +26,7 @@ import {
   getTripDeleteErrorToastMessage,
   getTripScheduleDeleteErrorToastMessage,
   getTripRouteErrorToastMessage,
+  getTripTitleUpdateErrorToastMessage,
   mergeSectionsWithDayFallback,
   normalizeTripDetailData,
 } from '@/utils';
@@ -28,15 +36,15 @@ import {
   KebabMenuSheet,
   CardContextMenu,
   DeleteWarningModal,
+  EditTitleModal,
 } from './components';
 import { KEBAB_SHEET_HEIGHT } from './components/KebabMenuSheet';
 
 const KEBAB_ANIMATION_DURATION = 250;
 const CARD_MENU_ANIMATION_DURATION = 220;
+const TRIP_TITLE_MAX_LENGTH = 10;
 type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetail'>;
-type DeleteTarget =
-  | { type: 'trip' }
-  | { type: 'schedule'; cardId: number; tripScheduleId: number };
+type DeleteTarget = { type: 'trip' } | { type: 'schedule'; cardId: number; tripScheduleId: number };
 
 const TripDetailScreen: React.FC = () => {
   const navigation = useNavigation<TripDetailNavigation>();
@@ -49,10 +57,13 @@ const TripDetailScreen: React.FC = () => {
 
   const [isKebabMenuVisible, setIsKebabMenuVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [isEditTitleModalVisible, setIsEditTitleModalVisible] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
   const [isDeletingTrip, setIsDeletingTrip] = useState(false);
+  const [isUpdatingTitle, setIsUpdatingTitle] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [selectedCardTop, setSelectedCardTop] = useState(0);
+  const [editedTitle, setEditedTitle] = useState('');
   const [headerData, setHeaderData] = useState<TripDetailHeader>({
     title: '',
     dateText: '',
@@ -192,6 +203,42 @@ const TripDetailScreen: React.FC = () => {
       );
     });
   }, [handleCloseKebabMenu, handleShareTrip]);
+
+  const handleOpenEditTitleModal = useCallback(() => {
+    handleCloseKebabMenu();
+    setEditedTitle(headerData.title ?? '');
+    setIsEditTitleModalVisible(true);
+  }, [handleCloseKebabMenu, headerData.title]);
+
+  const handleCloseEditTitleModal = useCallback(() => {
+    setIsEditTitleModalVisible(false);
+  }, []);
+
+  const handleSubmitEditTitle = useCallback(async () => {
+    if (!tripId || isUpdatingTitle) return;
+    const trimmedTitle = editedTitle.trim();
+
+    if (!trimmedTitle) {
+      ToastAndroid.show('여행명을 입력해주세요.', ToastAndroid.SHORT);
+      return;
+    }
+    if (trimmedTitle.length > TRIP_TITLE_MAX_LENGTH) {
+      ToastAndroid.show('여행명은 10자 이내로 입력해주세요.', ToastAndroid.SHORT);
+      return;
+    }
+
+    setIsUpdatingTitle(true);
+    const result = await updateTripTitle({ tripId, payload: { title: trimmedTitle } });
+    setIsUpdatingTitle(false);
+
+    if (result.error) {
+      ToastAndroid.show(getTripTitleUpdateErrorToastMessage(result.error), ToastAndroid.SHORT);
+      return;
+    }
+
+    setHeaderData((prev) => ({ ...prev, title: trimmedTitle }));
+    setIsEditTitleModalVisible(false);
+  }, [editedTitle, isUpdatingTitle, tripId]);
 
   const handleOpenTripDeleteModal = useCallback(() => {
     handleCloseKebabMenu();
@@ -348,6 +395,7 @@ const TripDetailScreen: React.FC = () => {
         isVisible={isKebabMenuVisible}
         translateY={kebabTranslateY}
         onClose={handleCloseKebabMenu}
+        onPressEditTitle={handleOpenEditTitleModal}
         onPressShare={handlePressShareInKebab}
         onPressDelete={handleOpenTripDeleteModal}
       />
@@ -369,6 +417,20 @@ const TripDetailScreen: React.FC = () => {
           });
         }}
         onClose={handleCloseDeleteModal}
+      />
+
+      <EditTitleModal
+        visible={isEditTitleModalVisible}
+        value={editedTitle}
+        maxLength={TRIP_TITLE_MAX_LENGTH}
+        isSubmitting={isUpdatingTitle}
+        onChangeValue={setEditedTitle}
+        onSubmit={() => {
+          handleSubmitEditTitle().catch(() => {
+            ToastAndroid.show(getTripTitleUpdateErrorToastMessage(null), ToastAndroid.SHORT);
+          });
+        }}
+        onClose={handleCloseEditTitleModal}
       />
     </SafeAreaView>
   );

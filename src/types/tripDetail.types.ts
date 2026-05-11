@@ -77,6 +77,7 @@ export interface KebabMenuSheetProps {
   isVisible: boolean;
   translateY: SharedValue<number>;
   onClose: () => void;
+  onPressEditTitle?: () => void;
   onPressShare?: () => void;
   onPressDelete?: () => void;
 }
@@ -86,6 +87,16 @@ export interface DeleteWarningModalProps {
   title?: string;
   confirmLabel?: string;
   onConfirm: () => void;
+  onClose: () => void;
+}
+
+export interface EditTitleModalProps {
+  visible: boolean;
+  value: string;
+  maxLength: number;
+  isSubmitting?: boolean;
+  onChangeValue: (value: string) => void;
+  onSubmit: () => void;
   onClose: () => void;
 }
 
@@ -159,5 +170,19 @@ export interface DeleteTripScheduleOptions {
 }
 
 export interface DeleteTripScheduleResult {
+  error: ServiceError | null;
+}
+
+export interface UpdateTripTitleRequest {
+  title: string;
+}
+
+export interface UpdateTripTitleOptions {
+  tripId: number;
+  payload: UpdateTripTitleRequest;
+  signal?: AbortSignal;
+}
+
+export interface UpdateTripTitleResult {
   error: ServiceError | null;
 }

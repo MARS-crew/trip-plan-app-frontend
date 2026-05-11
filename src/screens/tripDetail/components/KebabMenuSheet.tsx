@@ -10,6 +10,7 @@ const KebabMenuSheet = ({
   isVisible,
   translateY,
   onClose,
+  onPressEditTitle,
   onPressShare,
   onPressDelete,
 }: KebabMenuSheetProps) => {
@@ -47,7 +48,7 @@ const KebabMenuSheet = ({
         <View className="w-full rounded-t-[12px] bg-white px-4 py-4">
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={onClose}
+            onPress={onPressEditTitle ?? onClose}
             className="h-14 w-full flex-row items-center px-4">
             <View className="mr-3">
               <KebabEditIcon />
