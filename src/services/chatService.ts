@@ -1,24 +1,19 @@
-import { getEnvConfig } from '@/config/env';
-import { useAuthStore } from '@/store';
+import Config from 'react-native-config';
+
 import type { ChatRequest, ChatResponse } from '@/types/chat';
 
-const buildChatUrl = (endpoint: string): string => `${getEnvConfig().apiBaseUrl ?? ''}${endpoint}`;
-
 export const postChatMessage = async (payload: ChatRequest): Promise<ChatResponse> => {
-  const { accessToken } = useAuthStore.getState();
-
-  const response = await fetch(buildChatUrl('/api/v1/chat'), {
+  const response = await fetch(`${Config.API_BASE_URL}/swagger-ui-ai/api/v1/chat/`, {
     method: 'POST',
     headers: {
+      accept: 'application/json',
       'Content-Type': 'application/json',
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
     },
     body: JSON.stringify(payload),
   });
 
-  if (!response.ok) {
-    throw new Error('채팅 메시지 전송 실패');
-  }
+  if (!response.ok) throw new Error('채팅 메시지 전송 실패');
 
-  return response.json() as Promise<ChatResponse>;
+  const json = await response.json();
+  return (json.data ?? json) as ChatResponse;
 };

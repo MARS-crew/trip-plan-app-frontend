@@ -1,5 +1,5 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   TextInput,
   ScrollView,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Shadow } from 'react-native-shadow-2';
@@ -21,9 +22,11 @@ import CustomBottomSheet from '@/components/ui/CustomBottomSheet';
 import { MainRecChip } from '@/components/ui';
 import { RobotIcon, SendIcon, X, NoticeIcon, LogoIcon, LogoLetter, ChatIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
-import { ChatCaseContent, MainTripCard } from '@/screens/home/components';
+import { MainTripCard } from '@/screens/home/components';
 import { getUnreadAlert } from '@/services/alertService';
+import { postChatMessage } from '@/services/chatService';
 import type { HomeScreenNavigationProp } from '@/types/home';
+import type { ChatMessage } from '@/types/chat';
 import {
   CHAT_HEADER_HEIGHT,
   CHAT_INPUT_BOTTOM_SPACING,
@@ -56,11 +59,13 @@ const HomeScreen: React.FC = () => {
   const translateY = useSharedValue(CHAT_SHEET_HEIGHT);
   const SNAP_MIN = CHAT_SHEET_HEIGHT;
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatCaseOrder, setChatCaseOrder] = useState(-1);
   const [hasPlannedTrip, setHasPlannedTrip] = useState(false);
   const [isInTripScheduleView, setIsInTripScheduleView] = useState(false);
-  const currentCaseIndex = chatCaseOrder < 0 ? 0 : chatCaseOrder;
   const [hasNotification, setHasNotification] = useState<boolean>(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const chatSessionId = useRef(`${Math.random().toString(36).substring(2)}${Date.now().toString(36)}`);
+  const chatScrollRef = useRef<ScrollView>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -104,14 +109,35 @@ const HomeScreen: React.FC = () => {
     navigation.navigate('MainTabs', { screen: 'MyTrip' });
   }, [navigation]);
 
+  const [chatInputText, setChatInputText] = useState('');
+
   const handleOpenChat = useCallback(() => {
-    setChatCaseOrder((prev) => (prev + 1) % 3);
     translateY.value = withTiming(0, { duration: 350 });
   }, [translateY]);
 
   const handleCloseChat = useCallback(() => {
     translateY.value = withTiming(SNAP_MIN, { duration: 300 });
   }, [translateY, SNAP_MIN]);
+
+  const handleSendChat = useCallback(async () => {
+    const text = chatInputText.trim();
+    if (!text || isChatLoading) return;
+
+    setChatMessages((prev) => [...prev, { id: `user-${Date.now()}`, role: 'user', content: text }]);
+    setChatInputText('');
+    setIsChatLoading(true);
+    setTimeout(() => chatScrollRef.current?.scrollToEnd({ animated: true }), 100);
+
+    try {
+      const result = await postChatMessage({ session_id: chatSessionId.current, message: text });
+      setChatMessages((prev) => [...prev, { id: `bot-${Date.now()}`, role: 'bot', content: result.answer }]);
+    } catch {
+      setChatMessages((prev) => [...prev, { id: `bot-err-${Date.now()}`, role: 'bot', content: '죄송합니다. 오류가 발생했습니다.' }]);
+    } finally {
+      setIsChatLoading(false);
+      setTimeout(() => chatScrollRef.current?.scrollToEnd({ animated: true }), 100);
+    }
+  }, [chatInputText, isChatLoading]);
 
   const backdropStyle = useAnimatedStyle(() => {
     const opacity = interpolate(translateY.value, [0, SNAP_MIN], [0.3, 0]);
@@ -263,22 +289,66 @@ const HomeScreen: React.FC = () => {
         </View>
 
         <View className="flex-1" style={{ marginTop: CHAT_HEADER_HEIGHT }}>
-          <ChatCaseContent currentCaseIndex={currentCaseIndex} />
+          <ScrollView
+            ref={chatScrollRef}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingTop: 12, paddingBottom: CHAT_INPUT_BOTTOM_SPACING + 60 }}
+            showsVerticalScrollIndicator={false}>
+            {chatMessages.map((msg) =>
+              msg.role === 'user' ? (
+                <View key={msg.id} className="items-end px-4 mb-3">
+                  <View className="bg-main px-4 py-3 max-w-[80%]" style={{ borderRadius: 16 }}>
+                    <Text className="text-p1 text-white font-pretendardMedium">{msg.content}</Text>
+                  </View>
+                </View>
+              ) : (
+                <View key={msg.id} className="flex-row items-start px-4 mb-3">
+                  <View className="rounded-full bg-chatHeaderCircleBackground items-center justify-center" style={{ width: 28, height: 28, marginTop: 2 }}>
+                    <RobotIcon width={14} height={14} />
+                  </View>
+                  <View className="ml-2 bg-chatHeaderCircleBackground px-3 py-3 max-w-[75%]" style={{ borderRadius: 16 }}>
+                    <Text className="text-p1 text-black font-pretendardMedium">{msg.content}</Text>
+                  </View>
+                </View>
+              )
+            )}
+            {isChatLoading && (
+              <View className="flex-row items-start px-4 mb-3">
+                <View className="rounded-full bg-chatHeaderCircleBackground items-center justify-center" style={{ width: 28, height: 28, marginTop: 2 }}>
+                  <RobotIcon width={14} height={14} />
+                </View>
+                <View className="ml-2 bg-chatHeaderCircleBackground px-4 py-3" style={{ borderRadius: 16 }}>
+                  <ActivityIndicator size="small" color={COLORS.main} />
+                </View>
+              </View>
+            )}
+          </ScrollView>
 
           <View
             className="absolute left-0 right-0 flex-row items-center px-4"
             style={{ bottom: CHAT_INPUT_BOTTOM_SPACING }}>
             <TextInput
+              value={chatInputText}
+              onChangeText={setChatInputText}
+              onSubmitEditing={handleSendChat}
               placeholder="AI에게 질문해보세요"
               placeholderTextColor={COLORS.gray}
+              returnKeyType="send"
+              editable={!isChatLoading}
               className="h-12 flex-1 border border-borderGray px-4 text-p1 text-black"
               style={{ borderRadius: CHAT_INPUT_RADIUS }}
             />
-            <View
-              className="ml-3 items-center justify-center rounded-full bg-main"
-              style={{ width: CHAT_SEND_BUTTON_SIZE, height: CHAT_SEND_BUTTON_SIZE }}>
+            <TouchableOpacity
+              onPress={handleSendChat}
+              disabled={!chatInputText.trim() || isChatLoading}
+              className="ml-3 items-center justify-center rounded-full"
+              style={{
+                width: CHAT_SEND_BUTTON_SIZE,
+                height: CHAT_SEND_BUTTON_SIZE,
+                backgroundColor: chatInputText.trim() && !isChatLoading ? COLORS.main : COLORS.buttonDisabled,
+              }}>
               <SendIcon width={24} height={24} />
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
       </CustomBottomSheet>
