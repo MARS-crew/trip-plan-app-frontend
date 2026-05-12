@@ -77,6 +77,7 @@ export type RootStackParamList = {
       }
     | undefined;
   ScheduleMap: undefined;
+  ChatScreen: undefined;
 };
 
 export type HomeStackParamList = {

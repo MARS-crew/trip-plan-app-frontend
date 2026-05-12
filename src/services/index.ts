@@ -7,3 +7,4 @@ export * from './savedPlaceService';
 export * from './placeService';
 export * from './wishList';
 export * from './mapPlaceService';
+export * from './chatService';
