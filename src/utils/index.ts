@@ -5,7 +5,12 @@
 export {
   getTripShareErrorMessage,
   getTripDeleteErrorToastMessage,
+  getTripScheduleDeleteErrorToastMessage,
   getCreateTripErrorMessage,
+  getServiceErrorMessage,
+  getTripRouteErrorToastMessage,
+  getTripDateUpdateErrorToastMessage,
+  getTripScheduleUpdateErrorToastMessage,
 } from './tripErrorMessage';
 export { getDateRange, getTodayString, toDate } from './addTripDate';
 export { showToastMessage } from './errfeedback';
@@ -28,3 +33,4 @@ export {
   formatAmountWithCommas,
   parseAmount,
 } from './formatter';
+export { formatOpeningHours } from './placeFormatter';

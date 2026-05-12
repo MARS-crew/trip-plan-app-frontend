@@ -105,16 +105,20 @@ const mapScheduleToCardItem = (
   schedule: Record<string, unknown>,
   order: number,
   isCurrentSchedule: boolean,
+  scheduleDate?: string | null,
 ): TripDetailCardItem => ({
   id: toNumberValue(schedule.tripScheduleId) ?? toNumberValue(schedule.id) ?? order,
   tripScheduleId: toNumberValue(schedule.tripScheduleId) ?? toNumberValue(schedule.id) ?? undefined,
+  placeId: toNumberValue(schedule.placeId) ?? undefined,
+  scheduleDate: toStringValue(schedule.scheduleDate) ?? scheduleDate ?? undefined,
   order,
   title: toStringValue(schedule.title) ?? '',
   location: toStringValue(schedule.placeName) ?? toStringValue(schedule.address) ?? '',
+  address: toStringValue(schedule.address) ?? undefined,
   description: toStringValue(schedule.memo) ?? '',
   startTime: formatScheduleTime(toStringValue(schedule.startTime)),
   endTime: formatScheduleTime(toStringValue(schedule.endTime)),
-  isCurrentSchedule,
+  isCurrentSchedule: Boolean(schedule.current) || isCurrentSchedule,
 });
 
 export const normalizeTripDetailData = (
@@ -152,7 +156,14 @@ export const normalizeTripDetailData = (
   const dateText = formatTripDateText(startDate ?? null, endDate);
   const imageUrl = toStringValue(rawData.imageUrl) ?? undefined;
 
-  const header: TripDetailHeader = { title, dateText, imageUrl, startDate, tripDayCount };
+  const header: TripDetailHeader = {
+    title,
+    dateText,
+    imageUrl,
+    startDate,
+    endDate: endDate ?? undefined,
+    tripDayCount,
+  };
 
   const dayGroupKeys = [
     'daySchedules',
@@ -171,9 +182,10 @@ export const normalizeTripDetailData = (
         toNumberValue(group.dayNo) ?? toNumberValue(group.selectedDayNo) ?? sectionIndex + 1;
       const scheduleDate = toStringValue(group.scheduleDate) ?? toStringValue(group.date);
       const selectedDayLabel = toStringValue(group.selectedDayLabel);
-      const cards = getScheduleListFromGroup(group).map((schedule, cardIndex) =>
-        mapScheduleToCardItem(schedule, cardIndex + 1, sectionIndex === 0 && cardIndex === 0),
-      );
+      const cards = getScheduleListFromGroup(group).map((schedule, cardIndex) => {
+        const isCurrentSchedule = Boolean(schedule.current);
+        return mapScheduleToCardItem(schedule, cardIndex + 1, isCurrentSchedule, scheduleDate);
+      });
       return {
         dayNo,
         dayLabel: selectedDayLabel ?? formatDayLabel(dayNo, scheduleDate),
@@ -182,7 +194,7 @@ export const normalizeTripDetailData = (
       };
     });
 
-    return { header, sections: sections.filter((section) => section.cards.length > 0) };
+    return { header, sections };
   }
 
   const flatScheduleKeys = ['schedules', 'tripSchedules', 'scheduleList', 'items', 'cards'];
@@ -220,9 +232,10 @@ export const normalizeTripDetailData = (
     .map((group, sectionIndex) => ({
       dayNo: group.dayNo,
       dayLabel: formatDayLabel(group.dayNo, group.scheduleDate),
-      cards: group.items.map((schedule, cardIndex) =>
-        mapScheduleToCardItem(schedule, cardIndex + 1, sectionIndex === 0 && cardIndex === 0),
-      ),
+      cards: group.items.map((schedule, cardIndex) => {
+        const isCurrentSchedule = Boolean(schedule.current);
+        return mapScheduleToCardItem(schedule, cardIndex + 1, isCurrentSchedule);
+      }),
       showMapIcon: sectionIndex === 0,
     }));
 

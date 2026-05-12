@@ -48,3 +48,41 @@ export interface GetNearbyRecommendedPlacesResult {
   data: NearbyRecommendedPlace[];
   error: string | null;
 }
+
+export interface ReviewPreview {
+  reviewId: number;
+  nickname: string;
+  rating: number;
+  content: string;
+  visitedDate: string;
+  imageUrls: string[];
+}
+
+export interface PlaceDetail {
+  placeId: number;
+  name: string;
+  countryName: string;
+  cityName: string;
+  address: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+  ratingAvg: number;
+  reviewCount: number;
+  openingHours: string | null;
+  imageUrl: string | null;
+  placeType: string;
+  saved: boolean;
+  tags: string[];
+  reviewPreviews: ReviewPreview[];
+}
+
+export interface GetPlaceDetailOptions {
+  placeId: number;
+  signal?: AbortSignal;
+}
+
+export interface GetPlaceDetailResult {
+  data: PlaceDetail | null;
+  error: string | null;
+}

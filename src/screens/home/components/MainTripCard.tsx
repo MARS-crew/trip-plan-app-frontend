@@ -10,16 +10,39 @@ const MainTripCard: React.FC<MainTripCardProps> = ({
   onAddTrip,
   onOpenTripSchedule,
   onViewAllSchedule,
+  nearbyTrip = null,
 }) => {
   if (!hasPlannedTrip) {
     return <MainTripCardEmpty onAddTrip={onAddTrip} />;
   }
 
   if (!isInTripScheduleView) {
-    return <MainTripCardPlanned onOpenTripSchedule={onOpenTripSchedule} />;
+    return (
+      <MainTripCardPlanned
+        onOpenTripSchedule={onOpenTripSchedule}
+        {...(nearbyTrip
+          ? {
+              tripTitle: nearbyTrip.tripTitle,
+              startDate: nearbyTrip.startDate,
+              endDate: nearbyTrip.endDate,
+              scheduleCount: nearbyTrip.scheduleCount,
+              daysUntilTrip: nearbyTrip.daysUntilTrip,
+              tripDayCount: nearbyTrip.tripDayCount,
+              progressRate: nearbyTrip.progressRate,
+            }
+          : {})}
+      />
+    );
   }
 
-  return <MainTripCardInProgress onViewAllSchedule={onViewAllSchedule} />;
+  return (
+    <MainTripCardInProgress
+      onViewAllSchedule={onViewAllSchedule}
+      {...(nearbyTrip
+        ? { tripTitle: nearbyTrip.tripTitle, nextSchedules: nearbyTrip.nextSchedules }
+        : {})}
+    />
+  );
 };
 
 export default MainTripCard;
