@@ -38,6 +38,10 @@ export type RootStackParamList = {
   AddTripCalendar: {
     title: string;
     imageUrl: string;
+    mode?: 'create' | 'editDate';
+    tripId?: number;
+    startDate?: string;
+    endDate?: string;
   };
   VisitedPlaceListScreen: undefined;
   FindId: undefined;
@@ -46,18 +50,35 @@ export type RootStackParamList = {
   TripDetail: { tripId: number } | undefined;
   AddSchedule:
     | {
+        mode?: 'create' | 'edit';
         tripId: number;
         tripTitle: string;
         date: string;
+        tripScheduleId?: number;
         placeId?: number;
         placeName?: string;
         address?: string;
         latitude?: number;
         longitude?: number;
+        title?: string;
+        startTime?: string;
+        endTime?: string;
+        memo?: string;
       }
     | undefined;
-  AddCalendarMapScreen: undefined;
-  ScheduleMap: { tripId: number };
+  AddCalendarMapScreen:
+    | {
+        tripId?: number;
+        tripTitle?: string;
+        date?: string;
+        tripScheduleId?: number;
+        title?: string;
+        startTime?: string;
+        endTime?: string;
+        memo?: string;
+      }
+    | undefined;
+  ScheduleMap: undefined;
 };
 
 export type HomeStackParamList = {

@@ -10,9 +10,12 @@ export type TripDetailRoute = RouteProp<RootStackParamList, 'TripDetail'>;
 export interface TripDetailCardItem {
   id: number;
   tripScheduleId?: number;
+  placeId?: number;
+  scheduleDate?: string;
   order: number;
   title: string;
   location: string;
+  address?: string;
   description: string;
   startTime: string;
   endTime: string;
@@ -31,6 +34,7 @@ export interface TripDetailHeader {
   dateText: string;
   imageUrl?: string;
   startDate?: string;
+  endDate?: string;
   tripDayCount?: number;
 }
 
@@ -60,16 +64,19 @@ export interface DaySectionProps {
   cards?: TripDetailCardMenuItem[];
   showMapIcon?: boolean;
   tripId?: number;
+  tripTitle?: string;
   onPressCard: (id: number, yOffset: number) => void;
   onPressAction: (id: number) => void;
 }
 
 export interface CardContextMenuProps {
-  card: TripDetailCardMenuItem;
+  card: TripDetailCardItem;
   opacity: SharedValue<number>;
   topOffset: number;
   accentColor?: string;
+  onPressEdit: (card: TripDetailCardItem) => void;
   onPressRoute: (card: TripDetailCardItem) => void;
+  onPressDelete: (card: TripDetailCardItem) => void;
   onClose: () => void;
 }
 
@@ -77,7 +84,28 @@ export interface KebabMenuSheetProps {
   isVisible: boolean;
   translateY: SharedValue<number>;
   onClose: () => void;
+  onPressEditTitle?: () => void;
+  onPressEditDate?: () => void;
   onPressShare?: () => void;
+  onPressDelete?: () => void;
+}
+
+export interface DeleteWarningModalProps {
+  visible: boolean;
+  title?: string;
+  confirmLabel?: string;
+  onConfirm: () => void;
+  onClose: () => void;
+}
+
+export interface EditTitleModalProps {
+  visible: boolean;
+  value: string;
+  maxLength: number;
+  isSubmitting?: boolean;
+  onChangeValue: (value: string) => void;
+  onSubmit: () => void;
+  onClose: () => void;
 }
 
 export interface GetTripSchedulesResult {
@@ -192,5 +220,77 @@ export interface GetTripRouteOptions {
 
 export interface GetTripRouteResult {
   data: GetTripRouteData | null;
+  error: ServiceError | null;
+}
+
+export interface DeleteTripOptions {
+  tripId: number;
+  signal?: AbortSignal;
+}
+
+export interface DeleteTripResult {
+  error: ServiceError | null;
+}
+
+export interface DeleteTripScheduleOptions {
+  tripId: number;
+  tripScheduleId: number;
+  signal?: AbortSignal;
+}
+
+export interface DeleteTripScheduleResult {
+  error: ServiceError | null;
+}
+
+export interface UpdateTripTitleRequest {
+  title: string;
+}
+
+export interface UpdateTripTitleOptions {
+  tripId: number;
+  payload: UpdateTripTitleRequest;
+  signal?: AbortSignal;
+}
+
+export interface UpdateTripTitleResult {
+  error: ServiceError | null;
+}
+
+export interface UpdateTripDateRequest {
+  startDate: string;
+  endDate: string;
+}
+
+export interface UpdateTripDateOptions {
+  tripId: number;
+  payload: UpdateTripDateRequest;
+  signal?: AbortSignal;
+}
+
+export interface UpdateTripDateResult {
+  error: ServiceError | null;
+}
+
+export interface UpdateTripScheduleRequest {
+  title: string;
+  scheduleDate: string;
+  startTime?: string;
+  endTime?: string;
+  placeId?: number;
+  placeName?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  memo?: string;
+}
+
+export interface UpdateTripScheduleOptions {
+  tripId: number;
+  tripScheduleId: number;
+  payload: UpdateTripScheduleRequest;
+  signal?: AbortSignal;
+}
+
+export interface UpdateTripScheduleResult {
   error: ServiceError | null;
 }
