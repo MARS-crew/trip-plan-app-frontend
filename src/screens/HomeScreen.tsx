@@ -25,6 +25,11 @@ import { COLORS } from '@/constants/colors';
 import { MainTripCard } from '@/screens/home/components';
 import { getUnreadAlert } from '@/services/alertService';
 import { postChatMessage } from '@/services/chatService';
+import { getRecommendedPlaces } from '@/services/placeService';
+import { getNearbySchedule } from '@/services/tripService';
+import { useAuthStore } from '@/store';
+import type { NearbyScheduleData } from '@/types/myTrip.types';
+import type { RecommendedPlace } from '@/types/place';
 import type { HomeScreenNavigationProp } from '@/types/home';
 import type { ChatMessage } from '@/types/chat';
 import {
@@ -35,25 +40,6 @@ import {
   CHAT_SHEET_HEIGHT,
 } from '@/screens/home/constants';
 
-const RECOMMENDED_DESTINATIONS = [
-  {
-    id: '1',
-    title: '제주도',
-    country: '한국',
-    description: '아름다운 자연과 독특한 문화가 있는 한국의 보석 같은 섬',
-    imageUrl: require('@/assets/images/mainjeju.png'),
-    tags: ['자연', '맛집', '자연'],
-  },
-  {
-    id: '2',
-    title: '제주도',
-    country: '한국',
-    description: '아름다운 자연과 독특한 문화가 있는 한국의 보석 같은 섬',
-    imageUrl: require('@/assets/images/mainjeju.png'),
-    tags: ['자연', '맛집'],
-  },
-];
-
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const translateY = useSharedValue(CHAT_SHEET_HEIGHT);
@@ -61,6 +47,8 @@ const HomeScreen: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [hasPlannedTrip, setHasPlannedTrip] = useState(false);
   const [isInTripScheduleView, setIsInTripScheduleView] = useState(false);
+  const [nearbyTrip, setNearbyTrip] = useState<NearbyScheduleData | null>(null);
+  const [recommendedPlaces, setRecommendedPlaces] = useState<RecommendedPlace[]>([]);
   const [hasNotification, setHasNotification] = useState<boolean>(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
@@ -86,8 +74,58 @@ const HomeScreen: React.FC = () => {
 
       fetchUnread();
 
+      const controller = new AbortController();
+      const fetchNearby = async (): Promise<void> => {
+        try {
+          const userId = useAuthStore.getState().user?.id;
+          const result = await getNearbySchedule({ userId, signal: controller.signal });
+          if (!isActive) return;
+
+          const data = result.data;
+          if (!data || !data.hasNearbyTrip) {
+            setHasPlannedTrip(false);
+            setIsInTripScheduleView(false);
+            setNearbyTrip(null);
+          } else {
+            setNearbyTrip(data);
+            setHasPlannedTrip(true);
+            const status = (data.tripStatus ?? '').toUpperCase();
+            // TripStatus 타입 정의에 맞춰 상태를 확인합니다.
+            setIsInTripScheduleView(status === 'ONGOING' || status === 'TRAVELING');
+          }
+        } catch (err) {
+          if (isActive && (err as Error).name !== 'AbortError') {
+            setHasPlannedTrip(false);
+            setIsInTripScheduleView(false);
+            setNearbyTrip(null);
+          }
+        }
+      };
+
+      const fetchRecommendedPlaces = async (): Promise<void> => {
+        try {
+          const result = await getRecommendedPlaces({ limit: 5, signal: controller.signal });
+          if (!isActive) return;
+
+          if (result.error) {
+            setRecommendedPlaces([]);
+            return;
+          }
+
+          setRecommendedPlaces(result.data ?? []);
+        } catch (err) {
+          if (isActive && (err as Error).name !== 'AbortError') {
+            setRecommendedPlaces([]);
+          }
+        }
+      };
+
+      void fetchNearby();
+      void fetchRecommendedPlaces();
+
       return () => {
         isActive = false;
+        controller.abort();
       };
     }, []),
   );
@@ -97,17 +135,22 @@ const HomeScreen: React.FC = () => {
   }, [navigation]);
 
   const handleNavigateToAddTrip = useCallback(() => {
-    setHasPlannedTrip(true);
-    setIsInTripScheduleView(false);
-  }, []);
+    navigation.navigate('AddTripScreen');
+  }, [navigation]);
 
   const handleOpenTripSchedule = useCallback(() => {
-    setIsInTripScheduleView(true);
-  }, []);
+    if (nearbyTrip?.tripId) {
+      navigation.navigate('TripDetail', { tripId: nearbyTrip.tripId });
+    }
+  }, [navigation, nearbyTrip]);
 
   const handleNavigateToMyTrip = useCallback(() => {
-    navigation.navigate('MainTabs', { screen: 'MyTrip' });
-  }, [navigation]);
+    if (nearbyTrip?.tripId) {
+      navigation.navigate('TripDetail', { tripId: nearbyTrip.tripId });
+    } else {
+      navigation.navigate('MainTabs', { screen: 'MyTrip' });
+    }
+  }, [navigation, nearbyTrip]);
 
   const [chatInputText, setChatInputText] = useState('');
 
@@ -197,6 +240,7 @@ const HomeScreen: React.FC = () => {
             onAddTrip={handleNavigateToAddTrip}
             onOpenTripSchedule={handleOpenTripSchedule}
             onViewAllSchedule={handleNavigateToMyTrip}
+            nearbyTrip={nearbyTrip}
           />
         </View>
 
@@ -210,45 +254,54 @@ const HomeScreen: React.FC = () => {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, gap: 16 }}>
-            {RECOMMENDED_DESTINATIONS.map((item) => (
-              <Shadow
-                key={item.id}
-                distance={10}
-                offset={[0, 0]}
-                startColor="#00000025"
-                endColor="#00000000"
-                paintInside={false}
-                style={{ borderRadius: 8, width: 260 }}>
-                <TouchableOpacity className="overflow-hidden rounded-lg bg-white">
-                  <View className="relative h-40">
-                    <Image source={item.imageUrl} className="h-full w-full" resizeMode="cover" />
-                    <View className="absolute bottom-3 left-4">
-                      <Text className="font-pretendardSemiBold text-h2 text-white">
-                        {item.title}
-                      </Text>
-                      <Text className="mt-1 font-pretendardSemiBold text-p text-white">
-                        {item.country}
-                      </Text>
+            {recommendedPlaces.length > 0 &&
+              recommendedPlaces.map((item) => (
+                <Shadow
+                  key={item.placeId}
+                  distance={10}
+                  offset={[0, 0]}
+                  startColor="#00000025"
+                  endColor="#00000000"
+                  paintInside={false}
+                  style={{ borderRadius: 8, width: 260 }}>
+                  <View className="overflow-hidden rounded-lg bg-white">
+                    <View className="relative h-40">
+                      <Image
+                        source={
+                          item.imageUrl
+                            ? { uri: item.imageUrl }
+                            : require('@/assets/images/mainjeju.png')
+                        }
+                        className="h-full w-full"
+                        resizeMode="cover"
+                      />
+                      <View className="absolute bottom-3 left-4">
+                        <Text className="font-pretendardSemiBold text-h2 text-white">
+                          {item.name}
+                        </Text>
+                        <Text className="mt-1 font-pretendardSemiBold text-p text-white">
+                          {item.countryName}
+                        </Text>
+                      </View>
                     </View>
-                  </View>
 
-                  <View className="p-4">
-                    <Text className="mb-4 text-p text-gray" numberOfLines={2}>
-                      {item.description}
-                    </Text>
-                    <View className="flex-row">
-                      {item.tags.map((tag, index) => (
-                        <MainRecChip
-                          key={`${item.id}-${tag}-${index}`}
-                          label={tag}
-                          className={'mr-[6px]'}
-                        />
-                      ))}
+                    <View className="p-4">
+                      <Text className="mb-4 text-p text-gray" numberOfLines={2}>
+                        {`지금 ${item.cityName}에서 인기 있는 추천 장소예요`}
+                      </Text>
+                      <View className="flex-row">
+                        {(item.tags ?? []).slice(0, 3).map((tag, index) => (
+                          <MainRecChip
+                            key={`${item.placeId}-${tag}-${index}`}
+                            label={tag}
+                            className={'mr-[6px]'}
+                          />
+                        ))}
+                      </View>
                     </View>
                   </View>
-                </TouchableOpacity>
-              </Shadow>
-            ))}
+                </Shadow>
+              ))}
           </ScrollView>
         </View>
       </ScrollView>
