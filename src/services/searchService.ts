@@ -1,6 +1,5 @@
 import Config from 'react-native-config';
 import type { BaseResponse } from '@/types';
-import type { PlaceSelectionResponse } from '@/types/wishlist';
 import type {
   GetRecentSearch,
   GetRecentSearchData,
@@ -8,7 +7,7 @@ import type {
   SearchResult,
   SearchResultData,
 } from '@/types/search';
-
+import type { PlaceSelectionResponse } from '@/types/wishlist';
 import { useAuthStore } from '@/store';
 
 export const deleteRecentSearch = async (recentSearchId: number): Promise<void> => {

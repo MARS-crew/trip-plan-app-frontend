@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  ToastAndroid,
   Pressable,
   ScrollView,
   Text,
@@ -14,17 +13,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 
 import { TopBar } from '@/components';
 import { COLORS } from '@/constants/colors';
-import { createSchedule, updateTripSchedule } from '@/services/tripService';
-import { getTripScheduleUpdateErrorToastMessage } from '@/utils';
+import { createSchedule } from '@/services/tripService';
 
 const ITEM_HEIGHT = 44;
 const VISIBLE_ITEMS = 5;
-const SCHEDULE_TITLE_MAX_LENGTH = 10;
 
 const YEARS = Array.from({ length: 10 }, (_, i) => 2024 + i);
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -33,14 +29,7 @@ const MINUTES = Array.from({ length: 60 }, (_, i) => i);
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const getDaysInMonth = (year: number, month: number) => new Date(year, month, 0).getDate();
-const parseTimeToValue = (time?: string): TimeValue | null => {
-  if (!time) return null;
-  const [hourString, minuteString] = time.split(':');
-  const hour = Number(hourString);
-  const minute = Number(minuteString);
-  if (!Number.isFinite(hour) || !Number.isFinite(minute)) return null;
-  return { hour, minute };
-};
+const getStartOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
 interface SpinnerColumnProps {
   items: number[];
@@ -105,7 +94,8 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
           paddingBottom: ITEM_HEIGHT * 2,
         }}
         onMomentumScrollEnd={handleScrollEnd}
-        onScrollEndDrag={handleScrollEnd}>
+        onScrollEndDrag={handleScrollEnd}
+      >
         {items.map((item, idx) => {
           const isSelected = idx === selectedIndex;
 
@@ -116,13 +106,15 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
                 height: ITEM_HEIGHT,
                 justifyContent: 'center',
                 alignItems: 'center',
-              }}>
+              }}
+            >
               <Text
                 style={{
                   fontSize: 15,
                   fontWeight: isSelected ? '600' : '400',
-                  color: isSelected ? COLORS.black : COLORS.gray,
-                }}>
+                  color: isSelected ? COLORS.black : COLORS.gray
+                }}
+              >
                 {format(item)}
               </Text>
             </View>
@@ -154,38 +146,61 @@ interface FormValues {
 }
 
 type PickerMode = 'date' | 'startTime' | 'endTime' | null;
-type AddScheduleNavigation = NativeStackNavigationProp<RootStackParamList, 'AddSchedule'>;
+
+const clampDateToToday = (dateValue: DateValue | null, today: Date): DateValue => {
+  if (!dateValue) {
+    return {
+      year: today.getFullYear(),
+      month: today.getMonth() + 1,
+      day: today.getDate(),
+    };
+  }
+
+  const selectedDate = new Date(dateValue.year, dateValue.month - 1, dateValue.day);
+  const todayStart = getStartOfDay(today);
+
+  if (selectedDate < todayStart) {
+    return {
+      year: today.getFullYear(),
+      month: today.getMonth() + 1,
+      day: today.getDate(),
+    };
+  }
+
+  return dateValue;
+};
 
 const getDatePickerOptions = (today: Date, year: number, month: number, day: number) => {
-  const years = YEARS;
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth() + 1;
+  const todayDay = today.getDate();
+
+  const years = YEARS.filter((y) => y >= todayYear);
   const selectedYear = years.includes(year) ? year : years[0];
 
-  const months = MONTHS;
+  const months = selectedYear === todayYear ? MONTHS.filter((m) => m >= todayMonth) : MONTHS;
   const selectedMonth = months.includes(month) ? month : months[0];
 
   const daysInMonth = Array.from(
     { length: getDaysInMonth(selectedYear, selectedMonth) },
     (_, i) => i + 1,
   );
-  const days = daysInMonth;
+  const days =
+    selectedYear === todayYear && selectedMonth === todayMonth
+      ? daysInMonth.filter((d) => d >= todayDay)
+      : daysInMonth;
   const selectedDay = days.includes(day) ? day : days[0];
 
   return { years, months, days, selectedYear, selectedMonth, selectedDay };
 };
 
 const AddScheduleScreen = () => {
-  const navigation = useNavigation<AddScheduleNavigation>();
+  const navigation = useNavigation();
   const route = useRoute<RouteProp<RootStackParamList, 'AddSchedule'>>();
   const params = route.params;
-  const isEditMode = params?.mode === 'edit';
   const today = new Date();
 
   const handleNavigateToTripDetail = () => {
-    if (isEditMode) {
-      navigation.popToTop();
-      return;
-    }
-
     if (params?.tripId) {
       navigation.navigate('TripDetail', { tripId: params.tripId });
     } else {
@@ -193,21 +208,8 @@ const AddScheduleScreen = () => {
     }
   };
   const handleNavigateToAddCalendarMap = () => {
-    navigation.navigate('AddCalendarMapScreen', {
-      tripId: params?.tripId,
-      tripTitle: params?.tripTitle,
-      date: dateLabel !== '날짜' ? dateLabel : params?.date,
-      tripScheduleId: params?.tripScheduleId,
-      title: formValues.title,
-      startTime: formValues.startTime
-        ? `${pad(formValues.startTime.hour)}:${pad(formValues.startTime.minute)}`
-        : undefined,
-      endTime: formValues.endTime
-        ? `${pad(formValues.endTime.hour)}:${pad(formValues.endTime.minute)}`
-        : undefined,
-      memo: formValues.memo,
-    });
-  };
+      navigation.navigate('AddCalendarMapScreen')
+      };
 
   const initialDate: DateValue | null = (() => {
     if (!params?.date) return null;
@@ -216,22 +218,13 @@ const AddScheduleScreen = () => {
   })();
 
   const [formValues, setFormValues] = useState<FormValues>({
-    title: params?.title ?? params?.placeName ?? '',
+    title: params?.placeName ?? '',
     date: initialDate,
-    startTime: parseTimeToValue(params?.startTime),
-    endTime: parseTimeToValue(params?.endTime),
+    startTime: null,
+    endTime: null,
     location: params?.address ?? '',
-    memo: params?.memo ?? '',
+    memo: '',
   });
-
-  useEffect(() => {
-    if (!params?.address && !params?.placeName) return;
-    setFormValues((prev) => ({
-      ...prev,
-      location: params.address ?? prev.location,
-      title: prev.title || params.placeName || prev.title,
-    }));
-  }, [params?.address, params?.placeName]);
 
   const [pickerMode, setPickerMode] = useState<PickerMode>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -250,11 +243,7 @@ const AddScheduleScreen = () => {
   }, []);
 
   const openDatePicker = () => {
-    const safeDate = formValues.date ?? {
-      year: today.getFullYear(),
-      month: today.getMonth() + 1,
-      day: today.getDate(),
-    };
+    const safeDate = clampDateToToday(formValues.date, today);
     setTempYear(safeDate.year);
     setTempMonth(safeDate.month);
     setTempDay(safeDate.day);
@@ -309,17 +298,10 @@ const AddScheduleScreen = () => {
   const timeLabel = (timeValue: TimeValue | null, placeholder: string) => {
     return timeValue ? `${pad(timeValue.hour)}:${pad(timeValue.minute)}` : placeholder;
   };
-  const isSubmitEnabled =
-    formValues.title.trim().length > 0 && formValues.date !== null && !isSubmitting;
+  const isSubmitEnabled = formValues.title.trim().length > 0 && formValues.date !== null && !isSubmitting;
 
   const handleSubmit = async (): Promise<void> => {
     if (!formValues.date || !params?.tripId) return;
-    if (formValues.title.trim().length > SCHEDULE_TITLE_MAX_LENGTH) {
-      ToastAndroid.show('일정명은 10자 이내로 입력해주세요.', ToastAndroid.SHORT);
-      return;
-    }
-    const tripScheduleId = params.tripScheduleId;
-    if (isEditMode && !tripScheduleId) return;
 
     const scheduleDate = `${formValues.date.year}-${pad(formValues.date.month)}-${pad(formValues.date.day)}`;
     const startTime = formValues.startTime
@@ -330,68 +312,41 @@ const AddScheduleScreen = () => {
       : undefined;
 
     setIsSubmitting(true);
-    let error = null;
-    if (isEditMode && tripScheduleId) {
-      const result = await updateTripSchedule({
-        tripId: params.tripId,
-        tripScheduleId,
-        payload: {
-          title: formValues.title.trim(),
-          scheduleDate,
-          startTime,
-          endTime,
-          placeId: params.placeId,
-          placeName: params.placeName,
-          address: params.address,
-          latitude: params.latitude,
-          longitude: params.longitude,
-          memo: formValues.memo.trim() || undefined,
-        },
-      });
-      error = result.error;
-    } else {
-      const result = await createSchedule({
-        tripId: params.tripId,
-        payload: {
-          title: formValues.title.trim(),
-          scheduleDate,
-          startTime,
-          endTime,
-          placeName: params.placeName,
-          address: params.address,
-          latitude: params.latitude,
-          longitude: params.longitude,
-          memo: formValues.memo.trim() || undefined,
-        },
-      });
-      error = result.error;
-    }
+    const { error } = await createSchedule({
+      tripId: params.tripId,
+      payload: {
+        title: formValues.title.trim(),
+        scheduleDate,
+        startTime,
+        endTime,
+        placeName: params.placeName,
+        address: params.address,
+        latitude: params.latitude,
+        longitude: params.longitude,
+        memo: formValues.memo.trim() || undefined,
+      },
+    });
     setIsSubmitting(false);
 
-    if (error) {
-      const errorMessage = isEditMode
-        ? getTripScheduleUpdateErrorToastMessage(error)
-        : '일정 생성에 실패하였습니다.';
-      ToastAndroid.show(errorMessage, ToastAndroid.SHORT);
-      return;
+    if (!error) {
+      handleNavigateToTripDetail();
     }
-
-    handleNavigateToTripDetail();
   };
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <TopBar title={isEditMode ? '일정 편집' : '일정 추가'} onPress={() => navigation.goBack()} />
+      <TopBar title="일정 추가" onPress={() => navigation.goBack()} />
 
       <ScrollView
         className="flex-1 px-4"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
-        keyboardShouldPersistTaps="handled">
-        <View className="mt-6 w-full self-center rounded-[8px] border border-borderGray bg-white px-6 py-6">
+        keyboardShouldPersistTaps="handled"
+      >
+        <View className="mt-6 self-center w-full rounded-[8px] border border-borderGray bg-white px-6 py-6">
           <View>
             <View className="mb-2 flex-row items-center">
-              <Text className="font-pretendardSemiBold text-h3 text-black">일정명</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">일정명</Text>
               <Text className="ml-[2px] text-h3 text-statusError">*</Text>
             </View>
             <TextInput
@@ -400,19 +355,20 @@ const AddScheduleScreen = () => {
               placeholder="일정명"
               placeholderTextColor={COLORS.gray}
               className="h-[46px] w-full rounded-[12px] border border-borderGray bg-screenBackground px-4 text-h3 text-black"
-              maxLength={SCHEDULE_TITLE_MAX_LENGTH}
+              maxLength={30}
             />
           </View>
 
           <View className="mt-4">
             <View className="mb-2 flex-row items-center">
-              <Text className="font-pretendardSemiBold text-h3 text-black">날짜</Text>
+              <Text className="text-h3 font-pretendardSemiBold text-black">날짜</Text>
               <Text className="ml-[2px] text-h3 text-statusError">*</Text>
             </View>
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={openDatePicker}
-              className="h-[46px] w-full flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4">
+              className="h-[46px] w-full flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4"
+            >
               <Text className={`text-h3 ${formValues.date ? 'text-black' : 'text-gray'}`}>
                 {dateLabel}
               </Text>
@@ -421,12 +377,13 @@ const AddScheduleScreen = () => {
           </View>
 
           <View className="mt-4">
-            <Text className="mb-2 font-pretendardSemiBold text-h3 text-black">시간</Text>
+            <Text className="mb-2 text-h3 font-pretendardSemiBold text-black">시간</Text>
             <View className="flex-row gap-2">
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => openTimePicker('startTime')}
-                className="h-[46px] flex-1 flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4">
+                className="h-[46px] flex-1 flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4"
+              >
                 <Text className={`text-h3 ${formValues.startTime ? 'text-black' : 'text-gray'}`}>
                   {timeLabel(formValues.startTime, '시작 시간')}
                 </Text>
@@ -436,7 +393,8 @@ const AddScheduleScreen = () => {
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => openTimePicker('endTime')}
-                className="h-[46px] flex-1 flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4">
+                className="h-[46px] flex-1 flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4"
+              >
                 <Text className={`text-h3 ${formValues.endTime ? 'text-black' : 'text-gray'}`}>
                   {timeLabel(formValues.endTime, '종료 시간')}
                 </Text>
@@ -446,19 +404,20 @@ const AddScheduleScreen = () => {
           </View>
 
           <View className="mt-4">
-            <Text className="mb-2 font-pretendardSemiBold text-h3 text-black">장소</Text>
+            <Text className="mb-2 text-h3 font-pretendardSemiBold text-black">장소</Text>
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={handleNavigateToAddCalendarMap}
-              className="h-[46px] w-full justify-center rounded-[12px] border border-borderGray bg-screenBackground px-4">
-              <Text className="text-h3 text-gray">
+              className="h-[46px] w-full justify-center rounded-[12px] border border-borderGray bg-screenBackground px-4"
+            >
+              <Text className='text-h3 text-gray'>
                 {formValues.location || '장소를 입력해주세요'}
               </Text>
             </TouchableOpacity>
           </View>
 
-          <View className="mb-[14px] mt-4">
-            <Text className="mb-2 font-pretendardSemiBold text-h3 text-black">메모</Text>
+          <View className="mt-4 mb-[14px]">
+            <Text className="mb-2 text-h3 font-pretendardSemiBold text-black">메모</Text>
             <TextInput
               value={formValues.memo}
               onChangeText={(value) => handleChangeText('memo', value)}
@@ -475,15 +434,12 @@ const AddScheduleScreen = () => {
         <View className="mt-6 items-center">
           <TouchableOpacity
             disabled={!isSubmitEnabled}
-            onPress={() => {
-              void handleSubmit();
-            }}
+            onPress={() => { void handleSubmit(); }}
             activeOpacity={0.8}
             className="h-[44px] w-full items-center justify-center rounded-[8px]"
-            style={{ backgroundColor: isSubmitEnabled ? COLORS.main : '#DF6C2080' }}>
-            <Text className="font-pretendardSemiBold text-h3 text-white">
-              {isEditMode ? '수정하기' : '등록하기'}
-            </Text>
+            style={{ backgroundColor: isSubmitEnabled ? COLORS.main : '#DF6C2080' }}
+          >
+            <Text className="text-h3 font-pretendardSemiBold text-white">등록하기</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -493,7 +449,8 @@ const AddScheduleScreen = () => {
         transparent
         animationType="slide"
         onRequestClose={() => setPickerMode(null)}
-        statusBarTranslucent>
+        statusBarTranslucent
+      >
         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
           <Pressable
             style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}
@@ -506,12 +463,12 @@ const AddScheduleScreen = () => {
                 <Text className="text-p1 text-gray">취소</Text>
               </TouchableOpacity>
 
-              <Text className="font-pretendardSemiBold text-h3 text-black">
+              <Text className="text-h3 font-pretendardSemiBold text-black">
                 {pickerMode === 'date' ? '날짜 선택' : '시간 선택'}
               </Text>
 
               <TouchableOpacity onPress={handleConfirm}>
-                <Text className="font-pretendardSemiBold text-p1 text-main">완료</Text>
+                <Text className="text-p1 font-pretendardSemiBold text-main">완료</Text>
               </TouchableOpacity>
             </View>
 
@@ -532,9 +489,7 @@ const AddScheduleScreen = () => {
                 <SpinnerColumn
                   items={availableDays}
                   selectedIndex={Math.min(
-                    availableDays.indexOf(selectedDay) >= 0
-                      ? availableDays.indexOf(selectedDay)
-                      : 0,
+                    availableDays.indexOf(selectedDay) >= 0 ? availableDays.indexOf(selectedDay) : 0,
                     availableDays.length - 1,
                   )}
                   onSelect={(index) => setTempDay(availableDays[index])}

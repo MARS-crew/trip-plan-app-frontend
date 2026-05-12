@@ -16,7 +16,6 @@ const DaySection = ({
   cards = [],
   showMapIcon = false,
   tripId,
-  tripTitle,
   onPressCard,
   onPressAction,
 }: DaySectionProps) => {
@@ -66,15 +65,7 @@ const DaySection = ({
       <View className="mt-[12px] px-4">
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => {
-            if (!tripId) return;
-            navigation.navigate('AddSchedule', {
-              mode: 'create',
-              tripId,
-              tripTitle: tripTitle ?? '',
-              date: '',
-            });
-          }}
+          onPress={() => navigation.navigate('AddSchedule')}
           className="h-[50px] w-full flex-row items-center justify-center rounded-[8px] border border-dashed border-borderGray">
           <PlusGrayIcon />
           <Text className="ml-[2px] text-p1 text-gray">일정 추가하기</Text>

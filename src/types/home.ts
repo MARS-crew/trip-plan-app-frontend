@@ -19,7 +19,6 @@ export interface MainTripCardProps {
   onAddTrip: () => void;
   onOpenTripSchedule: () => void;
   onViewAllSchedule: () => void;
-  nearbyTrip?: import('@/types/myTrip.types').NearbyScheduleData | null;
 }
 
 export interface MainTripCardEmptyProps {
@@ -32,19 +31,4 @@ export interface MainTripCardInProgressProps {
 
 export interface MainTripCardPlannedProps {
   onOpenTripSchedule: () => void;
-  daysUntilTrip?: number;
-  tripDayCount?: number;
-  progressRate?: number;
-}
-
-export interface MainTripCardPlannedViewProps extends MainTripCardPlannedProps {
-  tripTitle?: string;
-  startDate?: string;
-  endDate?: string;
-  scheduleCount?: number;
-}
-
-export interface MainTripCardInProgressViewProps extends MainTripCardInProgressProps {
-  tripTitle?: string;
-  nextSchedules?: import('@/types/myTrip.types').TripScheduleItem[];
 }

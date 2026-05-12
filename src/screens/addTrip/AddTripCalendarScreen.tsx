@@ -9,14 +9,8 @@ import { CalendarList, LocaleConfig } from 'react-native-calendars';
 
 import { TopBar } from '@/components';
 import { ADD_TRIP_CALENDAR_THEME, COLORS } from '@/constants';
-import { createTrip, updateTripDate } from '@/services';
-import {
-  getCreateTripErrorMessage,
-  getDateRange,
-  getTodayString,
-  getTripDateUpdateErrorToastMessage,
-  toDate,
-} from '@/utils';
+import { createTrip } from '@/services';
+import { getCreateTripErrorMessage, getDateRange, getTodayString, toDate } from '@/utils';
 
 // ==================== Types ====================
 type AddTripNavigation = NativeStackNavigationProp<RootStackParamList, 'AddTripCalendar'>;
@@ -75,11 +69,10 @@ const AddTripCalendarScreen: React.FC = () => {
   // ==================== Hooks ====================
   const navigation = useNavigation<AddTripNavigation>();
   const route = useRoute<AddTripCalendarRoute>();
-  const isEditDateMode = route.params.mode === 'editDate';
   const todayString = getTodayString();
   const [range, setRange] = useState<DateRange>({
-    startDate: route.params.startDate ?? null,
-    endDate: route.params.endDate ?? null,
+    startDate: null,
+    endDate: null,
   });
   const [isCreatingTrip, setIsCreatingTrip] = useState<boolean>(false);
 
@@ -122,35 +115,6 @@ const AddTripCalendarScreen: React.FC = () => {
 
     setIsCreatingTrip(true);
     try {
-      if (isEditDateMode) {
-        if (!route.params.tripId) {
-          ToastAndroid.show(getTripDateUpdateErrorToastMessage(null), ToastAndroid.SHORT);
-          return;
-        }
-
-        const result = await updateTripDate({
-          tripId: route.params.tripId,
-          payload: {
-            startDate: range.startDate,
-            endDate: range.endDate,
-          },
-        });
-
-        if (result.error) {
-          ToastAndroid.show(getTripDateUpdateErrorToastMessage(result.error), ToastAndroid.SHORT);
-          return;
-        }
-
-        navigation.reset({
-          index: 1,
-          routes: [
-            { name: 'MainTabs', params: { screen: 'MyTrip' } },
-            { name: 'TripDetail', params: { tripId: route.params.tripId } },
-          ],
-        });
-        return;
-      }
-
       const result = await createTrip({
         payload: {
           title: route.params.title,
@@ -196,14 +160,14 @@ const AddTripCalendarScreen: React.FC = () => {
   // ==================== 렌더링 ====================
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <TopBar title={isEditDateMode ? '여행 날짜 변경' : '여행지 추가'} onPress={() => navigation.goBack()} />
+      <TopBar title="여행지 추가" onPress={() => navigation.goBack()} />
 
       {/* ==================== 달력 List ==================== */}
       <View className="flex-1 border-t border-borderGray bg-screenBackground">
         <View className="flex-1 pt-4">
           <CalendarList
-            current={range.startDate ?? todayString}
-            minDate={isEditDateMode ? undefined : todayString}
+            current={todayString}
+            minDate={todayString}
             markingType="period"
             monthFormat="yyyy년 M월"
             markedDates={markedDates}
@@ -316,9 +280,7 @@ const AddTripCalendarScreen: React.FC = () => {
                 borderWidth: 1,
                 borderColor: isButtonEnabled ? COLORS.main : COLORS.buttonDisabled,
               }}>
-              <Text className="font-pretendardSemiBold text-h3 text-white">
-                {isEditDateMode ? '날짜 변경' : '날짜 등록'}
-              </Text>
+              <Text className="font-pretendardSemiBold text-h3 text-white">날짜 등록</Text>
             </TouchableOpacity>
           </View>
         </View>

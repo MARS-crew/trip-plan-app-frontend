@@ -2,28 +2,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import { TimeB, MarkerGrayIcon, RightArrow2Icon } from '@/assets/icons';
-import type { MainTripCardInProgressViewProps } from '@/types/home';
-import type { TripScheduleItem } from '@/types/myTrip.types';
+import type { MainTripCardInProgressProps } from '@/types/home';
 
-const MainTripCardInProgress: React.FC<MainTripCardInProgressViewProps> = ({
-  onViewAllSchedule,
-  tripTitle,
-  nextSchedules,
-}) => {
-  const scheduledItems = nextSchedules ?? [];
-  const next = scheduledItems[0];
-
-  const formatTime = (time?: string): string => {
-    if (!time) return '--:--';
-    return time.length >= 5 ? time.slice(0, 5) : time;
-  };
-
-  const resolveLocation = (item: TripScheduleItem): string => {
-    const locationParts = [item.placeName, item.address].filter((value) =>
-      Boolean(value && value.trim()),
-    );
-    return locationParts.length > 0 ? locationParts.join(' · ') : '장소 정보 없음';
-  };
+const MainTripCardInProgress: React.FC<MainTripCardInProgressProps> = ({ onViewAllSchedule }) => {
   return (
     <Shadow
       distance={25}
@@ -33,78 +14,57 @@ const MainTripCardInProgress: React.FC<MainTripCardInProgressViewProps> = ({
       paintInside={false}
       containerStyle={{ width: '100%' }}
       style={{ borderRadius: 8, width: '100%' }}>
-      <View className="overflow-hidden rounded-lg bg-white">
-        <View className="relative h-32">
-          <Image source={require('@/assets/images/maintokyo.png')} className="h-full w-full" />
-          <View className="absolute bottom-3 left-4">
+      <View className="bg-white rounded-lg overflow-hidden">
+        <View className="h-32 relative">
+          <Image source={require('@/assets/images/maintokyo.png')} className="w-full h-full" />
+          <View className="absolute left-4 bottom-3">
             <View className="flex-row items-center">
-              <View
-                className="h-[10px] w-[10px] rounded-full bg-greenstate"
-                style={{ transform: [{ translateY: 1 }] }}
-              />
-              <Text className="ml-[9px] text-p text-white">여행중</Text>
+              <View className="w-[10px] h-[10px] bg-greenstate rounded-full" style={{ transform: [{ translateY: 1 }] }} />
+              <Text className="ml-[9px] text-white text-p">여행중</Text>
             </View>
-            <Text className="font-pretendardBold text-h1 text-white">
-              {tripTitle ?? '도쿄 여행'}
-            </Text>
+            <Text className="text-white text-h1 font-pretendardBold">도쿄 여행</Text>
           </View>
         </View>
 
         <View className="px-4 py-4">
-          <View className="mb-3 flex-row items-center">
+          <View className="flex-row items-center mb-3">
             <TimeB width={14} height={14} />
-            <Text className="ml-[6px] text-p text-gray">다음 일정</Text>
+            <Text className="ml-[6px] text-gray text-p">다음 일정</Text>
           </View>
 
-          {next ? (
-            <View className="mb-[18px] rounded-xl bg-serve p-3">
-              <View className="flex-row items-start">
-                <View className="mr-[14px] items-center">
-                  <Text className="font-pretendardBold text-h3 text-main">
-                    {formatTime(next.startTime)}
-                  </Text>
-                  <Text className="font-pretendardMedium text-p text-gray">
-                    {formatTime(next.endTime)}
-                  </Text>
+          <View className="bg-serve rounded-xl p-3 mb-[18px]">
+            <View className="flex-row items-start">
+              <View className="mr-[14px] items-center">
+                <Text className="text-main text-h3 font-pretendardBold">09:00</Text>
+                <Text className="text-gray text-p font-pretendardMedium">11:00</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-black text-p1 font-pretendardSemiBold mb-[2px]">아사쿠사 센소지</Text>
+                <View className="flex-row items-center mb-1">
+                  <MarkerGrayIcon width={12} height={12} />
+                  <Text className="text-gray text-p ml-1">아사쿠사, 도쿄</Text>
                 </View>
-                <View className="flex-1">
-                  <Text className="mb-[2px] font-pretendardSemiBold text-p1 text-black">
-                    {next.title}
-                  </Text>
-                  <View className="mb-1 flex-row items-center">
-                    <MarkerGrayIcon width={12} height={12} />
-                    <Text className="ml-1 text-p text-gray">{resolveLocation(next)}</Text>
-                  </View>
-                  {!!next.memo?.trim() && <Text className="text-p text-gray">{next.memo}</Text>}
-                </View>
+                <Text className="text-gray text-p">도쿄에서 가장 오래된 사원 방문</Text>
               </View>
             </View>
-          ) : (
-            <View className="mb-[18px] items-center p-3">
-              <Text className="text-p text-gray">저장된 다음 일정이 없습니다.</Text>
-            </View>
-          )}
+          </View>
 
-          {scheduledItems.length > 1 && (
-            <View className="mb-8">
-              {scheduledItems.slice(1).map((item) => (
-                <View key={item.tripScheduleId} className="mb-4 ml-2 flex-row items-center">
-                  <Text className="mr-[22px] font-pretendardMedium text-p text-gray">
-                    {formatTime(item.startTime)}
-                  </Text>
-                  <View className="mr-3 h-[6px] w-[6px] rounded-full bg-borderGray" />
-                  <View className="flex-1">
-                    <Text className="text-p text-gray">{item.title}</Text>
-                    <Text className="mt-1 text-p text-gray">{resolveLocation(item)}</Text>
-                  </View>
-                </View>
-              ))}
+          <View className="mb-8">
+            <View className="flex-row items-center ml-2 mb-4">
+              <Text className="text-gray text-p font-pretendardMedium mr-[22px]">12:00</Text>
+              <View className="w-[6px] h-[6px] bg-borderGray rounded-full mr-3" />
+              <Text className="text-gray text-p">츠키지 시장 점심</Text>
             </View>
-          )}
+            <View className="flex-row items-center ml-2">
+              <Text className="text-gray text-p font-pretendardMedium mr-[22px]">14:30</Text>
+              <View className="w-[6px] h-[6px] bg-borderGray rounded-full mr-3" />
+              <Text className="text-gray text-p">시부야 스크램블 교차로</Text>
+            </View>
+          </View>
 
           <TouchableOpacity className="items-center" onPress={onViewAllSchedule}>
             <View className="flex-row items-center">
-              <Text className="mr-2 text-p text-main">전체 일정 보기</Text>
+              <Text className="text-main text-p mr-2">전체 일정 보기</Text>
               <RightArrow2Icon width={16} height={16} />
             </View>
           </TouchableOpacity>

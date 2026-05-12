@@ -6,15 +6,7 @@ import type { KebabMenuSheetProps } from '@/types/tripDetail.types';
 
 export const KEBAB_SHEET_HEIGHT = 257;
 
-const KebabMenuSheet = ({
-  isVisible,
-  translateY,
-  onClose,
-  onPressEditTitle,
-  onPressEditDate,
-  onPressShare,
-  onPressDelete,
-}: KebabMenuSheetProps) => {
+const KebabMenuSheet = ({ isVisible, translateY, onClose, onPressShare }: KebabMenuSheetProps) => {
   const backdropStyle = useAnimatedStyle(() => ({
     opacity: interpolate(translateY.value, [0, KEBAB_SHEET_HEIGHT], [1, 0]),
   }));
@@ -49,7 +41,7 @@ const KebabMenuSheet = ({
         <View className="w-full rounded-t-[12px] bg-white px-4 py-4">
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={onPressEditTitle ?? onClose}
+            onPress={onClose}
             className="h-14 w-full flex-row items-center px-4">
             <View className="mr-3">
               <KebabEditIcon />
@@ -59,7 +51,7 @@ const KebabMenuSheet = ({
 
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={onPressEditDate ?? onClose}
+            onPress={onClose}
             className="h-14 w-full flex-row items-center px-4">
             <View className="mr-3">
               <KebabCalIcon />
@@ -79,7 +71,7 @@ const KebabMenuSheet = ({
 
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={onPressDelete ?? onClose}
+            onPress={onClose}
             className="h-14 w-full flex-row items-center px-4">
             <View className="mr-3">
               <KebabTrashIcon />

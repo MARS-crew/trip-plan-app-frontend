@@ -65,14 +65,10 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
 
             <View className="mt-[2px] flex-row items-center">
               <MarkerGrayIcon width={12} height={12} />
-              <Text className="ml-1 flex-1 text-p text-gray" numberOfLines={1} ellipsizeMode="tail">
-                {location}
-              </Text>
+              <Text className="ml-1 text-p text-gray">{location}</Text>
             </View>
 
-            <Text className="mt-1 text-p text-gray" numberOfLines={1} ellipsizeMode="tail">
-              {description}
-            </Text>
+            <Text className="mt-1 text-p text-gray">{description}</Text>
           </View>
         </View>
 
