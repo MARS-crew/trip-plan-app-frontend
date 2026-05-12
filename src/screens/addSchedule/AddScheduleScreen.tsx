@@ -105,8 +105,7 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
           paddingBottom: ITEM_HEIGHT * 2,
         }}
         onMomentumScrollEnd={handleScrollEnd}
-        onScrollEndDrag={handleScrollEnd}
-      >
+        onScrollEndDrag={handleScrollEnd}>
         {items.map((item, idx) => {
           const isSelected = idx === selectedIndex;
 
@@ -117,15 +116,13 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
                 height: ITEM_HEIGHT,
                 justifyContent: 'center',
                 alignItems: 'center',
-              }}
-            >
+              }}>
               <Text
                 style={{
                   fontSize: 15,
                   fontWeight: isSelected ? '600' : '400',
-                  color: isSelected ? COLORS.black : COLORS.gray
-                }}
-              >
+                  color: isSelected ? COLORS.black : COLORS.gray,
+                }}>
                 {format(item)}
               </Text>
             </View>
@@ -312,7 +309,8 @@ const AddScheduleScreen = () => {
   const timeLabel = (timeValue: TimeValue | null, placeholder: string) => {
     return timeValue ? `${pad(timeValue.hour)}:${pad(timeValue.minute)}` : placeholder;
   };
-  const isSubmitEnabled = formValues.title.trim().length > 0 && formValues.date !== null && !isSubmitting;
+  const isSubmitEnabled =
+    formValues.title.trim().length > 0 && formValues.date !== null && !isSubmitting;
 
   const handleSubmit = async (): Promise<void> => {
     if (!formValues.date || !params?.tripId) return;
@@ -389,12 +387,11 @@ const AddScheduleScreen = () => {
         className="flex-1 px-4"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View className="mt-6 self-center w-full rounded-[8px] border border-borderGray bg-white px-6 py-6">
+        keyboardShouldPersistTaps="handled">
+        <View className="mt-6 w-full self-center rounded-[8px] border border-borderGray bg-white px-6 py-6">
           <View>
             <View className="mb-2 flex-row items-center">
-              <Text className="text-h3 font-pretendardSemiBold text-black">일정명</Text>
+              <Text className="font-pretendardSemiBold text-h3 text-black">일정명</Text>
               <Text className="ml-[2px] text-h3 text-statusError">*</Text>
             </View>
             <TextInput
@@ -409,14 +406,13 @@ const AddScheduleScreen = () => {
 
           <View className="mt-4">
             <View className="mb-2 flex-row items-center">
-              <Text className="text-h3 font-pretendardSemiBold text-black">날짜</Text>
+              <Text className="font-pretendardSemiBold text-h3 text-black">날짜</Text>
               <Text className="ml-[2px] text-h3 text-statusError">*</Text>
             </View>
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={openDatePicker}
-              className="h-[46px] w-full flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4"
-            >
+              className="h-[46px] w-full flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4">
               <Text className={`text-h3 ${formValues.date ? 'text-black' : 'text-gray'}`}>
                 {dateLabel}
               </Text>
@@ -425,13 +421,12 @@ const AddScheduleScreen = () => {
           </View>
 
           <View className="mt-4">
-            <Text className="mb-2 text-h3 font-pretendardSemiBold text-black">시간</Text>
+            <Text className="mb-2 font-pretendardSemiBold text-h3 text-black">시간</Text>
             <View className="flex-row gap-2">
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => openTimePicker('startTime')}
-                className="h-[46px] flex-1 flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4"
-              >
+                className="h-[46px] flex-1 flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4">
                 <Text className={`text-h3 ${formValues.startTime ? 'text-black' : 'text-gray'}`}>
                   {timeLabel(formValues.startTime, '시작 시간')}
                 </Text>
@@ -441,8 +436,7 @@ const AddScheduleScreen = () => {
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => openTimePicker('endTime')}
-                className="h-[46px] flex-1 flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4"
-              >
+                className="h-[46px] flex-1 flex-row items-center justify-between rounded-[12px] border border-borderGray bg-screenBackground px-4">
                 <Text className={`text-h3 ${formValues.endTime ? 'text-black' : 'text-gray'}`}>
                   {timeLabel(formValues.endTime, '종료 시간')}
                 </Text>
@@ -452,20 +446,19 @@ const AddScheduleScreen = () => {
           </View>
 
           <View className="mt-4">
-            <Text className="mb-2 text-h3 font-pretendardSemiBold text-black">장소</Text>
+            <Text className="mb-2 font-pretendardSemiBold text-h3 text-black">장소</Text>
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={handleNavigateToAddCalendarMap}
-              className="h-[46px] w-full justify-center rounded-[12px] border border-borderGray bg-screenBackground px-4"
-            >
-              <Text className='text-h3 text-gray'>
+              className="h-[46px] w-full justify-center rounded-[12px] border border-borderGray bg-screenBackground px-4">
+              <Text className="text-h3 text-gray">
                 {formValues.location || '장소를 입력해주세요'}
               </Text>
             </TouchableOpacity>
           </View>
 
-          <View className="mt-4 mb-[14px]">
-            <Text className="mb-2 text-h3 font-pretendardSemiBold text-black">메모</Text>
+          <View className="mb-[14px] mt-4">
+            <Text className="mb-2 font-pretendardSemiBold text-h3 text-black">메모</Text>
             <TextInput
               value={formValues.memo}
               onChangeText={(value) => handleChangeText('memo', value)}
@@ -482,12 +475,13 @@ const AddScheduleScreen = () => {
         <View className="mt-6 items-center">
           <TouchableOpacity
             disabled={!isSubmitEnabled}
-            onPress={() => { void handleSubmit(); }}
+            onPress={() => {
+              void handleSubmit();
+            }}
             activeOpacity={0.8}
             className="h-[44px] w-full items-center justify-center rounded-[8px]"
-            style={{ backgroundColor: isSubmitEnabled ? COLORS.main : '#DF6C2080' }}
-          >
-            <Text className="text-h3 font-pretendardSemiBold text-white">
+            style={{ backgroundColor: isSubmitEnabled ? COLORS.main : '#DF6C2080' }}>
+            <Text className="font-pretendardSemiBold text-h3 text-white">
               {isEditMode ? '수정하기' : '등록하기'}
             </Text>
           </TouchableOpacity>
@@ -499,8 +493,7 @@ const AddScheduleScreen = () => {
         transparent
         animationType="slide"
         onRequestClose={() => setPickerMode(null)}
-        statusBarTranslucent
-      >
+        statusBarTranslucent>
         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
           <Pressable
             style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}
@@ -513,12 +506,12 @@ const AddScheduleScreen = () => {
                 <Text className="text-p1 text-gray">취소</Text>
               </TouchableOpacity>
 
-              <Text className="text-h3 font-pretendardSemiBold text-black">
+              <Text className="font-pretendardSemiBold text-h3 text-black">
                 {pickerMode === 'date' ? '날짜 선택' : '시간 선택'}
               </Text>
 
               <TouchableOpacity onPress={handleConfirm}>
-                <Text className="text-p1 font-pretendardSemiBold text-main">완료</Text>
+                <Text className="font-pretendardSemiBold text-p1 text-main">완료</Text>
               </TouchableOpacity>
             </View>
 
@@ -539,7 +532,9 @@ const AddScheduleScreen = () => {
                 <SpinnerColumn
                   items={availableDays}
                   selectedIndex={Math.min(
-                    availableDays.indexOf(selectedDay) >= 0 ? availableDays.indexOf(selectedDay) : 0,
+                    availableDays.indexOf(selectedDay) >= 0
+                      ? availableDays.indexOf(selectedDay)
+                      : 0,
                     availableDays.length - 1,
                   )}
                   onSelect={(index) => setTempDay(availableDays[index])}
