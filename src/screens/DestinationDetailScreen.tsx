@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   View,
   Image,
   Text,
@@ -63,6 +64,7 @@ const DestinationDetailScreen: React.FC = () => {
   const [isDetailLoading, setIsDetailLoading] = useState(true);
   const [imageLoadError, setImageLoadError] = useState(false);
   const [reviewData, setReviewData] = useState<ReviewData | null>(null);
+  const [isSharing, setIsSharing] = useState(false);
 
   const handleGoBack = useCallback((): void => {
     if (origin === 'bookmark') {
@@ -122,34 +124,38 @@ const DestinationDetailScreen: React.FC = () => {
   }, []);
 
   const handleSharePlace = useCallback(async (): Promise<void> => {
-    if (!placeId) return;
+    if (!placeId || isSharing) return;
 
-    const result = await getPlaceShare({ placeId });
-    if (result.error || !result.data) {
-      if (result.error === 'REQUEST_ABORTED') return;
-      console.error(`[placeShare] errorCode=${result.error ?? 'UNKNOWN'}`);
-      return;
-    }
-
-    const title =
-      result.data.shareTitle?.trim() ||
-      result.data.placeName?.trim() ||
-      placeDetail?.name?.trim() ||
-      '장소 공유';
-    const description = result.data.shareDescription?.trim() || '';
-    const shareUrl = result.data.shareUrl?.trim() || '';
-    const message = [description, shareUrl].filter(Boolean).join('\n');
-
+    setIsSharing(true);
     try {
+      const result = await getPlaceShare({ placeId });
+      if (result.error || !result.data) {
+        if (result.error === 'REQUEST_ABORTED') return;
+        console.error(`[placeShare] errorCode=${result.error ?? 'UNKNOWN'}`);
+        Alert.alert('공유 실패', '공유 정보를 가져오지 못했습니다. 다시 시도해주세요.');
+        return;
+      }
+
+      const title =
+        result.data.shareTitle?.trim() ||
+        result.data.placeName?.trim() ||
+        placeDetail?.name?.trim() ||
+        '장소 공유';
+      const description = result.data.shareDescription?.trim() || '';
+      const shareUrl = result.data.shareUrl?.trim() || '';
+      const message = [description, shareUrl].filter(Boolean).join('\n');
+
       await Share.share({
         title,
         message: message || title,
         url: shareUrl || undefined,
       });
-    } catch {
-      console.error('[placeShare] 서버 오류가 발생했습니다.');
+    } catch (error) {
+      console.error('[placeShare] 공유 중 오류가 발생했습니다.', error);
+    } finally {
+      setIsSharing(false);
     }
-  }, [placeId, placeDetail]);
+  }, [placeId, placeDetail, isSharing]);
 
   const handleShare = useCallback((): void => {
     handleSharePlace().catch(() => {
