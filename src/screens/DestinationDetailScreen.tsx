@@ -1,5 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, View, Image, Text, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  ActivityIndicator,
+  View,
+  Image,
+  Text,
+  ScrollView,
+  Share,
+  TouchableOpacity,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -22,7 +30,7 @@ import {
   ActiveReviewIcon,
 } from '@/assets/icons';
 import type { RootTabParamList, SearchStackParamList } from '@/navigation/types';
-import { getPlaceDetail } from '@/services/placeService';
+import { getPlaceDetail, getPlaceShare } from '@/services/placeService';
 import { getReviewList } from '@/services/reviewService';
 import type { PlaceDetail } from '@/types/place';
 import type { ReviewData } from '@/types/review';
@@ -113,9 +121,43 @@ const DestinationDetailScreen: React.FC = () => {
     setIsBookmarked((prevState) => !prevState);
   }, []);
 
+  const handleSharePlace = useCallback(async (): Promise<void> => {
+    if (!placeId) return;
+
+    const result = await getPlaceShare({ placeId });
+    if (result.error || !result.data) {
+      if (result.error === 'REQUEST_ABORTED') return;
+      console.error(`[placeShare] errorCode=${result.error ?? 'UNKNOWN'}`);
+      return;
+    }
+
+    const title =
+      result.data.shareTitle?.trim() ||
+      result.data.placeName?.trim() ||
+      placeDetail?.name?.trim() ||
+      '장소 공유';
+    const description = result.data.shareDescription?.trim() || '';
+    const shareUrl = result.data.shareUrl?.trim() || '';
+    const message = [description, shareUrl].filter(Boolean).join('\n');
+
+    try {
+      await Share.share({
+        title,
+        message: message || title,
+        url: shareUrl || undefined,
+      });
+    } catch {
+      console.error('[placeShare] 서버 오류가 발생했습니다.');
+    }
+  }, [placeId, placeDetail]);
+
   const handleShare = useCallback((): void => {
-    // TODO: 공유 기능 구현
-  }, []);
+    handleSharePlace().catch(() => {
+      console.error(
+        '[placeShare] 공유 실패 errorCode=INTERNAL_ERROR message=서버 오류가 발생했습니다.',
+      );
+    });
+  }, [handleSharePlace]);
 
   const handleTabChange = useCallback((tabId: string): void => {
     if (tabId === 'info' || tabId === 'review') {
