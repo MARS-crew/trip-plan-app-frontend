@@ -118,6 +118,51 @@ export interface GetTripSchedulesOptions {
   signal?: AbortSignal;
 }
 
+export interface TripScheduleLocationItem {
+  tripScheduleId: number;
+  dayNo: number;
+  scheduleDate: string;
+  scheduleOrder: number;
+  pinOrder?: number | null;
+  placeId?: number | null;
+  title: string;
+  placeName?: string | null;
+  address?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  memo?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  hasLocation: boolean;
+  visited: boolean;
+  canAddVisitedPlace: boolean;
+  current: boolean;
+}
+
+export interface TripScheduleLocationsData {
+  tripId: number;
+  tripTitle: string;
+  tripStatus: string;
+  startDate: string;
+  endDate: string;
+  totalScheduleCount: number;
+  locationScheduleCount: number;
+  visitVerificationRadiusMeters: number;
+  schedules: TripScheduleLocationItem[];
+}
+
+export interface GetTripScheduleLocationsOptions {
+  tripId: number;
+  signal?: AbortSignal;
+}
+
+export interface GetTripScheduleLocationsResult {
+  data: TripScheduleLocationsData | null;
+  error: ServiceError | null;
+}
+
 export interface TripShareData {
   tripId: number;
   tripTitle: string;

@@ -25,6 +25,7 @@ export interface TripDetailCardProps {
   actionLayout?: 'inline' | 'fullWidth';
   onPressCard?: () => void;
   accentColor?: string;
+  tripId?: number;
 }
 
 const TripDetailCard: React.FC<TripDetailCardProps> = ({
@@ -41,6 +42,7 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
   actionLayout = 'inline',
   onPressCard,
   accentColor = COLORS.main,
+  tripId,
 }) => {
   const navigation = useNavigation<TripDetailCardNavigation>();
   return (
@@ -97,7 +99,10 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
 
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => navigation.navigate('ScheduleMap')}
+              onPress={() => {
+                if (!tripId) return;
+                navigation.navigate('ScheduleMap', { tripId });
+              }}
               className="h-[36px] flex-row items-center justify-center rounded-[6px] p-[10px]"
               style={{ backgroundColor: accentColor }}
             >

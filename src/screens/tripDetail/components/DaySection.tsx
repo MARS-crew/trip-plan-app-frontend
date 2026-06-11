@@ -35,7 +35,10 @@ const DaySection = ({
         <Text className="text-h3 font-semibold">{dayLabel}</Text>
         {showMapIcon && (
           <TouchableOpacity
-            onPress={() => navigation.navigate('ScheduleMap')}>
+            onPress={() => {
+              if (!tripId) return;
+              navigation.navigate('ScheduleMap', { tripId });
+            }}>
             <Map2Icon width={20} height={20} />
           </TouchableOpacity>
         )}
@@ -50,6 +53,7 @@ const DaySection = ({
           className="mt-[12px] px-4">
           <TripDetailCard
             {...card}
+            tripId={tripId}
             accentColor={getTripDayColor(dayNo)}
             onPressAction={() => onPressAction(card.id)}
             onPressCard={() => handlePressCard(card.id)}

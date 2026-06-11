@@ -76,7 +76,7 @@ export type RootStackParamList = {
         memo?: string;
       }
     | undefined;
-  ScheduleMap: undefined;
+  ScheduleMap: { tripId: number };
   ChatScreen: undefined;
 };
 

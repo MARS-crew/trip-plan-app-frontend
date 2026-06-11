@@ -1,15 +1,20 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, PanResponder, View } from 'react-native';
+import { Animated, Easing, PanResponder, ToastAndroid, View } from 'react-native';
 import MapView, { Marker, Polyline, Region } from 'react-native-maps';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@/navigation/types';
 import { COLORS } from '@/constants/colors';
 
 import { TopBar } from '@/components';
 import TripDetailCard from '@/components/ui/TripDetailCard';
-import { fetchKoreanAddress, fetchNearestKoreanPlaceName } from '@/services/mapPlaceService';
+import {
+  fetchKoreanAddress,
+  fetchNearestKoreanPlaceName,
+  getTripScheduleLocations,
+} from '@/services';
 import IndexMarker from './components/IndexMarker';
 import MapPlaceCard from './components/MapPlaceCard';
 
@@ -22,6 +27,7 @@ import {
 } from './utils';
 
 type ScheduleMapScreenNavigation = NativeStackNavigationProp<RootStackParamList>;
+type ScheduleMapRoute = RouteProp<RootStackParamList, 'ScheduleMap'>;
 
 const FALLBACK_REGION: Region = {
   latitude: 35.6762,
@@ -30,71 +36,17 @@ const FALLBACK_REGION: Region = {
   longitudeDelta: 0.05,
 };
 
-const ROUTE_POINTS: RoutePoint[] = [
-  {
-    id: 'p1',
-    day: 1,
-    order: 1,
-    latitude: 35.714765,
-    longitude: 139.796655,
-    title: '아사쿠사 센소지',
-    location: '아사쿠사, 도쿄',
-    description: '도쿄에서 가장 오래된 사원 방문',
-    placeCardDescription: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시...',
-    startTime: '09:00',
-    endTime: '11:00',
-    image: require('../../assets/images/thumnail4.png'),
-    categories: ['관광지', '문화', '역사'],
-  },
-  {
-    id: 'p2',
-    day: 1,
-    order: 2,
-    latitude: 35.665486,
-    longitude: 139.770667,
-    title: '츠키지 시장',
-    location: '츄오구, 도쿄',
-    description: '신선한 스시와 해산물 즐기기',
-    placeCardDescription: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시...',
-    startTime: '12:00',
-    endTime: '14:00',
-    image: require('../../assets/images/thumnail4.png'),
-    categories: ['관광지', '문화', '역사'],
-  },
-  {
-    id: 'p3',
-    day: 2,
-    order: 1,
-    latitude: 35.658581,
-    longitude: 139.745433,
-    title: '도쿄 타워',
-    location: '미나토구, 도쿄',
-    description: '도쿄 전망 감상',
-    placeCardDescription: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시...',
-    startTime: '10:00',
-    endTime: '11:30',
-    image: require('../../assets/images/thumnail4.png'),
-    categories: ['관광지', '문화', '역사'],
-  },
-  {
-    id: 'p4',
-    day: 2,
-    order: 2,
-    latitude: 35.689487,
-    longitude: 139.691706,
-    title: '신주쿠',
-    location: '신주쿠구, 도쿄',
-    description: '쇼핑',
-    placeCardDescription: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시...',
-    startTime: '13:00',
-    endTime: '16:00',
-    image: require('../../assets/images/thumnail4.png'),
-    categories: ['관광지', '문화', '역사'],
-  },
-];
+const EMPTY_ROUTE_POINTS: RoutePoint[] = [];
+
+const formatScheduleTime = (time?: string | null): string => {
+  if (!time) return '';
+  return time.slice(0, 5);
+};
 
 const ScheduleMapScreen: React.FC = () => {
   const navigation = useNavigation<ScheduleMapScreenNavigation>();
+  const route = useRoute<ScheduleMapRoute>();
+  const tripId = route.params?.tripId;
   const mapRef = useRef<MapView>(null);
   const insets = useSafeAreaInsets();
   const [selectedPointId, setSelectedPointId] = useState<string | null>(null);
@@ -102,13 +54,15 @@ const ScheduleMapScreen: React.FC = () => {
   const [selectedItemIndexByDay, setSelectedItemIndexByDay] = useState<Record<number, number>>({});
   const [isMapPlaceCardVisible, setIsMapPlaceCardVisible] = useState(false);
   const [mapPlaceCardPoint, setMapPlaceCardPoint] = useState<RoutePoint | null>(null);
+  const [routePoints, setRoutePoints] = useState<RoutePoint[]>(EMPTY_ROUTE_POINTS);
+  const [tripTitle, setTripTitle] = useState('일정 지도');
   const cardTranslate = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
   const dragAxisRef = useRef<'horizontal' | 'vertical' | null>(null);
   const [currentCardHeight, setCurrentCardHeight] = useState(0);
   const DRAG_RESISTANCE = 0.42;
   const MAX_DRAG_DISTANCE = 72;
 
-  const groupedDays = useMemo(() => groupRoutePointsByDay(ROUTE_POINTS), []);
+  const groupedDays = useMemo(() => groupRoutePointsByDay(routePoints), [routePoints]);
   const initialRegion = useMemo<Region>(() => {
     const firstPoint = groupedDays[0]?.points[0];
 
@@ -130,12 +84,93 @@ const ScheduleMapScreen: React.FC = () => {
   const selectedItemIndex = selectedItemIndexByDay[selectedDay?.day ?? -1] ?? 0;
   const currentPoint = dayPoints[selectedItemIndex] ?? dayPoints[0];
   const selectedDayColor = getSelectedDayColor(selectedDay, dayColorMap);
-  const showTravelLogAction = currentPoint?.day === 1 && currentPoint?.order === 1;
+  const showTravelLogAction = currentPoint?.current === true;
   const previewPoint = useMemo(
     () =>
       getPreviewPoint(dayPoints, selectedItemIndex, groupedDays, selectedDayIndex, currentPoint),
     [currentPoint, dayPoints, groupedDays, selectedDayIndex, selectedItemIndex],
   );
+
+  useEffect(() => {
+    if (!tripId) return;
+
+    const abortController = new AbortController();
+
+    const loadScheduleLocations = async (): Promise<void> => {
+      const result = await getTripScheduleLocations({
+        tripId,
+        signal: abortController.signal,
+      });
+
+      if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
+      if (result.error || !result.data) {
+        setRoutePoints(EMPTY_ROUTE_POINTS);
+        ToastAndroid.show('일정 위치를 불러오지 못했습니다.', ToastAndroid.SHORT);
+        return;
+      }
+
+      const nextRoutePoints: RoutePoint[] = result.data.schedules
+        .filter(
+          (schedule) =>
+            schedule.hasLocation &&
+            typeof schedule.latitude === 'number' &&
+            Number.isFinite(schedule.latitude) &&
+            typeof schedule.longitude === 'number' &&
+            Number.isFinite(schedule.longitude),
+        )
+        .map((schedule) => ({
+          id: String(schedule.tripScheduleId),
+          tripScheduleId: schedule.tripScheduleId,
+          placeId: schedule.placeId,
+          day: schedule.dayNo,
+          order: schedule.pinOrder ?? schedule.scheduleOrder,
+          latitude: schedule.latitude as number,
+          longitude: schedule.longitude as number,
+          title: schedule.title || schedule.placeName || '일정',
+          location: schedule.placeName || schedule.address || '위치 정보 없음',
+          description: schedule.memo || schedule.description || '',
+          placeCardDescription: schedule.description || schedule.memo || '',
+          startTime: formatScheduleTime(schedule.startTime),
+          endTime: formatScheduleTime(schedule.endTime),
+          image: schedule.imageUrl ? { uri: schedule.imageUrl } : null,
+          imageText: schedule.imageUrl ? undefined : '이미지를 불러올 수 없습니다.',
+          categories: [],
+          current: schedule.current,
+          canAddVisitedPlace: schedule.canAddVisitedPlace,
+          visited: schedule.visited,
+        }));
+
+      setTripTitle(result.data.tripTitle || '일정 지도');
+      setRoutePoints(nextRoutePoints);
+
+      const currentSchedule = nextRoutePoints.find((point) => point.current);
+      if (!currentSchedule) {
+        setSelectedDayIndex(0);
+        setSelectedItemIndexByDay({});
+        return;
+      }
+
+      const nextGroupedDays = groupRoutePointsByDay(nextRoutePoints);
+      const currentDayIndex = nextGroupedDays.findIndex(
+        (dayGroup) => dayGroup.day === currentSchedule.day,
+      );
+      const currentItemIndex =
+        nextGroupedDays[currentDayIndex]?.points.findIndex(
+          (point) => point.id === currentSchedule.id,
+        ) ?? 0;
+
+      if (currentDayIndex >= 0) {
+        setSelectedDayIndex(currentDayIndex);
+        setSelectedItemIndexByDay({ [currentSchedule.day]: Math.max(currentItemIndex, 0) });
+      }
+    };
+
+    void loadScheduleLocations();
+
+    return () => {
+      abortController.abort();
+    };
+  }, [tripId]);
 
   useEffect(() => {
     if (!mapRef.current || dayPoints.length < 2) return;
@@ -419,7 +454,7 @@ const ScheduleMapScreen: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1" edges={['top']}>
-      <TopBar title="도쿄" onPress={() => navigation.goBack()} />
+      <TopBar title={tripTitle} onPress={() => navigation.goBack()} />
 
       <MapView
         ref={mapRef}
@@ -516,13 +551,9 @@ const ScheduleMapScreen: React.FC = () => {
                   actionLayout="fullWidth"
                   actionLabel="여행지 기록하기"
                   onPressAction={() =>
-                    navigation.navigate(
-                      'MainTabs' as never,
-                      {
-                        screen: 'Search',
-                        params: { screen: 'ReviewWrite' },
-                      } as never,
-                    )
+                    navigation.navigate('MainTabs', {
+                      screen: 'Search',
+                    })
                   }
                   accentColor={selectedDayColor}
                 />
