@@ -52,6 +52,7 @@ const DestinationDetailScreen: React.FC = () => {
   // Hooks
   const [activeTab, setActiveTab] = React.useState(initialTab);
   const [isBookmarked, setIsBookmarked] = React.useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [placeDetail, setPlaceDetail] = useState<PlaceDetail | null>(null);
   const [isDetailLoading, setIsDetailLoading] = useState(true);
   const [imageLoadError, setImageLoadError] = useState(false);
@@ -111,7 +112,10 @@ const DestinationDetailScreen: React.FC = () => {
   }, [placeId]);
 
   const handleSave = useCallback(async (): Promise<void> => {
+    if (isSaving) return;
+
     const nextSaved = !isBookmarked;
+    setIsSaving(true);
     setIsBookmarked(nextSaved);
 
     try {
@@ -123,8 +127,10 @@ const DestinationDetailScreen: React.FC = () => {
     } catch (error) {
       console.error('handleSave Error:', error);
       setIsBookmarked(!nextSaved);
+    } finally {
+      setIsSaving(false);
     }
-  }, [isBookmarked, placeId]);
+  }, [isSaving, isBookmarked, placeId]);
 
   const handleShare = useCallback((): void => {
     // TODO: 공유 기능 구현

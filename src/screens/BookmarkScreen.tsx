@@ -40,8 +40,13 @@ const BookmarkScreen: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       fetchCategories();
+    }, [fetchCategories]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
       fetchSavedPlaces(selectedFilter);
-    }, [fetchCategories, fetchSavedPlaces, selectedFilter]),
+    }, [fetchSavedPlaces, selectedFilter]),
   );
 
   const categoryLabelMap = useMemo(
