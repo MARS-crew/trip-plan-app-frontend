@@ -77,3 +77,7 @@ export interface ProfileEditSpinnerColumnProps {
   onSelect: (index: number) => void;
   format?: (n: number) => string;
 }
+
+export interface WithdrawSectionProps {
+  onPressWithdraw: () => void;
+}

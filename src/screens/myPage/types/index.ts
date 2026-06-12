@@ -13,4 +13,5 @@ export type {
   ProfileEditDatePickerOptions,
   ProfileEditGenderLabel,
   ProfileEditSpinnerColumnProps,
+  WithdrawSectionProps,
 } from './myPage.types';
