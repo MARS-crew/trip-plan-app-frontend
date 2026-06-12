@@ -1,5 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, PanResponder, ToastAndroid, View } from 'react-native';
+import {
+  Animated,
+  Easing,
+  PanResponder,
+  PermissionsAndroid,
+  Platform,
+  ToastAndroid,
+  View,
+} from 'react-native';
 import MapView, { Marker, Polyline, Region } from 'react-native-maps';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -13,6 +21,8 @@ import TripDetailCard from '@/components/ui/TripDetailCard';
 import {
   fetchKoreanAddress,
   fetchNearestKoreanPlaceName,
+  createVisitedPlace,
+  getTripRoute,
   getTripScheduleLocations,
 } from '@/services';
 import IndexMarker from './components/IndexMarker';
@@ -37,16 +47,48 @@ const FALLBACK_REGION: Region = {
 };
 
 const EMPTY_ROUTE_POINTS: RoutePoint[] = [];
+const DEFAULT_VISIT_RADIUS_METERS = 1000;
+
+type LocationCoords = {
+  latitude: number;
+  longitude: number;
+};
 
 const formatScheduleTime = (time?: string | null): string => {
   if (!time) return '';
   return time.slice(0, 5);
 };
 
+const toCoordinate = (value?: number | string | null): number | null => {
+  const coordinate = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(coordinate) ? coordinate : null;
+};
+
+const toPositiveInteger = (value?: number | string | null): number | null => {
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+};
+
+const getDistanceMeters = (from: LocationCoords, to: LocationCoords): number => {
+  const earthRadiusMeters = 6371000;
+  const toRadians = (degree: number): number => (degree * Math.PI) / 180;
+  const latitudeDelta = toRadians(to.latitude - from.latitude);
+  const longitudeDelta = toRadians(to.longitude - from.longitude);
+  const fromLatitude = toRadians(from.latitude);
+  const toLatitude = toRadians(to.latitude);
+
+  const haversine =
+    Math.sin(latitudeDelta / 2) ** 2 +
+    Math.cos(fromLatitude) * Math.cos(toLatitude) * Math.sin(longitudeDelta / 2) ** 2;
+
+  return 2 * earthRadiusMeters * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+};
+
 const ScheduleMapScreen: React.FC = () => {
   const navigation = useNavigation<ScheduleMapScreenNavigation>();
   const route = useRoute<ScheduleMapRoute>();
   const tripId = route.params?.tripId;
+  const selectedTripScheduleId = route.params?.tripScheduleId;
   const mapRef = useRef<MapView>(null);
   const insets = useSafeAreaInsets();
   const [selectedPointId, setSelectedPointId] = useState<string | null>(null);
@@ -56,6 +98,10 @@ const ScheduleMapScreen: React.FC = () => {
   const [mapPlaceCardPoint, setMapPlaceCardPoint] = useState<RoutePoint | null>(null);
   const [routePoints, setRoutePoints] = useState<RoutePoint[]>(EMPTY_ROUTE_POINTS);
   const [tripTitle, setTripTitle] = useState('일정 지도');
+  const [visitRadiusMeters, setVisitRadiusMeters] = useState(DEFAULT_VISIT_RADIUS_METERS);
+  const [hasLocationPermission, setHasLocationPermission] = useState(false);
+  const [isSavingVisitedPlace, setIsSavingVisitedPlace] = useState(false);
+  const currentLocationRef = useRef<LocationCoords | null>(null);
   const cardTranslate = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
   const dragAxisRef = useRef<'horizontal' | 'vertical' | null>(null);
   const [currentCardHeight, setCurrentCardHeight] = useState(0);
@@ -84,12 +130,48 @@ const ScheduleMapScreen: React.FC = () => {
   const selectedItemIndex = selectedItemIndexByDay[selectedDay?.day ?? -1] ?? 0;
   const currentPoint = dayPoints[selectedItemIndex] ?? dayPoints[0];
   const selectedDayColor = getSelectedDayColor(selectedDay, dayColorMap);
-  const showTravelLogAction = currentPoint?.current === true;
+  const showTravelLogAction =
+    currentPoint?.current === true || currentPoint?.tripScheduleId === selectedTripScheduleId;
   const previewPoint = useMemo(
     () =>
       getPreviewPoint(dayPoints, selectedItemIndex, groupedDays, selectedDayIndex, currentPoint),
     [currentPoint, dayPoints, groupedDays, selectedDayIndex, selectedItemIndex],
   );
+
+  const requestLocationPermission = useCallback(async (): Promise<boolean> => {
+    if (Platform.OS !== 'android') {
+      setHasLocationPermission(true);
+      return true;
+    }
+
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+      const isGranted = granted === PermissionsAndroid.RESULTS.GRANTED;
+      setHasLocationPermission(isGranted);
+      return isGranted;
+    } catch {
+      setHasLocationPermission(false);
+      return false;
+    }
+  }, []);
+
+  const handleUserLocationChange: NonNullable<
+    React.ComponentProps<typeof MapView>['onUserLocationChange']
+  > = useCallback((event) => {
+    const coordinate = event.nativeEvent.coordinate;
+    if (!coordinate) return;
+
+    currentLocationRef.current = {
+      latitude: coordinate.latitude,
+      longitude: coordinate.longitude,
+    };
+  }, []);
+
+  useEffect(() => {
+    void requestLocationPermission();
+  }, [requestLocationPermission]);
 
   useEffect(() => {
     if (!tripId) return;
@@ -109,42 +191,47 @@ const ScheduleMapScreen: React.FC = () => {
         return;
       }
 
-      const nextRoutePoints: RoutePoint[] = result.data.schedules
-        .filter(
-          (schedule) =>
-            schedule.hasLocation &&
-            typeof schedule.latitude === 'number' &&
-            Number.isFinite(schedule.latitude) &&
-            typeof schedule.longitude === 'number' &&
-            Number.isFinite(schedule.longitude),
-        )
-        .map((schedule) => ({
-          id: String(schedule.tripScheduleId),
-          tripScheduleId: schedule.tripScheduleId,
-          placeId: schedule.placeId,
-          day: schedule.dayNo,
-          order: schedule.pinOrder ?? schedule.scheduleOrder,
-          latitude: schedule.latitude as number,
-          longitude: schedule.longitude as number,
-          title: schedule.title || schedule.placeName || '일정',
-          location: schedule.placeName || schedule.address || '위치 정보 없음',
-          description: schedule.memo || schedule.description || '',
-          placeCardDescription: schedule.description || schedule.memo || '',
-          startTime: formatScheduleTime(schedule.startTime),
-          endTime: formatScheduleTime(schedule.endTime),
-          image: schedule.imageUrl ? { uri: schedule.imageUrl } : null,
-          imageText: schedule.imageUrl ? undefined : '이미지를 불러올 수 없습니다.',
-          categories: [],
-          current: schedule.current,
-          canAddVisitedPlace: schedule.canAddVisitedPlace,
-          visited: schedule.visited,
-        }));
+      const nextRoutePoints: RoutePoint[] = result.data.schedules.flatMap((schedule) => {
+        const latitude = toCoordinate(schedule.latitude);
+        const longitude = toCoordinate(schedule.longitude);
+
+        if (!schedule.hasLocation || latitude === null || longitude === null) {
+          return [];
+        }
+
+        return [
+          {
+            id: String(schedule.tripScheduleId),
+            tripScheduleId: schedule.tripScheduleId,
+            placeId: schedule.placeId,
+            day: schedule.dayNo,
+            order: schedule.pinOrder ?? schedule.scheduleOrder,
+            latitude,
+            longitude,
+            title: schedule.title || schedule.placeName || '일정',
+            location: schedule.placeName || schedule.address || '위치 정보 없음',
+            description: schedule.memo || schedule.description || '',
+            placeCardDescription: schedule.description || schedule.memo || '',
+            startTime: formatScheduleTime(schedule.startTime),
+            endTime: formatScheduleTime(schedule.endTime),
+            image: schedule.imageUrl ? { uri: schedule.imageUrl } : null,
+            imageText: schedule.imageUrl ? undefined : '이미지를 불러올 수 없습니다.',
+            categories: [],
+            current: schedule.current,
+            canAddVisitedPlace: schedule.canAddVisitedPlace,
+            visited: schedule.visited,
+          },
+        ];
+      });
 
       setTripTitle(result.data.tripTitle || '일정 지도');
+      setVisitRadiusMeters(result.data.visitVerificationRadiusMeters || DEFAULT_VISIT_RADIUS_METERS);
       setRoutePoints(nextRoutePoints);
 
-      const currentSchedule = nextRoutePoints.find((point) => point.current);
-      if (!currentSchedule) {
+      const focusedSchedule =
+        nextRoutePoints.find((point) => point.tripScheduleId === selectedTripScheduleId) ??
+        nextRoutePoints.find((point) => point.current);
+      if (!focusedSchedule) {
         setSelectedDayIndex(0);
         setSelectedItemIndexByDay({});
         return;
@@ -152,16 +239,16 @@ const ScheduleMapScreen: React.FC = () => {
 
       const nextGroupedDays = groupRoutePointsByDay(nextRoutePoints);
       const currentDayIndex = nextGroupedDays.findIndex(
-        (dayGroup) => dayGroup.day === currentSchedule.day,
+        (dayGroup) => dayGroup.day === focusedSchedule.day,
       );
       const currentItemIndex =
         nextGroupedDays[currentDayIndex]?.points.findIndex(
-          (point) => point.id === currentSchedule.id,
+          (point) => point.id === focusedSchedule.id,
         ) ?? 0;
 
       if (currentDayIndex >= 0) {
         setSelectedDayIndex(currentDayIndex);
-        setSelectedItemIndexByDay({ [currentSchedule.day]: Math.max(currentItemIndex, 0) });
+        setSelectedItemIndexByDay({ [focusedSchedule.day]: Math.max(currentItemIndex, 0) });
       }
     };
 
@@ -170,7 +257,7 @@ const ScheduleMapScreen: React.FC = () => {
     return () => {
       abortController.abort();
     };
-  }, [tripId]);
+  }, [selectedTripScheduleId, tripId]);
 
   useEffect(() => {
     if (!mapRef.current || dayPoints.length < 2) return;
@@ -379,6 +466,90 @@ const ScheduleMapScreen: React.FC = () => {
     [handleSelectPoint],
   );
 
+  const handleCreateVisitedPlace = useCallback(async (): Promise<void> => {
+    if (isSavingVisitedPlace) return;
+
+    let placeId = toPositiveInteger(currentPoint?.placeId);
+    const tripScheduleId = toPositiveInteger(currentPoint?.tripScheduleId);
+
+    if (!tripId || !tripScheduleId) {
+      ToastAndroid.show('방문 기록을 저장할 수 없습니다.', ToastAndroid.SHORT);
+      return;
+    }
+
+    if (!placeId) {
+      const routeResult = await getTripRoute({ tripId, tripScheduleId });
+      placeId = toPositiveInteger(routeResult.data?.placeId);
+    }
+
+    if (!placeId) {
+      ToastAndroid.show('장소 정보가 연결된 일정만 방문 기록을 저장할 수 있습니다.', ToastAndroid.SHORT);
+      return;
+    }
+
+    if (currentPoint.visited || currentPoint.canAddVisitedPlace === false) {
+      ToastAndroid.show('이미 저장된 방문지입니다.', ToastAndroid.SHORT);
+      return;
+    }
+
+    const hasPermission = hasLocationPermission || (await requestLocationPermission());
+    if (!hasPermission) {
+      ToastAndroid.show('위치 권한이 필요합니다.', ToastAndroid.SHORT);
+      return;
+    }
+
+    const currentLocation = currentLocationRef.current;
+    if (!currentLocation) {
+      ToastAndroid.show('현재 위치를 확인 중입니다. 잠시 후 다시 시도해주세요.', ToastAndroid.SHORT);
+      return;
+    }
+
+    const distanceMeters = getDistanceMeters(currentLocation, {
+      latitude: currentPoint.latitude,
+      longitude: currentPoint.longitude,
+    });
+
+    if (distanceMeters > visitRadiusMeters) {
+      ToastAndroid.show(
+        `장소 반경 ${Math.round(visitRadiusMeters)}m 이내에서 기록할 수 있습니다.`,
+        ToastAndroid.SHORT,
+      );
+      return;
+    }
+
+    setIsSavingVisitedPlace(true);
+    const result = await createVisitedPlace({
+      tripId,
+      payload: {
+        placeId,
+        tripScheduleId,
+      },
+    });
+    setIsSavingVisitedPlace(false);
+
+    if (result.error) {
+      ToastAndroid.show(result.error?.message || '방문 기록 저장에 실패했습니다.', ToastAndroid.SHORT);
+      return;
+    }
+
+    setRoutePoints((prevPoints) =>
+      prevPoints.map((point) =>
+        toPositiveInteger(point.tripScheduleId) === (result.data?.tripScheduleId ?? tripScheduleId)
+          ? { ...point, visited: true, canAddVisitedPlace: false }
+          : point,
+      ),
+    );
+
+    ToastAndroid.show('방문 기록이 저장되었습니다.', ToastAndroid.SHORT);
+  }, [
+    currentPoint,
+    hasLocationPermission,
+    isSavingVisitedPlace,
+    requestLocationPermission,
+    tripId,
+    visitRadiusMeters,
+  ]);
+
   const panResponder = useMemo(
     () =>
       PanResponder.create({
@@ -460,8 +631,10 @@ const ScheduleMapScreen: React.FC = () => {
         ref={mapRef}
         style={{ flex: 1 }}
         initialRegion={initialRegion}
+        showsUserLocation={hasLocationPermission}
         onPress={(event) => handlePressMap(event.nativeEvent.coordinate)}
-        onPoiClick={handlePressPoi}>
+        onPoiClick={handlePressPoi}
+        onUserLocationChange={handleUserLocationChange}>
         {dayPoints.length >= 2 && (
           <Polyline
             coordinates={dayPoints.map((p) => ({
@@ -549,12 +722,18 @@ const ScheduleMapScreen: React.FC = () => {
                   endTime={currentPoint.endTime}
                   isCurrentSchedule={showTravelLogAction}
                   actionLayout="fullWidth"
-                  actionLabel="여행지 기록하기"
-                  onPressAction={() =>
-                    navigation.navigate('MainTabs', {
-                      screen: 'Search',
-                    })
+                  actionLabel={
+                    currentPoint.visited
+                      ? '기록 완료'
+                      : isSavingVisitedPlace
+                        ? '기록 중...'
+                        : '여행지 기록하기'
                   }
+                  onPressAction={() => {
+                    handleCreateVisitedPlace().catch(() => {
+                      ToastAndroid.show('방문 기록 저장에 실패했습니다.', ToastAndroid.SHORT);
+                    });
+                  }}
                   accentColor={selectedDayColor}
                 />
               )}

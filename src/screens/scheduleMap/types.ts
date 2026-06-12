@@ -2,8 +2,8 @@ import type { ImageSourcePropType } from 'react-native';
 
 export interface RoutePoint {
   id: string;
-  tripScheduleId?: number;
-  placeId?: number | null;
+  tripScheduleId?: number | string;
+  placeId?: number | string | null;
   day: number;
   order: number;
   latitude: number;

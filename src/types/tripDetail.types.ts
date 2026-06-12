@@ -48,7 +48,7 @@ export type TripDetailCardMenuItem = Pick<
   | 'startTime'
   | 'endTime'
   | 'isCurrentSchedule'
-> & { id: number };
+> & { id: number; tripScheduleId?: number };
 
 export interface HeaderProps {
   onPressKebab: () => void;
@@ -124,7 +124,7 @@ export interface TripScheduleLocationItem {
   scheduleDate: string;
   scheduleOrder: number;
   pinOrder?: number | null;
-  placeId?: number | null;
+  placeId?: number | string | null;
   title: string;
   placeName?: string | null;
   address?: string | null;
@@ -133,8 +133,8 @@ export interface TripScheduleLocationItem {
   memo?: string | null;
   description?: string | null;
   imageUrl?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
   hasLocation: boolean;
   visited: boolean;
   canAddVisitedPlace: boolean;
@@ -160,6 +160,32 @@ export interface GetTripScheduleLocationsOptions {
 
 export interface GetTripScheduleLocationsResult {
   data: TripScheduleLocationsData | null;
+  error: ServiceError | null;
+}
+
+export interface CreateVisitedPlaceRequest {
+  placeId: number;
+  tripScheduleId: number;
+}
+
+export interface VisitedPlaceData {
+  visitedPlaceId: number;
+  tripId: number;
+  tripScheduleId: number;
+  placeId: number;
+  placeName: string;
+  visitedAt: string;
+  visited: boolean;
+}
+
+export interface CreateVisitedPlaceOptions {
+  tripId: number;
+  payload: CreateVisitedPlaceRequest;
+  signal?: AbortSignal;
+}
+
+export interface CreateVisitedPlaceResult {
+  data: VisitedPlaceData | null;
   error: ServiceError | null;
 }
 

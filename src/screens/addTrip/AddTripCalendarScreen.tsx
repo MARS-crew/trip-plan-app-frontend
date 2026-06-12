@@ -169,7 +169,11 @@ const AddTripCalendarScreen: React.FC = () => {
         return;
       }
 
-      navigation.navigate('WishlistScreen', { tripId: result.data.tripId });
+      navigation.navigate('AddCalendarMapScreen', {
+        tripId: result.data.tripId,
+        tripTitle: route.params.title,
+        date: range.startDate,
+      });
     } finally {
       setIsCreatingTrip(false);
     }

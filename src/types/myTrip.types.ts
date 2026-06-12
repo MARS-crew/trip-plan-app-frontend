@@ -185,6 +185,7 @@ export interface CreateScheduleRequest {
   scheduleDate: string;
   startTime?: string;
   endTime?: string;
+  placeId?: number;
   placeName?: string;
   address?: string;
   latitude?: number;

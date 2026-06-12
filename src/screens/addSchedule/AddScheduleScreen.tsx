@@ -279,14 +279,37 @@ const AddScheduleScreen = () => {
 
   const handleConfirm = () => {
     if (pickerMode === 'date') {
+      const nextDate = {
+        year: selectedYear,
+        month: selectedMonth,
+        day: selectedDay,
+      };
+      const nextDateLabel = `${nextDate.year}-${pad(nextDate.month)}-${pad(nextDate.day)}`;
+
       setFormValues((prev) => ({
         ...prev,
-        date: {
-          year: selectedYear,
-          month: selectedMonth,
-          day: selectedDay,
-        },
+        date: nextDate,
       }));
+
+      setPickerMode(null);
+
+      if (!isEditMode && params?.tripId) {
+        navigation.replace('AddCalendarMapScreen', {
+          tripId: params.tripId,
+          tripTitle: params.tripTitle,
+          date: nextDateLabel,
+          title: formValues.title,
+          startTime: formValues.startTime
+            ? `${pad(formValues.startTime.hour)}:${pad(formValues.startTime.minute)}`
+            : undefined,
+          endTime: formValues.endTime
+            ? `${pad(formValues.endTime.hour)}:${pad(formValues.endTime.minute)}`
+            : undefined,
+          memo: formValues.memo,
+        });
+      }
+
+      return;
     }
 
     if (pickerMode === 'startTime' || pickerMode === 'endTime') {
@@ -357,6 +380,7 @@ const AddScheduleScreen = () => {
           scheduleDate,
           startTime,
           endTime,
+          placeId: params.placeId,
           placeName: params.placeName,
           address: params.address,
           latitude: params.latitude,

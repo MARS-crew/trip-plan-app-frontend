@@ -55,7 +55,16 @@ const DaySection = ({
             {...card}
             tripId={tripId}
             accentColor={getTripDayColor(dayNo)}
-            onPressAction={() => onPressAction(card.id)}
+            onPressAction={() => {
+              if (!tripId) {
+                onPressAction(card.id);
+                return;
+              }
+              navigation.navigate('ScheduleMap', {
+                tripId,
+                tripScheduleId: card.tripScheduleId,
+              });
+            }}
             onPressCard={() => handlePressCard(card.id)}
           />
         </View>
