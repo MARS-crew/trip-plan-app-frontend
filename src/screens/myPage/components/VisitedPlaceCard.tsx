@@ -41,13 +41,15 @@ const VisitedPlaceCard: React.FC<VisitedPlaceCardProps> = ({
                 <MarkerGrayIcon width={12} height={12} className="mt-px" />
                 <Text className="ml-1 text-p text-gray">{item.location}</Text>
               </View>
-              <View className="mt-0.5 flex-row gap-1.5">
-                {item.tags.map((tag) => (
-                  <View key={`${item.id}-${tag}`} className="rounded-2xl bg-chip px-2 py-0.5">
-                    <Text className="text-p text-gray">{tag}</Text>
-                  </View>
-                ))}
-              </View>
+              {item.tags.length > 0 && (
+                <View className="mt-0.5 flex-row gap-1.5">
+                  {item.tags.map((tag) => (
+                    <View key={`${item.id}-${tag}`} className="rounded-2xl bg-chip px-2 py-0.5">
+                      <Text className="text-p text-gray">{tag}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
 
             <VectorGrayIcon width={14} height={14} />
