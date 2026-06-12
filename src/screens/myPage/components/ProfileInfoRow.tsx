@@ -26,7 +26,7 @@ const ProfileInfoRow: React.FC<ProfileInfoRowProps> = ({ item, showDivider }) =>
         showDivider ? 'border-b border-borderGray' : ''
       }`}>
       <View className="h-9 w-9 items-center justify-center rounded-lg bg-chip">
-        <Icon width={16} height={16} />
+        {Icon && <Icon width={16} height={16} />}
       </View>
 
       <View className="ml-3">
