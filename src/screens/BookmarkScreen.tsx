@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -37,13 +37,12 @@ const BookmarkScreen: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
-
-  useEffect(() => {
-    fetchSavedPlaces(selectedFilter);
-  }, [fetchSavedPlaces, selectedFilter]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchCategories();
+      fetchSavedPlaces(selectedFilter);
+    }, [fetchCategories, fetchSavedPlaces, selectedFilter]),
+  );
 
   const categoryLabelMap = useMemo(
     () => new Map(categories.map((cat) => [cat.filterType, cat.filterDisplayName])),

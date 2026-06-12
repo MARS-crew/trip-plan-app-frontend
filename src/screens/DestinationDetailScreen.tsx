@@ -24,6 +24,7 @@ import {
 import type { RootTabParamList, SearchStackParamList } from '@/navigation/types';
 import { getPlaceDetail } from '@/services/placeService';
 import { getReviewList } from '@/services/reviewService';
+import { createSavedPlace, deleteSavedPlace } from '@/services/savedPlaceService';
 import type { PlaceDetail } from '@/types/place';
 import type { ReviewData } from '@/types/review';
 
@@ -109,9 +110,21 @@ const DestinationDetailScreen: React.FC = () => {
     return () => controller.abort();
   }, [placeId]);
 
-  const handleSave = useCallback((): void => {
-    setIsBookmarked((prevState) => !prevState);
-  }, []);
+  const handleSave = useCallback(async (): Promise<void> => {
+    const nextSaved = !isBookmarked;
+    setIsBookmarked(nextSaved);
+
+    try {
+      if (nextSaved) {
+        await createSavedPlace(placeId);
+      } else {
+        await deleteSavedPlace(placeId);
+      }
+    } catch (error) {
+      console.error('handleSave Error:', error);
+      setIsBookmarked(!nextSaved);
+    }
+  }, [isBookmarked, placeId]);
 
   const handleShare = useCallback((): void => {
     // TODO: 공유 기능 구현
