@@ -54,13 +54,12 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
         <View className="flex-1 flex-row items-start">
           <View
             className="mr-3 h-7 w-7 items-center justify-center rounded-full"
-            style={{ backgroundColor: accentColor }}
-          >
-            <Text className="text-h3 font-pretendardSemiBold text-white">{order}</Text>
+            style={{ backgroundColor: accentColor }}>
+            <Text className="font-pretendardSemiBold text-h3 text-white">{order}</Text>
           </View>
 
           <View className="flex-1">
-            <Text className="text-h3 font-pretendardSemiBold text-black">{title}</Text>
+            <Text className="font-pretendardSemiBold text-h3 text-black">{title}</Text>
 
             <View className="mt-[2px] flex-row items-center">
               <MarkerGrayIcon width={12} height={12} />
@@ -75,8 +74,10 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
           </View>
         </View>
 
-        <View className="justify-between py-[13px] items-end">
-          <Text className="text-p font-pretendardBold" style={{ color: accentColor }}>{startTime}</Text>
+        <View className="items-end justify-between py-[13px]">
+          <Text className="font-pretendardBold text-p" style={{ color: accentColor }}>
+            {startTime}
+          </Text>
           <Text className="mt-[2px] text-p text-gray">{endTime}</Text>
         </View>
       </View>
@@ -88,9 +89,8 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
               activeOpacity={0.8}
               onPress={onPressAction}
               className="h-[44px] w-full items-center justify-center rounded-[8px] bg-main"
-              style={{ backgroundColor: accentColor }}
-            >
-              <Text className="text-h3 font-pretendardSemiBold text-white">{actionLabel}</Text>
+              style={{ backgroundColor: accentColor }}>
+              <Text className="font-pretendardSemiBold text-h3 text-white">{actionLabel}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -99,17 +99,16 @@ const TripDetailCard: React.FC<TripDetailCardProps> = ({
 
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => {
-                if (!tripId) return;
-                navigation.navigate('ScheduleMap', { tripId });
-              }}
+              onPress={
+                onPressAction ||
+                (() => {
+                  if (!tripId) return;
+                  navigation.navigate('ScheduleMap', { tripId });
+                })
+              }
               className="h-[36px] flex-row items-center justify-center rounded-[6px] p-[10px]"
-              style={{ backgroundColor: accentColor }}
-            >
-              <Text
-                className="text-p text-center text-white"
-                style={ACTION_LABEL_TEXT_STYLE}
-              >
+              style={{ backgroundColor: accentColor }}>
+              <Text className="text-center text-p text-white" style={ACTION_LABEL_TEXT_STYLE}>
                 {actionLabel}
               </Text>
             </TouchableOpacity>
