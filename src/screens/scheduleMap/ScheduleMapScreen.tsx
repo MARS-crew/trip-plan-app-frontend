@@ -225,7 +225,9 @@ const ScheduleMapScreen: React.FC = () => {
       });
 
       setTripTitle(result.data.tripTitle || '일정 지도');
-      setVisitRadiusMeters(result.data.visitVerificationRadiusMeters || DEFAULT_VISIT_RADIUS_METERS);
+      setVisitRadiusMeters(
+        result.data.visitVerificationRadiusMeters || DEFAULT_VISIT_RADIUS_METERS,
+      );
       setRoutePoints(nextRoutePoints);
 
       const focusedSchedule =
@@ -380,8 +382,8 @@ const ScheduleMapScreen: React.FC = () => {
       };
 
       setMapPlaceCardPoint(nextPoint);
-    } catch (error) {
-      console.error('handlePressMarker Error:', error);
+    } catch {
+      setMapPlaceCardPoint(point);
     }
   }, []);
 
@@ -442,8 +444,8 @@ const ScheduleMapScreen: React.FC = () => {
     async (coordinate: { latitude: number; longitude: number }) => {
       try {
         await handleSelectPoint(coordinate);
-      } catch (error) {
-        console.error('handlePressMap Error:', error);
+      } catch {
+        return;
       }
     },
     [handleSelectPoint],
@@ -459,8 +461,8 @@ const ScheduleMapScreen: React.FC = () => {
 
       try {
         await handleSelectPoint(coordinate, name);
-      } catch (error) {
-        console.error('handlePressPoi Error:', error);
+      } catch {
+        return;
       }
     },
     [handleSelectPoint],
@@ -473,7 +475,7 @@ const ScheduleMapScreen: React.FC = () => {
     const tripScheduleId = toPositiveInteger(currentPoint?.tripScheduleId);
 
     if (!tripId || !tripScheduleId) {
-      ToastAndroid.show('방문 기록을 저장할 수 없습니다.', ToastAndroid.SHORT);
+      ToastAndroid.show('방문 기록 저장에 실패했습니다.', ToastAndroid.SHORT);
       return;
     }
 
@@ -483,24 +485,24 @@ const ScheduleMapScreen: React.FC = () => {
     }
 
     if (!placeId) {
-      ToastAndroid.show('장소 정보가 연결된 일정만 방문 기록을 저장할 수 있습니다.', ToastAndroid.SHORT);
+      ToastAndroid.show('방문 기록 저장에 실패했습니다.', ToastAndroid.SHORT);
       return;
     }
 
     if (currentPoint.visited || currentPoint.canAddVisitedPlace === false) {
-      ToastAndroid.show('이미 저장된 방문지입니다.', ToastAndroid.SHORT);
+      ToastAndroid.show('이미 방문 기록이 있는 장소입니다.', ToastAndroid.SHORT);
       return;
     }
 
     const hasPermission = hasLocationPermission || (await requestLocationPermission());
     if (!hasPermission) {
-      ToastAndroid.show('위치 권한이 필요합니다.', ToastAndroid.SHORT);
+      ToastAndroid.show('방문 기록 저장에 실패했습니다.', ToastAndroid.SHORT);
       return;
     }
 
     const currentLocation = currentLocationRef.current;
     if (!currentLocation) {
-      ToastAndroid.show('현재 위치를 확인 중입니다. 잠시 후 다시 시도해주세요.', ToastAndroid.SHORT);
+      ToastAndroid.show('방문 기록 저장에 실패했습니다.', ToastAndroid.SHORT);
       return;
     }
 
@@ -510,10 +512,7 @@ const ScheduleMapScreen: React.FC = () => {
     });
 
     if (distanceMeters > visitRadiusMeters) {
-      ToastAndroid.show(
-        `장소 반경 ${Math.round(visitRadiusMeters)}m 이내에서 기록할 수 있습니다.`,
-        ToastAndroid.SHORT,
-      );
+      ToastAndroid.show('장소 반경 1km 이내에서 기록할 수 있습니다.', ToastAndroid.SHORT);
       return;
     }
 
@@ -528,7 +527,10 @@ const ScheduleMapScreen: React.FC = () => {
     setIsSavingVisitedPlace(false);
 
     if (result.error) {
-      ToastAndroid.show(result.error?.message || '방문 기록 저장에 실패했습니다.', ToastAndroid.SHORT);
+      ToastAndroid.show(
+        result.error?.message || '방문 기록 저장에 실패했습니다.',
+        ToastAndroid.SHORT,
+      );
       return;
     }
 
@@ -722,13 +724,7 @@ const ScheduleMapScreen: React.FC = () => {
                   endTime={currentPoint.endTime}
                   isCurrentSchedule={showTravelLogAction}
                   actionLayout="fullWidth"
-                  actionLabel={
-                    currentPoint.visited
-                      ? '기록 완료'
-                      : isSavingVisitedPlace
-                        ? '기록 중...'
-                        : '여행지 기록하기'
-                  }
+                  actionLabel="여행지 기록하기"
                   onPressAction={() => {
                     handleCreateVisitedPlace().catch(() => {
                       ToastAndroid.show('방문 기록 저장에 실패했습니다.', ToastAndroid.SHORT);
