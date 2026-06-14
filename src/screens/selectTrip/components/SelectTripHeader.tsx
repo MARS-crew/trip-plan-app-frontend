@@ -5,9 +5,10 @@ import { BackArrow } from '@/assets/icons';
 
 export interface SelectTripHeaderProps {
   onPress: () => void;
+  tripCount: number;
 }
 
-export const SelectTripHeader: React.FC<SelectTripHeaderProps> = ({ onPress }) => {
+export const SelectTripHeader: React.FC<SelectTripHeaderProps> = ({ onPress, tripCount }) => {
   return (
     <View className="flex-row items-center px-6 pt-3 pb-2">
       <Pressable
@@ -20,7 +21,7 @@ export const SelectTripHeader: React.FC<SelectTripHeaderProps> = ({ onPress }) =
       </Pressable>
       <View className="ml-5">
         <Text className="text-h font-pretendardBold text-black">추가할 여행 선택</Text>
-        <Text className="text-p text-gray font-pretendardRegular">2개의 여행이 있어요</Text>
+        <Text className="text-p text-gray font-pretendardRegular">{tripCount}개의 여행이 있어요</Text>
       </View>
     </View>
   );
