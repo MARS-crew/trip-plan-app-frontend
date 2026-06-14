@@ -115,12 +115,10 @@ const saveGeneratedSchedules = async (
   const schedulePayloads = buildGeneratedSchedulePayloads(generatedTrip);
   if (!schedulePayloads.length) return false;
 
-  for (const payload of schedulePayloads) {
-    const result = await createSchedule({ tripId, payload });
-    if (result.error) return false;
-  }
-
-  return true;
+  const results = await Promise.all(
+    schedulePayloads.map((payload) => createSchedule({ tripId, payload })),
+  );
+  return results.every((result) => !result.error);
 };
 //더미 데이터 - 실제 API 연동 시 제거 예정
 const TRENDING_PLACES: PlaceCardProps['place'][] = [
