@@ -7,6 +7,7 @@ import {
   Keyboard,
   Platform,
   PermissionsAndroid,
+  ToastAndroid,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
@@ -38,9 +39,11 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Shadow } from 'react-native-shadow-2';
-import { addWishlistPlace } from '@/services';
+import { addWishlistPlace, createSchedule, generateTripSchedules } from '@/services';
 import { getPlaceSelection } from '@/services/searchService';
 import type { PlaceSelectionPlace } from '@/types/wishlist';
+import type { GenerateTripSchedulesData } from '@/types/tripDetail.types';
+import type { CreateScheduleRequest } from '@/types/myTrip.types';
 
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -54,6 +57,71 @@ const convertPlaceDataToWishPlace = (place: PlaceSelectionPlace): PlaceCardProps
   categories: [place.placeType],
   image: { uri: place.imageUrl },
 });
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const toStringValue = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : undefined;
+};
+
+const toNumberValue = (value: unknown): number | undefined => {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value !== 'string') return undefined;
+  const parsed = Number(value.trim());
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const buildGeneratedSchedulePayloads = (
+  generatedTrip: GenerateTripSchedulesData,
+): CreateScheduleRequest[] =>
+  generatedTrip.dailySchedules.flatMap((dayGroup) => {
+    if (!isRecord(dayGroup)) return [];
+
+    const scheduleDate = toStringValue(dayGroup.scheduleDate);
+    const schedules = Array.isArray(dayGroup.schedules) ? dayGroup.schedules : [];
+
+    return schedules.flatMap((schedule) => {
+      if (!isRecord(schedule)) return [];
+
+      const title =
+        toStringValue(schedule.title) ??
+        toStringValue(schedule.placeName) ??
+        toStringValue(schedule.address);
+      const resolvedScheduleDate = toStringValue(schedule.scheduleDate) ?? scheduleDate;
+      if (!title || !resolvedScheduleDate) return [];
+
+      return [
+        {
+          title,
+          scheduleDate: resolvedScheduleDate,
+          startTime: toStringValue(schedule.startTime),
+          endTime: toStringValue(schedule.endTime),
+          placeId: toNumberValue(schedule.placeId),
+          placeName: toStringValue(schedule.placeName),
+          address: toStringValue(schedule.address),
+          memo: toStringValue(schedule.memo),
+        },
+      ];
+    });
+  });
+
+const saveGeneratedSchedules = async (
+  tripId: number,
+  generatedTrip: GenerateTripSchedulesData,
+): Promise<boolean> => {
+  const schedulePayloads = buildGeneratedSchedulePayloads(generatedTrip);
+  if (!schedulePayloads.length) return false;
+
+  for (const payload of schedulePayloads) {
+    const result = await createSchedule({ tripId, payload });
+    if (result.error) return false;
+  }
+
+  return true;
+};
 //더미 데이터 - 실제 API 연동 시 제거 예정
 const TRENDING_PLACES: PlaceCardProps['place'][] = [
   {
@@ -128,8 +196,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           saved: new Set<string>(),
           wishlist: new Set(convertedWishlistPlaces.map((place) => place.id)),
         });
-      } catch (err) {
-        console.error('Failed to load place selection:', err);
+      } catch {
         setSavedPlaces([]);
         setWishlistPlaces([]);
         setLikedIdsByTab({
@@ -163,7 +230,6 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
 
       const placeId = Number(id);
       if (!Number.isInteger(placeId)) {
-        console.warn('유효하지 않은 placeId:', id);
         return false;
       }
 
@@ -172,8 +238,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       try {
         const result = await addWishlistPlace(tripId, { placeId, sourceType });
         return result.added;
-      } catch (error) {
-        console.error('위시리스트 추가 실패:', error);
+      } catch {
         return false;
       }
     },
@@ -304,6 +369,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
+  const [isGeneratingAiPlan, setIsGeneratingAiPlan] = useState(false);
   const [isSheetExpanded, setIsSheetExpanded] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<TextInput>(null);
@@ -412,16 +478,51 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       return;
     }
     setShowExitModal(true);
-  }, [isSearchFocused, handleSearchBlur]); // AI 추천 일정짜기 버튼 핸들러 → TripDetail로 이동 + 모달 닫기
-  const handleAiPlan = useCallback((): void => {
-    navigation.navigate('TripDetail');
+  }, [isSearchFocused, handleSearchBlur]);
+
+  const handleAiPlan = useCallback(async (): Promise<void> => {
+    if (isGeneratingAiPlan) return;
+    if (typeof tripId !== 'number') {
+      ToastAndroid.show('AI 추천 일정을 생성하지 못했습니다.', ToastAndroid.SHORT);
+      return;
+    }
+
+    setIsGeneratingAiPlan(true);
+    ToastAndroid.show('일정을 짜는 중입니다. 잠시 기다려주세요.', ToastAndroid.SHORT);
+    const result = await generateTripSchedules({ tripId });
+
+    if (result.error || !result.data) {
+      setIsGeneratingAiPlan(false);
+      ToastAndroid.show(
+        result.error?.message || 'AI 추천 일정을 생성하지 못했습니다.',
+        ToastAndroid.SHORT,
+      );
+      return;
+    }
+
+    const isSaved = await saveGeneratedSchedules(result.data.tripId, result.data);
+    if (!isSaved) {
+      setIsGeneratingAiPlan(false);
+      ToastAndroid.show('AI 추천 일정을 저장하지 못했습니다.', ToastAndroid.SHORT);
+      return;
+    }
+
+    setIsGeneratingAiPlan(false);
     setShowAddModal(false);
-  }, [navigation]); // 직접 일정짜기 버튼 핸들러 → TripDetail로 이동 + 모달 닫기
+    navigation.replace('TripDetail', { tripId: result.data.tripId });
+  }, [isGeneratingAiPlan, navigation, tripId]);
+
   const handleManualPlan = useCallback((): void => {
-    navigation.navigate('TripDetail');
+    if (typeof tripId === 'number') {
+      navigation.navigate('TripDetail', { tripId });
+    } else {
+      navigation.navigate('TripDetail');
+    }
     setShowAddModal(false);
-  }, [navigation]); // 완료 버튼 핸들러 → 모달 열기
-  const handleComplete = useCallback((): void => setShowAddModal(true), []); // 지도 영역 누르면 바텀시트 내려가기
+  }, [navigation, tripId]);
+
+  const handleComplete = useCallback((): void => setShowAddModal(true), []);
+
   const handleMapPress = useCallback((): void => {
     if (isSheetExpanded) animateSheetTo(SNAP_LOW);
   }, [animateSheetTo, isSheetExpanded, SNAP_LOW]); // 좋아요 토글 핸들러 + 상태 조회 함수 (탭별)
@@ -537,11 +638,9 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         );
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('위치 권한 거부됨');
           return;
         }
-      } catch (err) {
-        console.warn(err);
+      } catch {
         return;
       }
     } // 2. 이미 지도가 파악한 위치(currentLocation)가 있다면 해당 위치로 이동
@@ -556,8 +655,6 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
         },
         1000,
       );
-    } else {
-      console.log('로딩중');
     }
   }; //탭 컨텐츠
   const renderTabContent = (): React.ReactNode => {

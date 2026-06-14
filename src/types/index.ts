@@ -46,6 +46,7 @@ export type { RootTabParamList } from '../navigation/types';
 export interface BaseResponse<T = unknown> {
   success: boolean;
   message: string;
+  code?: string;
   data: T;
 }
 
