@@ -4,7 +4,7 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 import MarkerGrayIcon from '@/assets/icons/marker-gray.svg';
 import VectorGrayIcon from '@/assets/icons/vectorgray.svg';
 import { CARD_SHADOW_SUBTLE } from '@/constants';
-import type { VisitedPlaceCardProps } from '../types/myPage.types';
+import type { VisitedPlaceCardProps } from '@/screens/myPage/types/myPage.types';
 
 const PLACEHOLDER_IMAGE = require('@/assets/images/thumnail.png');
 

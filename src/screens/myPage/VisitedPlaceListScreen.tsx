@@ -12,7 +12,7 @@ import { getVisitedPlaces } from '@/services';
 import { useAuthStore } from '@/store';
 import type { VisitedPlaceItem } from '@/types/mypage';
 import { groupVisitedPlacesByDate, mapVisitedPlace } from '@/utils';
-import { VisitedPlaceCard } from './components';
+import { VisitedPlaceCard } from '@/screens/myPage/components';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
