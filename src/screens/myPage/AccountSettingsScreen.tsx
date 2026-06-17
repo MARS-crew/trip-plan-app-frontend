@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import SecessionIcon from '@/assets/icons/secession.svg';
 import { COLORS } from '@/constants';
 import { TopBar } from '@/components/ui';
 import type { RootStackParamList } from '@/navigation';
@@ -17,9 +16,10 @@ import {
   ProfileInfoRow,
   WithdrawConfirmModal,
   WithdrawReasonModal,
+  WithdrawSection,
   WithdrawWarningModal,
-} from './components';
-import type { ProfileItem } from './types/myPage.types';
+} from '@/screens/myPage/components';
+import type { ProfileItem } from '@/screens/myPage/types/myPage.types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -129,26 +129,7 @@ const AccountSettingsScreen: React.FC = () => {
           )}
         </View>
 
-        <View className="mt-6 rounded-lg border border-withdrawDanger bg-withdrawBg px-4 py-4">
-          <View className="flex-row items-center">
-            <SecessionIcon width={20} height={20} />
-            <Text className="ml-2 font-pretendardSemiBold text-h2 text-statusError">회원 탈퇴</Text>
-          </View>
-
-          <Text className="mt-4 font-pretendardMedium text-p1 text-gray">
-            계정을 삭제하면 모든 여행 기록, 저장된 장소, 개인 설정이 영구적으로 삭제됩니다. 이
-            작업은 되돌릴 수 없습니다
-          </Text>
-
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={handleOpenWithdrawModal}
-            className="mt-4 rounded-lg bg-statusError py-3">
-            <Text className="text-center font-pretendardSemiBold text-h3 text-white">
-              회원 탈퇴
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <WithdrawSection onPressWithdraw={handleOpenWithdrawModal} />
       </View>
 
       <WithdrawConfirmModal

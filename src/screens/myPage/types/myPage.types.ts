@@ -80,6 +80,10 @@ export interface ProfileInfoRowProps {
   showDivider: boolean;
 }
 
+export interface WithdrawSectionProps {
+  onPressWithdraw: () => void;
+}
+
 export type ProfileEditGenderLabel = '남성' | '여성' | '기타';
 
 export interface ProfileEditDatePickerOptions {

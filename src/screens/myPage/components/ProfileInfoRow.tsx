@@ -7,7 +7,7 @@ import EarthIcon from '@/assets/icons/earth.svg';
 import EmailIcon from '@/assets/icons/email.svg';
 import GenderIcon from '@/assets/icons/gender.svg';
 import NicknameIcon from '@/assets/icons/nickname.svg';
-import type { ProfileInfoRowProps, ProfileItemType } from '../types/myPage.types';
+import type { ProfileInfoRowProps, ProfileItemType } from '@/screens/myPage/types/myPage.types';
 
 const PROFILE_ICONS: Record<ProfileItemType, React.FC<SvgProps>> = {
   nickname: NicknameIcon,
