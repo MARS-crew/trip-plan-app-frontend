@@ -86,3 +86,22 @@ export interface GetPlaceDetailResult {
   data: PlaceDetail | null;
   error: string | null;
 }
+
+export interface PlaceShareData {
+  placeId: number;
+  placeName: string;
+  shareTitle: string;
+  shareDescription: string;
+  shareUrl: string;
+  imageUrl?: string;
+}
+
+export interface GetPlaceShareOptions {
+  placeId: number;
+  signal?: AbortSignal;
+}
+
+export interface GetPlaceShareResult {
+  data: PlaceShareData | null;
+  error: string | null;
+}
