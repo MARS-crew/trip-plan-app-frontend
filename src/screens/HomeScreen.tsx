@@ -7,7 +7,6 @@ import {
   Pressable,
   TextInput,
   ScrollView,
-  Image,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,10 +18,9 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated';
 import CustomBottomSheet from '@/components/ui/CustomBottomSheet';
-import { MainRecChip } from '@/components/ui';
 import { RobotIcon, SendIcon, X, NoticeIcon, LogoIcon, LogoLetter, ChatIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
-import { MainTripCard } from '@/screens/home/components';
+import { ChatMessageBubble, MainTripCard, RecommendedPlaceCard } from '@/screens/home/components';
 import { getUnreadAlert } from '@/services/alertService';
 import { postChatMessage } from '@/services/chatService';
 import { getRecommendedPlaces } from '@/services/placeService';
@@ -52,6 +50,7 @@ const HomeScreen: React.FC = () => {
   const [hasNotification, setHasNotification] = useState<boolean>(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const [chatInputText, setChatInputText] = useState('');
   const chatSessionId = useRef(`${Math.random().toString(36).substring(2)}${Date.now().toString(36)}`);
   const chatScrollRef = useRef<ScrollView>(null);
 
@@ -152,8 +151,6 @@ const HomeScreen: React.FC = () => {
     }
   }, [navigation, nearbyTrip]);
 
-  const [chatInputText, setChatInputText] = useState('');
-
   const handleOpenChat = useCallback(() => {
     translateY.value = withTiming(0, { duration: 350 });
   }, [translateY]);
@@ -198,7 +195,7 @@ const HomeScreen: React.FC = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            backgroundColor: COLORS.dimOverlay,
             zIndex: 10,
             elevation: 10,
           },
@@ -256,51 +253,7 @@ const HomeScreen: React.FC = () => {
             contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, gap: 16 }}>
             {recommendedPlaces.length > 0 &&
               recommendedPlaces.map((item) => (
-                <Shadow
-                  key={item.placeId}
-                  distance={10}
-                  offset={[0, 0]}
-                  startColor="#00000025"
-                  endColor="#00000000"
-                  paintInside={false}
-                  style={{ borderRadius: 8, width: 260 }}>
-                  <View className="overflow-hidden rounded-lg bg-white">
-                    <View className="relative h-40">
-                      <Image
-                        source={
-                          item.imageUrl
-                            ? { uri: item.imageUrl }
-                            : require('@/assets/images/mainjeju.png')
-                        }
-                        className="h-full w-full"
-                        resizeMode="cover"
-                      />
-                      <View className="absolute bottom-3 left-4">
-                        <Text className="font-pretendardSemiBold text-h2 text-white">
-                          {item.name}
-                        </Text>
-                        <Text className="mt-1 font-pretendardSemiBold text-p text-white">
-                          {item.countryName}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View className="p-4">
-                      <Text className="mb-4 text-p text-gray" numberOfLines={2}>
-                        {`지금 ${item.cityName}에서 인기 있는 추천 장소예요`}
-                      </Text>
-                      <View className="flex-row">
-                        {(item.tags ?? []).slice(0, 3).map((tag, index) => (
-                          <MainRecChip
-                            key={`${item.placeId}-${tag}-${index}`}
-                            label={tag}
-                            className={'mr-[6px]'}
-                          />
-                        ))}
-                      </View>
-                    </View>
-                  </View>
-                </Shadow>
+                <RecommendedPlaceCard key={item.placeId} place={item} />
               ))}
           </ScrollView>
         </View>
@@ -347,24 +300,9 @@ const HomeScreen: React.FC = () => {
             style={{ flex: 1 }}
             contentContainerStyle={{ paddingTop: 12, paddingBottom: CHAT_INPUT_BOTTOM_SPACING + 60 }}
             showsVerticalScrollIndicator={false}>
-            {chatMessages.map((msg) =>
-              msg.role === 'user' ? (
-                <View key={msg.id} className="items-end px-4 mb-3">
-                  <View className="bg-main px-4 py-3 max-w-[80%]" style={{ borderRadius: 16 }}>
-                    <Text className="text-p1 text-white font-pretendardMedium">{msg.content}</Text>
-                  </View>
-                </View>
-              ) : (
-                <View key={msg.id} className="flex-row items-start px-4 mb-3">
-                  <View className="rounded-full bg-chatHeaderCircleBackground items-center justify-center" style={{ width: 28, height: 28, marginTop: 2 }}>
-                    <RobotIcon width={14} height={14} />
-                  </View>
-                  <View className="ml-2 bg-chatHeaderCircleBackground px-3 py-3 max-w-[75%]" style={{ borderRadius: 16 }}>
-                    <Text className="text-p1 text-black font-pretendardMedium">{msg.content}</Text>
-                  </View>
-                </View>
-              )
-            )}
+            {chatMessages.map((msg) => (
+              <ChatMessageBubble key={msg.id} message={msg} />
+            ))}
             {isChatLoading && (
               <View className="flex-row items-start px-4 mb-3">
                 <View className="rounded-full bg-chatHeaderCircleBackground items-center justify-center" style={{ width: 28, height: 28, marginTop: 2 }}>

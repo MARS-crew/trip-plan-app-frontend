@@ -40,6 +40,7 @@ const fontSize = {
   h3: ['14px', { lineHeight: '20px', fontWeight: '600' }], // H3 - 14px, 20px, Semibold
   p: ['12px', { lineHeight: '16px', fontWeight: '400' }], // p - 12px, 16px, Regular
   p1: ['14px', { lineHeight: '20px', fontWeight: '500' }], // p1 - 14px, 20px, Medium
+  nav: ['10px', { lineHeight: '13px', fontWeight: '500' }], // nav - 10px, 13px, Medium (네비게이션바 라벨)
 };
 
 module.exports = {
@@ -55,6 +56,9 @@ module.exports = {
         pretendardBold: ['Pretendard-Bold', 'System'],
       },
       fontSize,
+      height: {
+        navbar: '58px', // 하단 네비게이션바 높이
+      },
       boxShadow: {
         card: '0 0 3px rgba(0,0,0,0.15)',
         logincard: '0 0 5px rgba(0,0,0,0.25)',

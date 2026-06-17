@@ -27,6 +27,7 @@ export const COLORS = {
   muted: '#8C7B7366',
   buttonDisabled: '#E8D3C1',
   buttonDisabledOverlay: '#DF6C2080',
+  dimOverlay: 'rgba(0, 0, 0, 0.3)',
 } as const;
 
 // 일정 지도 페이지 핀 전용 색상

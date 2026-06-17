@@ -33,6 +33,7 @@ import {
 import type { RootTabParamList, SearchStackParamList } from '@/navigation/types';
 import { getPlaceDetail, getPlaceShare } from '@/services/placeService';
 import { getReviewList } from '@/services/reviewService';
+import { createSavedPlace, deleteSavedPlace } from '@/services/savedPlaceService';
 import type { PlaceDetail } from '@/types/place';
 import type { ReviewData } from '@/types/review';
 
@@ -60,6 +61,7 @@ const DestinationDetailScreen: React.FC = () => {
   // Hooks
   const [activeTab, setActiveTab] = React.useState(initialTab);
   const [isBookmarked, setIsBookmarked] = React.useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [placeDetail, setPlaceDetail] = useState<PlaceDetail | null>(null);
   const [isDetailLoading, setIsDetailLoading] = useState(true);
   const [imageLoadError, setImageLoadError] = useState(false);
@@ -119,9 +121,26 @@ const DestinationDetailScreen: React.FC = () => {
     return () => controller.abort();
   }, [placeId]);
 
-  const handleSave = useCallback((): void => {
-    setIsBookmarked((prevState) => !prevState);
-  }, []);
+  const handleSave = useCallback(async (): Promise<void> => {
+    if (isSaving) return;
+
+    const nextSaved = !isBookmarked;
+    setIsSaving(true);
+    setIsBookmarked(nextSaved);
+
+    try {
+      if (nextSaved) {
+        await createSavedPlace(placeId);
+      } else {
+        await deleteSavedPlace(placeId);
+      }
+    } catch (error) {
+      console.error('handleSave Error:', error);
+      setIsBookmarked(!nextSaved);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [isSaving, isBookmarked, placeId]);
 
   const handleSharePlace = useCallback(async (): Promise<void> => {
     if (!placeId || isSharing) return;
