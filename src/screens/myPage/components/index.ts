@@ -6,4 +6,6 @@ export { default as MyPageExchangeSection } from './MyPageExchangeSection';
 export { default as MyPagePhraseSection } from './MyPagePhraseSection';
 export { default as MyPageProfileCard } from './MyPageProfileCard';
 export { default as MyPageStatsSection } from './MyPageStatsSection';
+export { default as ProfileInfoRow } from './ProfileInfoRow';
 export { default as VisitedPlaceCard } from './VisitedPlaceCard';
+export { default as WithdrawSection } from './WithdrawSection';

@@ -66,6 +66,24 @@ export interface MyPageExchangeSectionProps {
   onChangeBottomAmount: (text: string) => void;
 }
 
+export type ProfileItemType = 'nickname' | 'email' | 'birthday' | 'gender' | 'country';
+
+export interface ProfileItem {
+  id: string;
+  label: string;
+  value: string;
+  type: ProfileItemType;
+}
+
+export interface ProfileInfoRowProps {
+  item: ProfileItem;
+  showDivider: boolean;
+}
+
+export interface WithdrawSectionProps {
+  onPressWithdraw: () => void;
+}
+
 export type ProfileEditGenderLabel = '남성' | '여성' | '기타';
 
 export interface ProfileEditDatePickerOptions {
