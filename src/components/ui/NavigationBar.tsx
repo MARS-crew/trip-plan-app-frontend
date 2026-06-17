@@ -11,7 +11,7 @@ import {
 import { COLOR_VALUES } from '@/constants';
 
 // ============ Types ============
-interface NavItem {
+interface NavItemConfig {
   id: string;
   icon: React.ComponentType<{ fill?: string; width?: number; height?: number }>;
   label: string;
@@ -23,7 +23,7 @@ export interface NavigationBarProps {
 }
 
 // ============ Constants ============
-const NAV_ITEMS: NavItem[] = [
+const NAV_ITEMS: NavItemConfig[] = [
   { id: 'search', icon: SearchIcon, label: '검색' },
   { id: 'mytravel', icon: MyTripIcon, label: '내여행' },
   { id: 'home', icon: HomeIcon, label: '홈' },
@@ -46,7 +46,7 @@ export const NavigationBar = React.memo<NavigationBarProps>(
 
     // 렌더링
     return (
-      <View className="relative flex-row items-center justify-around w-full h-[58px] bg-white border-t border-borderGray">
+      <View className="relative flex-row items-center justify-around w-full h-navbar bg-white border-t border-borderGray">
         {/* 네비게이션 아이템 */}
         {NAV_ITEMS.map((item) => {
           const isActive = activeTab === item.id;
@@ -71,7 +71,7 @@ NavigationBar.displayName = 'NavigationBar';
 
 // ============ Sub Components ============
 interface NavItemProps {
-  item: NavItem;
+  item: NavItemConfig;
   isActive: boolean;
   IconComponent: React.ComponentType<{ fill?: string; width?: number; height?: number }>;
   onPress: (tabId: string) => void;
@@ -96,7 +96,7 @@ const NavItem = React.memo<NavItemProps>(({ item, isActive, IconComponent, onPre
         <IconComponent fill={iconColor} width={ICON_SIZE} height={ICON_SIZE} />
       </View>
       <Text
-        className={`text-[10px] font-pretendardMedium tracking-[0] leading-[13px] ${textColor}`}
+        className={`text-nav font-pretendardMedium ${textColor}`}
         numberOfLines={1}>
         {item.label}
       </Text>
