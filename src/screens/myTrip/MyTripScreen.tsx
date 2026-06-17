@@ -7,7 +7,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { PlusIcon } from '@/assets/icons';
 import { Chip } from '@/components/ui';
 import type { RootStackParamList } from '@/navigation/types';
-import EmptyMapScreen from './EmptyMapScreen';
+import EmptyMapScreen from '@/screens/myTrip/EmptyMapScreen';
 import TripCard from '@/screens/myTrip/components/TripCard';
 import TripTimeline from '@/screens/myTrip/components/TripTimeline';
 import type {

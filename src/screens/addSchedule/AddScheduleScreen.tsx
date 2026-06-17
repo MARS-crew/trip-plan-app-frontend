@@ -1,8 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Modal,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
   ToastAndroid,
   Pressable,
   ScrollView,
@@ -18,6 +16,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 
 import { TopBar } from '@/components';
+import { SpinnerColumn } from '@/components/ui';
 import { COLORS } from '@/constants/colors';
 import { createSchedule, updateTripSchedule } from '@/services/tripService';
 import { getTripScheduleUpdateErrorToastMessage } from '@/utils';
@@ -31,8 +30,8 @@ const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = Array.from({ length: 60 }, (_, i) => i);
 
-const pad = (n: number) => String(n).padStart(2, '0');
-const getDaysInMonth = (year: number, month: number) => new Date(year, month, 0).getDate();
+const pad = (n: number): string => String(n).padStart(2, '0');
+const getDaysInMonth = (year: number, month: number): number => new Date(year, month, 0).getDate();
 const parseTimeToValue = (time?: string): TimeValue | null => {
   if (!time) return null;
   const [hourString, minuteString] = time.split(':');
@@ -40,97 +39,6 @@ const parseTimeToValue = (time?: string): TimeValue | null => {
   const minute = Number(minuteString);
   if (!Number.isFinite(hour) || !Number.isFinite(minute)) return null;
   return { hour, minute };
-};
-
-interface SpinnerColumnProps {
-  items: number[];
-  selectedIndex: number;
-  onSelect: (index: number) => void;
-  format?: (n: number) => string;
-}
-
-const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
-  items,
-  selectedIndex,
-  onSelect,
-  format = (n) => String(n),
-}) => {
-  const scrollRef = useRef<ScrollView>(null);
-
-  const handleScrollEnd = useCallback(
-    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const offsetY = e.nativeEvent.contentOffset.y;
-      const index = Math.round(offsetY / ITEM_HEIGHT);
-      const clamped = Math.max(0, Math.min(index, items.length - 1));
-      onSelect(clamped);
-      scrollRef.current?.scrollTo({ y: clamped * ITEM_HEIGHT, animated: true });
-    },
-    [items.length, onSelect],
-  );
-
-  return (
-    <View style={{ flex: 1, height: ITEM_HEIGHT * VISIBLE_ITEMS }}>
-      <View
-        pointerEvents="none"
-        style={{
-          position: 'absolute',
-          top: ITEM_HEIGHT * 2,
-          left: 8,
-          right: 8,
-          height: 1,
-          backgroundColor: COLORS.main,
-          zIndex: 1,
-        }}
-      />
-      <View
-        pointerEvents="none"
-        style={{
-          position: 'absolute',
-          top: ITEM_HEIGHT * 3,
-          left: 8,
-          right: 8,
-          height: 1,
-          backgroundColor: COLORS.inputBackground,
-          zIndex: 1,
-        }}
-      />
-      <ScrollView
-        ref={scrollRef}
-        showsVerticalScrollIndicator={false}
-        snapToInterval={ITEM_HEIGHT}
-        decelerationRate="fast"
-        contentOffset={{ x: 0, y: selectedIndex * ITEM_HEIGHT }}
-        contentContainerStyle={{
-          paddingTop: ITEM_HEIGHT * 2,
-          paddingBottom: ITEM_HEIGHT * 2,
-        }}
-        onMomentumScrollEnd={handleScrollEnd}
-        onScrollEndDrag={handleScrollEnd}>
-        {items.map((item, idx) => {
-          const isSelected = idx === selectedIndex;
-
-          return (
-            <View
-              key={item}
-              style={{
-                height: ITEM_HEIGHT,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <Text
-                style={{
-                  fontSize: 15,
-                  fontWeight: isSelected ? '600' : '400',
-                  color: isSelected ? COLORS.black : COLORS.gray,
-                }}>
-                {format(item)}
-              </Text>
-            </View>
-          );
-        })}
-      </ScrollView>
-    </View>
-  );
 };
 
 interface DateValue {
@@ -180,7 +88,7 @@ const AddScheduleScreen = () => {
   const isEditMode = params?.mode === 'edit';
   const today = new Date();
 
-  const handleNavigateToTripDetail = () => {
+  const handleNavigateToTripDetail = (): void => {
     if (isEditMode) {
       navigation.popToTop();
       return;
@@ -192,7 +100,7 @@ const AddScheduleScreen = () => {
       navigation.navigate('TripDetail');
     }
   };
-  const handleNavigateToAddCalendarMap = () => {
+  const handleNavigateToAddCalendarMap = (): void => {
     navigation.navigate('AddCalendarMapScreen', {
       tripId: params?.tripId,
       tripTitle: params?.tripTitle,
@@ -249,7 +157,7 @@ const AddScheduleScreen = () => {
     }));
   }, []);
 
-  const openDatePicker = () => {
+  const openDatePicker = (): void => {
     const safeDate = formValues.date ?? {
       year: today.getFullYear(),
       month: today.getMonth() + 1,
@@ -261,7 +169,7 @@ const AddScheduleScreen = () => {
     setPickerMode('date');
   };
 
-  const openTimePicker = (mode: 'startTime' | 'endTime') => {
+  const openTimePicker = (mode: 'startTime' | 'endTime'): void => {
     const currentTime = formValues[mode];
     setTempHour(currentTime?.hour ?? 9);
     setTempMinute(currentTime?.minute ?? 0);
@@ -277,7 +185,7 @@ const AddScheduleScreen = () => {
     selectedDay,
   } = getDatePickerOptions(today, tempYear, tempMonth, tempDay);
 
-  const handleConfirm = () => {
+  const handleConfirm = (): void => {
     if (pickerMode === 'date') {
       setFormValues((prev) => ({
         ...prev,
@@ -306,7 +214,7 @@ const AddScheduleScreen = () => {
     ? `${formValues.date.year}-${pad(formValues.date.month)}-${pad(formValues.date.day)}`
     : '날짜';
 
-  const timeLabel = (timeValue: TimeValue | null, placeholder: string) => {
+  const timeLabel = (timeValue: TimeValue | null, placeholder: string): string => {
     return timeValue ? `${pad(timeValue.hour)}:${pad(timeValue.minute)}` : placeholder;
   };
   const isSubmitEnabled =
@@ -480,7 +388,7 @@ const AddScheduleScreen = () => {
             }}
             activeOpacity={0.8}
             className="h-[44px] w-full items-center justify-center rounded-[8px]"
-            style={{ backgroundColor: isSubmitEnabled ? COLORS.main : '#DF6C2080' }}>
+            style={{ backgroundColor: isSubmitEnabled ? COLORS.main : COLORS.buttonDisabledOverlay }}>
             <Text className="font-pretendardSemiBold text-h3 text-white">
               {isEditMode ? '수정하기' : '등록하기'}
             </Text>

@@ -1,4 +1,10 @@
-import type { GetPapagoPhrase } from '@/types/mypage';
+import type { GetPapagoPhrase, VisitedPlaceItem } from '@/types/mypage';
+
+export interface VisitedPlaceCardProps {
+  item: VisitedPlaceItem;
+  onPressDetail: (item: VisitedPlaceItem) => void;
+  onPressReview: (item: VisitedPlaceItem) => void;
+}
 
 export type MyPageStatType = 'map' | 'bookmark' | 'marker';
 
@@ -58,6 +64,24 @@ export interface MyPageExchangeSectionProps {
   bottomAmount: string;
   onChangeTopAmount: (text: string) => void;
   onChangeBottomAmount: (text: string) => void;
+}
+
+export type ProfileItemType = 'nickname' | 'email' | 'birthday' | 'gender' | 'country';
+
+export interface ProfileItem {
+  id: string;
+  label: string;
+  value: string;
+  type: ProfileItemType;
+}
+
+export interface ProfileInfoRowProps {
+  item: ProfileItem;
+  showDivider: boolean;
+}
+
+export interface WithdrawSectionProps {
+  onPressWithdraw: () => void;
 }
 
 export type ProfileEditGenderLabel = '남성' | '여성' | '기타';

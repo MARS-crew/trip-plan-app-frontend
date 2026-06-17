@@ -18,7 +18,7 @@ import { useAuthStore } from '@/store';
 import type { LoginFailureResult } from '@/types/auth';
 import type { LoginScreenNavigationProp } from '@/types/login';
 
-import SocialLoginButton from './SocialLoginButton';
+import SocialLoginButton from '@/screens/login/SocialLoginButton';
 
 const getLoginWarningMessage = (failure: LoginFailureResult): string => {
   const serverMessage = failure.message?.trim();

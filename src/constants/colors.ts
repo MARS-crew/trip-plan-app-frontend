@@ -27,10 +27,8 @@ export const COLORS = {
   muted: '#8C7B7366',
   buttonDisabled: '#E8D3C1',
   buttonDisabledOverlay: '#DF6C2080',
-  withdrawDanger: '#FF4D4F',
-  withdrawBg: '#FFF5F5',
+  dimOverlay: 'rgba(0, 0, 0, 0.3)',
 } as const;
-
 
 // 일정 지도 페이지 핀 전용 색상
 export const TRIP_DAY_COLOR_PALETTE = [

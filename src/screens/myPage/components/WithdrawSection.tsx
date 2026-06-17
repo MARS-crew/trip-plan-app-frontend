@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 import SecessionIcon from '@/assets/icons/secession.svg';
-import type { WithdrawSectionProps } from '@/screens/myPage/types';
+import type { WithdrawSectionProps } from '@/screens/myPage/types/myPage.types';
 
 const WithdrawSection: React.FC<WithdrawSectionProps> = ({ onPressWithdraw }) => {
   return (
@@ -30,4 +30,3 @@ const WithdrawSection: React.FC<WithdrawSectionProps> = ({ onPressWithdraw }) =>
 WithdrawSection.displayName = 'WithdrawSection';
 
 export default WithdrawSection;
-export { WithdrawSection };
