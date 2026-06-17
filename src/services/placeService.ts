@@ -7,10 +7,13 @@ import type {
   GetNearbyRecommendedPlacesResult,
   GetPlaceDetailOptions,
   GetPlaceDetailResult,
+  GetPlaceShareOptions,
+  GetPlaceShareResult,
   GetRecommendedPlacesData,
   GetRecommendedPlacesOptions,
   GetRecommendedPlacesResult,
   PlaceDetail,
+  PlaceShareData,
 } from '@/types/place';
 
 interface PlaceRequestConfig {
@@ -141,6 +144,26 @@ export const getPlaceDetail = async ({
 
   const result = await performPlaceRequest<PlaceDetail, PlaceDetail>({
     requestUrl: `${apiBaseUrl}/api/v1/places/${placeId}`,
+    signal,
+    selector: (data) => data ?? null,
+  });
+
+  return { data: result.data, error: result.error };
+};
+
+export const getPlaceShare = async ({
+  placeId,
+  signal,
+}: GetPlaceShareOptions): Promise<GetPlaceShareResult> => {
+  const { apiBaseUrl } = getEnvConfig();
+  if (!apiBaseUrl) {
+    const error = 'API_BASE_URL_MISSING';
+    logErrorCode(error);
+    return { data: null, error };
+  }
+
+  const result = await performPlaceRequest<PlaceShareData, PlaceShareData>({
+    requestUrl: `${apiBaseUrl}/api/v1/places/${placeId}/share`,
     signal,
     selector: (data) => data ?? null,
   });

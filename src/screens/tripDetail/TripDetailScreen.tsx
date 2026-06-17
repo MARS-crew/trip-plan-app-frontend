@@ -37,7 +37,7 @@ import {
   CardContextMenu,
   DeleteWarningModal,
   EditTitleModal,
-} from './components';
+} from '@/screens/tripDetail/components';
 import { KEBAB_SHEET_HEIGHT } from './components/KebabMenuSheet';
 
 const KEBAB_ANIMATION_DURATION = 250;

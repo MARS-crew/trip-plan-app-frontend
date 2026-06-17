@@ -1,4 +1,10 @@
-import type { GetPapagoPhrase } from '@/types/mypage';
+import type { GetPapagoPhrase, VisitedPlaceItem } from '@/types/mypage';
+
+export interface VisitedPlaceCardProps {
+  item: VisitedPlaceItem;
+  onPressDetail: (item: VisitedPlaceItem) => void;
+  onPressReview: (item: VisitedPlaceItem) => void;
+}
 
 export type MyPageStatType = 'map' | 'bookmark' | 'marker';
 
