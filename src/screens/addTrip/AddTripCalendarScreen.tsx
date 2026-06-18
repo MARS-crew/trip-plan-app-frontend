@@ -196,7 +196,10 @@ const AddTripCalendarScreen: React.FC = () => {
   // ==================== 렌더링 ====================
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
-      <TopBar title={isEditDateMode ? '여행 날짜 변경' : '여행지 추가'} onPress={() => navigation.goBack()} />
+      <TopBar
+        title={isEditDateMode ? '여행 날짜 변경' : '여행지 추가'}
+        onPress={() => navigation.goBack()}
+      />
 
       {/* ==================== 달력 List ==================== */}
       <View className="flex-1 border-t border-borderGray bg-screenBackground">

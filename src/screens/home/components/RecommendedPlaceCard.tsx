@@ -1,0 +1,58 @@
+import React from 'react';
+import { Image, Text, View } from 'react-native';
+import { Shadow } from 'react-native-shadow-2';
+
+import { MainRecChip } from '@/components/ui';
+import type { RecommendedPlace } from '@/types/place';
+
+export interface RecommendedPlaceCardProps {
+  place: RecommendedPlace;
+}
+
+const CARD_WIDTH = 260;
+const MAX_TAGS = 3;
+
+export const RecommendedPlaceCard = React.memo<RecommendedPlaceCardProps>(({ place }) => {
+  return (
+    <Shadow
+      distance={10}
+      offset={[0, 0]}
+      startColor="#00000025"
+      endColor="#00000000"
+      paintInside={false}
+      style={{ borderRadius: 8, width: CARD_WIDTH }}>
+      <View className="overflow-hidden rounded-lg bg-white">
+        <View className="relative h-40">
+          <Image
+            source={
+              place.imageUrl ? { uri: place.imageUrl } : require('@/assets/images/mainjeju.png')
+            }
+            className="h-full w-full"
+            resizeMode="cover"
+          />
+          <View className="absolute bottom-3 left-4">
+            <Text className="font-pretendardSemiBold text-h2 text-white">{place.name}</Text>
+            <Text className="mt-1 font-pretendardSemiBold text-p text-white">
+              {place.countryName}
+            </Text>
+          </View>
+        </View>
+
+        <View className="p-4">
+          <Text className="mb-4 text-p text-gray" numberOfLines={2}>
+            {`지금 ${place.cityName}에서 인기 있는 추천 장소예요`}
+          </Text>
+          <View className="flex-row">
+            {(place.tags ?? []).slice(0, MAX_TAGS).map((tag, index) => (
+              <MainRecChip key={`${place.placeId}-${tag}-${index}`} label={tag} className="mr-[6px]" />
+            ))}
+          </View>
+        </View>
+      </View>
+    </Shadow>
+  );
+});
+
+RecommendedPlaceCard.displayName = 'RecommendedPlaceCard';
+
+export default RecommendedPlaceCard;

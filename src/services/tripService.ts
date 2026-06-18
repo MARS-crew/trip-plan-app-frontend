@@ -34,15 +34,21 @@ import type {
   GenerateTripSchedulesData,
   GenerateTripSchedulesOptions,
   GenerateTripSchedulesResult,
+  CreateVisitedPlaceOptions,
+  CreateVisitedPlaceResult,
+  GetTripScheduleLocationsOptions,
+  GetTripScheduleLocationsResult,
   GetTripSchedulesOptions,
   GetTripSchedulesResult,
   GetTripShareOptions,
   GetTripShareResult,
+  TripScheduleLocationsData,
   TripShareData,
   UpdateTripTitleOptions,
   UpdateTripTitleResult,
   UpdateTripScheduleOptions,
   UpdateTripScheduleResult,
+  VisitedPlaceData,
 } from '@/types/tripDetail.types';
 
 const logErrorCode = (errorCode: string): void => {
@@ -260,6 +266,78 @@ export const getTripSchedules = async ({
     }
 
     const json: BaseResponse<unknown> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
+  }
+};
+
+export const getTripScheduleLocations = async ({
+  tripId,
+  signal,
+}: GetTripScheduleLocationsOptions): Promise<GetTripScheduleLocationsResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/locations`;
+    const response = await fetch(requestUrl, {
+      headers: requestConfig.headers,
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    const json: BaseResponse<TripScheduleLocationsData> = await response.json();
+    return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
+  }
+};
+
+export const createVisitedPlace = async ({
+  tripId,
+  payload,
+  signal,
+}: CreateVisitedPlaceOptions): Promise<CreateVisitedPlaceResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/visited-places`;
+    const response = await fetch(requestUrl, {
+      method: 'POST',
+      headers: {
+        ...requestConfig.headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      signal,
+    });
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    const json: BaseResponse<VisitedPlaceData | null> = await response.json();
+    if (!json.success || !json.data) {
+      const error = createServiceError(json.code ?? 'VISITED_PLACE_SAVE_FAILED', json.message);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
     return { data: json.data ?? null, error: null };
   } catch {
     const error = getRequestError(signal);

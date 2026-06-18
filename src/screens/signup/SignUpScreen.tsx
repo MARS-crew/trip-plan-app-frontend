@@ -19,7 +19,7 @@ import {
   TermsSection,
   BirthDatePickerModal,
   CountryPickerModal,
-} from './components';
+} from '@/screens/signup/components';
 import type { SignUpScreenNavigationProp } from '@/types/signup';
 import { showToastMessage } from '@/utils';
 import { getSignUpIdCheckMessage } from '@/utils/error';
@@ -31,8 +31,8 @@ import {
   useCountryPicker,
   useFormValidation,
   useSignUpSubmit,
-} from './hooks';
-import { getDaysInMonth } from './constants';
+} from '@/screens/signup/hooks';
+import { getDaysInMonth } from '@/screens/signup/constants';
 
 // ============ Component ============
 const SignUpScreen: React.FC = () => {

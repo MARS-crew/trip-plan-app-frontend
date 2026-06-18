@@ -58,3 +58,9 @@ export interface DeleteSavedPlaceData {
   placeId: number;
   saved: boolean;
 }
+
+export interface CreateSavedPlaceData {
+  savedPlaceId: number;
+  placeId: number;
+  saved: boolean;
+}
