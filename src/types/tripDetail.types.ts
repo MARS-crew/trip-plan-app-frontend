@@ -210,6 +210,35 @@ export interface GetTripShareResult {
   error: ServiceError | null;
 }
 
+export interface GenerateTripSchedulesOptions {
+  tripId: number;
+  signal?: AbortSignal;
+}
+
+export interface GenerateTripSchedulesData {
+  tripId: number;
+  tripTitle: string;
+  imageUrl?: string;
+  tripStatus: string;
+  tripStatusLabel: string;
+  startDate: string;
+  endDate: string;
+  tripDayCount: number;
+  totalScheduleCount: number;
+  locationScheduleCount: number;
+  hasCurrentSchedule: boolean;
+  currentSchedule: unknown | null;
+  canViewMap: boolean;
+  canEditTrip: boolean;
+  canAddSchedule: boolean;
+  dailySchedules: unknown[];
+}
+
+export interface GenerateTripSchedulesResult {
+  data: GenerateTripSchedulesData | null;
+  error: ServiceError | null;
+}
+
 export interface GetTripRouteData {
   destinationAddress: string;
   destinationName: string;

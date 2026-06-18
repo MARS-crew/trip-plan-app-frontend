@@ -1,6 +1,7 @@
 import type { BaseResponse } from '@/types';
 import { getEnvConfig } from '@/config/env';
 import { useAuthStore } from '@/store';
+import { postReissueToken } from './authService';
 import type { ServiceError } from '@/types/trip';
 import type {
   CreateScheduleData,
@@ -30,6 +31,9 @@ import type {
   GetTripRouteData,
   GetTripRouteOptions,
   GetTripRouteResult,
+  GenerateTripSchedulesData,
+  GenerateTripSchedulesOptions,
+  GenerateTripSchedulesResult,
   CreateVisitedPlaceOptions,
   CreateVisitedPlaceResult,
   GetTripScheduleLocationsOptions,
@@ -365,6 +369,68 @@ export const getTripShare = async ({
 
     const json: BaseResponse<TripShareData> = await response.json();
     return { data: json.data ?? null, error: null };
+  } catch {
+    const error = getRequestError(signal);
+    return { data: null, error };
+  }
+};
+
+export const generateTripSchedules = async ({
+  tripId,
+  signal,
+}: GenerateTripSchedulesOptions): Promise<GenerateTripSchedulesResult> => {
+  const requestConfig = getTripRequestConfig();
+  if ('error' in requestConfig) {
+    return { data: null, error: requestConfig.error };
+  }
+
+  try {
+    const requestUrl = `${requestConfig.apiBaseUrl}/swagger-ui-ai/api/v1/trips/generate/${tripId}`;
+    let response = await fetch(requestUrl, {
+      method: 'POST',
+      headers: {
+        ...requestConfig.headers,
+        'Content-Type': 'application/json',
+      },
+      signal,
+    });
+
+    if (response.status === 401) {
+      const refreshToken = useAuthStore.getState().refreshToken?.trim();
+      if (refreshToken) {
+        const reissueResult = await postReissueToken({ refreshToken });
+        if (reissueResult.ok) {
+          useAuthStore
+            .getState()
+            .setTokens(reissueResult.data.accessToken, reissueResult.data.refreshToken);
+
+          response = await fetch(requestUrl, {
+            method: 'POST',
+            headers: {
+              ...requestConfig.headers,
+              Authorization: `Bearer ${reissueResult.data.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            signal,
+          });
+        }
+      }
+    }
+
+    if (!response.ok) {
+      const error = await getResponseError(response);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    const json: BaseResponse<GenerateTripSchedulesData | null> = await response.json();
+    if (!json.success || !json.data) {
+      const error = createServiceError(json.code ?? 'TRIP_SCHEDULE_GENERATE_FAILED', json.message);
+      logErrorCode(error.code);
+      return { data: null, error };
+    }
+
+    return { data: json.data, error: null };
   } catch {
     const error = getRequestError(signal);
     return { data: null, error };
