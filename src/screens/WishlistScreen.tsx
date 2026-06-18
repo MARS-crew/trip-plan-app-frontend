@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MyLocation, WishStar } from '@/assets/icons';
-import { WishModal } from './wishList/components/WishModal';
+import { WishModal } from '@/screens/wishList/components/WishModal';
 import type { RootStackParamList } from '@/navigation/types';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { RouteIcon, AlertIcon } from '@/assets/icons';
@@ -80,16 +80,16 @@ const GOOGLE_HQ_REGION = {
 };
 
 // 바텀시트 스냅 포인트
-const WishlistScreen: React.FC = (): React.JSX.Element => {
-  const BOTTOM_SHEET_MIN_HEIGHT = 28;
-  const SHEET_HEIGHT = 654;
-  const SECOND_SNAP_VISIBLE_HEIGHT = 310;
-  const INITIAL_CATEGORY: TabId = 'trending';
-  const SNAP_LOW = SHEET_HEIGHT - 28;
-  const SNAP_FULL = 35;
-  const SNAP_TRENDING = SHEET_HEIGHT - SECOND_SNAP_VISIBLE_HEIGHT;
-  const SEARCH_BUTTON_BOTTOM = BOTTOM_SHEET_MIN_HEIGHT + 10;
+const BOTTOM_SHEET_MIN_HEIGHT = 28;
+const SHEET_HEIGHT = 654;
+const SECOND_SNAP_VISIBLE_HEIGHT = 310;
+const INITIAL_CATEGORY: TabId = 'trending';
+const SNAP_LOW = SHEET_HEIGHT - 28;
+const SNAP_FULL = 35;
+const SNAP_TRENDING = SHEET_HEIGHT - SECOND_SNAP_VISIBLE_HEIGHT;
+const SEARCH_BUTTON_BOTTOM = BOTTOM_SHEET_MIN_HEIGHT + 10;
 
+const WishlistScreen: React.FC = (): React.JSX.Element => {
   const route = useRoute();
   const navigation = useNavigation<NavigationProp>();
   const translateY = useSharedValue(SNAP_LOW);
@@ -367,7 +367,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       }
       setIsSheetExpanded(targetY !== SNAP_LOW);
     },
-    [SNAP_LOW, translateY],
+    [translateY],
   ); // 바텀시트 상태 변화 핸들러
   const handleSheetChange = useCallback((expanded: boolean): void => {
     setIsSheetExpanded(expanded);
@@ -424,7 +424,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   const handleComplete = useCallback((): void => setShowAddModal(true), []); // 지도 영역 누르면 바텀시트 내려가기
   const handleMapPress = useCallback((): void => {
     if (isSheetExpanded) animateSheetTo(SNAP_LOW);
-  }, [animateSheetTo, isSheetExpanded, SNAP_LOW]); // 좋아요 토글 핸들러 + 상태 조회 함수 (탭별)
+  }, [animateSheetTo, isSheetExpanded]); // 좋아요 토글 핸들러 + 상태 조회 함수 (탭별)
 
   const handleToggleSaved = useCallback(
     (id: string): void => handleToggleLikeWithApi('saved', id),
@@ -449,7 +449,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     }
     const targetY = selectedCategory === 'trending' ? SNAP_TRENDING : SNAP_FULL;
     animateSheetTo(targetY);
-  }, [selectedCategory, animateSheetTo, SNAP_TRENDING, SNAP_FULL]); // 바텀시트 애니메이션 스타일
+  }, [selectedCategory, animateSheetTo]); // 바텀시트 애니메이션 스타일
   const mapUIAnimatedStyle = useAnimatedStyle(() => {
     'worklet';
     const opacity = interpolate(translateY.value, [SNAP_LOW - 5, SNAP_LOW], [0, 1], 'clamp');
@@ -464,7 +464,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     return () => clearTimeout(timer);
   }, []);
 
-  const requestLocationPermission = async () => {
+  const requestLocationPermission = async (): Promise<boolean> => {
     if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -494,14 +494,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
 
       const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
       return () => backHandler.remove();
-    }, [
-      selectedCategory,
-      SNAP_TRENDING,
-      animateSheetTo,
-      translateY,
-      isSearchFocused,
-      handleSearchBlur,
-    ]),
+    }, [selectedCategory, animateSheetTo, translateY, isSearchFocused, handleSearchBlur]),
   );
   const handleUserLocationChange: NonNullable<
     React.ComponentProps<typeof MapView>['onUserLocationChange']

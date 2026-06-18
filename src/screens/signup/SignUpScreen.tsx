@@ -20,7 +20,7 @@ import {
   TermsSection,
   BirthDatePickerModal,
   CountryPickerModal,
-} from './components';
+} from '@/screens/signup/components';
 import type { RootStackParamList } from '@/navigation/types';
 import type { SignUpScreenNavigationProp } from '@/types/signup';
 import { showToastMessage } from '@/utils';
@@ -33,8 +33,8 @@ import {
   useCountryPicker,
   useFormValidation,
   useSignUpSubmit,
-} from './hooks';
-import { getDaysInMonth } from './constants';
+} from '@/screens/signup/hooks';
+import { getDaysInMonth } from '@/screens/signup/constants';
 
 const normalizeSocialGender = (gender?: string): 'male' | 'female' | 'other' | '' => {
   const normalized = gender?.trim().toUpperCase();

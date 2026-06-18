@@ -1,70 +1,20 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Image, ScrollView, TouchableOpacity, View, Text } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@/navigation/types';
-import { CARD_SHADOW_SUBTLE, COLORS } from '@/constants';
-import { TopBar } from '@/components/ui';
+
 import LocationOrangeIcon from '@/assets/icons/location_orange.svg';
-import MarkerGrayIcon from '@/assets/icons/marker-gray.svg';
-import VectorGrayIcon from '@/assets/icons/vectorgray.svg';
+import { TopBar } from '@/components/ui';
+import { COLORS } from '@/constants';
+import type { RootStackParamList } from '@/navigation/types';
 import { getVisitedPlaces } from '@/services';
 import { useAuthStore } from '@/store';
-import type { VisitedPlace, VisitedPlaceItem } from '@/types/mypage';
+import type { VisitedPlaceItem } from '@/types/mypage';
+import { groupVisitedPlacesByDate, mapVisitedPlace } from '@/utils';
+import { VisitedPlaceCard } from '@/screens/myPage/components';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-const PLACEHOLDER_IMAGE = require('@/assets/images/thumnail.png');
-
-const PLACE_TYPE_LABEL: Record<string, string> = {
-  ATTRACTION: '관광지',
-  RESTAURANT: '음식점',
-  BEACH: '해변',
-  NATURE: '자연',
-  LANDMARK: '명소',
-  ACCOMMODATION: '숙소',
-  SHOPPING: '쇼핑',
-  CULTURE: '문화',
-};
-
-const formatVisitedDate = (visitedAt: string): string => {
-  if (!visitedAt) {
-    return '';
-  }
-
-  const datePart = visitedAt.split('T')[0];
-  return datePart.replace(/-/g, '.');
-};
-
-const buildLocation = (cityName: string, countryName: string): string => {
-  if (cityName && countryName) {
-    return `${cityName}, ${countryName}`;
-  }
-  return cityName || countryName || '';
-};
-
-const buildTags = (placeType: string): string[] => {
-  if (!placeType) {
-    return [];
-  }
-  return [PLACE_TYPE_LABEL[placeType] ?? placeType];
-};
-
-const mapVisitedPlace = (place: VisitedPlace): VisitedPlaceItem => {
-  const hasReview = place.reviewWrittenYn === 'Y';
-  return {
-    id: String(place.visitedPlaceId),
-    date: formatVisitedDate(place.visitedAt),
-    title: place.placeName,
-    location: buildLocation(place.cityName, place.countryName),
-    tags: buildTags(place.placeType),
-    reviewCta: hasReview ? '리뷰 확인하기' : '리뷰 쓰기',
-    hasReview,
-    imageUrl: place.imageUrl,
-  };
-};
-
 
 const VisitedPlaceListScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -102,22 +52,22 @@ const VisitedPlaceListScreen: React.FC = () => {
     };
   }, [accessToken]);
 
-  const groupedByDate = useMemo(() => {
-    const map = new Map<string, VisitedPlaceItem[]>();
+  const groupedByDate = useMemo(() => groupVisitedPlacesByDate(visitedPlaces), [visitedPlaces]);
 
-    visitedPlaces.forEach((item) => {
-      const items = map.get(item.date);
-      if (items) {
-        items.push(item);
-      } else {
-        map.set(item.date, [item]);
-      }
-    });
+  const handlePressDetail = useCallback(
+    (item: VisitedPlaceItem): void => {
+      navigation.navigate('MainTabs', {
+        screen: 'Search',
+        params: {
+          screen: 'DestinationDetail',
+          params: { destinationId: item.id },
+        },
+      } as never);
+    },
+    [navigation],
+  );
 
-    return Array.from(map.entries());
-  }, [visitedPlaces]);
-
-  const handleReviewPress = useCallback(
+  const handlePressReview = useCallback(
     (item: VisitedPlaceItem): void => {
       if (item.hasReview) {
         navigation.navigate('MainTabs', {
@@ -127,19 +77,20 @@ const VisitedPlaceListScreen: React.FC = () => {
             params: { destinationId: item.id, initialTab: 'review' },
           },
         } as never);
-      } else {
-        navigation.navigate('MainTabs', {
-          screen: 'Search',
-          params: {
-            screen: 'ReviewWrite',
-            params: {
-              visitedPlaceId: Number(item.id),
-              placeName: item.title,
-              visitedDate: item.date,
-            },
-          },
-        } as never);
+        return;
       }
+
+      navigation.navigate('MainTabs', {
+        screen: 'Search',
+        params: {
+          screen: 'ReviewWrite',
+          params: {
+            visitedPlaceId: Number(item.id),
+            placeName: item.title,
+            visitedDate: item.date,
+          },
+        },
+      } as never);
     },
     [navigation],
   );
@@ -185,67 +136,12 @@ const VisitedPlaceListScreen: React.FC = () => {
 
               <View className="gap-3">
                 {items.map((item) => (
-                  <View
+                  <VisitedPlaceCard
                     key={item.id}
-                    className="overflow-hidden rounded-lg bg-white"
-                    style={CARD_SHADOW_SUBTLE}>
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      onPress={() =>
-                        navigation.navigate('MainTabs', {
-                          screen: 'Search',
-                          params: {
-                            screen: 'DestinationDetail',
-                            params: { destinationId: item.id },
-                          },
-                        } as never)
-                      }
-                      className="flex-row px-3 py-3">
-                      <Image
-                        source={item.imageUrl ? { uri: item.imageUrl } : PLACEHOLDER_IMAGE}
-                        className="h-28 w-28 rounded-lg"
-                        resizeMode="cover"
-                      />
-
-                      <View className="ml-3 flex-1 justify-center">
-                        <View className="flex-row items-center justify-between">
-                          <View className="flex-1 pr-2">
-                            <Text className="font-pretendardSemiBold text-h3 text-black">
-                              {item.title}
-                            </Text>
-                            <View className="mb-2 mt-0.5 flex-row items-center">
-                              <MarkerGrayIcon width={12} height={12} style={{ marginTop: 1 }} />
-                              <Text className="ml-1 text-p text-gray">{item.location}</Text>
-                            </View>
-                            <View className="mt-0.5 flex-row gap-1.5">
-                              {item.tags.map((tag) => (
-                                <View
-                                  key={`${item.id}-${tag}`}
-                                  className="rounded-2xl bg-chip px-2 py-0.5">
-                                  <Text className="text-p text-gray">{tag}</Text>
-                                </View>
-                              ))}
-                            </View>
-                          </View>
-
-                          <VectorGrayIcon width={14} height={14} />
-                        </View>
-                      </View>
-                    </TouchableOpacity>
-
-                    <View className="h-px bg-chip" />
-
-                    <View className="p-3">
-                      <TouchableOpacity
-                        activeOpacity={0.85}
-                        onPress={() => handleReviewPress(item)}
-                        className="h-11 items-center justify-center rounded-lg border border-borderGray bg-inputBackground">
-                        <Text className="text-p3 text-center font-pretendardSemiBold text-black">
-                          {item.reviewCta}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
+                    item={item}
+                    onPressDetail={handlePressDetail}
+                    onPressReview={handlePressReview}
+                  />
                 ))}
               </View>
             </View>

@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, View, Image, Text, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  View,
+  Image,
+  Text,
+  ScrollView,
+  Share,
+  TouchableOpacity,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -22,8 +31,9 @@ import {
   ActiveReviewIcon,
 } from '@/assets/icons';
 import type { RootTabParamList, SearchStackParamList } from '@/navigation/types';
-import { getPlaceDetail } from '@/services/placeService';
+import { getPlaceDetail, getPlaceShare } from '@/services/placeService';
 import { getReviewList } from '@/services/reviewService';
+import { createSavedPlace, deleteSavedPlace } from '@/services/savedPlaceService';
 import type { PlaceDetail } from '@/types/place';
 import type { ReviewData } from '@/types/review';
 
@@ -51,10 +61,12 @@ const DestinationDetailScreen: React.FC = () => {
   // Hooks
   const [activeTab, setActiveTab] = React.useState(initialTab);
   const [isBookmarked, setIsBookmarked] = React.useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [placeDetail, setPlaceDetail] = useState<PlaceDetail | null>(null);
   const [isDetailLoading, setIsDetailLoading] = useState(true);
   const [imageLoadError, setImageLoadError] = useState(false);
   const [reviewData, setReviewData] = useState<ReviewData | null>(null);
+  const [isSharing, setIsSharing] = useState(false);
 
   const handleGoBack = useCallback((): void => {
     if (origin === 'bookmark') {
@@ -109,13 +121,68 @@ const DestinationDetailScreen: React.FC = () => {
     return () => controller.abort();
   }, [placeId]);
 
-  const handleSave = useCallback((): void => {
-    setIsBookmarked((prevState) => !prevState);
-  }, []);
+  const handleSave = useCallback(async (): Promise<void> => {
+    if (isSaving) return;
+
+    const nextSaved = !isBookmarked;
+    setIsSaving(true);
+    setIsBookmarked(nextSaved);
+
+    try {
+      if (nextSaved) {
+        await createSavedPlace(placeId);
+      } else {
+        await deleteSavedPlace(placeId);
+      }
+    } catch (error) {
+      console.error('handleSave Error:', error);
+      setIsBookmarked(!nextSaved);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [isSaving, isBookmarked, placeId]);
+
+  const handleSharePlace = useCallback(async (): Promise<void> => {
+    if (!placeId || isSharing) return;
+
+    setIsSharing(true);
+    try {
+      const result = await getPlaceShare({ placeId });
+      if (result.error || !result.data) {
+        if (result.error === 'REQUEST_ABORTED') return;
+        console.error(`[placeShare] errorCode=${result.error ?? 'UNKNOWN'}`);
+        Alert.alert('공유 실패', '공유 정보를 가져오지 못했습니다. 다시 시도해주세요.');
+        return;
+      }
+
+      const title =
+        result.data.shareTitle?.trim() ||
+        result.data.placeName?.trim() ||
+        placeDetail?.name?.trim() ||
+        '장소 공유';
+      const description = result.data.shareDescription?.trim() || '';
+      const shareUrl = result.data.shareUrl?.trim() || '';
+      const message = [description, shareUrl].filter(Boolean).join('\n');
+
+      await Share.share({
+        title,
+        message: message || title,
+        url: shareUrl || undefined,
+      });
+    } catch (error) {
+      console.error('[placeShare] 공유 중 오류가 발생했습니다.', error);
+    } finally {
+      setIsSharing(false);
+    }
+  }, [placeId, placeDetail, isSharing]);
 
   const handleShare = useCallback((): void => {
-    // TODO: 공유 기능 구현
-  }, []);
+    handleSharePlace().catch(() => {
+      console.error(
+        '[placeShare] 공유 실패 errorCode=INTERNAL_ERROR message=서버 오류가 발생했습니다.',
+      );
+    });
+  }, [handleSharePlace]);
 
   const handleTabChange = useCallback((tabId: string): void => {
     if (tabId === 'info' || tabId === 'review') {

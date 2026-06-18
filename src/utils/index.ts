@@ -16,6 +16,14 @@ export { getDateRange, getTodayString, toDate } from './addTripDate';
 export { showToastMessage } from './errfeedback';
 export { getLoginWarningMessage, getNaverLoginWarningMessage } from './error';
 export {
+  isValidEmail,
+  isValidPassword,
+  validatePasswordStrength,
+  PHONE_REGEX,
+  EMAIL_REGEX,
+  PASSWORD_REGEX,
+} from './validators';
+export {
   formatDateText,
   mapTripStatus,
   mapTripToCardViewModel,
@@ -29,3 +37,10 @@ export {
 } from './tripDetailFormat';
 export { buildRateText, convertCurrency, formatAmountWithCommas, parseAmount } from './formatter';
 export { formatOpeningHours } from './placeFormatter';
+export {
+  formatVisitedDate,
+  buildLocation,
+  buildTags,
+  mapVisitedPlace,
+  groupVisitedPlacesByDate,
+} from './visitedPlaceFormat';
