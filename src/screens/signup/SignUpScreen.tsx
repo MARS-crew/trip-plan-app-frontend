@@ -109,24 +109,30 @@ const SignUpScreen: React.FC = () => {
     idVerification.idCheckStatus,
   );
 
+  const { setFormData } = signUpForm;
+  const { setIsEmailVerified, setIsCodeFieldVisible, setEmailStatus, setCodeStatus } =
+    emailVerification;
+
   useEffect(() => {
     if (!socialSignUpData) {
       return;
     }
 
-    signUpForm.setFormData((prev) => ({
+    setFormData((prev) => ({
       ...prev,
       name: socialSignUpData.name || prev.name,
       email: socialSignUpData.email || prev.email,
       nickname: socialSignUpData.nickname || prev.nickname,
-      birthDate: normalizeSocialBirthDate(socialSignUpData.birth, socialSignUpData.birthYear) || prev.birthDate,
+      birthDate:
+        normalizeSocialBirthDate(socialSignUpData.birth, socialSignUpData.birthYear) ||
+        prev.birthDate,
       gender: normalizeSocialGender(socialSignUpData.gender) || prev.gender,
     }));
-    emailVerification.setIsEmailVerified(true);
-    emailVerification.setIsCodeFieldVisible(false);
-    emailVerification.setEmailStatus('sent');
-    emailVerification.setCodeStatus('success');
-  }, [socialSignUpData]);
+    setIsEmailVerified(true);
+    setIsCodeFieldVisible(false);
+    setEmailStatus('sent');
+    setCodeStatus('success');
+  }, [socialSignUpData, setFormData, setIsEmailVerified, setIsCodeFieldVisible, setEmailStatus, setCodeStatus]);
 
   // ========== Callbacks ==========
   const handleCheckId = useCallback(async () => {
@@ -237,6 +243,7 @@ const SignUpScreen: React.FC = () => {
     isPasswordMatched,
     emailVerification.isEmailVerified,
     signUpSubmit,
+    socialSignUpData,
   ]);
 
   const handleGoBack = useCallback(() => {
