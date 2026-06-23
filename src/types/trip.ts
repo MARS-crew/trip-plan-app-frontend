@@ -22,6 +22,9 @@ export type {
   TripShareData,
   GetTripShareOptions,
   GetTripShareResult,
+  GenerateTripSchedulesData,
+  GenerateTripSchedulesOptions,
+  GenerateTripSchedulesResult,
 } from './tripDetail.types';
 
 export interface ServiceError {

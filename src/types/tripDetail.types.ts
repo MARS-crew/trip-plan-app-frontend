@@ -48,7 +48,7 @@ export type TripDetailCardMenuItem = Pick<
   | 'startTime'
   | 'endTime'
   | 'isCurrentSchedule'
-> & { id: number };
+> & { id: number; tripScheduleId?: number };
 
 export interface HeaderProps {
   onPressKebab: () => void;
@@ -118,6 +118,77 @@ export interface GetTripSchedulesOptions {
   signal?: AbortSignal;
 }
 
+export interface TripScheduleLocationItem {
+  tripScheduleId: number;
+  dayNo: number;
+  scheduleDate: string;
+  scheduleOrder: number;
+  pinOrder?: number | null;
+  placeId?: number | string | null;
+  title: string;
+  placeName?: string | null;
+  address?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  memo?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+  hasLocation: boolean;
+  visited: boolean;
+  canAddVisitedPlace: boolean;
+  current: boolean;
+}
+
+export interface TripScheduleLocationsData {
+  tripId: number;
+  tripTitle: string;
+  tripStatus: string;
+  startDate: string;
+  endDate: string;
+  totalScheduleCount: number;
+  locationScheduleCount: number;
+  visitVerificationRadiusMeters: number;
+  schedules: TripScheduleLocationItem[];
+}
+
+export interface GetTripScheduleLocationsOptions {
+  tripId: number;
+  signal?: AbortSignal;
+}
+
+export interface GetTripScheduleLocationsResult {
+  data: TripScheduleLocationsData | null;
+  error: ServiceError | null;
+}
+
+export interface CreateVisitedPlaceRequest {
+  placeId: number;
+  tripScheduleId: number;
+}
+
+export interface VisitedPlaceData {
+  visitedPlaceId: number;
+  tripId: number;
+  tripScheduleId: number;
+  placeId: number;
+  placeName: string;
+  visitedAt: string;
+  visited: boolean;
+}
+
+export interface CreateVisitedPlaceOptions {
+  tripId: number;
+  payload: CreateVisitedPlaceRequest;
+  signal?: AbortSignal;
+}
+
+export interface CreateVisitedPlaceResult {
+  data: VisitedPlaceData | null;
+  error: ServiceError | null;
+}
+
 export interface TripShareData {
   tripId: number;
   tripTitle: string;
@@ -136,6 +207,35 @@ export interface GetTripShareOptions {
 
 export interface GetTripShareResult {
   data: TripShareData | null;
+  error: ServiceError | null;
+}
+
+export interface GenerateTripSchedulesOptions {
+  tripId: number;
+  signal?: AbortSignal;
+}
+
+export interface GenerateTripSchedulesData {
+  tripId: number;
+  tripTitle: string;
+  imageUrl?: string;
+  tripStatus: string;
+  tripStatusLabel: string;
+  startDate: string;
+  endDate: string;
+  tripDayCount: number;
+  totalScheduleCount: number;
+  locationScheduleCount: number;
+  hasCurrentSchedule: boolean;
+  currentSchedule: unknown | null;
+  canViewMap: boolean;
+  canEditTrip: boolean;
+  canAddSchedule: boolean;
+  dailySchedules: unknown[];
+}
+
+export interface GenerateTripSchedulesResult {
+  data: GenerateTripSchedulesData | null;
   error: ServiceError | null;
 }
 
