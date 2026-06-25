@@ -1,5 +1,7 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 
+import type { NaverSignUpData } from '@/types/auth';
+
 export type SearchStackParamList = {
   SearchMain: undefined;
   SearchResult: { query: string };
@@ -21,7 +23,7 @@ export type RootTabParamList = {
 };
 export type RootStackParamList = {
   Login: undefined;
-  SignUp: undefined;
+  SignUp: { socialSignUpData?: NaverSignUpData } | undefined;
   MainTabs: { screen?: keyof RootTabParamList } | undefined;
   PrivacyPolicyScreen: undefined;
   NightMarketingScreen: undefined;

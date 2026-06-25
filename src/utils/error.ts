@@ -1,7 +1,10 @@
 import type {
+  LoginFailureResult,
   FindIdWarningType,
   FindPasswordResetWarningType,
   LoginWarningType,
+  NaverLoginFailureResult,
+  NaverLoginWarningType,
   ReissueTokenWarningType,
   SignUpWarningType,
 } from '@/types/auth';
@@ -83,6 +86,78 @@ export const getSignUpWarningType = (status: number, code = ''): SignUpWarningTy
   if (code === 'DUPLICATE_USER' || status === 409) return 'DUPLICATE_USER';
   if (code === 'INVALID_INPUT' || status === 400) return 'INVALID_INPUT';
   return 'UNKNOWN_ERROR';
+};
+
+export const getNaverLoginWarningType = (status: number, code = ''): NaverLoginWarningType => {
+  if (status >= 500 || code === 'INTERNAL_ERROR') return 'SERVER_ERROR';
+  if (code === 'EXPIRED_REFRESH_TOKEN' || status === 401) return 'EXPIRED_REFRESH_TOKEN';
+  if (code === 'INVALID_TOKEN' || status === 400) return 'INVALID_TOKEN';
+  if (code === 'USER_NOT_FOUND' || status === 404) return 'USER_NOT_FOUND';
+  return 'UNKNOWN_ERROR';
+};
+
+export const getLoginWarningMessage = (failure: LoginFailureResult): string => {
+  const serverMessage = failure.message?.trim();
+
+  if (serverMessage) {
+    return serverMessage;
+  }
+
+  if (failure.warningType === 'EMPTY_FIELDS') {
+    return '아이디와 비밀번호를 입력해주세요.';
+  }
+
+  if (failure.warningType === 'INVALID_INPUT') {
+    return '잘못된 요청입니다.';
+  }
+
+  if (failure.warningType === 'PASSWORD_MISMATCH') {
+    return '비밀번호가 일치하지 않습니다.';
+  }
+
+  if (failure.warningType === 'USER_NOT_FOUND') {
+    return '사용자를 찾을 수 없습니다.';
+  }
+
+  if (failure.warningType === 'SERVER_ERROR') {
+    return '서버가 불안정합니다. 잠시 후 다시 시도해주세요.';
+  }
+
+  if (failure.warningType === 'NETWORK_ERROR') {
+    return '네트워크 연결을 확인해주세요.';
+  }
+
+  return '로그인에 실패했습니다. 다시 시도해주세요.';
+};
+
+export const getNaverLoginWarningMessage = (failure: NaverLoginFailureResult): string => {
+  const serverMessage = failure.message?.trim();
+
+  if (serverMessage) {
+    return serverMessage;
+  }
+
+  if (failure.warningType === 'INVALID_TOKEN') {
+    return '유효하지 않은 네이버 토큰입니다.';
+  }
+
+  if (failure.warningType === 'EXPIRED_REFRESH_TOKEN') {
+    return '네이버 인증이 만료되었습니다. 다시 시도해주세요.';
+  }
+
+  if (failure.warningType === 'USER_NOT_FOUND') {
+    return '네이버 계정을 찾을 수 없습니다.';
+  }
+
+  if (failure.warningType === 'SERVER_ERROR') {
+    return '서버가 불안정합니다. 잠시 후 다시 시도해주세요.';
+  }
+
+  if (failure.warningType === 'NETWORK_ERROR') {
+    return '네트워크 연결을 확인해주세요.';
+  }
+
+  return '네이버 로그인에 실패했습니다. 다시 시도해주세요.';
 };
 
 export const getSignUpIdCheckMessage = (idCheckStatus: IdCheckStatus) => {

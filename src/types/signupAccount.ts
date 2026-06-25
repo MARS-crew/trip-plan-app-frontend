@@ -4,6 +4,7 @@ import type { SignUpFormData } from './signup';
 
 export interface AccountSectionProps {
   formData: SignUpFormData;
+  hidePasswordFields?: boolean;
   idCheckStatus: 'idle' | 'available' | 'duplicate' | 'error';
   idMessage: string;
   idMessageClass: string;

@@ -26,6 +26,51 @@ export interface LoginData {
   userDetails: LoginUserDetails;
 }
 
+export type NaverLoginWarningType =
+  | 'INVALID_TOKEN'
+  | 'EXPIRED_REFRESH_TOKEN'
+  | 'USER_NOT_FOUND'
+  | 'SERVER_ERROR'
+  | 'NETWORK_ERROR'
+  | 'UNKNOWN_ERROR';
+
+export interface NaverSignUpData {
+  loginType: string;
+  socialProviderId: string;
+  nickname: string;
+  email: string;
+  name: string;
+  gender: string;
+  birth: string;
+  birthYear?: string;
+}
+
+export interface NaverLoginData {
+  nextAction: 'login' | 'signup';
+  login?: LoginData | null;
+  signupResponse?: NaverSignUpData | null;
+}
+
+export interface NaverLoginResponse {
+  success: boolean;
+  code: string;
+  message: string;
+  data?: NaverLoginData | null;
+}
+
+export interface NaverLoginSuccessResult {
+  ok: true;
+  data: NaverLoginData;
+}
+
+export interface NaverLoginFailureResult {
+  ok: false;
+  warningType: NaverLoginWarningType;
+  message?: string;
+}
+
+export type NaverLoginResult = NaverLoginSuccessResult | NaverLoginFailureResult;
+
 export interface LoginResponse {
   success: boolean;
   code: string;
@@ -206,8 +251,8 @@ export interface SignUpRequest {
   name: string;
   email: string;
   nickname: string;
-  password: string;
-  passwordConfirm: string;
+  password?: string;
+  passwordConfirm?: string;
   gender: string;
   birth: string;
   countryCode: string;

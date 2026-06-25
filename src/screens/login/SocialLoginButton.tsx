@@ -8,11 +8,15 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
   textClassName,
   icon,
   outlined = false,
+  onPress,
+  disabled = false,
 }) => {
   const outlineClassName = outlined ? 'border border-borderGray' : '';
 
   return (
     <Pressable
+      onPress={onPress}
+      disabled={disabled || !onPress}
       className={`mt-3 h-11 w-full flex-row items-center justify-center rounded-lg px-5 ${bgClassName} ${outlineClassName}`}
       accessibilityRole="button"
       accessibilityLabel={label}>

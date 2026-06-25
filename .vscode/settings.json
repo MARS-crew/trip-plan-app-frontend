@@ -1,13 +1,26 @@
 {
-  "java.compile.nullAnalysis.mode": "automatic",
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
-  "prettier.prettierPath": "./node_modules/prettier/index.cjs",
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/android/.gradle/**": true,
+    "**/android/build/**": true,
+    "**/ios/build/**": true,
+    "**/.expo/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/.next/**": true
   },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/android/.gradle": true,
+    "**/android/build": true,
+    "**/ios/build": true,
+    "**/.expo": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.next": true
   },
-  "java.configuration.updateBuildConfiguration": "interactive"
+  "typescript.tsserver.maxTsServerMemory": 2048,
+  "typescript.disableAutomaticTypeAcquisition": true
 }

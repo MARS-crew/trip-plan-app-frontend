@@ -1,6 +1,5 @@
 import { getEnvConfig } from '@/config/env';
 
-import { useAuthStore } from '@/store';
 import type {
   FindIdRequest,
   FindIdData,
@@ -14,6 +13,9 @@ import type {
   LoginRequest,
   LoginResponse,
   LoginResult,
+  NaverLoginData,
+  NaverLoginResponse,
+  NaverLoginResult,
   ReissueTokenRequest,
   ReissueTokenResponse,
   ReissueTokenResult,
@@ -29,6 +31,7 @@ import {
   fetchWithTimeout,
   parseJsonSafely,
   getDefaultMessageByStatus,
+  getNaverLoginWarningType,
   getLoginWarningType,
   getReissueWarningType,
   getSignUpWarningType,
@@ -209,6 +212,7 @@ export const postLogout = async (accessToken: string, refreshToken: string): Pro
     const response = await fetchWithTimeout(buildAuthUrl('/api/v1/auth/logout'), {
       method: 'POST',
       headers: {
+        accept: 'application/json',
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
@@ -316,6 +320,69 @@ export const postSignUp = async (payload: SignUpRequest): Promise<SignUpResult> 
       ok: false,
       warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
       message: isNetworkError ? '네트워크 연결을 확인해주세요.' : '알 수 없는 에러가 발생했습니다.',
+    };
+  }
+};
+
+const extractNaverLoginData = (json: NaverLoginResponse | null): NaverLoginData | null => {
+  const data = json?.data;
+
+  if (data?.nextAction === 'login' || data?.nextAction === 'signup') {
+    return data;
+  }
+
+  return null;
+};
+
+export const postNaverLogin = async (accessToken: string): Promise<NaverLoginResult> => {
+  const requestUrl = buildAuthUrl('/api/v1/auth/naver');
+
+  try {
+    const response = await fetchWithTimeout(requestUrl, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ accessToken }),
+    });
+
+    const json = await parseJsonSafely<NaverLoginResponse>(response);
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        warningType: getNaverLoginWarningType(response.status, json?.code ?? ''),
+        message: json?.message ?? getDefaultMessageByStatus(response.status),
+      };
+    }
+
+    const data = extractNaverLoginData(json);
+
+    if (!json?.success || !data) {
+      return {
+        ok: false,
+        warningType: 'UNKNOWN_ERROR',
+        message: json?.message ?? '네이버 로그인 응답 형식이 올바르지 않습니다.',
+      };
+    }
+
+    return { ok: true, data };
+  } catch (error) {
+    if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      return {
+        ok: false,
+        warningType: 'NETWORK_ERROR',
+        message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
+      };
+    }
+
+    const isNetworkError = error instanceof TypeError;
+
+    return {
+      ok: false,
+      warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
+      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : undefined,
     };
   }
 };

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   KeyboardAvoidingView,
   Pressable,
@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
 
 import { TopBar } from '@/components';
 import { ContentContainer, LabeledInput } from '@/components/ui';
@@ -20,6 +21,7 @@ import {
   BirthDatePickerModal,
   CountryPickerModal,
 } from '@/screens/signup/components';
+import type { RootStackParamList } from '@/navigation/types';
 import type { SignUpScreenNavigationProp } from '@/types/signup';
 import { showToastMessage } from '@/utils';
 import { getSignUpIdCheckMessage } from '@/utils/error';
@@ -34,9 +36,35 @@ import {
 } from '@/screens/signup/hooks';
 import { getDaysInMonth } from '@/screens/signup/constants';
 
+const normalizeSocialGender = (gender?: string): 'male' | 'female' | 'other' | '' => {
+  const normalized = gender?.trim().toUpperCase();
+
+  if (normalized === 'MALE' || normalized === 'M') return 'male';
+  if (normalized === 'FEMALE' || normalized === 'F') return 'female';
+  if (normalized === 'OTHER' || normalized === 'U') return 'other';
+
+  return '';
+};
+
+const normalizeSocialBirthDate = (birth?: string, birthYear?: string): string => {
+  const trimmedBirth = birth?.trim() ?? '';
+  const trimmedBirthYear = birthYear?.trim() ?? '';
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmedBirth)) {
+    return trimmedBirth;
+  }
+
+  if (/^\d{2}-\d{2}$/.test(trimmedBirth) && /^\d{4}$/.test(trimmedBirthYear)) {
+    return `${trimmedBirthYear}-${trimmedBirth}`;
+  }
+
+  return '';
+};
+
 // ============ Component ============
 const SignUpScreen: React.FC = () => {
   const navigation = useNavigation<SignUpScreenNavigationProp>();
+  const route = useRoute<RouteProp<RootStackParamList, 'SignUp'>>();
 
   // ========== Custom Hooks ==========
   const signUpForm = useSignUpForm();
@@ -45,7 +73,8 @@ const SignUpScreen: React.FC = () => {
   const birthDatePicker = useBirthDatePicker();
   const countryPicker = useCountryPicker();
   const formValidation = useFormValidation();
-  const signUpSubmit = useSignUpSubmit();
+  const socialSignUpData = route.params?.socialSignUpData;
+  const signUpSubmit = useSignUpSubmit(socialSignUpData);
 
   // ========== Refs ==========
   const scrollViewRef = useRef<ScrollView | null>(null);
@@ -79,6 +108,31 @@ const SignUpScreen: React.FC = () => {
   const { idMessage, idMessageClass, idInputClass } = getSignUpIdCheckMessage(
     idVerification.idCheckStatus,
   );
+
+  const { setFormData } = signUpForm;
+  const { setIsEmailVerified, setIsCodeFieldVisible, setEmailStatus, setCodeStatus } =
+    emailVerification;
+
+  useEffect(() => {
+    if (!socialSignUpData) {
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      name: socialSignUpData.name || prev.name,
+      email: socialSignUpData.email || prev.email,
+      nickname: socialSignUpData.nickname || prev.nickname,
+      birthDate:
+        normalizeSocialBirthDate(socialSignUpData.birth, socialSignUpData.birthYear) ||
+        prev.birthDate,
+      gender: normalizeSocialGender(socialSignUpData.gender) || prev.gender,
+    }));
+    setIsEmailVerified(true);
+    setIsCodeFieldVisible(false);
+    setEmailStatus('sent');
+    setCodeStatus('success');
+  }, [socialSignUpData, setFormData, setIsEmailVerified, setIsCodeFieldVisible, setEmailStatus, setCodeStatus]);
 
   // ========== Callbacks ==========
   const handleCheckId = useCallback(async () => {
@@ -155,6 +209,7 @@ const SignUpScreen: React.FC = () => {
       isPasswordValid,
       isPasswordMatched,
       emailVerification.isEmailVerified,
+      Boolean(socialSignUpData),
     );
     const isTermsAccepted = signUpForm.termsAgreement.serviceTerms;
 
@@ -188,6 +243,7 @@ const SignUpScreen: React.FC = () => {
     isPasswordMatched,
     emailVerification.isEmailVerified,
     signUpSubmit,
+    socialSignUpData,
   ]);
 
   const handleGoBack = useCallback(() => {
@@ -224,6 +280,7 @@ const SignUpScreen: React.FC = () => {
             <View onLayout={formValidation.registerSectionY('account')}>
               <AccountSection
                 formData={signUpForm.formData}
+                hidePasswordFields={Boolean(socialSignUpData)}
                 idCheckStatus={idVerification.idCheckStatus}
                 idMessage={idMessage}
                 idMessageClass={idMessageClass}
