@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
@@ -240,22 +240,28 @@ const AddCalendarMapScreen: React.FC = () => {
   // PLI-21 머지 후 navigation 연결 예정
   const handleRegister = useCallback(() => {
     if (!selectedPlace || !params?.tripId) return;
-    navigation.replace('AddSchedule', {
-      mode: params?.tripScheduleId ? 'edit' : 'create',
-      tripId: params.tripId,
-      tripTitle: params?.tripTitle ?? '',
-      tripScheduleId: params?.tripScheduleId,
-      date: params?.date ?? '',
-      title: params?.title ?? '',
-      startTime: params?.startTime,
-      endTime: params?.endTime,
-      memo: params?.memo ?? '',
-      placeId: typeof selectedPlace.placeId === 'number' ? selectedPlace.placeId : undefined,
-      placeName: selectedPlace.title,
-      address: selectedPlace.location,
-      latitude: selectedPlace.latitude,
-      longitude: selectedPlace.longitude,
-    });
+    navigation.dispatch(
+      StackActions.popTo(
+        'AddSchedule',
+        {
+          mode: params?.tripScheduleId ? 'edit' : 'create',
+          tripId: params.tripId,
+          tripTitle: params?.tripTitle ?? '',
+          tripScheduleId: params?.tripScheduleId,
+          date: params?.date ?? '',
+          title: params?.title ?? '',
+          startTime: params?.startTime,
+          endTime: params?.endTime,
+          memo: params?.memo ?? '',
+          placeId: typeof selectedPlace.placeId === 'number' ? selectedPlace.placeId : undefined,
+          placeName: selectedPlace.title,
+          address: selectedPlace.location,
+          latitude: selectedPlace.latitude,
+          longitude: selectedPlace.longitude,
+        },
+        { merge: true },
+      ),
+    );
   }, [
     navigation,
     params?.date,
