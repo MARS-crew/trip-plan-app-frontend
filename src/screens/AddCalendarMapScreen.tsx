@@ -55,6 +55,7 @@ const AddCalendarMapScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'AddCalendarMapScreen'>>();
   const params = route.params;
   const mapRef = useRef<MapView>(null);
+  const ignoreNextMapPressRef = useRef(false);
   const insets = useSafeAreaInsets();
 
   const [keyword, setKeyword] = useState('');
@@ -190,6 +191,11 @@ const AddCalendarMapScreen: React.FC = () => {
 
   const handlePressMap = useCallback(
     async (event: { nativeEvent: { coordinate: { latitude: number; longitude: number } } }) => {
+      if (ignoreNextMapPressRef.current) {
+        ignoreNextMapPressRef.current = false;
+        return;
+      }
+
       Keyboard.dismiss();
 
       const { latitude, longitude } = event.nativeEvent.coordinate;
@@ -226,6 +232,7 @@ const AddCalendarMapScreen: React.FC = () => {
 
   const handlePressMarker = useCallback(() => {
     if (!selectedPlace) return;
+    ignoreNextMapPressRef.current = true;
     setIsPlaceSheetVisible(true);
   }, [selectedPlace]);
 
@@ -315,7 +322,13 @@ const AddCalendarMapScreen: React.FC = () => {
 
           <TextInput
             value={keyword}
-            onChangeText={setKeyword}
+            onChangeText={(text) => {
+              setKeyword(text);
+              if (!text.trim()) {
+                setSearchResults([]);
+                setHasSearched(false);
+              }
+            }}
             onSubmitEditing={handleSearch}
             placeholder="희망하는 관광지를 검색하세요"
             placeholderTextColor={COLORS.gray}
