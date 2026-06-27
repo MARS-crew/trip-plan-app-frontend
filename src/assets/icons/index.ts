@@ -92,6 +92,10 @@ export { default as BackArrowGray } from './backarrowgray.svg';
 export { default as MapMarker } from './mapmarker.svg';
 export { default as BellIcon } from './bell.svg';
 
+export { default as CloudyIcon } from './cloudy.svg';
+export { default as RainyIcon } from './rainy.svg';
+export { default as SnowIcon } from './snow.svg';
+
 // 타입 정의
 export interface IconProps {
   fill?: string;

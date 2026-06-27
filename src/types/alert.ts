@@ -4,4 +4,5 @@ export interface AlertItemProps {
   readAt?: string;
   sendAt?: string;
   title: string;
+  weatherStatusCode: number;
 }
