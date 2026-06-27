@@ -12,12 +12,17 @@ interface GeocodeAddressComponent {
   types: string[];
 }
 
-// 좌표를 역지오코딩하여 ISO 3166-1 alpha-2 국가 코드(예: JP, US)를 반환한다.
+export interface CountryInfo {
+  code: string; // ISO 3166-1 alpha-2 국가 코드 (예: JP, KR)
+  name: string; // 현지화된 국가명 (한국어, 예: 일본, 대한민국)
+}
+
+// 좌표를 역지오코딩하여 국가 코드(ISO alpha-2)와 한국어 국가명을 반환한다.
 // 키가 없거나 조회에 실패하면 null을 반환한다.
-export const fetchCountryCode = async (
+export const fetchCountry = async (
   latitude: number,
   longitude: number,
-): Promise<string | null> => {
+): Promise<CountryInfo | null> => {
   const apiKey = getGoogleMapsApiKey();
   if (!apiKey) {
     return null;
@@ -25,7 +30,7 @@ export const fetchCountryCode = async (
 
   try {
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&language=en&result_type=country&key=${apiKey}`,
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&language=ko&result_type=country&key=${apiKey}`,
     );
     // fetch는 4xx/5xx에도 reject되지 않으므로 ok 여부를 먼저 검증한다.
     if (!response.ok) {
@@ -39,9 +44,13 @@ export const fetchCountryCode = async (
 
     const components: GeocodeAddressComponent[] = data.results?.[0]?.address_components ?? [];
     const country = components.find((component) => component.types.includes('country'));
-    return country?.short_name ?? null;
+    if (!country?.short_name) {
+      return null;
+    }
+
+    return { code: country.short_name, name: country.long_name ?? country.short_name };
   } catch (error) {
-    console.error('fetchCountryCode Error:', error);
+    console.error('fetchCountry Error:', error);
     return null;
   }
 };

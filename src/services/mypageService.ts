@@ -21,7 +21,7 @@ import {
 import { parseJsonSafely } from '@/utils/error';
 import { getCurrentPosition } from '@/utils/location';
 import { countryCodeToPapagoLang, normalizePapagoTargetLang } from '@/utils/papagoLang';
-import { fetchCountryCode } from '@/services/mapPlaceService';
+import { fetchCountry } from '@/services/mapPlaceService';
 
 const accessToken = (): string => {
   const token = useAuthStore.getState().accessToken;
@@ -149,38 +149,54 @@ export const verifyMyPageEmailCode = async (
   }
 };
 
-// 위치/국가는 짧은 시간에 자주 바뀌지 않으므로, 조회된 언어 코드를 일정 시간 캐싱한다.
-// 탭 전환마다 GPS 활성화·Google Geocoding 호출이 반복되어 배터리·비용이 낭비되는 것을 방지한다.
-const TARGET_LANG_CACHE_TTL = 10 * 60 * 1000; // 10분
-let cachedTargetLang: PapagoTargetLang | null = null;
-let cachedTargetLangAt = 0;
+export interface CurrentLocation {
+  countryCode: string | null; // ISO alpha-2 (예: KR), 조회 실패 시 null
+  countryName: string | null; // 한국어 국가명 (예: 대한민국), 조회 실패 시 null
+  targetLang: PapagoTargetLang; // 어휘 번역 대상 언어 (미지원/실패 시 en)
+}
 
-// 현재 위치를 조회 → 역지오코딩으로 국가 코드 확인 → 어휘 번역 대상 언어로 변환한다.
+// 위치/국가는 짧은 시간에 자주 바뀌지 않으므로, 조회 결과를 일정 시간 캐싱한다.
+// 탭 전환마다 GPS 활성화·Google Geocoding 호출이 반복되어 배터리·비용이 낭비되는 것을 방지한다.
+const LOCATION_CACHE_TTL = 10 * 60 * 1000; // 10분
+let cachedLocation: CurrentLocation | null = null;
+let cachedLocationAt = 0;
+
+const FALLBACK_LOCATION: CurrentLocation = {
+  countryCode: null,
+  countryName: null,
+  targetLang: DEFAULT_PAPAGO_TARGET_LANG,
+};
+
+// 현재 위치를 조회 → 역지오코딩으로 국가(코드·이름) 확인 → 어휘 번역 대상 언어로 변환한다.
 // TTL 내 캐시가 있으면 재사용하고, 위치 권한 거부·키 누락 등 실패 시 en(영어)으로 폴백한다.
-export const resolveCurrentTargetLang = async (): Promise<PapagoTargetLang> => {
+export const resolveCurrentLocation = async (): Promise<CurrentLocation> => {
   const now = Date.now();
-  if (cachedTargetLang && now - cachedTargetLangAt < TARGET_LANG_CACHE_TTL) {
-    return cachedTargetLang;
+  if (cachedLocation && now - cachedLocationAt < LOCATION_CACHE_TTL) {
+    return cachedLocation;
   }
 
   try {
     const position = await getCurrentPosition();
     if (!position) {
-      return cachedTargetLang ?? DEFAULT_PAPAGO_TARGET_LANG;
+      return cachedLocation ?? FALLBACK_LOCATION;
     }
 
-    const countryCode = await fetchCountryCode(position.latitude, position.longitude);
+    const country = await fetchCountry(position.latitude, position.longitude);
     // 국가 조회에 성공했을 때만 캐싱한다(실패 시 폴백 값으로 캐시를 오염시키지 않음).
-    if (countryCode) {
-      cachedTargetLang = countryCodeToPapagoLang(countryCode);
-      cachedTargetLangAt = now;
-      return cachedTargetLang;
+    if (country) {
+      cachedLocation = {
+        countryCode: country.code,
+        countryName: country.name,
+        targetLang: countryCodeToPapagoLang(country.code),
+      };
+      cachedLocationAt = now;
+      return cachedLocation;
     }
 
-    return cachedTargetLang ?? DEFAULT_PAPAGO_TARGET_LANG;
+    return cachedLocation ?? FALLBACK_LOCATION;
   } catch (error) {
-    console.error('resolveCurrentTargetLang Error:', error);
-    return cachedTargetLang ?? DEFAULT_PAPAGO_TARGET_LANG;
+    console.error('resolveCurrentLocation Error:', error);
+    return cachedLocation ?? FALLBACK_LOCATION;
   }
 };
 

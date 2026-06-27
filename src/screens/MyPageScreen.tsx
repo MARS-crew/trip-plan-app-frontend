@@ -10,7 +10,7 @@ import {
   getPapagoPhrases,
   postExchange,
   postLogout,
-  resolveCurrentTargetLang,
+  resolveCurrentLocation,
 } from '@/services';
 import { useAuthStore } from '@/store/authStore';
 import {
@@ -86,19 +86,21 @@ const MyPageScreen: React.FC = () => {
   const [jpyAmount, setJpyAmount] = React.useState<string>('1,100');
   const [isKrwToJpy, setIsKrwToJpy] = React.useState<boolean>(true);
   const [phrases, setPhrases] = React.useState<GetPapagoPhrase[]>([]);
+  const [locationLabel, setLocationLabel] = React.useState<string>('확인 중...');
   const [myPageData, setMyPageData] = React.useState<GetMyPageData>(INITIAL_MY_PAGE_DATA);
   const [krwToJpyRate, setKrwToJpyRate] = React.useState<number>(KRW_TO_JPY_RATE);
   const [jpyToKrwRate, setJpyToKrwRate] = React.useState<number>(JPY_TO_KRW_RATE);
   const exchangeRequestIdRef = React.useRef<number>(0);
   const exchangeDebounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchPapagoPhrases = React.useCallback(async (): Promise<void> => {
+  const fetchLocationAndPhrases = React.useCallback(async (): Promise<void> => {
     try {
-      const targetLang = await resolveCurrentTargetLang();
+      const { countryName, targetLang } = await resolveCurrentLocation();
+      setLocationLabel(countryName ?? '알 수 없음');
       const data = await getPapagoPhrases(targetLang);
       setPhrases(data);
     } catch (error) {
-      console.error('fetchPapagoPhrases Error:', error);
+      console.error('fetchLocationAndPhrases Error:', error);
       setPhrases([]);
     }
   }, []);
@@ -203,9 +205,9 @@ const MyPageScreen: React.FC = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchPapagoPhrases();
+      fetchLocationAndPhrases();
       fetchMyPage();
-    }, [fetchPapagoPhrases, fetchMyPage]),
+    }, [fetchLocationAndPhrases, fetchMyPage]),
   );
 
   // 환율은 최초 1회만 (포커스마다 재호출 X)
@@ -304,7 +306,7 @@ const MyPageScreen: React.FC = () => {
           <MyPageProfileCard
             nickname={myPageData.nickname}
             email={myPageData.email}
-            locationLabel="일본"
+            locationLabel={locationLabel}
             onPressEdit={handleNavigateToProfileEdit}
           />
 
