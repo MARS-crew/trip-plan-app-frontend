@@ -37,6 +37,8 @@ export {
 } from './tripDetailFormat';
 export { buildRateText, convertCurrency, formatAmountWithCommas, parseAmount } from './formatter';
 export { formatOpeningHours } from './placeFormatter';
+export { normalizePapagoTargetLang, countryCodeToPapagoLang } from './papagoLang';
+export { getCurrentPosition, requestLocationPermission } from './location';
 export {
   formatVisitedDate,
   buildLocation,

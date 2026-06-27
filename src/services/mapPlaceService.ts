@@ -6,6 +6,55 @@ const getGoogleMapsApiKey = (): string | null => {
   return googleMapsApiKey ?? null;
 };
 
+interface GeocodeAddressComponent {
+  long_name: string;
+  short_name: string;
+  types: string[];
+}
+
+export interface CountryInfo {
+  code: string; // ISO 3166-1 alpha-2 국가 코드 (예: JP, KR)
+  name: string; // 현지화된 국가명 (한국어, 예: 일본, 대한민국)
+}
+
+// 좌표를 역지오코딩하여 국가 코드(ISO alpha-2)와 한국어 국가명을 반환한다.
+// 키가 없거나 조회에 실패하면 null을 반환한다.
+export const fetchCountry = async (
+  latitude: number,
+  longitude: number,
+): Promise<CountryInfo | null> => {
+  const apiKey = getGoogleMapsApiKey();
+  if (!apiKey) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&language=ko&result_type=country&key=${apiKey}`,
+    );
+    // fetch는 4xx/5xx에도 reject되지 않으므로 ok 여부를 먼저 검증한다.
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    if (data.status !== 'OK') {
+      return null;
+    }
+
+    const components: GeocodeAddressComponent[] = data.results?.[0]?.address_components ?? [];
+    const country = components.find((component) => component.types.includes('country'));
+    if (!country?.short_name) {
+      return null;
+    }
+
+    return { code: country.short_name, name: country.long_name ?? country.short_name };
+  } catch (error) {
+    console.error('fetchCountry Error:', error);
+    return null;
+  }
+};
+
 export const fetchKoreanAddress = async (
   latitude: number,
   longitude: number,
