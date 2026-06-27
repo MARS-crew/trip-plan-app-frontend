@@ -1,8 +1,28 @@
-import { ScheduleInfoIcon, WeatherInfoIcon } from '@/assets';
+import { CloudyIcon, RainyIcon, ScheduleInfoIcon, SnowIcon, WeatherInfoIcon } from '@/assets';
 import { AlertItemProps } from '@/types/alert';
 import React from 'react';
 import { View, Text } from 'react-native';
 import dayjs from 'dayjs';
+
+
+const WeatherIcon = ({ weatherIndex }: { weatherIndex?: number }) => {
+  const Icon = (() => {
+    switch (weatherIndex) {
+      case 1:
+        return WeatherInfoIcon;
+      case 2:
+        return RainyIcon;
+      case 3:
+        return CloudyIcon;
+      case 4:
+        return SnowIcon;
+      default:
+        return WeatherInfoIcon;
+    }
+  })();
+
+  return <Icon className="h-12 w-12" />;
+};
 
 export const AlertContainer = (alert: AlertItemProps) => {
   const formatDate = (date?: string) => {
@@ -17,7 +37,7 @@ export const AlertContainer = (alert: AlertItemProps) => {
         {alert.title === '일정 안내' ? (
           <ScheduleInfoIcon className="h-12 w-12" />
         ) : (
-          <WeatherInfoIcon className="h-12 w-12" />
+          <WeatherIcon weatherIndex={alert.weatherStatusCode} />
         )}
       </View>
 
