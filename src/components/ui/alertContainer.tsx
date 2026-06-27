@@ -5,19 +5,23 @@ import { View, Text } from 'react-native';
 import dayjs from 'dayjs';
 
 
-const WeatherIcon = ({ weatherIndex }: { weatherIndex: number }) => {
-  switch (weatherIndex) {
-    case 1:
-      return <WeatherInfoIcon className="h-12 w-12" />;
-    case 2:
-      return <RainyIcon className="h-12 w-12" />;
-    case 3:
-      return <CloudyIcon className="h-12 w-12" />;
-    case 4:
-      return <SnowIcon className="h-12 w-12" />;
-    default:
-      return <WeatherInfoIcon className="h-12 w-12" />;
-  }
+const WeatherIcon = ({ weatherIndex }: { weatherIndex?: number }) => {
+  const Icon = (() => {
+    switch (weatherIndex) {
+      case 1:
+        return WeatherInfoIcon;
+      case 2:
+        return RainyIcon;
+      case 3:
+        return CloudyIcon;
+      case 4:
+        return SnowIcon;
+      default:
+        return WeatherInfoIcon;
+    }
+  })();
+
+  return <Icon className="h-12 w-12" />;
 };
 
 export const AlertContainer = (alert: AlertItemProps) => {
