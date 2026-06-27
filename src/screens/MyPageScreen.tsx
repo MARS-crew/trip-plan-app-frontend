@@ -5,7 +5,13 @@ import { ScrollView, TouchableOpacity, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { RootStackParamList } from '@/navigation';
 import LogoutIcon from '@/assets/icons/logout.svg';
-import { getMyPageInfo, getPapagoPhrases, postExchange, postLogout } from '@/services';
+import {
+  getMyPageInfo,
+  getPapagoPhrases,
+  postExchange,
+  postLogout,
+  resolveCurrentTargetLang,
+} from '@/services';
 import { useAuthStore } from '@/store/authStore';
 import {
   buildRateText,
@@ -88,7 +94,8 @@ const MyPageScreen: React.FC = () => {
 
   const fetchPapagoPhrases = React.useCallback(async (): Promise<void> => {
     try {
-      const data = await getPapagoPhrases();
+      const targetLang = await resolveCurrentTargetLang();
+      const data = await getPapagoPhrases(targetLang);
       setPhrases(data);
     } catch (error) {
       console.error('fetchPapagoPhrases Error:', error);
@@ -210,7 +217,7 @@ const MyPageScreen: React.FC = () => {
 
   const phraseSectionTitle = React.useMemo((): string => {
     const targetLang = phrases[0]?.targetLang;
-    if (!targetLang) return '일본 기본 회화';
+    if (!targetLang) return '기본 회화';
     return `${LANG_LABEL[targetLang]} 기본 회화`;
   }, [phrases]);
 

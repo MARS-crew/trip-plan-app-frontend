@@ -3,21 +3,25 @@ import Config from 'react-native-config';
 import { useAuthStore } from '@/store';
 import type { BaseResponse } from '@/types';
 import type { EmailRequestData, EmailVerifyData } from '@/types/auth';
-import type {
-  AgreeData,
-  AgreeUpdateRequest,
-  GetExchangeData,
-  GetExchangeRequest,
-  GetMyPageData,
-  GetPapagoPhrase,
-  GetProfileData,
-  GetSettingData,
-  PapagoTargetLang,
-  PatchProfileData,
-  PatchProfileRequest,
-  VisitedPlace,
+import {
+  DEFAULT_PAPAGO_TARGET_LANG,
+  type AgreeData,
+  type AgreeUpdateRequest,
+  type GetExchangeData,
+  type GetExchangeRequest,
+  type GetMyPageData,
+  type GetPapagoPhrase,
+  type GetProfileData,
+  type GetSettingData,
+  type PapagoTargetLang,
+  type PatchProfileData,
+  type PatchProfileRequest,
+  type VisitedPlace,
 } from '@/types/mypage';
 import { parseJsonSafely } from '@/utils/error';
+import { getCurrentPosition } from '@/utils/location';
+import { countryCodeToPapagoLang, normalizePapagoTargetLang } from '@/utils/papagoLang';
+import { fetchCountryCode } from '@/services/mapPlaceService';
 
 const accessToken = (): string => {
   const token = useAuthStore.getState().accessToken;
@@ -145,17 +149,36 @@ export const verifyMyPageEmailCode = async (
   }
 };
 
+// 현재 위치를 조회 → 역지오코딩으로 국가 코드 확인 → 어휘 번역 대상 언어로 변환한다.
+// 위치 권한 거부, 키 누락 등 실패 시 en(영어)으로 폴백한다.
+export const resolveCurrentTargetLang = async (): Promise<PapagoTargetLang> => {
+  try {
+    const position = await getCurrentPosition();
+    if (!position) {
+      return DEFAULT_PAPAGO_TARGET_LANG;
+    }
+
+    const countryCode = await fetchCountryCode(position.latitude, position.longitude);
+    return countryCodeToPapagoLang(countryCode);
+  } catch (error) {
+    console.error('resolveCurrentTargetLang Error:', error);
+    return DEFAULT_PAPAGO_TARGET_LANG;
+  }
+};
+
 export const getPapagoPhrases = async (
-  targetLang: PapagoTargetLang = 'ja',
+  targetLang?: string | null,
 ): Promise<GetPapagoPhrase[]> => {
   try {
+    // 지원 목록(en, ja, zh-CN ...) 외 나라/언어가 들어오면 en으로 폴백한다.
+    const normalizedTargetLang = normalizePapagoTargetLang(targetLang);
     const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/papago`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken()}`,
       },
-      body: JSON.stringify({ targetLang }),
+      body: JSON.stringify({ targetLang: normalizedTargetLang }),
     });
     if (!response.ok) {
       throw new Error('기본 어휘 번역 조회 실패');

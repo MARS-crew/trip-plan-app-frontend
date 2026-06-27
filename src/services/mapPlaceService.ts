@@ -6,6 +6,41 @@ const getGoogleMapsApiKey = (): string | null => {
   return googleMapsApiKey ?? null;
 };
 
+interface GeocodeAddressComponent {
+  long_name: string;
+  short_name: string;
+  types: string[];
+}
+
+// 좌표를 역지오코딩하여 ISO 3166-1 alpha-2 국가 코드(예: JP, US)를 반환한다.
+// 키가 없거나 조회에 실패하면 null을 반환한다.
+export const fetchCountryCode = async (
+  latitude: number,
+  longitude: number,
+): Promise<string | null> => {
+  const apiKey = getGoogleMapsApiKey();
+  if (!apiKey) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&language=en&result_type=country&key=${apiKey}`,
+    );
+    const data = await response.json();
+    if (data.status !== 'OK') {
+      return null;
+    }
+
+    const components: GeocodeAddressComponent[] = data.results?.[0]?.address_components ?? [];
+    const country = components.find((component) => component.types.includes('country'));
+    return country?.short_name ?? null;
+  } catch (error) {
+    console.error('fetchCountryCode Error:', error);
+    return null;
+  }
+};
+
 export const fetchKoreanAddress = async (
   latitude: number,
   longitude: number,

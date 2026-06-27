@@ -34,19 +34,27 @@ export interface GetProfileData {
   nickname: string;
 }
 
-export type PapagoTargetLang =
-  | 'en'
-  | 'ja'
-  | 'zh-CN'
-  | 'zh-TW'
-  | 'vi'
-  | 'th'
-  | 'id'
-  | 'fr'
-  | 'es'
-  | 'ru'
-  | 'de'
-  | 'it';
+// 백엔드(스웨거)가 지원하는 어휘 번역 대상 언어 코드 목록.
+// 이 목록에 없는 언어가 들어오면 en(영어)으로 폴백한다.
+export const PAPAGO_TARGET_LANGS = [
+  'en',
+  'ja',
+  'zh-CN',
+  'zh-TW',
+  'vi',
+  'th',
+  'id',
+  'fr',
+  'es',
+  'ru',
+  'de',
+  'it',
+] as const;
+
+export type PapagoTargetLang = (typeof PAPAGO_TARGET_LANGS)[number];
+
+// 지원 목록 외 언어가 들어올 때 사용할 기본 언어.
+export const DEFAULT_PAPAGO_TARGET_LANG: PapagoTargetLang = 'en';
 
 export interface GetPapagoPhrase {
   originalText: string;
