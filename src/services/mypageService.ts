@@ -149,20 +149,38 @@ export const verifyMyPageEmailCode = async (
   }
 };
 
+// 위치/국가는 짧은 시간에 자주 바뀌지 않으므로, 조회된 언어 코드를 일정 시간 캐싱한다.
+// 탭 전환마다 GPS 활성화·Google Geocoding 호출이 반복되어 배터리·비용이 낭비되는 것을 방지한다.
+const TARGET_LANG_CACHE_TTL = 10 * 60 * 1000; // 10분
+let cachedTargetLang: PapagoTargetLang | null = null;
+let cachedTargetLangAt = 0;
+
 // 현재 위치를 조회 → 역지오코딩으로 국가 코드 확인 → 어휘 번역 대상 언어로 변환한다.
-// 위치 권한 거부, 키 누락 등 실패 시 en(영어)으로 폴백한다.
+// TTL 내 캐시가 있으면 재사용하고, 위치 권한 거부·키 누락 등 실패 시 en(영어)으로 폴백한다.
 export const resolveCurrentTargetLang = async (): Promise<PapagoTargetLang> => {
+  const now = Date.now();
+  if (cachedTargetLang && now - cachedTargetLangAt < TARGET_LANG_CACHE_TTL) {
+    return cachedTargetLang;
+  }
+
   try {
     const position = await getCurrentPosition();
     if (!position) {
-      return DEFAULT_PAPAGO_TARGET_LANG;
+      return cachedTargetLang ?? DEFAULT_PAPAGO_TARGET_LANG;
     }
 
     const countryCode = await fetchCountryCode(position.latitude, position.longitude);
-    return countryCodeToPapagoLang(countryCode);
+    // 국가 조회에 성공했을 때만 캐싱한다(실패 시 폴백 값으로 캐시를 오염시키지 않음).
+    if (countryCode) {
+      cachedTargetLang = countryCodeToPapagoLang(countryCode);
+      cachedTargetLangAt = now;
+      return cachedTargetLang;
+    }
+
+    return cachedTargetLang ?? DEFAULT_PAPAGO_TARGET_LANG;
   } catch (error) {
     console.error('resolveCurrentTargetLang Error:', error);
-    return DEFAULT_PAPAGO_TARGET_LANG;
+    return cachedTargetLang ?? DEFAULT_PAPAGO_TARGET_LANG;
   }
 };
 

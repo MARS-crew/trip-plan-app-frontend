@@ -27,6 +27,11 @@ export const fetchCountryCode = async (
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&language=en&result_type=country&key=${apiKey}`,
     );
+    // fetch는 4xx/5xx에도 reject되지 않으므로 ok 여부를 먼저 검증한다.
+    if (!response.ok) {
+      return null;
+    }
+
     const data = await response.json();
     if (data.status !== 'OK') {
       return null;
