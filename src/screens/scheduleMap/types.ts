@@ -17,6 +17,7 @@ export interface RoutePoint {
   image?: ImageSourcePropType | null;
   imageText?: string;
   categories?: string[];
+  scheduleDate?: string;
   visited?: boolean;
   canAddVisitedPlace?: boolean;
   current?: boolean;

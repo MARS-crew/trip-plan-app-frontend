@@ -217,6 +217,7 @@ const ScheduleMapScreen: React.FC = () => {
             image: schedule.imageUrl ? { uri: schedule.imageUrl } : null,
             imageText: schedule.imageUrl ? undefined : '이미지를 불러올 수 없습니다.',
             categories: [],
+            scheduleDate: schedule.scheduleDate,
             current: schedule.current,
             canAddVisitedPlace: schedule.canAddVisitedPlace,
             visited: schedule.visited,
@@ -671,7 +672,36 @@ const ScheduleMapScreen: React.FC = () => {
           className="absolute bottom-0 left-0 right-0 z-10 border-t border-borderGray bg-white"
           style={{ paddingBottom: insets.bottom }}>
           <View className="h-[160px] w-full items-center px-4 py-6">
-            {mapPlaceCardPoint && <MapPlaceCard place={mapPlaceCardPoint} />}
+            {mapPlaceCardPoint && (
+              <MapPlaceCard
+                place={mapPlaceCardPoint}
+                onPress={
+                  mapPlaceCardPoint.placeId
+                    ? () =>
+                        navigation.navigate('DestinationDetail', {
+                          destinationId: String(mapPlaceCardPoint.placeId),
+                        })
+                    : undefined
+                }
+                onPressAction={
+                  tripId
+                    ? () =>
+                        navigation.navigate('AddSchedule', {
+                          tripId,
+                          tripTitle,
+                          date: mapPlaceCardPoint.scheduleDate ?? '',
+                          placeId: mapPlaceCardPoint.placeId
+                            ? Number(mapPlaceCardPoint.placeId)
+                            : undefined,
+                          placeName: mapPlaceCardPoint.title,
+                          address: mapPlaceCardPoint.location,
+                          latitude: mapPlaceCardPoint.latitude,
+                          longitude: mapPlaceCardPoint.longitude,
+                        })
+                    : undefined
+                }
+              />
+            )}
           </View>
         </View>
       ) : (
