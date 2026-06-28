@@ -180,7 +180,9 @@ const TripTimeline: React.FC<TripTimelineProps> = ({
         </TouchableOpacity>
       </View>
 
-      <View className="absolute bottom-0 left-[29px] top-[78px] w-[1px] bg-[#E5E0DC]" />
+      {items.length > 0 ? (
+        <View className="absolute bottom-0 left-[29px] top-[78px] w-[1px] bg-[#E5E0DC]" />
+      ) : null}
 
       {!isLoading && !items.length ? (
         <View className="pb-2 pt-1">
