@@ -10,14 +10,22 @@ import type { RoutePoint } from '../types';
 interface MapPlaceCardProps {
   place: RoutePoint;
   showAction?: boolean;
+  onPress?: () => void;
   onPressAction?: () => void;
 }
 
-const MapPlaceCard: React.FC<MapPlaceCardProps> = ({ place, showAction = true, onPressAction }) => {
+const MapPlaceCard: React.FC<MapPlaceCardProps> = ({
+  place,
+  showAction = true,
+  onPress,
+  onPressAction,
+}) => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
-    <View
+    <TouchableOpacity
+      activeOpacity={onPress ? 0.8 : 1}
+      onPress={onPress}
       className="h-[112px] w-full rounded-[8px] border border-borderGray bg-white"
       style={{
         shadowColor: 'rgba(0, 0, 0, 0.25)',
@@ -76,7 +84,7 @@ const MapPlaceCard: React.FC<MapPlaceCardProps> = ({ place, showAction = true, o
           </TouchableOpacity>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
