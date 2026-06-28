@@ -16,6 +16,7 @@ export const WishModal = React.memo<WishModalProps>(
     buttonContainerClass,
     primaryLabel,
     onPrimaryPress,
+    primaryDisabled,
     primaryIcon,
     primaryBtnClass,
     primaryTextClass,
@@ -51,8 +52,9 @@ export const WishModal = React.memo<WishModalProps>(
               <View className={`w-full ${buttonContainerClass}`}>
                 {/* Primary 버튼 */}
                 <Pressable
-                  onPress={onPrimaryPress}
-                  className={`flex-row items-center justify-center rounded-lg ${primaryBtnClass}`}>
+                  onPress={primaryDisabled ? undefined : onPrimaryPress}
+                  disabled={primaryDisabled}
+                  className={`flex-row items-center justify-center rounded-lg ${primaryBtnClass}${primaryDisabled ? ' opacity-40' : ''}`}>
                   {primaryIcon && <View className="mr-2">{primaryIcon}</View>}
                   <Text
                     className={`text-center font-pretendardSemiBold text-p1 ${primaryTextClass}`}>

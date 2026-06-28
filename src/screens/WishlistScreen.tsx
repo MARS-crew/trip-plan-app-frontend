@@ -783,6 +783,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           ModalIcon="mb-6 mt-[21px]"
           ModalContainer="p-[22px]"
           primaryTitleTextClass="mb-[43px]"
+          primaryDisabled={wishlistPlaces.length === 0}
           primaryBtnClass="w-full py-3 bg-main"
           primaryTextClass="text-white"
           secondaryLabel="직접 일정짜기"

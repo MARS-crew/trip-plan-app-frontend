@@ -86,6 +86,7 @@ export interface WishModalProps {
   primaryLabel: string;
   ModalContainer: string;
   onPrimaryPress: () => void;
+  primaryDisabled?: boolean;
   primaryBtnClass?: string;
   primaryIcon?: React.ReactNode;
   primaryTextClass?: string;
