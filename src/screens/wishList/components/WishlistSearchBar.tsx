@@ -6,7 +6,7 @@ import { COLORS } from '@/constants';
 import type { WishlistSearchBarProps } from '@/types/wishlist';
 
 export const WishlistSearchBar = React.memo<WishlistSearchBarProps>(
-  ({ searchInputRef, searchQuery, onChangeText, onFocus, onBlur, onFocusInput, onPressBack }) => {
+  ({ searchInputRef, searchQuery, onChangeText, onFocus, onBlur, onFocusInput, onPressBack, onPressSearch }) => {
     return (
       <SearchContainer className="absolute left-4 right-4 top-[5px] z-50">
         <TouchableOpacity
@@ -27,7 +27,7 @@ export const WishlistSearchBar = React.memo<WishlistSearchBarProps>(
           onFocus={onFocus}
           onBlur={onBlur}
         />
-        <TouchableOpacity className="absolute right-4">
+        <TouchableOpacity className="absolute right-4" onPress={onPressSearch}>
           <SearchingIcon />
         </TouchableOpacity>
       </SearchContainer>

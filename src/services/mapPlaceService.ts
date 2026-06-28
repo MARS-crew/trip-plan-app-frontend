@@ -166,6 +166,49 @@ export const fetchNearestKoreanPlaceName = async (
     };
   }
 };
+export interface NearbyPlace {
+  id: string;
+  title: string;
+  latitude: number;
+  longitude: number;
+  address: string;
+}
+
+export const searchNearbyPlaces = async (
+  latitude: number,
+  longitude: number,
+  radiusMeters: number,
+): Promise<NearbyPlace[]> => {
+  const apiKey = getGoogleMapsApiKey();
+  if (!apiKey) return [];
+
+  try {
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radiusMeters}&type=tourist_attraction&language=ko&key=${apiKey}`,
+    );
+    const data = await response.json();
+
+    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') return [];
+
+    return (data.results ?? []).map(
+      (place: {
+        place_id: string;
+        name: string;
+        geometry: { location: { lat: number; lng: number } };
+        vicinity?: string;
+      }) => ({
+        id: place.place_id,
+        title: place.name,
+        latitude: place.geometry.location.lat,
+        longitude: place.geometry.location.lng,
+        address: place.vicinity ?? '',
+      }),
+    );
+  } catch {
+    return [];
+  }
+};
+
 export const fetchPlaceEditorialSummary = async (placeId: string): Promise<string | null> => {
   const apiKey = getGoogleMapsApiKey();
   if (!apiKey) return null;

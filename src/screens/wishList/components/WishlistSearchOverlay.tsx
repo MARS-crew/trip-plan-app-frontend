@@ -1,11 +1,13 @@
 import React from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, Text, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import PlaceCard from './PlaceCard';
 import { getSearchResults } from '@/services/searchService';
 import type { WishPlace, WishlistBottomSheetTabId } from '@/types/wishlist';
-import type { SearchResultItem } from '@/types/search';
+import type { SearchResult } from '@/types/search';
 import { ScrollView } from 'react-native-gesture-handler';
+
+export type SearchWishPlace = WishPlace & { latitude: number; longitude: number };
 
 interface WishlistSearchOverlayProps {
   isVisible: boolean;
@@ -13,26 +15,27 @@ interface WishlistSearchOverlayProps {
   searchQuery: string;
   isLiked: (id: string) => boolean;
   onToggleLike: (id: string, place: WishPlace) => void;
+  onPressPlace: (place: SearchWishPlace) => void;
 }
 
 export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
-  ({ isVisible, selectedCategory, searchQuery, isLiked, onToggleLike }) => {
+  ({ isVisible, selectedCategory, searchQuery, isLiked, onToggleLike, onPressPlace }) => {
     const animatedOpacity = useSharedValue(isVisible ? 1 : 0);
     const [keyboardHeight, setKeyboardHeight] = React.useState(0);
-    const [searchResults, setSearchResults] = React.useState<WishPlace[]>([]);
+    const [searchResults, setSearchResults] = React.useState<SearchWishPlace[]>([]);
     const [isLoading, setIsLoading] = React.useState(false);
 
     const normalizePlace = React.useCallback(
-      (item: SearchResultItem, fallbackIndex: number): WishPlace => {
-        return {
-          id: String(item.placeId ?? `search-${fallbackIndex}`),
-          title: item.name,
-          location: `${item.cityName}, ${item.countryName}`,
-          description: item.description,
-          image: item.imageUrl ? { uri: item.imageUrl } : undefined,
-          categories: item.tags,
-        };
-      },
+      (item: SearchResult, fallbackIndex: number): SearchWishPlace => ({
+        id: String(item.placeId ?? `search-${fallbackIndex}`),
+        title: item.name,
+        location: `${item.cityName}, ${item.countryName}`,
+        description: item.description,
+        image: item.imageUrl ? { uri: item.imageUrl } : undefined,
+        categories: item.tags,
+        latitude: item.latitude,
+        longitude: item.longitude,
+      }),
       [],
     );
 
@@ -125,12 +128,16 @@ export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
                 </View>
               ) : searchResults.length > 0 ? (
                 searchResults.map((place) => (
-                  <PlaceCard
+                  <TouchableOpacity
                     key={`${selectedCategory}-${place.id}`}
-                    place={place}
-                    isLiked={isLiked(place.id)}
-                    onToggleLike={() => onToggleLike(place.id, place)}
-                  />
+                    activeOpacity={0.85}
+                    onPress={() => onPressPlace(place)}>
+                    <PlaceCard
+                      place={place}
+                      isLiked={isLiked(place.id)}
+                      onToggleLike={() => onToggleLike(place.id, place)}
+                    />
+                  </TouchableOpacity>
                 ))
               ) : (
                 <View className="items-center py-10">

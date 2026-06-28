@@ -32,6 +32,7 @@ const WishlistBottomSheetComponent: React.FC<WishlistBottomSheetProps> = ({
               isSelected={selectedCategory === tab.id}
               className={`mr-2 rounded-2xl px-4 py-2 ${selectedCategory === tab.id ? 'bg-main' : 'bg-chip'}`}
             />
+
           ))}
         </View>
         <CategoryChip

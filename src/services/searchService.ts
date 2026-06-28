@@ -121,8 +121,10 @@ export const getSearchResults = async (keyword: string): Promise<SearchResult[]>
     );
 
     if (!response.ok) {
-      console.error('[searchService] getSearchResults response not ok', response.status);
-      throw new Error('검색 결과 조회 실패');
+      let body = '';
+      try { body = await response.text(); } catch { /* ignore */ }
+      console.error('[searchService] getSearchResults failed', response.status, body);
+      throw new Error(`검색 결과 조회 실패 (${response.status})`);
     }
 
     const json: BaseResponse<SearchResultData> = await response.json();
