@@ -23,6 +23,7 @@ import { ScheduleMapScreen } from '@/screens/scheduleMap';
 import { ChatScreen } from '@/screens/chat/ChatScreen';
 
 import EmptyMapScreen from '@/screens/myTrip/EmptyMapScreen';
+import DestinationDetailScreen from '@/screens/DestinationDetailScreen';
 
 // ============ Constants ============
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -54,6 +55,7 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="AddCalendarMapScreen" component={AddCalendarMapScreen} />
       <Stack.Screen name="ScheduleMap" component={ScheduleMapScreen} />
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
+      <Stack.Screen name="DestinationDetail" component={DestinationDetailScreen} />
     </Stack.Navigator>
   );
 };
