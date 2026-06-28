@@ -30,7 +30,7 @@ import {
   WishlistSearchOverlay,
 } from '@/screens/wishList/components';
 import type { WishlistBottomSheetTabId } from '@/types/wishlist';
-import type { LikedIdsByTab, LikeTabId, LocationCoords, WishlistTabConfig } from '@/types/wishlist';
+import type { LikedIdsByTab, LikeTabId, LocationCoords, WishlistTabConfig, WishPlace } from '@/types/wishlist';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -244,7 +244,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   );
 
   const handleToggleLikeWithApi = useCallback(
-    (tab: LikeTabId, id: string): void => {
+    (tab: LikeTabId, id: string, placeData?: WishPlace): void => {
       const currentlyLiked = isLikedInTab(tab, id);
       const wasWishlistLiked = isLikedInTab('wishlist', id);
 
@@ -299,7 +299,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       // 낙관적 업데이트: 클릭 즉시 UI 반영
       toggleLike(tab, id);
 
-      if (tab === 'saved' && !wasWishlistLiked) {
+      if ((tab === 'saved' || tab === 'wishlist') && !wasWishlistLiked) {
         setLikedIdsByTab((prev) => {
           if (prev.wishlist.has(id)) {
             return prev;
@@ -315,7 +315,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
             return prev;
           }
 
-          const matchedPlace = savedPlaces.find((place) => place.id === id);
+          const matchedPlace = savedPlaces.find((place) => place.id === id) ?? placeData;
           if (!matchedPlace) {
             return prev;
           }
@@ -330,7 +330,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           // 서버 반영 실패 시 원상복구
           toggleLike(tab, id);
 
-          if (tab === 'saved' && !wasWishlistLiked) {
+          if ((tab === 'saved' || tab === 'wishlist') && !wasWishlistLiked) {
             setLikedIdsByTab((prev) => {
               if (!prev.wishlist.has(id)) {
                 return prev;
@@ -347,7 +347,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           return;
         }
 
-        if (tab === 'saved') {
+        if (tab === 'saved' || tab === 'wishlist') {
           setLikedIdsByTab((prev) => {
             if (prev.wishlist.has(id)) {
               return prev;
@@ -761,10 +761,11 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
             isLiked={(id) =>
               isLikedInTab(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
             }
-            onToggleLike={(id) =>
+            onToggleLike={(id, place) =>
               handleToggleLikeWithApi(
                 selectedCategory === 'trending' ? 'wishlist' : selectedCategory,
                 id,
+                place,
               )
             }
           />

@@ -12,7 +12,7 @@ interface WishlistSearchOverlayProps {
   selectedCategory: WishlistBottomSheetTabId;
   searchQuery: string;
   isLiked: (id: string) => boolean;
-  onToggleLike: (id: string) => void;
+  onToggleLike: (id: string, place: WishPlace) => void;
 }
 
 export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
@@ -53,8 +53,7 @@ export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
       const timer = setTimeout(async () => {
         setIsLoading(true);
         try {
-          const result = await getSearchResults(keyword);
-          const items = result.searchResults ?? [];
+          const items = await getSearchResults(keyword);
 
           if (!isActive) return;
 
@@ -130,7 +129,7 @@ export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
                     key={`${selectedCategory}-${place.id}`}
                     place={place}
                     isLiked={isLiked(place.id)}
-                    onToggleLike={onToggleLike}
+                    onToggleLike={() => onToggleLike(place.id, place)}
                   />
                 ))
               ) : (
