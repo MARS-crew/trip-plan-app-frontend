@@ -95,9 +95,9 @@ const AddScheduleScreen = () => {
     }
 
     if (params?.tripId) {
-      navigation.navigate('TripDetail', { tripId: params.tripId });
+      navigation.replace('TripDetail', { tripId: params.tripId });
     } else {
-      navigation.navigate('TripDetail');
+      navigation.replace('TripDetail');
     }
   };
   const handleNavigateToAddCalendarMap = (): void => {
@@ -192,7 +192,6 @@ const AddScheduleScreen = () => {
         month: selectedMonth,
         day: selectedDay,
       };
-      const nextDateLabel = `${nextDate.year}-${pad(nextDate.month)}-${pad(nextDate.day)}`;
 
       setFormValues((prev) => ({
         ...prev,
@@ -200,23 +199,6 @@ const AddScheduleScreen = () => {
       }));
 
       setPickerMode(null);
-
-      if (!isEditMode && params?.tripId) {
-        navigation.replace('AddCalendarMapScreen', {
-          tripId: params.tripId,
-          tripTitle: params.tripTitle,
-          date: nextDateLabel,
-          title: formValues.title,
-          startTime: formValues.startTime
-            ? `${pad(formValues.startTime.hour)}:${pad(formValues.startTime.minute)}`
-            : undefined,
-          endTime: formValues.endTime
-            ? `${pad(formValues.endTime.hour)}:${pad(formValues.endTime.minute)}`
-            : undefined,
-          memo: formValues.memo,
-        });
-      }
-
       return;
     }
 
