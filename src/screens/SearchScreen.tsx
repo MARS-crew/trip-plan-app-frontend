@@ -7,7 +7,12 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { SearchStackParamList } from '@/navigation/types';
 import { InputSearchIcon } from '@/assets/icons';
 import { COLORS } from '@/constants/colors';
-import { getRecentSearches, deleteRecentSearch, deleteAllRecentSearch, getPopularSearches } from '@/services';
+import {
+  getRecentSearches,
+  deleteRecentSearch,
+  deleteAllRecentSearch,
+  getPopularSearches,
+} from '@/services';
 import { SearchList } from '@/screens/search/components/SearchList';
 import { PopularList } from '@/screens/search/components/PopularList';
 import { CategoryChip } from '@/screens/search/components/CategoryChip';
@@ -43,10 +48,7 @@ const SearchScreen: React.FC = () => {
   const fetchPopularSearches = useCallback(async () => {
     try {
       const data = await getPopularSearches();
-      const padded = Array.from(
-        { length: POPULAR_SEARCH_COUNT },
-        (_, i) => data[i] ?? '-',
-      );
+      const padded = Array.from({ length: POPULAR_SEARCH_COUNT }, (_, i) => data[i] ?? '-');
       setPopularSearches(padded);
     } catch (error) {
       console.error('fetchPopularSearches Error:', error);
@@ -65,7 +67,7 @@ const SearchScreen: React.FC = () => {
   const handleDelete = useCallback(async (recentSearchId: number) => {
     try {
       await deleteRecentSearch(recentSearchId);
-      setRecentSearches(prev => prev.filter(s => s.recentSearchId !== recentSearchId));
+      setRecentSearches((prev) => prev.filter((s) => s.recentSearchId !== recentSearchId));
     } catch (error) {
       console.error('handleDelete Error:', error);
     }
@@ -136,7 +138,7 @@ const SearchScreen: React.FC = () => {
               </View>
               <View>
                 {recentSearches.length === 0 ? (
-                  <Text className="py-4 text-center text-p text-gray">최근 검색어가 없습니다</Text>
+                  <Text className="py-4 text-center text-p text-gray">검색 기록이 없습니다</Text>
                 ) : (
                   recentSearches.map(({ recentSearchId, keyword }) => (
                     <SearchList
