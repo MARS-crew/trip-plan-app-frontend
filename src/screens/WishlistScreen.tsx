@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useEffect, useState } from 'react';
 
 import {
   View,
+  Text,
   TextInput,
   TouchableOpacity,
   Keyboard,
@@ -15,7 +16,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MyLocation, WishStar } from '@/assets/icons';
 import { WishModal } from '@/screens/wishList/components/WishModal';
 import type { RootStackParamList } from '@/navigation/types';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker, type Region } from 'react-native-maps';
 import { RouteIcon, AlertIcon } from '@/assets/icons';
 import { BackHandler } from 'react-native';
 import {
@@ -39,11 +40,13 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Shadow } from 'react-native-shadow-2';
-import { addWishlistPlace, createSchedule, generateTripSchedules } from '@/services';
-import { getPlaceSelection } from '@/services/searchService';
+import { addWishlistPlace, createSchedule, deleteWishlistPlace, generateTripSchedules } from '@/services';
+import { getPlaceSelection, getSearchResults } from '@/services/searchService';
+import { searchNearbyPlaces, type NearbyPlace } from '@/services/mapPlaceService';
 import type { PlaceSelectionPlace } from '@/types/wishlist';
 import type { GenerateTripSchedulesData } from '@/types/tripDetail.types';
 import type { CreateScheduleRequest } from '@/types/myTrip.types';
+import type { SearchWishPlace } from '@/screens/wishList/components/WishlistSearchOverlay';
 
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -163,6 +166,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
 
   const [savedPlaces, setSavedPlaces] = useState<PlaceCardProps['place'][]>([]);
   const [wishlistPlaces, setWishlistPlaces] = useState<PlaceCardProps['place'][]>([]);
+  const [wishlistPlaceIdMap, setWishlistPlaceIdMap] = useState<Record<string, number>>({});
 
   const [likedIdsByTab, setLikedIdsByTab] = useState<LikedIdsByTab>(() => ({
     saved: new Set<string>(),
@@ -173,6 +177,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       if (typeof tripId !== 'number') {
         setSavedPlaces([]);
         setWishlistPlaces([]);
+        setWishlistPlaceIdMap({});
         setLikedIdsByTab({
           saved: new Set<string>(),
           wishlist: new Set<string>(),
@@ -188,8 +193,14 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           convertPlaceDataToWishPlace,
         );
 
+        const idMap: Record<string, number> = {};
+        response.data.wishlistPlaces.forEach((place) => {
+          idMap[place.placeId.toString()] = place.selectionId;
+        });
+
         setSavedPlaces(convertedSavedPlaces);
         setWishlistPlaces(convertedWishlistPlaces);
+        setWishlistPlaceIdMap(idMap);
         setLikedIdsByTab({
           saved: new Set<string>(),
           wishlist: new Set(convertedWishlistPlaces.map((place) => place.id)),
@@ -197,6 +208,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       } catch {
         setSavedPlaces([]);
         setWishlistPlaces([]);
+        setWishlistPlaceIdMap({});
         setLikedIdsByTab({
           saved: new Set<string>(),
           wishlist: new Set<string>(),
@@ -235,6 +247,9 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
 
       try {
         const result = await addWishlistPlace(tripId, { placeId, sourceType });
+        if (result.added && result.wishlistPlaceId != null) {
+          setWishlistPlaceIdMap((prev) => ({ ...prev, [id]: result.wishlistPlaceId! }));
+        }
         return result.added;
       } catch {
         return false;
@@ -250,6 +265,9 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
 
       if (currentlyLiked) {
         if (tab === 'saved') {
+          const removedPlace = wishlistPlaces.find((place) => place.id === id);
+          const wishlistPlaceId = wishlistPlaceIdMap[id];
+
           setLikedIdsByTab((prev) => {
             const nextSaved = new Set(prev.saved);
             const nextWishlist = new Set(prev.wishlist);
@@ -263,12 +281,27 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
               wishlist: nextWishlist,
             };
           });
-
           setWishlistPlaces((prev) => prev.filter((place) => place.id !== id));
+
+          if (typeof tripId === 'number' && wishlistPlaceId != null) {
+            void deleteWishlistPlace(tripId, wishlistPlaceId).catch(() => {
+              setLikedIdsByTab((prev) => ({
+                ...prev,
+                saved: new Set([...prev.saved, id]),
+                wishlist: new Set([...prev.wishlist, id]),
+              }));
+              if (removedPlace) {
+                setWishlistPlaces((prev) => [removedPlace, ...prev]);
+              }
+            });
+          }
           return;
         }
 
         if (tab === 'wishlist') {
+          const removedPlace = wishlistPlaces.find((place) => place.id === id);
+          const wishlistPlaceId = wishlistPlaceIdMap[id];
+
           setLikedIdsByTab((prev) => {
             const nextWishlist = new Set(prev.wishlist);
             const nextSaved = new Set(prev.saved);
@@ -283,6 +316,19 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
             };
           });
           setWishlistPlaces((prev) => prev.filter((place) => place.id !== id));
+
+          if (typeof tripId === 'number' && wishlistPlaceId != null) {
+            void deleteWishlistPlace(tripId, wishlistPlaceId).catch(() => {
+              setLikedIdsByTab((prev) => ({
+                ...prev,
+                wishlist: new Set([...prev.wishlist, id]),
+                saved: new Set([...prev.saved, id]),
+              }));
+              if (removedPlace) {
+                setWishlistPlaces((prev) => [removedPlace, ...prev]);
+              }
+            });
+          }
           return;
         }
 
@@ -360,7 +406,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
         }
       })();
     },
-    [addWishlistPlaceById, isLikedInTab, savedPlaces, toggleLike],
+    [addWishlistPlaceById, isLikedInTab, savedPlaces, toggleLike, wishlistPlaceIdMap, wishlistPlaces, tripId],
   );
 
   const [selectedCategory, setSelectedCategory] = useState<TabId>(INITIAL_CATEGORY);
@@ -370,6 +416,10 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   const [isGeneratingAiPlan, setIsGeneratingAiPlan] = useState(false);
   const [isSheetExpanded, setIsSheetExpanded] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSearchPlace, setSelectedSearchPlace] = useState<SearchWishPlace | null>(null);
+  const [searchMarkers, setSearchMarkers] = useState<SearchWishPlace[]>([]);
+  const [regionMarkers, setRegionMarkers] = useState<NearbyPlace[]>([]);
+  const currentRegionRef = useRef<Region>(GOOGLE_HQ_REGION);
   const searchInputRef = useRef<TextInput>(null);
   const refocusRafRef = useRef<number | null>(null);
   const isSearchFocusedRef = useRef(false);
@@ -377,6 +427,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   const isInitialTabEffect = useRef(true);
   const showAddModalRef = useRef(false);
   const showExitModalRef = useRef(false);
+  const selectedSearchPlaceRef = useRef<SearchWishPlace | null>(null);
   const mapRef = useRef<MapView>(null);
   const currentLocationRef = useRef<LocationCoords | null>(null);
   const hasAutoCenteredOnLocationRef = useRef(false);
@@ -387,6 +438,9 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   useEffect(() => {
     showExitModalRef.current = showExitModal;
   }, [showExitModal]);
+  useEffect(() => {
+    selectedSearchPlaceRef.current = selectedSearchPlace;
+  }, [selectedSearchPlace]);
 
   useEffect(() => {
     isSearchFocusedRef.current = isSearchFocused;
@@ -469,14 +523,127 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   }, [clearPendingRefocus]);
   const handleSearchInputBlur = useCallback((): void => {
     // Intentionally keep search mode active; only hide keyboard on blur.
-  }, []); // 뒤로가기 버튼 핸들러: 검색 중이면 검색 종료, 그 외에는 모달 열기
+  }, []);
+
+  const handleCloseSearchDetail = useCallback((): void => {
+    setSelectedSearchPlace(null);
+  }, []);
+
+  const handleSearchInRegion = useCallback(async (): Promise<void> => {
+    const region = currentRegionRef.current;
+    const minLat = region.latitude - region.latitudeDelta / 2;
+    const maxLat = region.latitude + region.latitudeDelta / 2;
+    const minLng = region.longitude - region.longitudeDelta / 2;
+    const maxLng = region.longitude + region.longitudeDelta / 2;
+
+    setRegionMarkers([]);
+    setSearchMarkers([]);
+    setSelectedSearchPlace(null);
+
+    const keyword = searchQuery.trim();
+
+    if (keyword) {
+      try {
+        const results = await getSearchResults(keyword);
+        const markers: SearchWishPlace[] = results
+          .filter(
+            (item) =>
+              item.latitude >= minLat &&
+              item.latitude <= maxLat &&
+              item.longitude >= minLng &&
+              item.longitude <= maxLng,
+          )
+          .map((item, index) => ({
+            id: String(item.placeId ?? `search-${index}`),
+            title: item.name,
+            location: `${item.cityName}, ${item.countryName}`,
+            description: item.description,
+            image: item.imageUrl ? { uri: item.imageUrl } : undefined,
+            categories: item.tags,
+            latitude: item.latitude,
+            longitude: item.longitude,
+          }));
+        setSearchMarkers(markers);
+      } catch {
+        // 검색 실패 시 마커 없음
+      }
+    } else {
+      const radiusMeters = Math.min(Math.max(Math.round((region.latitudeDelta / 2) * 111000), 500), 50000);
+      const places = await searchNearbyPlaces(region.latitude, region.longitude, radiusMeters);
+      setRegionMarkers(places);
+    }
+  }, [searchQuery]);
+
+  const handlePressSearch = useCallback(async (): Promise<void> => {
+    const keyword = searchQuery.trim();
+    if (!keyword) return;
+
+    try {
+      const results = await getSearchResults(keyword);
+      const region = currentRegionRef.current;
+      const minLat = region.latitude - region.latitudeDelta / 2;
+      const maxLat = region.latitude + region.latitudeDelta / 2;
+      const minLng = region.longitude - region.longitudeDelta / 2;
+      const maxLng = region.longitude + region.longitudeDelta / 2;
+
+      const markers: SearchWishPlace[] = results
+        .filter(
+          (item) =>
+            item.latitude >= minLat &&
+            item.latitude <= maxLat &&
+            item.longitude >= minLng &&
+            item.longitude <= maxLng,
+        )
+        .map((item, index) => ({
+          id: String(item.placeId ?? `search-${index}`),
+          title: item.name,
+          location: `${item.cityName}, ${item.countryName}`,
+          description: item.description,
+          image: item.imageUrl ? { uri: item.imageUrl } : undefined,
+          categories: item.tags,
+          latitude: item.latitude,
+          longitude: item.longitude,
+        }));
+
+      setSearchMarkers(markers);
+      handleSearchBlur();
+      animateSheetTo(SNAP_LOW);
+    } catch {
+      handleSearchBlur();
+    }
+  }, [searchQuery, handleSearchBlur, animateSheetTo]);
+
+  const handlePressSearchPlace = useCallback(
+    (place: SearchWishPlace): void => {
+      setSelectedSearchPlace(place);
+      handleSearchBlur();
+      mapRef.current?.animateToRegion(
+        {
+          latitude: place.latitude,
+          longitude: place.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        600,
+      );
+    },
+    [handleSearchBlur],
+  );
+
+  // 뒤로가기 버튼 핸들러: 검색 중이면 검색 종료, 상세 카드면 닫기, 그 외에는 모달 열기
   const handleGoBack = useCallback((): void => {
     if (isSearchFocused) {
       handleSearchBlur();
+      setSearchMarkers([]);
+      return;
+    }
+    if (selectedSearchPlace) {
+      setSelectedSearchPlace(null);
+      setSearchMarkers([]);
       return;
     }
     setShowExitModal(true);
-  }, [isSearchFocused, handleSearchBlur]);
+  }, [isSearchFocused, handleSearchBlur, selectedSearchPlace]);
 
   const handleAiPlan = useCallback(async (): Promise<void> => {
     if (isGeneratingAiPlan) return;
@@ -587,6 +754,10 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           handleSearchBlur();
           return true;
         }
+        if (selectedSearchPlaceRef.current) {
+          setSelectedSearchPlace(null);
+          return true;
+        }
         setShowExitModal(true);
         return true;
       };
@@ -649,6 +820,19 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     }
   }; //탭 컨텐츠
   const renderTabContent = (): React.ReactNode => {
+    if (selectedSearchPlace) {
+      return (
+        <View className="pb-4">
+          <Text className="mb-3 font-pretendardSemiBold text-h2">검색 결과</Text>
+          <PlaceCard
+            place={selectedSearchPlace}
+            isLiked={isLikedInTab('wishlist', selectedSearchPlace.id)}
+            onToggleLike={(id) => handleToggleLikeWithApi('wishlist', id, selectedSearchPlace)}
+          />
+        </View>
+      );
+    }
+
     switch (selectedCategory) {
       case 'trending':
         return (
@@ -682,14 +866,44 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top', 'bottom']}>
       <View className="flex-1">
         <MapView
-          ref={mapRef} // 2. ref 연결
+          ref={mapRef}
           provider={PROVIDER_GOOGLE}
           style={{ flex: 1 }}
-          showsUserLocation={true} // 내 위치 파란 점 표시
-          showsMyLocationButton={false} // 구글 기본 버튼은 숨김 (커스텀 버튼 사용)
+          showsUserLocation={true}
+          showsMyLocationButton={false}
           onUserLocationChange={handleUserLocationChange}
           initialRegion={GOOGLE_HQ_REGION}
-        />
+          onRegionChangeComplete={(region) => {
+            currentRegionRef.current = region;
+          }}>
+          {searchMarkers.map((place) => (
+            <Marker
+              key={`search-marker-${place.id}`}
+              coordinate={{ latitude: place.latitude, longitude: place.longitude }}
+              title={place.title}
+              onPress={() => {
+                setSelectedSearchPlace(place);
+                animateSheetTo(SNAP_TRENDING);
+              }}
+            />
+          ))}
+          {selectedSearchPlace && searchMarkers.length === 0 && regionMarkers.length === 0 && (
+            <Marker
+              coordinate={{
+                latitude: selectedSearchPlace.latitude,
+                longitude: selectedSearchPlace.longitude,
+              }}
+              title={selectedSearchPlace.title}
+            />
+          )}
+          {regionMarkers.map((place) => (
+            <Marker
+              key={`region-marker-${place.id}`}
+              coordinate={{ latitude: place.latitude, longitude: place.longitude }}
+              title={place.title}
+            />
+          ))}
+        </MapView>
         {/* 지도 영역 누르면 바텀시트 내려가기 */}
         <TouchableOpacity
           style={{
@@ -706,11 +920,15 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
         <WishlistSearchBar
           searchInputRef={searchInputRef}
           searchQuery={searchQuery}
-          onChangeText={setSearchQuery}
+          onChangeText={(text) => {
+            setSearchQuery(text);
+            if (searchMarkers.length > 0) setSearchMarkers([]);
+          }}
           onFocus={handleSearchFocus}
           onBlur={handleSearchInputBlur}
           onFocusInput={focusSearchInput}
           onPressBack={handleGoBack}
+          onPressSearch={handlePressSearch}
         />
         <Animated.View
           style={[
@@ -721,6 +939,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
             <CategoryChip
               label="현 지도에서 검색"
               isSelected={true}
+              onPress={handleSearchInRegion}
               textClassName="text-p1"
               className="rounded-full px-[29px] py-[10px]"
             />
@@ -744,10 +963,19 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           <WishlistBottomSheet
             translateY={translateY}
             onStateChange={handleSheetChange}
-            maxTopSnap={selectedCategory === 'trending' ? SNAP_TRENDING : SNAP_FULL}
+            maxTopSnap={
+              selectedSearchPlace
+                ? SNAP_TRENDING
+                : selectedCategory === 'trending'
+                  ? SNAP_TRENDING
+                  : SNAP_FULL
+            }
             tabs={TABS}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
+            selectedCategory={selectedSearchPlace ? null : selectedCategory}
+            onSelectCategory={(tabId) => {
+              setSelectedSearchPlace(null);
+              setSelectedCategory(tabId);
+            }}
             onPressComplete={handleComplete}
             renderTabContent={renderTabContent}
           />
@@ -768,8 +996,10 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
                 place,
               )
             }
+            onPressPlace={handlePressSearchPlace}
           />
         )}
+
         {/* 완료 모달 */}
         <WishModal
           isVisible={showAddModal}

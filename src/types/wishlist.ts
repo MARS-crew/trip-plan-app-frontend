@@ -107,7 +107,7 @@ export interface WishlistBottomSheetProps {
   onStateChange: (expanded: boolean) => void;
   maxTopSnap?: number;
   tabs: WishlistBottomSheetTab[];
-  selectedCategory: WishlistBottomSheetTabId;
+  selectedCategory: WishlistBottomSheetTabId | null;
   onSelectCategory: (tabId: WishlistBottomSheetTabId) => void;
   onPressComplete: () => void;
   renderTabContent: () => React.ReactNode;
@@ -121,6 +121,7 @@ export interface WishlistSearchBarProps {
   onBlur: () => void;
   onFocusInput: () => void;
   onPressBack: () => void;
+  onPressSearch: () => void;
 }
 
 export interface LikedIdsByTab {

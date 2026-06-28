@@ -75,4 +75,29 @@ export const addWishlistPlace = async (
 	}
 };
 
+export const deleteWishlistPlace = async (
+	tripId: number,
+	wishlistPlaceId: number,
+): Promise<void> => {
+	try {
+		const response = await fetch(
+			`${Config.API_BASE_URL}/api/v1/trips/${tripId}/wishlist-places/${wishlistPlaceId}`,
+			{
+				method: 'DELETE',
+				headers: {
+					Accept: '*/*',
+					Authorization: `Bearer ${getAccessToken()}`,
+				},
+			},
+		);
+
+		if (!response.ok) {
+			throw new Error(`위시리스트 장소 삭제 실패 (${response.status})`);
+		}
+	} catch (error) {
+		console.error('deleteWishlistPlace Error:', error);
+		throw error;
+	}
+};
+
 export type { AddWishlistPlacePayload, AddWishlistPlaceData };
