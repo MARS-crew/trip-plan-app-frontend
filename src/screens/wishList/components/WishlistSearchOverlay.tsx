@@ -13,17 +13,19 @@ interface WishlistSearchOverlayProps {
   isVisible: boolean;
   selectedCategory: WishlistBottomSheetTabId;
   searchQuery: string;
+  searchTrigger: number;
   isLiked: (id: string) => boolean;
   onToggleLike: (id: string, place: WishPlace) => void;
   onPressPlace: (place: SearchWishPlace) => void;
 }
 
 export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
-  ({ isVisible, selectedCategory, searchQuery, isLiked, onToggleLike, onPressPlace }) => {
+  ({ isVisible, selectedCategory, searchQuery, searchTrigger, isLiked, onToggleLike, onPressPlace }) => {
     const animatedOpacity = useSharedValue(isVisible ? 1 : 0);
     const [keyboardHeight, setKeyboardHeight] = React.useState(0);
     const [searchResults, setSearchResults] = React.useState<SearchWishPlace[]>([]);
     const [isLoading, setIsLoading] = React.useState(false);
+    const [hasSearched, setHasSearched] = React.useState(false);
 
     const normalizePlace = React.useCallback(
       (item: SearchResult, fallbackIndex: number): SearchWishPlace => ({
@@ -41,11 +43,24 @@ export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
 
     React.useEffect(() => {
       animatedOpacity.value = withTiming(isVisible ? 1 : 0, { duration: 180 });
+      if (!isVisible) {
+        setSearchResults([]);
+        setHasSearched(false);
+      }
     }, [animatedOpacity, isVisible]);
 
     React.useEffect(() => {
-      const keyword = searchQuery.trim();
+      if (!searchQuery.trim()) {
+        setSearchResults([]);
+        setHasSearched(false);
+      }
+    }, [searchQuery]);
 
+    // 돋보기 버튼 클릭 시에만 검색 실행
+    React.useEffect(() => {
+      if (searchTrigger === 0) return;
+
+      const keyword = searchQuery.trim();
       if (!keyword) {
         setSearchResults([]);
         setIsLoading(false);
@@ -53,30 +68,27 @@ export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
       }
 
       let isActive = true;
-      const timer = setTimeout(async () => {
-        setIsLoading(true);
+      setHasSearched(true);
+      setIsLoading(true);
+
+      (async () => {
         try {
           const items = await getSearchResults(keyword);
-
           if (!isActive) return;
-
           setSearchResults(items.map((item, index) => normalizePlace(item, index)));
         } catch {
-          if (isActive) {
-            setSearchResults([]);
-          }
+          if (isActive) setSearchResults([]);
         } finally {
-          if (isActive) {
-            setIsLoading(false);
-          }
+          if (isActive) setIsLoading(false);
         }
-      }, 250);
+      })();
 
       return () => {
         isActive = false;
-        clearTimeout(timer);
       };
-    }, [normalizePlace, searchQuery]);
+      // searchTrigger 변화 시에만 실행 — searchQuery·normalizePlace는 클로저에서 최신값 참조
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchTrigger]);
 
     React.useEffect(() => {
       const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -139,11 +151,11 @@ export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
                     />
                   </TouchableOpacity>
                 ))
-              ) : (
+              ) : hasSearched ? (
                 <View className="items-center py-10">
                   <Text className="text-gray">검색 결과가 없습니다.</Text>
                 </View>
-              )}
+              ) : null}
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
