@@ -38,6 +38,7 @@ export interface TripTimelineItem {
   title: string;
   location: string;
   description?: string;
+  imageUrl?: string;
 }
 
 export interface TripTimelineDateOption {
@@ -97,6 +98,7 @@ export interface TripScheduleItem {
   startTime: string;
   endTime: string;
   memo?: string;
+  imageUrl?: string;
 }
 
 export interface TripSchedulesByDateData {

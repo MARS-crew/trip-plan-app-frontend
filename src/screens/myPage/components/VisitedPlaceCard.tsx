@@ -6,7 +6,7 @@ import VectorGrayIcon from '@/assets/icons/vectorgray.svg';
 import { CARD_SHADOW_SUBTLE } from '@/constants';
 import type { VisitedPlaceCardProps } from '@/screens/myPage/types/myPage.types';
 
-const PLACEHOLDER_IMAGE = require('@/assets/images/thumnail.png');
+const PLACEHOLDER_IMAGE = require('@/assets/images/place_default.png');
 
 const VisitedPlaceCard: React.FC<VisitedPlaceCardProps> = ({
   item,

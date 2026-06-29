@@ -22,10 +22,17 @@ const MapPlaceCard: React.FC<MapPlaceCardProps> = ({
 }) => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  const handlePress = () => {
+    onPress?.();
+    if (place.placeId != null) {
+      navigation.navigate('DestinationDetail', { destinationId: String(place.placeId) });
+    }
+  };
+
   return (
     <TouchableOpacity
-      activeOpacity={onPress ? 0.8 : 1}
-      onPress={onPress}
+      activeOpacity={0.8}
+      onPress={handlePress}
       className="h-[112px] w-full rounded-[8px] border border-borderGray bg-white"
       style={{
         shadowColor: 'rgba(0, 0, 0, 0.25)',

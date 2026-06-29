@@ -39,7 +39,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Shadow } from 'react-native-shadow-2';
-import { addWishlistPlace, createSchedule, deleteWishlistPlace, generateTripSchedules } from '@/services';
+import { addWishlistPlace, createSchedule, deleteWishlistPlace, generateTripSchedules, getTripSchedules } from '@/services';
 import { getPlaceSelection, getSearchResults } from '@/services/searchService';
 import { searchNearbyPlaces, type NearbyPlace } from '@/services/mapPlaceService';
 import type { PlaceSelectionPlace } from '@/types/wishlist';
@@ -154,6 +154,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   const [savedPlaces, setSavedPlaces] = useState<PlaceCardProps['place'][]>([]);
   const [wishlistPlaces, setWishlistPlaces] = useState<PlaceCardProps['place'][]>([]);
   const [wishlistPlaceIdMap, setWishlistPlaceIdMap] = useState<Record<string, number>>({});
+  const [tripDay1Date, setTripDay1Date] = useState<string | null>(null);
 
   const [likedIdsByTab, setLikedIdsByTab] = useState<LikedIdsByTab>(() => ({
     saved: new Set<string>(),
@@ -165,6 +166,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
         setSavedPlaces([]);
         setWishlistPlaces([]);
         setWishlistPlaceIdMap({});
+        setTripDay1Date(null);
         setLikedIdsByTab({
           saved: new Set<string>(),
           wishlist: new Set<string>(),
@@ -173,7 +175,13 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       }
 
       try {
-        const response = await getPlaceSelection(tripId);
+        const [response, tripResult] = await Promise.all([
+          getPlaceSelection(tripId),
+          getTripSchedules({ tripId }),
+        ]);
+
+        const tripData = tripResult.data as { startDate?: string } | null;
+        setTripDay1Date(tripData?.startDate ?? null);
 
         const convertedSavedPlaces = response.data.savedPlaces.map(convertPlaceDataToWishPlace);
         const convertedWishlistPlaces = response.data.wishlistPlaces.map(
@@ -196,6 +204,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
         setSavedPlaces([]);
         setWishlistPlaces([]);
         setWishlistPlaceIdMap({});
+        setTripDay1Date(null);
         setLikedIdsByTab({
           saved: new Set<string>(),
           wishlist: new Set<string>(),
@@ -633,14 +642,51 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     navigation.replace('TripDetail', { tripId: result.data.tripId });
   }, [isGeneratingAiPlan, navigation, tripId]);
 
-  const handleManualPlan = useCallback((): void => {
-    if (typeof tripId === 'number') {
-      navigation.navigate('TripDetail', { tripId });
-    } else {
+  const handleManualPlan = useCallback(async (): Promise<void> => {
+    if (typeof tripId !== 'number') {
       navigation.navigate('TripDetail');
+      setShowAddModal(false);
+      return;
     }
+
+    ToastAndroid.show(`[debug] tripId:${tripId} places:${wishlistPlaces.length} day1:${tripDay1Date ?? 'null'}`, ToastAndroid.LONG);
+    console.log('[handleManualPlan] called, tripId:', tripId, 'wishlistPlaces:', wishlistPlaces.length, 'tripDay1Date:', tripDay1Date);
+
+    if (wishlistPlaces.length > 0) {
+      let scheduleDate = tripDay1Date;
+      console.log('[handleManualPlan] entering schedule creation, scheduleDate:', scheduleDate);
+
+      if (!scheduleDate) {
+        const result = await getTripSchedules({ tripId });
+        const tripData = result.data as { startDate?: string } | null;
+        scheduleDate = tripData?.startDate ?? null;
+        console.log('[handleManualPlan] getTripSchedules result:', JSON.stringify(result.data), 'scheduleDate:', scheduleDate);
+      }
+
+      if (scheduleDate) {
+        const results = await Promise.all(
+          wishlistPlaces.map((place) =>
+            createSchedule({
+              tripId,
+              payload: {
+                title: place.title,
+                scheduleDate,
+                placeId: Number.isInteger(Number(place.id)) ? Number(place.id) : undefined,
+                placeName: place.title,
+                address: place.description,
+              },
+            }),
+          ),
+        );
+        console.log('[handleManualPlan] createSchedule results:', JSON.stringify(results));
+      } else {
+        console.log('[handleManualPlan] scheduleDate is null — schedules not created');
+      }
+    }
+
+    navigation.navigate('TripDetail', { tripId });
     setShowAddModal(false);
-  }, [navigation, tripId]);
+  }, [navigation, tripId, wishlistPlaces, tripDay1Date]);
 
   const handleComplete = useCallback((): void => setShowAddModal(true), []);
 

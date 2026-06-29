@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 
 import type { PlaceCardProps } from '@/types/placeCard';
 
-const THUMBNAIL_IMAGE = require('@/assets/images/thumnail.png');
+const THUMBNAIL_IMAGE = require('@/assets/images/place_default.png');
 const SaveIcon = require('@/assets/icons/activebookmark.svg').default;
 const StarIcon = require('@/assets/icons/star.svg').default;
 const LocationIcon = require('@/assets/icons/location.svg').default;
