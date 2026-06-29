@@ -42,8 +42,8 @@ const FindPasswordScreen: React.FC = () => {
   const isCodeVerified = useMemo(() => codeStatus === 'success', [codeStatus]);
   const isTempPwSent = useMemo(() => tempPwStatus === 'sent', [tempPwStatus]);
   const sendCodeButtonText = useMemo(
-    () => (isCodeFieldVisible || isCodeVerified ? '재전송' : '인증번호 발송'),
-    [isCodeFieldVisible, isCodeVerified],
+    () => (isCodeFieldVisible || isCodeVerified || isEmailError ? '재전송' : '인증번호 발송'),
+    [isCodeFieldVisible, isCodeVerified, isEmailError],
   );
   const isSubmitEnabled = useMemo(
     () => userId.trim().length > 0 && email.trim().length > 0 && isCodeVerified,
@@ -111,10 +111,10 @@ const FindPasswordScreen: React.FC = () => {
       setTempPwStatus('none');
     } else {
       setEmailStatus('error');
-      setEmailErrorMessage(result.message || '인증번호 발송에 실패했습니다.');
+      setEmailErrorMessage('가입된 이메일이 없습니다.');
       setIsCodeFieldVisible(false);
       setCodeStatus('none');
-      showToastMessage(result.message || '인증번호 발송에 실패했습니다.');
+      showToastMessage('가입된 이메일이 없습니다.');
     }
 
     setIsSendingVerification(false);
