@@ -210,6 +210,50 @@ export interface NaverSocialLoginResponse {
   success: boolean;
 }
 
+export type GoogleLoginWarningType =
+  | 'INVALID_TOKEN'
+  | 'EXPIRED_REFRESH_TOKEN'
+  | 'USER_NOT_FOUND'
+  | 'SERVER_ERROR'
+  | 'NETWORK_ERROR'
+  | 'UNKNOWN_ERROR';
+
+export interface GoogleSignUpData {
+  loginType: string;
+  socialProviderId: string;
+  nickname: string;
+  email: string;
+  name: string;
+  gender: string;
+  birth: string;
+}
+
+export interface GoogleLoginData {
+  nextAction: 'login' | 'signup';
+  login?: LoginData | null;
+  signupResponse?: GoogleSignUpData | null;
+}
+
+export interface GoogleLoginResponse {
+  success: boolean;
+  code: string;
+  message: string;
+  data?: GoogleLoginData | null;
+}
+
+export interface GoogleLoginSuccessResult {
+  ok: true;
+  data: GoogleLoginData;
+}
+
+export interface GoogleLoginFailureResult {
+  ok: false;
+  warningType: GoogleLoginWarningType;
+  message?: string;
+}
+
+export type GoogleLoginResult = GoogleLoginSuccessResult | GoogleLoginFailureResult;
+
 export interface FindIdRequest {
   nickname: string;
   email: string;

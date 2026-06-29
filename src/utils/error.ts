@@ -2,6 +2,8 @@ import type {
   LoginFailureResult,
   FindIdWarningType,
   FindPasswordResetWarningType,
+  GoogleLoginFailureResult,
+  GoogleLoginWarningType,
   LoginWarningType,
   NaverLoginFailureResult,
   NaverLoginWarningType,
@@ -94,6 +96,44 @@ export const getNaverLoginWarningType = (status: number, code = ''): NaverLoginW
   if (code === 'INVALID_TOKEN' || status === 400) return 'INVALID_TOKEN';
   if (code === 'USER_NOT_FOUND' || status === 404) return 'USER_NOT_FOUND';
   return 'UNKNOWN_ERROR';
+};
+
+export const getGoogleLoginWarningType = (status: number, code = ''): GoogleLoginWarningType => {
+  if (status >= 500 || code === 'INTERNAL_ERROR') return 'SERVER_ERROR';
+  if (code === 'EXPIRED_REFRESH_TOKEN' || status === 401) return 'EXPIRED_REFRESH_TOKEN';
+  if (code === 'INVALID_TOKEN' || status === 400) return 'INVALID_TOKEN';
+  if (code === 'USER_NOT_FOUND' || status === 404) return 'USER_NOT_FOUND';
+  return 'UNKNOWN_ERROR';
+};
+
+export const getGoogleLoginWarningMessage = (failure: GoogleLoginFailureResult): string => {
+  const serverMessage = failure.message?.trim();
+
+  if (serverMessage) {
+    return serverMessage;
+  }
+
+  if (failure.warningType === 'INVALID_TOKEN') {
+    return '유효하지 않은 구글 토큰입니다.';
+  }
+
+  if (failure.warningType === 'EXPIRED_REFRESH_TOKEN') {
+    return '구글 인증이 만료되었습니다. 다시 시도해주세요.';
+  }
+
+  if (failure.warningType === 'USER_NOT_FOUND') {
+    return '구글 계정을 찾을 수 없습니다.';
+  }
+
+  if (failure.warningType === 'SERVER_ERROR') {
+    return '서버가 불안정합니다. 잠시 후 다시 시도해주세요.';
+  }
+
+  if (failure.warningType === 'NETWORK_ERROR') {
+    return '네트워크 연결을 확인해주세요.';
+  }
+
+  return '구글 로그인에 실패했습니다. 다시 시도해주세요.';
 };
 
 export const getLoginWarningMessage = (failure: LoginFailureResult): string => {

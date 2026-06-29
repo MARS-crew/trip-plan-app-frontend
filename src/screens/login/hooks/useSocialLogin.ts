@@ -1,10 +1,14 @@
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import NaverLogin from '@react-native-seoul/naver-login';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 
-import type { LoginData, NaverLoginData } from '@/types/auth';
+import type { LoginData } from '@/types/auth';
 import type { LoginScreenNavigationProp } from '@/types/login';
-import { postNaverLogin } from '@/services';
-import { getNaverLoginWarningMessage, showToastMessage } from '@/utils';
+import { postNaverLogin, postGoogleLogin } from '@/services';
+import { getNaverLoginWarningMessage, getGoogleLoginWarningMessage, showToastMessage } from '@/utils';
 
 interface UseSocialLoginParams {
   navigation: LoginScreenNavigationProp;
@@ -75,7 +79,79 @@ export const useSocialLogin = ({
     }
   }, [isSubmitting, navigation, setAuthFromLoginData, setIsSubmitting, setLoginWarningMessage]);
 
+  const handleGoogleLogin = useCallback(async (): Promise<void> => {
+    if (isSubmitting) {
+      return;
+    }
+
+    setLoginWarningMessage('');
+    setIsSubmitting(true);
+
+    try {
+      await GoogleSignin.hasPlayServices();
+      await GoogleSignin.signOut().catch(() => {});
+      const signInResult = await GoogleSignin.signIn();
+      if (signInResult.type !== 'success') {
+        return;
+      }
+      const tokens = await GoogleSignin.getTokens();
+      const accessToken = tokens.accessToken?.trim();
+
+      if (!accessToken) {
+        setLoginWarningMessage('구글 인증 정보를 가져오지 못했습니다. 다시 시도해주세요.');
+        return;
+      }
+
+      const result = await postGoogleLogin(accessToken);
+
+      if (!result.ok) {
+        setLoginWarningMessage(getGoogleLoginWarningMessage(result));
+        return;
+      }
+
+      if (result.data.nextAction === 'login' && result.data.login) {
+        setAuthFromLoginData(result.data.login);
+        navigation.replace('MainTabs', { screen: 'Home' });
+        return;
+      }
+
+      if (result.data.nextAction === 'signup' && result.data.signupResponse) {
+        navigation.navigate('SignUp', {
+          socialSignUpData: result.data.signupResponse,
+        });
+        return;
+      }
+
+      setLoginWarningMessage('구글 로그인 응답을 처리할 수 없습니다.');
+    } catch (error: unknown) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error
+      ) {
+        const code = (error as { code: string }).code;
+        if (code === statusCodes.SIGN_IN_CANCELLED) {
+          return;
+        }
+        if (code === statusCodes.IN_PROGRESS) {
+          return;
+        }
+        if (code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+          setLoginWarningMessage('Google Play 서비스를 사용할 수 없습니다.');
+          return;
+        }
+      }
+
+      console.error('[useSocialLogin] google login failed', error);
+      setLoginWarningMessage('구글 로그인에 실패했습니다. 다시 시도해주세요.');
+      showToastMessage('구글 로그인에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [isSubmitting, navigation, setAuthFromLoginData, setIsSubmitting, setLoginWarningMessage]);
+
   return {
     handleNaverLogin,
+    handleGoogleLogin,
   };
 };
