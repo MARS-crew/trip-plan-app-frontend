@@ -17,6 +17,10 @@ const FindIdScreen: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [foundId, setFoundId] = useState<string | null>(null);
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const maskUserId = (id: string): string => {
+    const visibleLength = Math.ceil(id.length / 2);
+    return id.slice(0, visibleLength) + '*'.repeat(id.length - visibleLength);
+  };
   const isSubmitDisabled = nickname.trim().length === 0 || !isEmailValid;
 
   // Handlers
@@ -29,7 +33,11 @@ const FindIdScreen: React.FC = () => {
       setFoundId(result.data.usersId);
     } else {
       setFoundId(null);
-      showToastMessage(result.message || '아이디를 찾는 중 오류가 발생했습니다.');
+      const message =
+        result.warningType === 'USER_NOT_FOUND'
+          ? '닉네임과 이메일을 확인해 주세요.'
+          : result.message || '아이디를 찾는 중 오류가 발생했습니다.';
+      showToastMessage(message);
     }
   };
   const handleChangeNickname = (value: string): void => {
@@ -88,7 +96,7 @@ const FindIdScreen: React.FC = () => {
             <View className="mt-4 rounded-lg bg-main/10 px-4 py-4">
               <Text className="mb-2 text-p1 text-black">
                 {'등록된 아이디: '}
-                <Text className="font-pretendardBold text-main">{foundId}</Text>
+                <Text className="font-pretendardBold text-main">{maskUserId(foundId)}</Text>
               </Text>
               <TouchableOpacity
                 onPress={handleNavigateToLogin}
