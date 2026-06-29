@@ -27,7 +27,7 @@ const toGetTravelItemData = (item: SearchResult): GetTravelItemData => ({
   categories: item.tags.length > 0 ? item.tags : [item.placeType],
   rating: item.ratingAvg,
   reviewCount: item.reviewCount,
-  image: item.imageUrl ? { uri: item.imageUrl } : require('@/assets/images/thumnail.png'),
+  image: item.imageUrl ? { uri: item.imageUrl } : require('@/assets/images/place_default.png'),
 });
 
 // ============ Component ============
