@@ -213,6 +213,22 @@ export const getSignUpIdCheckMessage = (idCheckStatus: IdCheckStatus) => {
     };
   }
 
+  if (idCheckStatus === 'invalidFormat') {
+    return {
+      idMessage: '아이디는 영문 소문자와 숫자만 사용할 수 있습니다.',
+      idMessageClass: 'text-statusError',
+      idInputClass: '',
+    };
+  }
+
+  if (idCheckStatus === 'invalid') {
+    return {
+      idMessage: '아이디는 4~12자로 입력해주세요.',
+      idMessageClass: 'text-statusError',
+      idInputClass: '',
+    };
+  }
+
   if (idCheckStatus === 'error') {
     return {
       idMessage: '아이디 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.',

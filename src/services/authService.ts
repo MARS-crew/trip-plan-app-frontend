@@ -243,7 +243,7 @@ export const requestEmailVerification = async (email: string): Promise<EmailRequ
 
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error(body?.message || '이미 존재하는 이메일입니다.');
+      throw new Error(body?.message || '이미 가입되어있는 이메일입니다.');
     }
     throw new Error(body?.message || '이메일 인증번호 발송 실패');
   }
