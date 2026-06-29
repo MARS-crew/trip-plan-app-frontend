@@ -29,7 +29,7 @@ const LoginScreen: React.FC = () => {
   const [password, setPassword] = useState<string>('');
   const [loginWarningMessage, setLoginWarningMessage] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const { handleNaverLogin } = useSocialLogin({
+  const { handleNaverLogin, handleGoogleLogin } = useSocialLogin({
     navigation,
     isSubmitting,
     setIsSubmitting,
@@ -226,6 +226,8 @@ const LoginScreen: React.FC = () => {
                   textClassName="text-black"
                   icon={<GoogleIcon width={18} height={18} />}
                   outlined
+                  onPress={handleGoogleLogin}
+                  disabled={isSubmitting}
                 />
               </View>
             </View>

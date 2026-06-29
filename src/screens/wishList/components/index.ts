@@ -2,7 +2,6 @@
 export { CategoryChip } from './CategoryChip';
 export { WishContentContainer } from './WishContentContainer';
 export { default as PlaceCard } from './PlaceCard';
-export { WishTabTrending } from './tab/WishTabTrending';
 export { WishTabSave } from './tab/WishTabSave';
 export { WishTabWishlist } from './tab/WishTabWishlist';
 
@@ -15,7 +14,6 @@ export type {
   WishContentContainerProps,
   WishModalProps,
   WishTabSaveProps,
-  WishTabTrendingProps,
   WishTabWishlistProps,
   WishPlace,
   WishlistBottomSheetProps,

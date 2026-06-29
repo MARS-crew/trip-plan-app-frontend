@@ -27,7 +27,7 @@ export interface PlaceSelectionResponse {
   success: boolean;
 }
 
-export type WishlistBottomSheetTabId = 'trending' | 'saved' | 'wishlist';
+export type WishlistBottomSheetTabId = 'saved' | 'wishlist';
 
 export interface WishPlace {
   id: string;
@@ -58,10 +58,6 @@ export interface PlaceCardProps {
   isTrending?: boolean;
 }
 
-export interface WishTabTrendingProps {
-  places: WishPlace[];
-  onToggleLike: (id: string) => void;
-}
 
 export interface WishTabSaveProps {
   places: WishPlace[];
