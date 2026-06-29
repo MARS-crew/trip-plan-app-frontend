@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
 
 import SpinnerColumn from '@/components/ui/SpinnerColumn';
@@ -48,6 +48,23 @@ export const BirthDatePickerModal: React.FC<BirthDatePickerModalProps> = ({
     return Array.from({ length: maxDay }, (_, i) => i + 1);
   }, [tempYear, tempMonth]);
 
+  // 연도 변경 시 월 보정
+  useEffect(() => {
+    if (tempYear === CURRENT_YEAR && tempMonth > CURRENT_MONTH) {
+      onChangeMonth(CURRENT_MONTH);
+    }
+  }, [tempYear]);
+
+  // 연도/월 변경 시 일 보정
+  useEffect(() => {
+    const totalDays = getDaysInMonth(tempYear, tempMonth);
+    const maxDay =
+      tempYear === CURRENT_YEAR && tempMonth === CURRENT_MONTH ? CURRENT_DATE : totalDays;
+    if (tempDay > maxDay) {
+      onChangeDay(maxDay);
+    }
+  }, [tempYear, tempMonth]);
+
   const handleYearSelect = useCallback(
     (index: number) => {
       onChangeYear(YEARS[index]);
@@ -57,9 +74,9 @@ export const BirthDatePickerModal: React.FC<BirthDatePickerModalProps> = ({
 
   const handleMonthSelect = useCallback(
     (index: number) => {
-      onChangeMonth(MONTHS[index]);
+      onChangeMonth(availableMonths[index]);
     },
-    [onChangeMonth],
+    [onChangeMonth, availableMonths],
   );
 
   const handleDaySelect = useCallback(
