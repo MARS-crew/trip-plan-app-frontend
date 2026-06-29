@@ -17,7 +17,8 @@ const FindIdScreen: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [foundId, setFoundId] = useState<string | null>(null);
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-  const maskUserId = (id: string): string => {
+  const maskUserId = (id: string | null): string => {
+    if (!id) return '';
     const visibleLength = Math.ceil(id.length / 2);
     return id.slice(0, visibleLength) + '*'.repeat(id.length - visibleLength);
   };
