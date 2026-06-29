@@ -66,11 +66,12 @@ const LoginScreen: React.FC = () => {
     }
 
     if (trimmedUserId.length < 3 || trimmedUserId.length > 40) {
-      setLoginWarningMessage('아이디는 크기가 3자 이상이여야 합니다.');
+      setLoginWarningMessage('아이디는 3~40자여야 합니다.');
       return;
     }
 
-    if (trimmedPassword.length < 8 || trimmedPassword.length > 20) {
+    const passwordValid = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,20}$/.test(trimmedPassword);
+    if (!passwordValid) {
       setLoginWarningMessage('비밀번호는 8~20자이며, 영문, 숫자, 특수문자를 포함해야 합니다.');
       return;
     }
