@@ -134,3 +134,31 @@ export const getSearchResults = async (keyword: string): Promise<SearchResult[]>
     throw error;
   }
 };
+
+export const getSearchResultsPaginated = async (
+  keyword: string,
+  page: number,
+  size = 20,
+): Promise<{ results: SearchResult[]; totalCount: number }> => {
+  const apiBase = Config.API_BASE_URL;
+  const accessToken = useAuthStore.getState().accessToken?.trim();
+
+  if (!apiBase) throw new Error('API_BASE_URL이 설정되지 않았습니다.');
+  if (!accessToken) throw new Error('인증 토큰이 없습니다.');
+
+  const url = `${apiBase}/api/v1/search/results?keyword=${encodeURIComponent(keyword)}&page=${page}&size=${size}`;
+  const response = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+
+  if (!response.ok) {
+    let body = '';
+    try { body = await response.text(); } catch { /* ignore */ }
+    console.error('[searchService] getSearchResultsPaginated failed', response.status, body);
+    throw new Error(`검색 결과 조회 실패 (${response.status})`);
+  }
+
+  const json: BaseResponse<SearchResultData> = await response.json();
+  const results = json.data?.searchResults ?? [];
+  const totalCount = json.data?.resultCount ?? 0;
+  console.log('[searchService] paginated page:', page, 'results:', results.length, 'totalCount:', totalCount);
+  return { results, totalCount };
+};

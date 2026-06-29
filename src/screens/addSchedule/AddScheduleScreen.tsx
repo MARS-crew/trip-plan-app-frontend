@@ -171,8 +171,25 @@ const AddScheduleScreen = () => {
 
   const openTimePicker = (mode: 'startTime' | 'endTime'): void => {
     const currentTime = formValues[mode];
-    setTempHour(currentTime?.hour ?? 9);
-    setTempMinute(currentTime?.minute ?? 0);
+    let hour = currentTime?.hour ?? 9;
+    let minute = currentTime?.minute ?? 0;
+
+    if (mode === 'endTime' && formValues.startTime) {
+      const st = formValues.startTime;
+      if (hour < st.hour || (hour === st.hour && minute <= st.minute)) {
+        hour = st.minute < 59 ? st.hour : st.hour + 1;
+        minute = st.minute < 59 ? st.minute + 1 : 0;
+      }
+    } else if (mode === 'startTime' && formValues.endTime) {
+      const et = formValues.endTime;
+      if (hour > et.hour || (hour === et.hour && minute >= et.minute)) {
+        hour = et.minute > 0 ? et.hour : et.hour - 1;
+        minute = et.minute > 0 ? et.minute - 1 : 59;
+      }
+    }
+
+    setTempHour(hour);
+    setTempMinute(minute);
     setPickerMode(mode);
   };
 
@@ -184,6 +201,28 @@ const AddScheduleScreen = () => {
     selectedMonth,
     selectedDay,
   } = getDatePickerOptions(today, tempYear, tempMonth, tempDay);
+
+  const availableHours = (() => {
+    if (pickerMode === 'endTime' && formValues.startTime) {
+      const st = formValues.startTime;
+      return HOURS.filter((h) => h > st.hour || (h === st.hour && st.minute < 59));
+    }
+    if (pickerMode === 'startTime' && formValues.endTime) {
+      const et = formValues.endTime;
+      return HOURS.filter((h) => h < et.hour || (h === et.hour && et.minute > 0));
+    }
+    return HOURS;
+  })();
+
+  const availableMinutes = (() => {
+    if (pickerMode === 'endTime' && formValues.startTime && tempHour === formValues.startTime.hour) {
+      return MINUTES.filter((m) => m > formValues.startTime!.minute);
+    }
+    if (pickerMode === 'startTime' && formValues.endTime && tempHour === formValues.endTime.hour) {
+      return MINUTES.filter((m) => m < formValues.endTime!.minute);
+    }
+    return MINUTES;
+  })();
 
   const handleConfirm = (): void => {
     if (pickerMode === 'date') {
@@ -230,6 +269,15 @@ const AddScheduleScreen = () => {
     if (formValues.title.trim().length > SCHEDULE_TITLE_MAX_LENGTH) {
       ToastAndroid.show('일정명은 10자 이내로 입력해주세요.', ToastAndroid.SHORT);
       return;
+    }
+
+    if (formValues.startTime && formValues.endTime) {
+      const startMinutes = formValues.startTime.hour * 60 + formValues.startTime.minute;
+      const endMinutes = formValues.endTime.hour * 60 + formValues.endTime.minute;
+      if (startMinutes >= endMinutes) {
+        ToastAndroid.show('시작 시간은 종료 시간보다 앞서야 합니다.', ToastAndroid.SHORT);
+        return;
+      }
     }
     const tripScheduleId = params.tripScheduleId;
     if (isEditMode && !tripScheduleId) return;
@@ -460,15 +508,27 @@ const AddScheduleScreen = () => {
             {pickerMode === 'startTime' || pickerMode === 'endTime' ? (
               <View style={{ flexDirection: 'row', height: ITEM_HEIGHT * VISIBLE_ITEMS }}>
                 <SpinnerColumn
-                  items={HOURS}
-                  selectedIndex={HOURS.indexOf(tempHour)}
-                  onSelect={(index) => setTempHour(HOURS[index])}
+                  items={availableHours}
+                  selectedIndex={Math.max(0, availableHours.indexOf(tempHour))}
+                  onSelect={(index) => {
+                    const newHour = availableHours[index];
+                    setTempHour(newHour);
+                    if (pickerMode === 'endTime' && formValues.startTime && newHour === formValues.startTime.hour) {
+                      if (tempMinute <= formValues.startTime.minute) {
+                        setTempMinute(formValues.startTime.minute + 1);
+                      }
+                    } else if (pickerMode === 'startTime' && formValues.endTime && newHour === formValues.endTime.hour) {
+                      if (tempMinute >= formValues.endTime.minute) {
+                        setTempMinute(formValues.endTime.minute - 1);
+                      }
+                    }
+                  }}
                   format={(n) => `${pad(n)}시`}
                 />
                 <SpinnerColumn
-                  items={MINUTES}
-                  selectedIndex={MINUTES.indexOf(tempMinute)}
-                  onSelect={(index) => setTempMinute(MINUTES[index])}
+                  items={availableMinutes}
+                  selectedIndex={Math.max(0, availableMinutes.indexOf(tempMinute))}
+                  onSelect={(index) => setTempMinute(availableMinutes[index])}
                   format={(n) => `${pad(n)}분`}
                 />
               </View>

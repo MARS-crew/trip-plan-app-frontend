@@ -24,7 +24,6 @@ import {
   PlaceCard,
   PlaceCardProps,
   WishTabSave,
-  WishTabTrending,
   WishTabWishlist,
   WishlistBottomSheet,
   WishlistSearchBar,
@@ -124,19 +123,7 @@ const saveGeneratedSchedules = async (
   return results.every((result) => !result.error);
 };
 //더미 데이터 - 실제 API 연동 시 제거 예정
-const TRENDING_PLACES: PlaceCardProps['place'][] = [
-  {
-    id: 'place_1',
-    title: '센소지 아사쿠사',
-    location: '도쿄, 일본',
-    description: '도쿄는 일본의 수도이자 전통과 현대가 조화를 이루는 매력적인 도시입니다.',
-    categories: ['관광지', '문화', '역사'],
-    image: require('@/assets/images/thumnail.png'),
-  },
-];
-
 const TABS: WishlistTabConfig[] = [
-  { id: 'trending', label: '실시간 추천' },
   { id: 'saved', label: '저장된 장소' },
   { id: 'wishlist', label: '위시 리스트' },
 ];
@@ -152,7 +139,7 @@ const GOOGLE_HQ_REGION = {
 const BOTTOM_SHEET_MIN_HEIGHT = 28;
 const SHEET_HEIGHT = 654;
 const SECOND_SNAP_VISIBLE_HEIGHT = 310;
-const INITIAL_CATEGORY: TabId = 'trending';
+const INITIAL_CATEGORY: TabId = 'saved';
 const SNAP_LOW = SHEET_HEIGHT - 28;
 const SNAP_FULL = 35;
 const SNAP_TRENDING = SHEET_HEIGHT - SECOND_SNAP_VISIBLE_HEIGHT;
@@ -419,6 +406,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   const [selectedSearchPlace, setSelectedSearchPlace] = useState<SearchWishPlace | null>(null);
   const [searchMarkers, setSearchMarkers] = useState<SearchWishPlace[]>([]);
   const [regionMarkers, setRegionMarkers] = useState<NearbyPlace[]>([]);
+  const [searchTrigger, setSearchTrigger] = useState(0);
   const currentRegionRef = useRef<Region>(GOOGLE_HQ_REGION);
   const searchInputRef = useRef<TextInput>(null);
   const refocusRafRef = useRef<number | null>(null);
@@ -519,6 +507,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     isKeyboardVisibleRef.current = false;
     searchInputRef.current?.blur();
     setIsSearchFocused(false);
+    setSearchTrigger(0);
     Keyboard.dismiss();
   }, [clearPendingRefocus]);
   const handleSearchInputBlur = useCallback((): void => {
@@ -574,49 +563,16 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     }
   }, [searchQuery]);
 
-  const handlePressSearch = useCallback(async (): Promise<void> => {
-    const keyword = searchQuery.trim();
-    if (!keyword) return;
-
-    try {
-      const results = await getSearchResults(keyword);
-      const region = currentRegionRef.current;
-      const minLat = region.latitude - region.latitudeDelta / 2;
-      const maxLat = region.latitude + region.latitudeDelta / 2;
-      const minLng = region.longitude - region.longitudeDelta / 2;
-      const maxLng = region.longitude + region.longitudeDelta / 2;
-
-      const markers: SearchWishPlace[] = results
-        .filter(
-          (item) =>
-            item.latitude >= minLat &&
-            item.latitude <= maxLat &&
-            item.longitude >= minLng &&
-            item.longitude <= maxLng,
-        )
-        .map((item, index) => ({
-          id: String(item.placeId ?? `search-${index}`),
-          title: item.name,
-          location: `${item.cityName}, ${item.countryName}`,
-          description: item.description,
-          image: item.imageUrl ? { uri: item.imageUrl } : undefined,
-          categories: item.tags,
-          latitude: item.latitude,
-          longitude: item.longitude,
-        }));
-
-      setSearchMarkers(markers);
-      handleSearchBlur();
-      animateSheetTo(SNAP_LOW);
-    } catch {
-      handleSearchBlur();
-    }
-  }, [searchQuery, handleSearchBlur, animateSheetTo]);
+  const handlePressSearch = useCallback((): void => {
+    if (!searchQuery.trim()) return;
+    setSearchTrigger((prev) => prev + 1);
+  }, [searchQuery]);
 
   const handlePressSearchPlace = useCallback(
     (place: SearchWishPlace): void => {
       setSelectedSearchPlace(place);
       handleSearchBlur();
+      animateSheetTo(SNAP_TRENDING);
       mapRef.current?.animateToRegion(
         {
           latitude: place.latitude,
@@ -627,7 +583,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
         600,
       );
     },
-    [handleSearchBlur],
+    [handleSearchBlur, animateSheetTo],
   );
 
   // 뒤로가기 버튼 핸들러: 검색 중이면 검색 종료, 상세 카드면 닫기, 그 외에는 모달 열기
@@ -713,8 +669,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       isInitialTabEffect.current = false;
       return;
     }
-    const targetY = selectedCategory === 'trending' ? SNAP_TRENDING : SNAP_FULL;
-    animateSheetTo(targetY);
+    animateSheetTo(SNAP_FULL);
   }, [selectedCategory, animateSheetTo]); // 바텀시트 애니메이션 스타일
   const mapUIAnimatedStyle = useAnimatedStyle(() => {
     'worklet';
@@ -743,10 +698,6 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     useCallback(() => {
       setShowAddModal(false);
       setShowExitModal(false);
-
-      if (selectedCategory === 'trending' && translateY.value < SNAP_TRENDING) {
-        animateSheetTo(SNAP_TRENDING);
-      }
 
       const backAction = (): boolean => {
         if (showExitModalRef.current || showAddModalRef.current) return true;
@@ -834,13 +785,6 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     }
 
     switch (selectedCategory) {
-      case 'trending':
-        return (
-          <WishTabTrending
-            places={TRENDING_PLACES}
-            onToggleLike={(id) => handleToggleLikeWithApi('wishlist', id)}
-          />
-        );
       case 'saved':
         return (
           <WishTabSave
@@ -963,13 +907,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           <WishlistBottomSheet
             translateY={translateY}
             onStateChange={handleSheetChange}
-            maxTopSnap={
-              selectedSearchPlace
-                ? SNAP_TRENDING
-                : selectedCategory === 'trending'
-                  ? SNAP_TRENDING
-                  : SNAP_FULL
-            }
+            maxTopSnap={selectedSearchPlace ? SNAP_TRENDING : SNAP_FULL}
             tabs={TABS}
             selectedCategory={selectedSearchPlace ? null : selectedCategory}
             onSelectCategory={(tabId) => {
@@ -986,15 +924,10 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
             isVisible={isSearchFocused}
             selectedCategory={selectedCategory}
             searchQuery={searchQuery}
-            isLiked={(id) =>
-              isLikedInTab(selectedCategory === 'trending' ? 'wishlist' : selectedCategory, id)
-            }
+            searchTrigger={searchTrigger}
+            isLiked={(id) => isLikedInTab(selectedCategory, id)}
             onToggleLike={(id, place) =>
-              handleToggleLikeWithApi(
-                selectedCategory === 'trending' ? 'wishlist' : selectedCategory,
-                id,
-                place,
-              )
+              handleToggleLikeWithApi(selectedCategory, id, place)
             }
             onPressPlace={handlePressSearchPlace}
           />

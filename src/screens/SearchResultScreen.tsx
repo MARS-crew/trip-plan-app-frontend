@@ -9,13 +9,15 @@ import type {
 import type { SearchStackParamList } from '@/navigation/types';
 import { InputSearchIcon, X } from '@/assets/icons';
 import { TravelItem } from './search/components/TravelItem';
-import { getSearchResults } from '@/services';
+import { getSearchResultsPaginated } from '@/services/searchService';
 import type { GetTravelItemData, SearchResult } from '@/types/search';
 import { COLORS } from '@/constants/colors';
 
 // ============ Types ============
 type Props = NativeStackScreenProps<SearchStackParamList, 'SearchResult'>;
 type NavigationProp = NativeStackNavigationProp<SearchStackParamList>;
+
+const PAGE_SIZE = 20;
 
 // ============ Utils ============
 const toGetTravelItemData = (item: SearchResult): GetTravelItemData => ({
@@ -36,15 +38,22 @@ const SearchResultScreen: React.FC = () => {
 
   const [results, setResults] = useState<GetTravelItemData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasReachedEnd, setHasReachedEnd] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
 
     const fetchResults = async (): Promise<void> => {
       setIsLoading(true);
+      setCurrentPage(0);
+      setHasReachedEnd(false);
       try {
-        const data = await getSearchResults(query);
-        if (isMounted) setResults(data.map(toGetTravelItemData));
+        const { results: data } = await getSearchResultsPaginated(query, 0, PAGE_SIZE);
+        if (isMounted) {
+          setResults(data.map(toGetTravelItemData));
+        }
       } catch (error) {
         console.error('fetchResults Error:', error);
         if (isMounted) setResults([]);
@@ -60,6 +69,25 @@ const SearchResultScreen: React.FC = () => {
     };
   }, [query]);
 
+  const handleLoadMore = useCallback(async (): Promise<void> => {
+    if (isLoadingMore) return;
+    const nextPage = currentPage + 1;
+    setIsLoadingMore(true);
+    try {
+      const { results: data } = await getSearchResultsPaginated(query, nextPage, PAGE_SIZE);
+      if (data.length === 0) {
+        setHasReachedEnd(true);
+      } else {
+        setResults((prev) => [...prev, ...data.map(toGetTravelItemData)]);
+        setCurrentPage(nextPage);
+      }
+    } catch (error) {
+      console.error('handleLoadMore Error:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, currentPage, query]);
+
   const handlePressItem = useCallback(
     (item: { id: string }): void => {
       navigation.navigate('DestinationDetail', { destinationId: item.id, origin: 'search' });
@@ -73,6 +101,8 @@ const SearchResultScreen: React.FC = () => {
   );
 
   const keyExtractor = useCallback((item: GetTravelItemData) => item.id, []);
+
+  const hasMore = results.length > 0 && !hasReachedEnd;
 
   // 렌더링
   return (
@@ -99,7 +129,7 @@ const SearchResultScreen: React.FC = () => {
           data={results}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
-          contentContainerStyle={{ paddingHorizontal: 16 }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }}
           ItemSeparatorComponent={() => <View className="mb-3" />}
           ListHeaderComponent={
             <Text className="mb-3 text-p text-gray">
@@ -110,6 +140,21 @@ const SearchResultScreen: React.FC = () => {
             <View className="flex-1 items-center justify-center py-20">
               <Text className="text-gray">검색 결과가 없습니다.</Text>
             </View>
+          }
+          ListFooterComponent={
+            hasMore ? (
+              <TouchableOpacity
+                className="mb-4 mt-2 items-center rounded-xl bg-chip py-3"
+                activeOpacity={0.7}
+                onPress={handleLoadMore}
+                disabled={isLoadingMore}>
+                {isLoadingMore ? (
+                  <ActivityIndicator size="small" color={COLORS.main} />
+                ) : (
+                  <Text className="font-pretendardMedium text-p1 text-gray">더보기</Text>
+                )}
+              </TouchableOpacity>
+            ) : null
           }
         />
       )}

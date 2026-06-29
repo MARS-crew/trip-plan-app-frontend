@@ -137,6 +137,10 @@ export const getGoogleLoginWarningMessage = (failure: GoogleLoginFailureResult):
 };
 
 export const getLoginWarningMessage = (failure: LoginFailureResult): string => {
+  if (failure.warningType === 'USER_NOT_FOUND' || failure.warningType === 'PASSWORD_MISMATCH') {
+    return '아이디 및 비밀번호를 확인해 주세요.';
+  }
+
   const serverMessage = failure.message?.trim();
 
   if (serverMessage) {
@@ -149,14 +153,6 @@ export const getLoginWarningMessage = (failure: LoginFailureResult): string => {
 
   if (failure.warningType === 'INVALID_INPUT') {
     return '잘못된 요청입니다.';
-  }
-
-  if (failure.warningType === 'PASSWORD_MISMATCH') {
-    return '비밀번호가 일치하지 않습니다.';
-  }
-
-  if (failure.warningType === 'USER_NOT_FOUND') {
-    return '사용자를 찾을 수 없습니다.';
   }
 
   if (failure.warningType === 'SERVER_ERROR') {
