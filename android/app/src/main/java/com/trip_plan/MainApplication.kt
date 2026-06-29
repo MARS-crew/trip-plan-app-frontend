@@ -2,6 +2,7 @@ package com.trip_plan
 
 import android.app.Application
 import com.dooboolab.naverlogin.RNNaverLoginPackage
+import com.reactnativegooglesignin.RNGoogleSigninPackage
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
@@ -16,6 +17,7 @@ class MainApplication : Application(), ReactApplication {
       packageList =
         PackageList(this).packages.apply {
           add(RNNaverLoginPackage())
+          add(RNGoogleSigninPackage())
         },
     )
   }
