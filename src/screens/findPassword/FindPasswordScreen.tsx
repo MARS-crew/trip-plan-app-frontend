@@ -110,11 +110,15 @@ const FindPasswordScreen: React.FC = () => {
       setCode('');
       setTempPwStatus('none');
     } else {
+      const errorMessage =
+        result.message === '사용자를 찾을 수 없습니다.'
+          ? '가입된 이메일이 없습니다.'
+          : result.message || '인증번호 발송에 실패했습니다.';
       setEmailStatus('error');
-      setEmailErrorMessage('가입된 이메일이 없습니다.');
+      setEmailErrorMessage(errorMessage);
       setIsCodeFieldVisible(false);
       setCodeStatus('none');
-      showToastMessage('가입된 이메일이 없습니다.');
+      showToastMessage(errorMessage);
     }
 
     setIsSendingVerification(false);

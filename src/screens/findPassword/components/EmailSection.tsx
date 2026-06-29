@@ -60,7 +60,7 @@ export const EmailSection: React.FC<FindPasswordEmailSectionProps> = ({
         </Text>
       ) : isEmailSent ? (
         <Text className="mt-2 font-pretendardRegular text-p text-statusSuccess">
-          이메일 인증이 완료되었습니다
+          인증번호가 발송되었습니다. 이메일을 확인해주세요.
         </Text>
       ) : null}
 
