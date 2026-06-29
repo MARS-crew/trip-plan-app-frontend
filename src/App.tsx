@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { RootStackNavigator } from '@/navigation';
 import Config from 'react-native-config';
 import NaverLogin from '@react-native-seoul/naver-login';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useAuthStore } from '@/store';
 
 const App: React.FC = () => {
@@ -20,6 +21,14 @@ const App: React.FC = () => {
       });
     } catch (e) {
       console.warn('NaverLogin initialize failed:', e);
+    }
+
+    try {
+      GoogleSignin.configure({
+        webClientId: Config.GOOGLE_WEB_CLIENT_ID,
+      });
+    } catch (e) {
+      console.warn('GoogleSignin configure failed:', e);
     }
     void useAuthStore.getState().hydrateAuth();
   }, []);

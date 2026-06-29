@@ -10,6 +10,9 @@ import type {
   FindPasswordResetResponse,
   EmailRequestData,
   EmailVerifyData,
+  GoogleLoginData,
+  GoogleLoginResponse,
+  GoogleLoginResult,
   LoginRequest,
   LoginResponse,
   LoginResult,
@@ -31,6 +34,7 @@ import {
   fetchWithTimeout,
   parseJsonSafely,
   getDefaultMessageByStatus,
+  getGoogleLoginWarningType,
   getNaverLoginWarningType,
   getLoginWarningType,
   getReissueWarningType,
@@ -364,6 +368,69 @@ export const postNaverLogin = async (accessToken: string): Promise<NaverLoginRes
         ok: false,
         warningType: 'UNKNOWN_ERROR',
         message: json?.message ?? '네이버 로그인 응답 형식이 올바르지 않습니다.',
+      };
+    }
+
+    return { ok: true, data };
+  } catch (error) {
+    if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      return {
+        ok: false,
+        warningType: 'NETWORK_ERROR',
+        message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
+      };
+    }
+
+    const isNetworkError = error instanceof TypeError;
+
+    return {
+      ok: false,
+      warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
+      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : undefined,
+    };
+  }
+};
+
+const extractGoogleLoginData = (json: GoogleLoginResponse | null): GoogleLoginData | null => {
+  const data = json?.data;
+
+  if (data?.nextAction === 'login' || data?.nextAction === 'signup') {
+    return data;
+  }
+
+  return null;
+};
+
+export const postGoogleLogin = async (accessToken: string): Promise<GoogleLoginResult> => {
+  const requestUrl = buildAuthUrl('/api/v1/auth/google');
+
+  try {
+    const response = await fetchWithTimeout(requestUrl, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ accessToken }),
+    });
+
+    const json = await parseJsonSafely<GoogleLoginResponse>(response);
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        warningType: getGoogleLoginWarningType(response.status, json?.code ?? ''),
+        message: json?.message ?? getDefaultMessageByStatus(response.status),
+      };
+    }
+
+    const data = extractGoogleLoginData(json);
+
+    if (!json?.success || !data) {
+      return {
+        ok: false,
+        warningType: 'UNKNOWN_ERROR',
+        message: json?.message ?? '구글 로그인 응답 형식이 올바르지 않습니다.',
       };
     }
 
