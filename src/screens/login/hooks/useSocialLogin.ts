@@ -91,7 +91,7 @@ export const useSocialLogin = ({
       await GoogleSignin.hasPlayServices();
       await GoogleSignin.signOut().catch(() => {});
       const signInResult = await GoogleSignin.signIn();
-      if (signInResult.type === 'cancelled') {
+      if (signInResult.type !== 'success') {
         return;
       }
       const tokens = await GoogleSignin.getTokens();
