@@ -10,7 +10,9 @@ export type SearchStackParamList = {
     origin?: 'search' | 'bookmark';
     initialTab?: 'info' | 'review';
   };
-  SelectTrip: { placeId: number; placeName: string; address: string; latitude: number; longitude: number } | undefined;
+  SelectTrip:
+    | { placeId: number; placeName: string; address: string; latitude: number; longitude: number }
+    | undefined;
   ReviewWrite: undefined;
 };
 
@@ -48,6 +50,7 @@ export type RootStackParamList = {
   WishlistScreen: { tripId: number };
   FindPassword: undefined;
   TripDetail: { tripId: number } | undefined;
+  TripShare: { tripId: number } | undefined;
   AddSchedule:
     | {
         mode?: 'create' | 'edit';

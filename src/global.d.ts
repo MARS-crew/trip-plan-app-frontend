@@ -8,6 +8,7 @@ declare module 'react-native-config' {
     TEMP_TOKEN: string;
     GOOGLE_MAP_API_KEY: string;
     GOOGLE_WEB_CLIENT_ID: string;
+    CHOTTU_LINK_BASE_URL?: string;
   }
   const Config: NativeConfig;
   export default Config;

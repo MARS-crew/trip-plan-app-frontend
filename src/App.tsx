@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { RootStackNavigator } from '@/navigation';
+import { linking } from '@/navigation/linking';
 import Config from 'react-native-config';
 import NaverLogin from '@react-native-seoul/naver-login';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
@@ -42,7 +43,7 @@ const App: React.FC = () => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <StatusBar barStyle={statusBarStyle} />
-        <NavigationContainer>
+        <NavigationContainer linking={linking}>
           <RootStackNavigator />
         </NavigationContainer>
       </SafeAreaProvider>
