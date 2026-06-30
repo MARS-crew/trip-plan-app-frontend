@@ -5,7 +5,7 @@ import { TripStatusChip } from '@/components/ui';
 import { PlaceIcon, CalendarWhiteIcon, ChevronDownIcon, ChevronUpIcon } from '@/assets/icons';
 import type { TripCardProps } from '@/types/myTrip.types';
 
-const FALLBACK_IMAGE: ImageSourcePropType = require('@/assets/images/thumnail2.png');
+const DEFAULT_LOGO: ImageSourcePropType = require('@/assets/images/place_default.png');
 
 const TripCard = ({
   city,
@@ -19,11 +19,12 @@ const TripCard = ({
   onImagePress,
   children,
 }: TripCardProps) => {
-  const [resolvedImageSource, setResolvedImageSource] = React.useState<ImageSourcePropType>(
-    imageSource || FALLBACK_IMAGE,
-  );
+  const hasApiImage = typeof imageSource === 'object' && 'uri' in imageSource;
+  const [loadFailed, setLoadFailed] = React.useState(false);
+  const showCover = hasApiImage && !loadFailed;
+
   React.useEffect(() => {
-    setResolvedImageSource(imageSource || FALLBACK_IMAGE);
+    setLoadFailed(false);
   }, [imageSource]);
 
   const hasDetails = React.Children.count(children) > 0;
@@ -40,15 +41,31 @@ const TripCard = ({
       }}>
       <View className="overflow-hidden rounded-[8px]">
         <Pressable onPress={onImagePress}>
-          <View className="relative">
-            <Image
-              source={resolvedImageSource}
-              className="h-[144px] w-full"
-              resizeMode="cover"
-              onError={() => setResolvedImageSource(FALLBACK_IMAGE)}
-            />
+          <View className="h-[144px] w-full items-center justify-center bg-white">
+            {showCover && (
+              <Image
+                source={imageSource}
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                resizeMode="cover"
+                onError={() => setLoadFailed(true)}
+              />
+            )}
 
-            <View pointerEvents="none" />
+            {!showCover && (
+              <Image source={DEFAULT_LOGO} style={{ width: 81, height: 81 }} resizeMode="contain" />
+            )}
+
+            <View
+              pointerEvents="none"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.3)',
+              }}
+            />
 
             {/*TripStatusChip*/}
             <View className="absolute left-[15px] top-[13px]">

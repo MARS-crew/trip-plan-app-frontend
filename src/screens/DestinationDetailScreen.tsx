@@ -240,14 +240,22 @@ const DestinationDetailScreen: React.FC = () => {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* 헤더 이미지 영역 */}
         <View className="relative w-full">
-          <Image
-            source={!imageLoadError && placeDetail?.imageUrl
-              ? { uri: placeDetail.imageUrl }
-              : require('@/assets/images/thumnail.png')}
-            onError={() => setImageLoadError(true)}
-            className="w-full h-[256px]"
-            resizeMode="cover"
-          />
+          {!imageLoadError && placeDetail?.imageUrl ? (
+            <Image
+              source={{ uri: placeDetail.imageUrl }}
+              onError={() => setImageLoadError(true)}
+              className="w-full h-[256px]"
+              resizeMode="cover"
+            />
+          ) : (
+            <View className="w-full h-[256px] bg-white items-center justify-center">
+              <Image
+                source={require('@/assets/images/place_default.png')}
+                style={{ width: 81, height: 81 }}
+                resizeMode="contain"
+              />
+            </View>
+          )}
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.3)' }} />
 
           {/* 왼쪽: 뒤로가기 버튼 */}

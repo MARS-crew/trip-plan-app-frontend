@@ -9,13 +9,15 @@ interface PlaceImageThumbnailProps {
   image?: ImageSourcePropType;
 }
 
+const DEFAULT_IMAGE = require('@/assets/images/place_default.png');
+
 const PlaceImageThumbnail: React.FC<PlaceImageThumbnailProps> = ({ hasImage, image }) => (
   <View className="h-28 w-28 shrink-0 overflow-hidden rounded-l-lg">
     {hasImage ? (
       <Image source={image} className="h-full w-full" resizeMode="cover" />
     ) : (
-      <View className="h-full w-full items-center justify-center bg-chip px-2">
-        <Text className="text-center text-p text-gray">이미지 없음</Text>
+      <View className="h-full w-full items-center justify-center bg-white">
+        <Image source={DEFAULT_IMAGE} style={{ width: 64, height: 64 }} resizeMode="contain" />
       </View>
     )}
   </View>
