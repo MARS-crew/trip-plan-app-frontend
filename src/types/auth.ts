@@ -26,6 +26,50 @@ export interface LoginData {
   userDetails: LoginUserDetails;
 }
 
+export type KakaoLoginWarningType =
+  | 'INVALID_TOKEN'
+  | 'EXPIRED_REFRESH_TOKEN'
+  | 'USER_NOT_FOUND'
+  | 'SERVER_ERROR'
+  | 'NETWORK_ERROR'
+  | 'UNKNOWN_ERROR';
+
+export interface KakaoSignUpData {
+  loginType: string;
+  socialProviderId: string;
+  nickname: string;
+  email: string;
+  name: string;
+  gender: string;
+  birth: string;
+}
+
+export interface KakaoLoginData {
+  nextAction: 'login' | 'signup';
+  login?: LoginData | null;
+  signupResponse?: KakaoSignUpData | null;
+}
+
+export interface KakaoLoginResponse {
+  success: boolean;
+  code: string;
+  message: string;
+  data?: KakaoLoginData | null;
+}
+
+export interface KakaoLoginSuccessResult {
+  ok: true;
+  data: KakaoLoginData;
+}
+
+export interface KakaoLoginFailureResult {
+  ok: false;
+  warningType: KakaoLoginWarningType;
+  message?: string;
+}
+
+export type KakaoLoginResult = KakaoLoginSuccessResult | KakaoLoginFailureResult;
+
 export type NaverLoginWarningType =
   | 'INVALID_TOKEN'
   | 'EXPIRED_REFRESH_TOKEN'
