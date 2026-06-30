@@ -111,9 +111,12 @@ const TripDetailScreen: React.FC = () => {
 
       const abortController = new AbortController();
       const fetchTripDetailSchedules = async (): Promise<void> => {
+        const shouldFetchMyTrips = !initialHeaderImageUrlRef.current && !route.params?.initialImageUrl;
         const [scheduleResult, myTripsResult] = await Promise.all([
           getTripSchedules({ tripId, signal: abortController.signal }),
-          getMyTrips({ signal: abortController.signal }),
+          shouldFetchMyTrips
+            ? getMyTrips({ signal: abortController.signal })
+            : Promise.resolve({ data: [], error: null }),
         ]);
         if (
           abortController.signal.aborted ||
@@ -128,7 +131,7 @@ const TripDetailScreen: React.FC = () => {
         }
 
         const tripListImageUrl = myTripsResult.data
-          .find((trip) => trip.tripId === tripId)
+          ?.find((trip) => trip.tripId === tripId)
           ?.imageUrl?.trim();
         const stableHeaderImageUrl =
           initialHeaderImageUrlRef.current || route.params?.initialImageUrl || tripListImageUrl;
