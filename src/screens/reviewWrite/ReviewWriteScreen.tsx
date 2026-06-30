@@ -1,10 +1,11 @@
 import { StarIconV2, StarOffIconV2 } from '@/assets';
 import { PhotoUploader, TopBar } from '@/components/ui';
+import type { SearchStackParamList } from '@/navigation/types';
 import { getUpLoadImageUrl, postReviewWrite, uploadToMinio } from '@/services/reviewService';
-import { ReviewPhoto, ReviewWriteScreenProps, StarButtonProps } from '@/types/review';
-import { useNavigation } from '@react-navigation/native';
+import { ReviewPhoto, StarButtonProps } from '@/types/review';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { memo, useCallback, useMemo, useState } from 'react';
-import { Alert, Image, Pressable, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const MAX_PHOTOS = 3;
@@ -29,11 +30,12 @@ const StarButton = memo(({ star, isFilled, onPress }: StarButtonProps) => {
 
 StarButton.displayName = 'StarButton';
 
-const ReviewWriteScreen = ({
-  visitedPlaceId,
-  placeName = '센소지 아사쿠사',
-  visitedDate = '2026.02.28',
-}: ReviewWriteScreenProps) => {
+type ReviewWriteRouteProp = RouteProp<SearchStackParamList, 'ReviewWrite'>;
+
+const ReviewWriteScreen = () => {
+  const route = useRoute<ReviewWriteRouteProp>();
+  const { visitedPlaceId, placeName, visitedDate } = route.params;
+
   const [rating, setRating] = useState<number>(0);
   const [reviewText, setReviewText] = useState<string>('');
   const [photos, setPhotos] = useState<ReviewPhoto[]>([]);
@@ -61,7 +63,6 @@ const ReviewWriteScreen = ({
     setShowRatingError(false);
 
     try {
-      // 1. 사진 업로드 → storagePath 수집
       const storagePaths = await Promise.all(
         photos.map(async (photo) => {
           const fileName = photo.fileName ?? `${photo.id}.jpg`;
@@ -71,19 +72,19 @@ const ReviewWriteScreen = ({
         }),
       );
 
-      // 2. storagePath를 imageUrls로 전달
       await postReviewWrite({
         visitedPlaceId,
         placeName,
         visitedAt: formattedDate,
         rating,
         content: reviewText.trim(),
-        imageUrls: storagePaths, // ← 수정
+        imageUrls: storagePaths,
       });
 
       Alert.alert('완료', '등록되었습니다!');
       navigation.goBack();
     } catch (error) {
+      console.error('리뷰 등록 실패', error);
       Alert.alert('오류', '리뷰 등록 중 문제가 발생했어요.');
     }
   }, [visitedPlaceId, placeName, formattedDate, rating, reviewText, photos, navigation]);

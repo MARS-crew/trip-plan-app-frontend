@@ -59,7 +59,7 @@ export const getUpLoadImageUrl = async (
 
   try {
     const response = await fetch(
-      `${Config.API_BASE_URL}/api/v1/image/${domain}/upload-url?fileName=${fileName}`, // ← 수정
+      `${Config.API_BASE_URL}/api/v1/image/${domain}/upload-url?fileName=${encodeURIComponent(fileName)}`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
     if (response.status === 404) throw new Error('업로드 경로를 찾을 수 없습니다.');

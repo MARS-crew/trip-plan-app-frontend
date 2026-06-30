@@ -13,7 +13,7 @@ export type SearchStackParamList = {
   SelectTrip:
     | { placeId: number; placeName: string; address: string; latitude: number; longitude: number }
     | undefined;
-  ReviewWrite: undefined;
+  ReviewWrite: { visitedPlaceId: number; placeName: string; visitedDate: string };
 };
 
 export type RootTabParamList = {
