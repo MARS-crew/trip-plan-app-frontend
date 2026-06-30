@@ -157,6 +157,9 @@ const HomeScreen: React.FC = () => {
 
   const handleCloseChat = useCallback(() => {
     translateY.value = withTiming(SNAP_MIN, { duration: 300 });
+    setChatMessages([]);
+    setChatInputText('');
+    chatSessionId.current = `${Math.random().toString(36).substring(2)}${Date.now().toString(36)}`;
   }, [translateY, SNAP_MIN]);
 
   const handleSendChat = useCallback(async () => {
@@ -247,15 +250,20 @@ const HomeScreen: React.FC = () => {
             <Text className="text-p text-gray">지금 떠나기 좋은 여행지를 모았어요</Text>
           </View>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, gap: 16 }}>
-            {recommendedPlaces.length > 0 &&
-              recommendedPlaces.map((item) => (
+          {recommendedPlaces.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, gap: 16 }}>
+              {recommendedPlaces.map((item) => (
                 <RecommendedPlaceCard key={item.placeId} place={item} />
               ))}
-          </ScrollView>
+            </ScrollView>
+          ) : (
+            <View className="mx-4 mt-2 items-center justify-center rounded-xl bg-serve py-8">
+              <Text className="text-p text-gray">추천 여행지 정보가 없습니다.</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -321,7 +329,7 @@ const HomeScreen: React.FC = () => {
             <TextInput
               value={chatInputText}
               onChangeText={setChatInputText}
-              onSubmitEditing={handleSendChat}
+              onSubmitEditing={() => { void handleSendChat(); }}
               placeholder="AI에게 질문해보세요"
               placeholderTextColor={COLORS.gray}
               returnKeyType="send"
