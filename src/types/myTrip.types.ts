@@ -15,6 +15,7 @@ export interface TripCardViewModel {
   scheduleText: string;
   scheduleCountText: string;
   imageSource: ImageSourcePropType;
+  imageUrl?: string;
   status: TripCardStatus;
 }
 

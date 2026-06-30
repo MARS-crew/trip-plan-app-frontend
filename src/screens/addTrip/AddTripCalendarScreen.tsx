@@ -145,7 +145,10 @@ const AddTripCalendarScreen: React.FC = () => {
           index: 1,
           routes: [
             { name: 'MainTabs', params: { screen: 'MyTrip' } },
-            { name: 'TripDetail', params: { tripId: route.params.tripId } },
+            {
+              name: 'TripDetail',
+              params: { tripId: route.params.tripId, initialImageUrl: route.params.imageUrl },
+            },
           ],
         });
         return;
