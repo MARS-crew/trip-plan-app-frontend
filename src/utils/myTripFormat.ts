@@ -23,7 +23,10 @@ export const mapTripToCardViewModel = (trip: MyTripItem): TripCardViewModel => (
   dateText: formatDateText(trip.startDate, trip.endDate),
   scheduleText: String(trip.scheduleCount),
   scheduleCountText: String(trip.tripDayCount),
-  imageSource: trip.imageUrl ? { uri: trip.imageUrl } : require('@/assets/images/place_default.png'),
+  imageSource: trip.imageUrl
+    ? { uri: trip.imageUrl }
+    : require('@/assets/images/place_default.png'),
+  imageUrl: trip.imageUrl,
   status: mapTripStatus(trip.tripStatus),
 });
 

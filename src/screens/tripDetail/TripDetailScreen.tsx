@@ -3,11 +3,12 @@ import { Linking, ScrollView, Share, ToastAndroid } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   deleteTrip,
   deleteTripSchedule,
+  getMyTrips,
   getTripRoute,
   getTripSchedules,
   getTripShare,
@@ -25,7 +26,6 @@ import {
   getServiceErrorMessage,
   getTripScheduleUpdateErrorToastMessage,
   getTripDeleteErrorToastMessage,
-  getTripRouteErrorToastMessage,
   getTripScheduleDeleteErrorToastMessage,
   mergeSectionsWithDayFallback,
   normalizeTripDetailData,
@@ -44,18 +44,19 @@ const KEBAB_ANIMATION_DURATION = 250;
 const CARD_MENU_ANIMATION_DURATION = 220;
 const TRIP_TITLE_MAX_LENGTH = 10;
 type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetail'>;
-type DeleteTarget =
-  | { type: 'trip' }
-  | { type: 'schedule'; cardId: number; tripScheduleId: number };
+type DeleteTarget = { type: 'trip' } | { type: 'schedule'; cardId: number; tripScheduleId: number };
 
 const TripDetailScreen: React.FC = () => {
   const navigation = useNavigation<TripDetailNavigation>();
   const route = useRoute<TripDetailRoute>();
   const tripId = route.params?.tripId;
+  const { bottom: bottomInset } = useSafeAreaInsets();
+  const kebabSheetHiddenY = KEBAB_SHEET_HEIGHT + Math.max(bottomInset, 12);
 
-  const kebabTranslateY = useSharedValue(KEBAB_SHEET_HEIGHT);
+  const kebabTranslateY = useSharedValue(kebabSheetHiddenY);
   const cardMenuOpacity = useSharedValue(0);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initialHeaderImageUrlRef = useRef(route.params?.initialImageUrl);
 
   const [isKebabMenuVisible, setIsKebabMenuVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -95,6 +96,12 @@ const TripDetailScreen: React.FC = () => {
     return getTripDayColor(selectedSection?.dayNo ?? 1);
   }, [renderedSections, selectedCardId]);
 
+  useEffect(() => {
+    if (!isKebabMenuVisible) {
+      kebabTranslateY.value = kebabSheetHiddenY;
+    }
+  }, [isKebabMenuVisible, kebabSheetHiddenY, kebabTranslateY]);
+
   useFocusEffect(
     useCallback(() => {
       if (!tripId) {
@@ -104,14 +111,38 @@ const TripDetailScreen: React.FC = () => {
 
       const abortController = new AbortController();
       const fetchTripDetailSchedules = async (): Promise<void> => {
-        const result = await getTripSchedules({ tripId, signal: abortController.signal });
-        if (abortController.signal.aborted || result.error?.code === 'REQUEST_ABORTED') return;
-        if (result.error) {
+        const [scheduleResult, myTripsResult] = await Promise.all([
+          getTripSchedules({ tripId, signal: abortController.signal }),
+          getMyTrips({ signal: abortController.signal }),
+        ]);
+        if (
+          abortController.signal.aborted ||
+          scheduleResult.error?.code === 'REQUEST_ABORTED' ||
+          myTripsResult.error?.code === 'REQUEST_ABORTED'
+        ) {
+          return;
+        }
+        if (scheduleResult.error) {
           setDaySections([]);
           return;
         }
-        const normalizedData = normalizeTripDetailData(result.data);
-        setHeaderData(normalizedData.header);
+
+        const tripListImageUrl = myTripsResult.data
+          .find((trip) => trip.tripId === tripId)
+          ?.imageUrl?.trim();
+        const stableHeaderImageUrl =
+          initialHeaderImageUrlRef.current || route.params?.initialImageUrl || tripListImageUrl;
+
+        if (!initialHeaderImageUrlRef.current && stableHeaderImageUrl) {
+          initialHeaderImageUrlRef.current = stableHeaderImageUrl;
+        }
+
+        const normalizedData = normalizeTripDetailData(scheduleResult.data);
+        setHeaderData({
+          ...normalizedData.header,
+          imageUrl:
+            initialHeaderImageUrlRef.current ?? tripListImageUrl ?? normalizedData.header.imageUrl,
+        });
         setDaySections(normalizedData.sections);
       };
 
@@ -120,7 +151,7 @@ const TripDetailScreen: React.FC = () => {
       return () => {
         abortController.abort();
       };
-    }, [tripId]),
+    }, [route.params?.initialImageUrl, tripId]),
   );
 
   const clearCloseTimer = useCallback(() => {
@@ -134,18 +165,20 @@ const TripDetailScreen: React.FC = () => {
     clearCloseTimer();
     setSelectedCardId(null);
     setIsKebabMenuVisible(true);
-    kebabTranslateY.value = KEBAB_SHEET_HEIGHT;
+    kebabTranslateY.value = kebabSheetHiddenY;
     kebabTranslateY.value = withTiming(0, { duration: KEBAB_ANIMATION_DURATION });
-  }, [clearCloseTimer, kebabTranslateY]);
+  }, [clearCloseTimer, kebabSheetHiddenY, kebabTranslateY]);
 
   const handleCloseKebabMenu = useCallback(() => {
     clearCloseTimer();
-    kebabTranslateY.value = withTiming(KEBAB_SHEET_HEIGHT, { duration: KEBAB_ANIMATION_DURATION });
+    kebabTranslateY.value = withTiming(kebabSheetHiddenY, {
+      duration: KEBAB_ANIMATION_DURATION,
+    });
     closeTimerRef.current = setTimeout(() => {
       setIsKebabMenuVisible(false);
       closeTimerRef.current = null;
     }, KEBAB_ANIMATION_DURATION);
-  }, [clearCloseTimer, kebabTranslateY]);
+  }, [clearCloseTimer, kebabSheetHiddenY, kebabTranslateY]);
 
   const handleOpenCardMenu = useCallback(
     (cardId: number, yOffset: number) => {
@@ -255,7 +288,15 @@ const TripDetailScreen: React.FC = () => {
       startDate: headerData.startDate,
       endDate: headerData.endDate,
     });
-  }, [handleCloseKebabMenu, headerData.endDate, headerData.imageUrl, headerData.startDate, headerData.title, navigation, tripId]);
+  }, [
+    handleCloseKebabMenu,
+    headerData.endDate,
+    headerData.imageUrl,
+    headerData.startDate,
+    headerData.title,
+    navigation,
+    tripId,
+  ]);
 
   const handleOpenTripDeleteModal = useCallback(() => {
     handleCloseKebabMenu();
@@ -296,6 +337,7 @@ const TripDetailScreen: React.FC = () => {
         mode: 'edit',
         tripId,
         tripTitle: headerData.title ?? '',
+        tripImageUrl: headerData.imageUrl,
         tripScheduleId: card.tripScheduleId,
         date: scheduleDate,
         placeId: card.placeId,
@@ -307,7 +349,14 @@ const TripDetailScreen: React.FC = () => {
         memo: card.description,
       });
     },
-    [handleCloseCardMenu, headerData.startDate, headerData.title, navigation, tripId],
+    [
+      handleCloseCardMenu,
+      headerData.imageUrl,
+      headerData.startDate,
+      headerData.title,
+      navigation,
+      tripId,
+    ],
   );
 
   const handleCloseDeleteModal = useCallback(() => {
@@ -406,7 +455,7 @@ const TripDetailScreen: React.FC = () => {
         />
 
         {renderedSections.map(({ dayNo, dayLabel, cards, showMapIcon }) => (
-        <DaySection
+          <DaySection
             key={`${dayNo}-${dayLabel}`}
             dayNo={dayNo}
             dayLabel={dayLabel}
@@ -415,6 +464,7 @@ const TripDetailScreen: React.FC = () => {
             onPressCard={handleOpenCardMenu}
             tripId={tripId}
             tripTitle={headerData.title}
+            tripImageUrl={headerData.imageUrl}
             onPressAction={() => {}}
           />
         ))}
@@ -440,6 +490,8 @@ const TripDetailScreen: React.FC = () => {
       <KebabMenuSheet
         isVisible={isKebabMenuVisible}
         translateY={kebabTranslateY}
+        hiddenTranslateY={kebabSheetHiddenY}
+        bottomInset={bottomInset}
         onClose={handleCloseKebabMenu}
         onPressEditTitle={handleOpenEditTitleModal}
         onPressEditDate={handleOpenEditDateModal}

@@ -11,16 +11,12 @@ import EmptyMapScreen from '@/screens/myTrip/EmptyMapScreen';
 import TripCard from '@/screens/myTrip/components/TripCard';
 import TripTimeline from '@/screens/myTrip/components/TripTimeline';
 import type {
-  MyTripItem,
   TripFilterStatus,
   TripCardViewModel,
   TripFilter,
   TripTimelineStateItem,
 } from '@/types/myTrip.types';
-import {
-  getMyTrips,
-  getTripSchedulesByDate,
-} from '@/services';
+import { getMyTrips, getTripSchedulesByDate } from '@/services';
 import { filterTripsByChip, mapSchedulesToTimelineItems, mapTripToCardViewModel } from '@/utils';
 
 type MyTripNavigation = NativeStackNavigationProp<RootStackParamList>;
@@ -203,7 +199,12 @@ const MyTripScreen: React.FC = () => {
                   imageSource={tripCardItem.imageSource}
                   status={tripCardItem.status}
                   isOpen={openCardId === tripCardItem.id}
-                  onImagePress={() => navigation.navigate('TripDetail', { tripId: tripCardItem.id })}
+                  onImagePress={() =>
+                    navigation.navigate('TripDetail', {
+                      tripId: tripCardItem.id,
+                      initialImageUrl: tripCardItem.imageUrl,
+                    })
+                  }
                   onToggle={() => handleToggleTripCard(tripCardItem)}>
                   <TripTimeline
                     dateOptions={tripTimelineByCardId[tripCardItem.id]?.dateOptions ?? []}

@@ -65,6 +65,7 @@ export interface DaySectionProps {
   showMapIcon?: boolean;
   tripId?: number;
   tripTitle?: string;
+  tripImageUrl?: string;
   onPressCard: (id: number, yOffset: number) => void;
   onPressAction: (id: number) => void;
 }
@@ -83,6 +84,8 @@ export interface CardContextMenuProps {
 export interface KebabMenuSheetProps {
   isVisible: boolean;
   translateY: SharedValue<number>;
+  hiddenTranslateY: number;
+  bottomInset: number;
   onClose: () => void;
   onPressEditTitle?: () => void;
   onPressEditDate?: () => void;

@@ -9,6 +9,8 @@ export const KEBAB_SHEET_HEIGHT = 257;
 const KebabMenuSheet = ({
   isVisible,
   translateY,
+  hiddenTranslateY,
+  bottomInset,
   onClose,
   onPressEditTitle,
   onPressEditDate,
@@ -16,7 +18,7 @@ const KebabMenuSheet = ({
   onPressDelete,
 }: KebabMenuSheetProps) => {
   const backdropStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translateY.value, [0, KEBAB_SHEET_HEIGHT], [1, 0]),
+    opacity: interpolate(translateY.value, [0, hiddenTranslateY], [1, 0]),
   }));
 
   const sheetStyle = useAnimatedStyle(() => ({
@@ -43,10 +45,10 @@ const KebabMenuSheet = ({
         <Pressable style={{ flex: 1 }} onPress={onClose} />
       </Animated.View>
 
-      <Animated.View
-        className="absolute bottom-0 left-0 right-0 z-50"
-        style={sheetStyle}>
-        <View className="w-full rounded-t-[12px] bg-white px-4 py-4">
+      <Animated.View className="absolute bottom-0 left-0 right-0 z-50" style={sheetStyle}>
+        <View
+          className="w-full rounded-t-[12px] bg-white px-4 pt-4"
+          style={{ paddingBottom: 16 + Math.max(bottomInset, 12) }}>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onPressEditTitle ?? onClose}
@@ -54,7 +56,7 @@ const KebabMenuSheet = ({
             <View className="mr-3">
               <KebabEditIcon />
             </View>
-            <Text className="text-h3 font-pretendardSemiBold text-black">제목 변경</Text>
+            <Text className="font-pretendardSemiBold text-h3 text-black">제목 변경</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -64,7 +66,7 @@ const KebabMenuSheet = ({
             <View className="mr-3">
               <KebabCalIcon />
             </View>
-            <Text className="text-h3 font-pretendardSemiBold text-black">날짜 변경</Text>
+            <Text className="font-pretendardSemiBold text-h3 text-black">날짜 변경</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -74,7 +76,7 @@ const KebabMenuSheet = ({
             <View className="mr-3">
               <KebabShareIcon />
             </View>
-            <Text className="text-h3 font-pretendardSemiBold text-black">공유</Text>
+            <Text className="font-pretendardSemiBold text-h3 text-black">공유</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -84,7 +86,7 @@ const KebabMenuSheet = ({
             <View className="mr-3">
               <KebabTrashIcon />
             </View>
-            <Text className="text-h3 font-pretendardSemiBold text-black">삭제</Text>
+            <Text className="font-pretendardSemiBold text-h3 text-black">삭제</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
