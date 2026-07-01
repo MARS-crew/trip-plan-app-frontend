@@ -244,13 +244,13 @@ const HomeScreen: React.FC = () => {
           />
         </View>
 
-        <View className="mb-6 mt-6">
-          <View className="mb-2 px-4">
-            <Text className="mb-[2px] font-pretendardSemiBold text-h1 text-black">추천 여행지</Text>
-            <Text className="text-p text-gray">지금 떠나기 좋은 여행지를 모았어요</Text>
-          </View>
+        {recommendedPlaces.length > 0 && (
+          <View className="mb-6 mt-6">
+            <View className="mb-2 px-4">
+              <Text className="mb-[2px] font-pretendardSemiBold text-h1 text-black">추천 여행지</Text>
+              <Text className="text-p text-gray">지금 떠나기 좋은 여행지를 모았어요</Text>
+            </View>
 
-          {recommendedPlaces.length > 0 ? (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -259,12 +259,8 @@ const HomeScreen: React.FC = () => {
                 <RecommendedPlaceCard key={item.placeId} place={item} />
               ))}
             </ScrollView>
-          ) : (
-            <View className="mx-4 mt-2 items-center justify-center rounded-xl bg-serve py-8">
-              <Text className="text-p text-gray">추천 여행지 정보가 없습니다.</Text>
-            </View>
-          )}
-        </View>
+          </View>
+        )}
       </ScrollView>
 
       <TouchableOpacity
