@@ -155,10 +155,11 @@ const HomeScreen: React.FC = () => {
     translateY.value = withTiming(0, { duration: 350 });
   }, [translateY]);
 
-  const handleCloseChat = useCallback(() => {
+   const handleCloseChat = useCallback(() => {
     translateY.value = withTiming(SNAP_MIN, { duration: 300 });
     setChatMessages([]);
     setChatInputText('');
+    setIsChatLoading(false);
     chatSessionId.current = `${Math.random().toString(36).substring(2)}${Date.now().toString(36)}`;
   }, [translateY, SNAP_MIN]);
 
