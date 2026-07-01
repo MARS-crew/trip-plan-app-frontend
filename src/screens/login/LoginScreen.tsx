@@ -19,7 +19,7 @@ import type { LoginScreenNavigationProp } from '@/types/login';
 import { getLoginWarningMessage, getNaverLoginWarningMessage, showToastMessage } from '@/utils';
 
 import SocialLoginButton from './SocialLoginButton';
-import { useSocialLogin } from './hooks';
+import { useSocialLogin, useKakaoLogin } from './hooks';
 
 const LoginScreen: React.FC = () => {
   // Hooks
@@ -30,6 +30,13 @@ const LoginScreen: React.FC = () => {
   const [loginWarningMessage, setLoginWarningMessage] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { handleNaverLogin, handleGoogleLogin } = useSocialLogin({
+    navigation,
+    isSubmitting,
+    setIsSubmitting,
+    setLoginWarningMessage,
+    setAuthFromLoginData,
+  });
+  const { handleKakaoLogin } = useKakaoLogin({
     navigation,
     isSubmitting,
     setIsSubmitting,
@@ -211,6 +218,8 @@ const LoginScreen: React.FC = () => {
                   bgClassName="bg-kakaoYellow"
                   textClassName="text-black"
                   icon={<KakaoIcon width={18} height={18} />}
+                  onPress={handleKakaoLogin}
+                  disabled={isSubmitting}
                 />
                 <SocialLoginButton
                   label="네이버로 시작하기"

@@ -34,9 +34,22 @@
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="com.trip_plan" /> 
+            <data android:scheme="com.trip_plan" />
         </intent-filter>
 
       </activity>
+
+      <!-- 카카오 로그인 웹뷰 액티비티 -->
+      <activity
+        android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+        android:exported="true">
+        <intent-filter>
+          <action android:name="android.intent.action.VIEW" />
+          <category android:name="android.intent.category.DEFAULT" />
+          <category android:name="android.intent.category.BROWSABLE" />
+          <data android:scheme="kakao${kakaoAppKey}" android:host="oauth" />
+        </intent-filter>
+      </activity>
+
     </application>
 </manifest>
