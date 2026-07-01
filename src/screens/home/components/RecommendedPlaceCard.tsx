@@ -12,7 +12,7 @@ export interface RecommendedPlaceCardProps {
 const CARD_WIDTH = 260;
 const MAX_TAGS = 3;
 
-const DEFAULT_IMAGE = require('@/assets/images/mainjeju.png');
+const DEFAULT_IMAGE = require('@/assets/images/place_default.png');
 
 export const RecommendedPlaceCard = React.memo<RecommendedPlaceCardProps>(({ place }) => {
   const [imageError, setImageError] = useState(false);
@@ -29,7 +29,7 @@ export const RecommendedPlaceCard = React.memo<RecommendedPlaceCardProps>(({ pla
         <View className="relative h-40">
           <Image
             source={place.imageUrl && !imageError ? { uri: place.imageUrl } : DEFAULT_IMAGE}
-            className="h-full w-full"
+            className="h-full w-full bg-gray"
             resizeMode="cover"
             onError={() => setImageError(true)}
           />
