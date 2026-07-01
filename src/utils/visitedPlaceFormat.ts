@@ -38,6 +38,7 @@ export const mapVisitedPlace = (place: VisitedPlace): VisitedPlaceItem => {
   const hasReview = place.reviewWrittenYn === 'Y';
   return {
     id: String(place.visitedPlaceId),
+    placeId: String(place.placeId),
     date: formatVisitedDate(place.visitedAt),
     title: place.placeName,
     location: buildLocation(place.cityName, place.countryName),
