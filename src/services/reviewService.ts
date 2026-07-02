@@ -76,13 +76,12 @@ export const uploadToMinio = async (
   uploadUrl: string,
   file: { uri: string; type?: string },
 ): Promise<void> => {
-  const res = await fetch(file.uri);
-  const blob = await res.blob();
-
+  // fetch(file.uri)로 로컬 file:// URI를 직접 읽으면 Android에서 "Network request failed"가 발생함.
+  // { uri } 형태로 body를 넘기면 네이티브에서 파일을 스트리밍해서 전송해준다.
   const result = await fetch(uploadUrl, {
     method: 'PUT',
     headers: { 'Content-Type': file.type ?? 'image/jpeg' },
-    body: blob,
+    body: { uri: file.uri } as unknown as BodyInit_,
   });
 
   if (!result.ok) throw new Error('MinIO 업로드 실패');
