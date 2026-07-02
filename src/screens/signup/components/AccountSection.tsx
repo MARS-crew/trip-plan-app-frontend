@@ -98,7 +98,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
 
             {hasPasswordError && (
               <Text className="mt-2 text-p text-statusError">
-                영문,숫자,특수기호 를 포함한 8자리 이상으로 작성해 주세요.
+                영문,숫자,특수기호를 포함한 8자리 이상으로 작성해 주세요.
               </Text>
             )}
 

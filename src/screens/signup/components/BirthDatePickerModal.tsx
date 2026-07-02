@@ -1,8 +1,17 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
 
 import SpinnerColumn from '@/components/ui/SpinnerColumn';
-import { ITEM_HEIGHT, VISIBLE_ITEMS, YEARS, MONTHS, getDaysInMonth, pad } from '../constants';
+import {
+  ITEM_HEIGHT,
+  VISIBLE_ITEMS,
+  YEARS,
+  MONTHS,
+  getDaysInMonth,
+  pad,
+  CURRENT_YEAR,
+} from '../constants';
+import { CURRENT_MONTH, CURRENT_DATE } from '@/utils/dateConstants';
 
 interface BirthDatePickerModalProps {
   visible: boolean;
@@ -27,10 +36,34 @@ export const BirthDatePickerModal: React.FC<BirthDatePickerModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
-  const days = useMemo(
-    () => Array.from({ length: getDaysInMonth(tempYear, tempMonth) }, (_, i) => i + 1),
-    [tempYear, tempMonth],
+  const availableMonths = useMemo(
+    () => (tempYear === CURRENT_YEAR ? MONTHS.filter((m) => m <= CURRENT_MONTH) : MONTHS),
+    [tempYear],
   );
+
+  const days = useMemo(() => {
+    const totalDays = getDaysInMonth(tempYear, tempMonth);
+    const maxDay =
+      tempYear === CURRENT_YEAR && tempMonth === CURRENT_MONTH ? CURRENT_DATE : totalDays;
+    return Array.from({ length: maxDay }, (_, i) => i + 1);
+  }, [tempYear, tempMonth]);
+
+  // 연도 변경 시 월 보정
+  useEffect(() => {
+    if (tempYear === CURRENT_YEAR && tempMonth > CURRENT_MONTH) {
+      onChangeMonth(CURRENT_MONTH);
+    }
+  }, [tempYear]);
+
+  // 연도/월 변경 시 일 보정
+  useEffect(() => {
+    const totalDays = getDaysInMonth(tempYear, tempMonth);
+    const maxDay =
+      tempYear === CURRENT_YEAR && tempMonth === CURRENT_MONTH ? CURRENT_DATE : totalDays;
+    if (tempDay > maxDay) {
+      onChangeDay(maxDay);
+    }
+  }, [tempYear, tempMonth]);
 
   const handleYearSelect = useCallback(
     (index: number) => {
@@ -41,9 +74,9 @@ export const BirthDatePickerModal: React.FC<BirthDatePickerModalProps> = ({
 
   const handleMonthSelect = useCallback(
     (index: number) => {
-      onChangeMonth(MONTHS[index]);
+      onChangeMonth(availableMonths[index]);
     },
-    [onChangeMonth],
+    [onChangeMonth, availableMonths],
   );
 
   const handleDaySelect = useCallback(
@@ -84,8 +117,8 @@ export const BirthDatePickerModal: React.FC<BirthDatePickerModalProps> = ({
               format={(n) => `${n}년`}
             />
             <SpinnerColumn
-              items={MONTHS}
-              selectedIndex={Math.max(0, MONTHS.indexOf(tempMonth))}
+              items={availableMonths}
+              selectedIndex={Math.max(0, availableMonths.indexOf(tempMonth))}
               onSelect={handleMonthSelect}
               format={(n) => `${pad(n)}월`}
             />
