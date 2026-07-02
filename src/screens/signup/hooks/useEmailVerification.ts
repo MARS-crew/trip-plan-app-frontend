@@ -43,7 +43,11 @@ export const useEmailVerification = () => {
       setIsEmailVerified(false);
     } catch (error) {
       setEmailStatus('none');
-      const errMessage = handleError(error);
+      const rawMessage = handleError(error);
+      const errMessage =
+        rawMessage === '이미 존재하는 이메일입니다.'
+          ? '이미 가입되어있는 이메일입니다.'
+          : rawMessage;
       setEmailErrorMessage(errMessage);
       setIsCodeFieldVisible(false);
       setCodeStatus('none');
