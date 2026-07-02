@@ -14,7 +14,7 @@ export {
 } from './tripErrorMessage';
 export { getDateRange, getTodayString, toDate } from './addTripDate';
 export { showToastMessage } from './errfeedback';
-export { getLoginWarningMessage, getNaverLoginWarningMessage, getGoogleLoginWarningMessage } from './error';
+export { getLoginWarningMessage, getNaverLoginWarningMessage, getGoogleLoginWarningMessage, getKakaoLoginWarningMessage } from './error';
 export {
   isValidEmail,
   isValidPassword,

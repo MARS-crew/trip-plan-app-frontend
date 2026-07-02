@@ -70,14 +70,6 @@ export interface ReviewPhotoItemProps {
   onRemove: (photoId: string) => void;
 }
 
-export interface ReviewWriteScreenProps {
-  visitedPlaceId: number;
-  placeName?: string;
-  visitedDate?: string;
-  onBack?: () => void;
-  onSubmitReview?: (payload: ReviewSubmitPayload) => Promise<void> | void;
-}
-
 export interface ReviewSubmitPayload {
   rating: number;
   reviewText: string;

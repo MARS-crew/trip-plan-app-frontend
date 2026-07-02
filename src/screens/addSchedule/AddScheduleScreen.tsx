@@ -95,7 +95,10 @@ const AddScheduleScreen = () => {
     }
 
     if (params?.tripId) {
-      navigation.replace('TripDetail', { tripId: params.tripId });
+      navigation.replace('TripDetail', {
+        tripId: params.tripId,
+        initialImageUrl: params.tripImageUrl,
+      });
     } else {
       navigation.replace('TripDetail');
     }
@@ -104,6 +107,7 @@ const AddScheduleScreen = () => {
     navigation.navigate('AddCalendarMapScreen', {
       tripId: params?.tripId,
       tripTitle: params?.tripTitle,
+      tripImageUrl: params?.tripImageUrl,
       date: dateLabel !== '날짜' ? dateLabel : params?.date,
       tripScheduleId: params?.tripScheduleId,
       title: formValues.title,
@@ -215,7 +219,11 @@ const AddScheduleScreen = () => {
   })();
 
   const availableMinutes = (() => {
-    if (pickerMode === 'endTime' && formValues.startTime && tempHour === formValues.startTime.hour) {
+    if (
+      pickerMode === 'endTime' &&
+      formValues.startTime &&
+      tempHour === formValues.startTime.hour
+    ) {
       return MINUTES.filter((m) => m > formValues.startTime!.minute);
     }
     if (pickerMode === 'startTime' && formValues.endTime && tempHour === formValues.endTime.hour) {
@@ -442,7 +450,9 @@ const AddScheduleScreen = () => {
             }}
             activeOpacity={0.8}
             className="h-[44px] w-full items-center justify-center rounded-[8px]"
-            style={{ backgroundColor: isSubmitEnabled ? COLORS.main : COLORS.buttonDisabledOverlay }}>
+            style={{
+              backgroundColor: isSubmitEnabled ? COLORS.main : COLORS.buttonDisabledOverlay,
+            }}>
             <Text className="font-pretendardSemiBold text-h3 text-white">
               {isEditMode ? '수정하기' : '등록하기'}
             </Text>
@@ -513,11 +523,19 @@ const AddScheduleScreen = () => {
                   onSelect={(index) => {
                     const newHour = availableHours[index];
                     setTempHour(newHour);
-                    if (pickerMode === 'endTime' && formValues.startTime && newHour === formValues.startTime.hour) {
+                    if (
+                      pickerMode === 'endTime' &&
+                      formValues.startTime &&
+                      newHour === formValues.startTime.hour
+                    ) {
                       if (tempMinute <= formValues.startTime.minute) {
                         setTempMinute(formValues.startTime.minute + 1);
                       }
-                    } else if (pickerMode === 'startTime' && formValues.endTime && newHour === formValues.endTime.hour) {
+                    } else if (
+                      pickerMode === 'startTime' &&
+                      formValues.endTime &&
+                      newHour === formValues.endTime.hour
+                    ) {
                       if (tempMinute >= formValues.endTime.minute) {
                         setTempMinute(formValues.endTime.minute - 1);
                       }

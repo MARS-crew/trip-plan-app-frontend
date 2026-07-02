@@ -247,6 +247,7 @@ const AddCalendarMapScreen: React.FC = () => {
           mode: params?.tripScheduleId ? 'edit' : 'create',
           tripId: params.tripId,
           tripTitle: params?.tripTitle ?? '',
+          tripImageUrl: params?.tripImageUrl,
           tripScheduleId: params?.tripScheduleId,
           date: params?.date ?? '',
           title: params?.title ?? '',
@@ -270,6 +271,7 @@ const AddCalendarMapScreen: React.FC = () => {
     params?.startTime,
     params?.title,
     params?.tripId,
+    params?.tripImageUrl,
     params?.tripScheduleId,
     params?.tripTitle,
     selectedPlace,
@@ -363,9 +365,7 @@ const AddCalendarMapScreen: React.FC = () => {
                     className={`py-3 ${
                       index < searchResults.length - 1 ? 'border-b border-borderGray' : ''
                     }`}>
-                    <Text
-                      className="font-pretendardSemiBold text-h3 text-black"
-                      numberOfLines={1}>
+                    <Text className="font-pretendardSemiBold text-h3 text-black" numberOfLines={1}>
                       {item.name}
                     </Text>
                     <Text className="mt-1 text-p text-gray" numberOfLines={1}>

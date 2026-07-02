@@ -13,6 +13,8 @@ const IMAGE_LIBRARY_OPTIONS = {
   selectionLimit: 0,
   quality: 0.8 as const,
   includeExtra: true,
+  // iOS HEIC 사진을 JPEG로 변환해서 가져옴 (HEIC는 ALLOWED_TYPES에서 막혀 업로드가 안 됐음)
+  assetRepresentationMode: 'compatible' as const,
 };
 
 const createPhotoId = (asset: Asset, index: number): string => {

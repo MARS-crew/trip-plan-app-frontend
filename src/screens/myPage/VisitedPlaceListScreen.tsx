@@ -60,7 +60,7 @@ const VisitedPlaceListScreen: React.FC = () => {
         screen: 'Search',
         params: {
           screen: 'DestinationDetail',
-          params: { destinationId: item.id },
+          params: { destinationId: item.placeId },
         },
       } as never);
     },
@@ -74,7 +74,7 @@ const VisitedPlaceListScreen: React.FC = () => {
           screen: 'Search',
           params: {
             screen: 'DestinationDetail',
-            params: { destinationId: item.id, initialTab: 'review' },
+            params: { destinationId: item.placeId, initialTab: 'review' },
           },
         } as never);
         return;
