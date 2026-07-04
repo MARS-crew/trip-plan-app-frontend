@@ -65,7 +65,7 @@ const KebabMenuSheet = ({
             </View>
             <Text className="font-pretendardSemiBold text-h3 text-black">날짜 변경</Text>
           </TouchableOpacity>
-
+{/* 
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onPressShare ?? onClose}
@@ -84,7 +84,7 @@ const KebabMenuSheet = ({
               <KebabShareIcon />
             </View>
             <Text className="font-pretendardSemiBold text-h3 text-black">공유 테스트</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity
             activeOpacity={0.8}
