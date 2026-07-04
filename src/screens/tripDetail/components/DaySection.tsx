@@ -20,6 +20,7 @@ const DaySection = ({
   tripImageUrl,
   onPressCard,
   onPressAction,
+  isReadOnly = false,
 }: DaySectionProps) => {
   const navigation = useNavigation<TripDetailNavigation>();
   const cardRefs = useRef<Record<number, View | null>>({});
@@ -56,6 +57,7 @@ const DaySection = ({
           className="mt-[12px] px-4">
           <TripDetailCard
             {...card}
+            isCurrentSchedule={isReadOnly ? false : card.isCurrentSchedule}
             tripId={tripId}
             accentColor={getTripDayColor(dayNo)}
             onPressAction={() => {
@@ -68,29 +70,30 @@ const DaySection = ({
                 tripScheduleId: card.tripScheduleId,
               });
             }}
-            onPressCard={() => handlePressCard(card.id)}
+            onPressCard={isReadOnly ? undefined : () => handlePressCard(card.id)}
           />
         </View>
       ))}
 
-      <View className="mt-[12px] px-4">
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={() => {
-            if (!tripId) return;
-            navigation.navigate('AddSchedule', {
-              mode: 'create',
-              tripId,
-              tripTitle: tripTitle ?? '',
-              tripImageUrl,
-              date: '',
-            });
-          }}
-          className="h-[50px] w-full flex-row items-center justify-center rounded-[8px] border border-dashed border-borderGray">
-          <PlusGrayIcon />
-          <Text className="ml-[2px] text-p1 text-gray">일정 추가하기</Text>
-        </TouchableOpacity>
-      </View>
+      {!isReadOnly && (
+        <View className="mt-[12px] px-4">
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => {
+              if (!tripId) return;
+              navigation.navigate('AddSchedule', {
+                mode: 'create',
+                tripId,
+                tripTitle: tripTitle ?? '',
+                date: '',
+              });
+            }}
+            className="h-[50px] w-full flex-row items-center justify-center rounded-[8px] border border-dashed border-borderGray">
+            <PlusGrayIcon />
+            <Text className="ml-[2px] text-p1 text-gray">일정 추가하기</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };

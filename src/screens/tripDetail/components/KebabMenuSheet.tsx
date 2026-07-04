@@ -4,7 +4,7 @@ import Animated, { interpolate, useAnimatedStyle } from 'react-native-reanimated
 import { KebabEditIcon, KebabCalIcon, KebabShareIcon, KebabTrashIcon } from '@/assets/icons';
 import type { KebabMenuSheetProps } from '@/types/tripDetail.types';
 
-export const KEBAB_SHEET_HEIGHT = 201;
+export const KEBAB_SHEET_HEIGHT = 313;
 
 const KebabMenuSheet = ({
   isVisible,
@@ -15,6 +15,7 @@ const KebabMenuSheet = ({
   onPressEditTitle,
   onPressEditDate,
   onPressShare,
+  onPressShareTest,
   onPressDelete,
 }: KebabMenuSheetProps) => {
   const backdropStyle = useAnimatedStyle(() => ({
@@ -69,7 +70,9 @@ const KebabMenuSheet = ({
             <Text className="font-pretendardSemiBold text-h3 text-black">날짜 변경</Text>
           </TouchableOpacity>
 
+{/* 
           {/* 현재 사용하지 않는 공유 버튼 (임시 비활성화)
+
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onPressShare ?? onClose}
@@ -80,6 +83,16 @@ const KebabMenuSheet = ({
             <Text className="font-pretendardSemiBold text-h3 text-black">공유</Text>
           </TouchableOpacity>
           */}
+
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={onPressShareTest ?? onClose}
+            className="h-14 w-full flex-row items-center px-4">
+            <View className="mr-3">
+              <KebabShareIcon />
+            </View>
+            <Text className="font-pretendardSemiBold text-h3 text-black">공유 테스트</Text>
+          </TouchableOpacity> */}
 
           <TouchableOpacity
             activeOpacity={0.8}

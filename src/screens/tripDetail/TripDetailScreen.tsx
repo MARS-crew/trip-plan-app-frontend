@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Linking, ScrollView, Share, ToastAndroid } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
+import Config from 'react-native-config';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 import {
   deleteTrip,
@@ -45,6 +47,18 @@ const CARD_MENU_ANIMATION_DURATION = 220;
 const TRIP_TITLE_MAX_LENGTH = 10;
 type TripDetailNavigation = NativeStackNavigationProp<RootStackParamList, 'TripDetail'>;
 type DeleteTarget = { type: 'trip' } | { type: 'schedule'; cardId: number; tripScheduleId: number };
+
+const getChottuTripShareUrl = (tripId: number): string | null => {
+  const chottuLinkBaseUrl = Config.CHOTTU_LINK_BASE_URL?.trim().replace(/\/+$/g, '');
+  if (!chottuLinkBaseUrl) return null;
+
+  const normalizedBaseUrl = /^https?:\/\//i.test(chottuLinkBaseUrl)
+    ? chottuLinkBaseUrl
+    : `https://${chottuLinkBaseUrl}`;
+
+  return `${normalizedBaseUrl}/trip-share/${tripId}`;
+};
+
 
 const TripDetailScreen: React.FC = () => {
   const navigation = useNavigation<TripDetailNavigation>();
@@ -216,7 +230,7 @@ const TripDetailScreen: React.FC = () => {
 
     const title = result.data.shareTitle?.trim() || result.data.tripTitle?.trim() || '여행 공유';
     const description = result.data.shareDescription?.trim() || '';
-    const shareUrl = result.data.shareUrl?.trim() || '';
+    const shareUrl = getChottuTripShareUrl(tripId) ?? result.data.shareUrl?.trim() ?? '';
     const message = [description, shareUrl].filter(Boolean).join('\n');
 
     try {
@@ -243,6 +257,14 @@ const TripDetailScreen: React.FC = () => {
       );
     });
   }, [handleCloseKebabMenu, handleShareTrip]);
+
+  const handlePressShareTestInKebab = useCallback(() => {
+    handleCloseKebabMenu();
+    if (!tripId) return;
+    navigation.navigate('TripShare', {
+      tripId,
+    });
+  }, [handleCloseKebabMenu, navigation, tripId]);
 
   const handleOpenEditTitleModal = useCallback(() => {
     handleCloseKebabMenu();
@@ -499,6 +521,7 @@ const TripDetailScreen: React.FC = () => {
         onPressEditTitle={handleOpenEditTitleModal}
         onPressEditDate={handleOpenEditDateModal}
         onPressShare={handlePressShareInKebab}
+        onPressShareTest={handlePressShareTestInKebab}
         onPressDelete={handleOpenTripDeleteModal}
       />
 

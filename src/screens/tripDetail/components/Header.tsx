@@ -17,7 +17,14 @@ const getValidImageUrl = (rawImageUrl?: string): string | null => {
   return trimmedImageUrl.startsWith('//') ? `https:${trimmedImageUrl}` : trimmedImageUrl;
 };
 
-const Header = ({ onPressKebab, tripId, title, dateText, imageUrl }: HeaderProps) => {
+const Header = ({
+  onPressKebab,
+  tripId,
+  title,
+  dateText,
+  imageUrl,
+  isReadOnly = false,
+}: HeaderProps) => {
   const navigation = useNavigation<TripDetailNavigation>();
   const [hasImageLoadError, setHasImageLoadError] = useState(false);
   const validImageUrl = getValidImageUrl(imageUrl);
@@ -70,26 +77,28 @@ const Header = ({ onPressKebab, tripId, title, dateText, imageUrl }: HeaderProps
           <LeftArrowIcon />
         </TouchableOpacity>
 
-        <View className="flex-row items-center">
-          <TouchableOpacity
-            onPress={() => {
-              if (!tripId) return;
-              navigation.navigate('WishlistScreen', { tripId });
-            }}
-            activeOpacity={0.8}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-            className="mr-2 h-[36px] w-[36px] items-center justify-center rounded-full bg-[#FFFFFF4C]">
-            <WishIcon />
-          </TouchableOpacity>
+        {!isReadOnly && (
+          <View className="flex-row items-center">
+            <TouchableOpacity
+              onPress={() => {
+                if (!tripId) return;
+                navigation.navigate('WishlistScreen', { tripId });
+              }}
+              activeOpacity={0.8}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              className="mr-2 h-[36px] w-[36px] items-center justify-center rounded-full bg-[#FFFFFF4C]">
+              <WishIcon />
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={onPressKebab}
-            activeOpacity={0.8}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-            className="h-[36px] w-[36px] items-center justify-center rounded-full bg-[#FFFFFF4C]">
-            <KebabMenuIcon />
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              onPress={onPressKebab}
+              activeOpacity={0.8}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              className="h-[36px] w-[36px] items-center justify-center rounded-full bg-[#FFFFFF4C]">
+              <KebabMenuIcon />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       <View className="absolute bottom-[19px] left-4">

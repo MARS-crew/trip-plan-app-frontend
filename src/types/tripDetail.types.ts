@@ -6,6 +6,7 @@ import type { RootStackParamList } from '@/navigation/types';
 import type { ServiceError } from './trip';
 
 export type TripDetailRoute = RouteProp<RootStackParamList, 'TripDetail'>;
+export type TripShareRoute = RouteProp<RootStackParamList, 'TripShare'>;
 
 export interface TripDetailCardItem {
   id: number;
@@ -51,11 +52,12 @@ export type TripDetailCardMenuItem = Pick<
 > & { id: number; tripScheduleId?: number };
 
 export interface HeaderProps {
-  onPressKebab: () => void;
+  onPressKebab?: () => void;
   tripId?: number;
   title?: string;
   dateText?: string;
   imageUrl?: string;
+  isReadOnly?: boolean;
 }
 
 export interface DaySectionProps {
@@ -68,6 +70,7 @@ export interface DaySectionProps {
   tripImageUrl?: string;
   onPressCard: (id: number, yOffset: number) => void;
   onPressAction: (id: number) => void;
+  isReadOnly?: boolean;
 }
 
 export interface CardContextMenuProps {
@@ -90,6 +93,7 @@ export interface KebabMenuSheetProps {
   onPressEditTitle?: () => void;
   onPressEditDate?: () => void;
   onPressShare?: () => void;
+  onPressShareTest?: () => void;
   onPressDelete?: () => void;
 }
 
