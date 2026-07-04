@@ -13,7 +13,7 @@ export type SearchStackParamList = {
   SelectTrip:
     | { placeId: number; placeName: string; address: string; latitude: number; longitude: number }
     | undefined;
-  ReviewWrite: undefined;
+  ReviewWrite: { visitedPlaceId: number; placeName: string; visitedDate: string };
 };
 
 export type RootTabParamList = {
@@ -49,13 +49,14 @@ export type RootStackParamList = {
   FindId: undefined;
   WishlistScreen: { tripId: number };
   FindPassword: undefined;
-  TripDetail: { tripId: number } | undefined;
   TripShare: { tripId: number } | undefined;
+  TripDetail: { tripId: number; initialImageUrl?: string } | undefined;
   AddSchedule:
     | {
         mode?: 'create' | 'edit';
         tripId: number;
         tripTitle: string;
+        tripImageUrl?: string;
         date: string;
         tripScheduleId?: number;
         placeId?: number;
@@ -73,6 +74,7 @@ export type RootStackParamList = {
     | {
         tripId?: number;
         tripTitle?: string;
+        tripImageUrl?: string;
         date?: string;
         tripScheduleId?: number;
         title?: string;

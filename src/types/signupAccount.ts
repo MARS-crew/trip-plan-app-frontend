@@ -1,11 +1,11 @@
 import type { LayoutChangeEvent } from 'react-native';
 
-import type { SignUpFormData } from './signup';
+import type { SignUpFormData, IdCheckStatus } from './signup';
 
 export interface AccountSectionProps {
   formData: SignUpFormData;
   hidePasswordFields?: boolean;
-  idCheckStatus: 'idle' | 'available' | 'duplicate' | 'error';
+  idCheckStatus: IdCheckStatus;
   idMessage: string;
   idMessageClass: string;
   idInputClass: string;

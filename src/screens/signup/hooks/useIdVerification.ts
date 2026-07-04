@@ -15,6 +15,16 @@ export const useIdVerification = () => {
       return;
     }
 
+    if (!/^[a-z0-9]+$/.test(normalizedAccountId)) {
+      setIdCheckStatus('invalidFormat');
+      return;
+    }
+
+    if (normalizedAccountId.length < 4 || normalizedAccountId.length > 12) {
+      setIdCheckStatus('invalid');
+      return;
+    }
+
     try {
       const isDuplicate = await checkDuplicateUserId(normalizedAccountId);
       setIdCheckStatus(isDuplicate ? 'duplicate' : 'available');

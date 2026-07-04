@@ -17,6 +17,7 @@ const DaySection = ({
   showMapIcon = false,
   tripId,
   tripTitle,
+  tripImageUrl,
   onPressCard,
   onPressAction,
   isReadOnly = false,

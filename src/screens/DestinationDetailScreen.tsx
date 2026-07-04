@@ -263,21 +263,22 @@ const DestinationDetailScreen: React.FC = () => {
             <IconButton icon={LeftArrowIcon} onPress={handleGoBack} accessibilityLabel="뒤로가기" />
           </View>
 
-          {/* 오른쪽: 저장, 공유 버튼 */}
+          {/* 오른쪽: 저장 버튼 */}
           <View className="absolute right-4 top-4 flex-row">
             <IconButton
               iconSize={24}
-              className="mr-2"
               icon={isBookmarked ? ActiveBookmarkIcon : SaveIcon}
               onPress={handleSave}
               accessibilityLabel="저장"
             />
+            {/* 현재 사용하지 않는 공유 버튼 (임시 비활성화)
             <IconButton
               iconSize={16}
               icon={ShareIcon}
               onPress={handleShare}
               accessibilityLabel="공유"
             />
+            */}
           </View>
 
           {/* 좌측 하단: 위치 정보 */}

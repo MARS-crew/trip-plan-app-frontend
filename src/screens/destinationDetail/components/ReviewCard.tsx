@@ -1,8 +1,34 @@
 import { StarIcon, StarOffIcon } from '@/assets';
 import { ContentContainer } from '@/components/ui';
 import { ReviewCardProps, StarRatingProps } from '@/types/review';
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, ScrollView, Text, View } from 'react-native';
+
+const CDN_BASE_URL = 'https://minio.mars-pli.kro.kr:26443/';
+const DEFAULT_REVIEW_IMAGE = require('@/assets/images/place_default.png');
+
+const getValidImageUrl = (rawPath?: string): string | null => {
+  const trimmedPath = rawPath?.trim();
+  if (!trimmedPath || trimmedPath === 'null' || trimmedPath === 'undefined') {
+    return null;
+  }
+  if (trimmedPath.startsWith('//')) return `https:${trimmedPath}`;
+  if (/^https?:\/\//.test(trimmedPath)) return trimmedPath;
+  return `${CDN_BASE_URL}${trimmedPath}`;
+};
+
+const ReviewImage = ({ uri }: { uri: string }): React.JSX.Element => {
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <Image
+      source={hasError ? DEFAULT_REVIEW_IMAGE : { uri }}
+      onError={() => setHasError(true)}
+      className="h-28 w-28 rounded-lg"
+      resizeMode="cover"
+    />
+  );
+};
 
 const StarRating = ({ score, max = 5 }: StarRatingProps): React.JSX.Element => (
   <View className="flex-row gap-1">
@@ -46,9 +72,13 @@ export const ReviewCard = React.memo<ReviewCardProps>(
                 showsHorizontalScrollIndicator={false}
                 className="mt-2"
                 contentContainerStyle={{ gap: 4 }}>
-                {imageUrls.slice(0, 3).map((uri, idx) => (
-                  <Image key={`${uri}-${idx}`} source={{ uri }} className="h-28 w-28 rounded-lg" />
-                ))}
+                {imageUrls
+                  .slice(0, 3)
+                  .map(getValidImageUrl)
+                  .filter((uri): uri is string => uri !== null)
+                  .map((uri, idx) => (
+                    <ReviewImage key={`${uri}-${idx}`} uri={uri} />
+                  ))}
               </ScrollView>
             ) : null}
           </View>

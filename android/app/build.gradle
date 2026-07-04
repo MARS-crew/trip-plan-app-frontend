@@ -88,7 +88,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
-        manifestPlaceholders = [GOOGLE_MAP_API_KEY: GOOGLE_MAP_API_KEY]
+        manifestPlaceholders = [GOOGLE_MAP_API_KEY: GOOGLE_MAP_API_KEY, kakaoAppKey: "a6aae5fb718e2397deca563c4264c4fa"]
     }
     signingConfigs {
         debug {
@@ -121,4 +121,5 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
 }

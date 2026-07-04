@@ -28,7 +28,7 @@ export interface TermsAgreement {
 export type AccountFieldKey = 'accountId' | 'nickname' | 'password' | 'passwordConfirm';
 export type EmailStatus = 'none' | 'sent' | 'error';
 export type CodeStatus = 'none' | 'success' | 'error';
-export type IdCheckStatus = 'idle' | 'available' | 'duplicate' | 'error';
+export type IdCheckStatus = 'idle' | 'available' | 'duplicate' | 'invalid' | 'invalidFormat' | 'error';
 export type RequiredFieldKey =
   | 'accountId'
   | 'nickname'

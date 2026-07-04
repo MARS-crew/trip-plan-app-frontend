@@ -9,6 +9,8 @@ export const KEBAB_SHEET_HEIGHT = 313;
 const KebabMenuSheet = ({
   isVisible,
   translateY,
+  hiddenTranslateY,
+  bottomInset,
   onClose,
   onPressEditTitle,
   onPressEditDate,
@@ -17,7 +19,7 @@ const KebabMenuSheet = ({
   onPressDelete,
 }: KebabMenuSheetProps) => {
   const backdropStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translateY.value, [0, KEBAB_SHEET_HEIGHT], [1, 0]),
+    opacity: interpolate(translateY.value, [0, hiddenTranslateY], [1, 0]),
   }));
 
   const sheetStyle = useAnimatedStyle(() => ({
@@ -45,7 +47,9 @@ const KebabMenuSheet = ({
       </Animated.View>
 
       <Animated.View className="absolute bottom-0 left-0 right-0 z-50" style={sheetStyle}>
-        <View className="w-full rounded-t-[12px] bg-white px-4 py-4">
+        <View
+          className="w-full rounded-t-[12px] bg-white px-4 pt-4"
+          style={{ paddingBottom: 16 + Math.max(bottomInset, 12) }}>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onPressEditTitle ?? onClose}
@@ -65,7 +69,10 @@ const KebabMenuSheet = ({
             </View>
             <Text className="font-pretendardSemiBold text-h3 text-black">날짜 변경</Text>
           </TouchableOpacity>
+
 {/* 
+          {/* 현재 사용하지 않는 공유 버튼 (임시 비활성화)
+
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onPressShare ?? onClose}
@@ -75,6 +82,7 @@ const KebabMenuSheet = ({
             </View>
             <Text className="font-pretendardSemiBold text-h3 text-black">공유</Text>
           </TouchableOpacity>
+          */}
 
           <TouchableOpacity
             activeOpacity={0.8}

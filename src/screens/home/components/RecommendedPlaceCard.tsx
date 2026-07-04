@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, Text, View } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 
@@ -12,7 +12,11 @@ export interface RecommendedPlaceCardProps {
 const CARD_WIDTH = 260;
 const MAX_TAGS = 3;
 
+const DEFAULT_IMAGE = require('@/assets/images/place_default.png');
+
 export const RecommendedPlaceCard = React.memo<RecommendedPlaceCardProps>(({ place }) => {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <Shadow
       distance={10}
@@ -24,15 +28,14 @@ export const RecommendedPlaceCard = React.memo<RecommendedPlaceCardProps>(({ pla
       <View className="overflow-hidden rounded-lg bg-white">
         <View className="relative h-40">
           <Image
-            source={
-              place.imageUrl ? { uri: place.imageUrl } : require('@/assets/images/mainjeju.png')
-            }
-            className="h-full w-full"
+            source={place.imageUrl && !imageError ? { uri: place.imageUrl } : DEFAULT_IMAGE}
+            className="h-full w-full bg-gray"
             resizeMode="cover"
+            onError={() => setImageError(true)}
           />
-          <View className="absolute bottom-3 left-4">
-            <Text className="font-pretendardSemiBold text-h2 text-white">{place.name}</Text>
-            <Text className="mt-1 font-pretendardSemiBold text-p text-white">
+          <View className="absolute bottom-3 left-4 right-4">
+            <Text className="font-pretendardSemiBold text-h2 text-white" numberOfLines={1} ellipsizeMode="tail">{place.name}</Text>
+            <Text className="mt-1 font-pretendardSemiBold text-p text-white" numberOfLines={1} ellipsizeMode="tail">
               {place.countryName}
             </Text>
           </View>
@@ -42,7 +45,7 @@ export const RecommendedPlaceCard = React.memo<RecommendedPlaceCardProps>(({ pla
           <Text className="mb-4 text-p text-gray" numberOfLines={2}>
             {`지금 ${place.cityName}에서 인기 있는 추천 장소예요`}
           </Text>
-          <View className="flex-row">
+          <View className="flex-row" style={{ minHeight: 28 }}>
             {(place.tags ?? []).slice(0, MAX_TAGS).map((tag, index) => (
               <MainRecChip key={`${place.placeId}-${tag}-${index}`} label={tag} className="mr-[6px]" />
             ))}

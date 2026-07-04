@@ -117,6 +117,7 @@ export interface AgreeUpdateRequest {
 
 export interface VisitedPlace {
   visitedPlaceId: number;
+  placeId: number;
   visitedAt: string;
   placeName: string;
   cityName: string;
@@ -128,6 +129,7 @@ export interface VisitedPlace {
 
 export interface VisitedPlaceItem {
   id: string;
+  placeId: string;
   date: string;
   title: string;
   location: string;

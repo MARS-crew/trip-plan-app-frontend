@@ -13,6 +13,9 @@ import type {
   GoogleLoginData,
   GoogleLoginResponse,
   GoogleLoginResult,
+  KakaoLoginData,
+  KakaoLoginResponse,
+  KakaoLoginResult,
   LoginRequest,
   LoginResponse,
   LoginResult,
@@ -35,6 +38,7 @@ import {
   parseJsonSafely,
   getDefaultMessageByStatus,
   getGoogleLoginWarningType,
+  getKakaoLoginWarningType,
   getNaverLoginWarningType,
   getLoginWarningType,
   getReissueWarningType,
@@ -243,7 +247,7 @@ export const requestEmailVerification = async (email: string): Promise<EmailRequ
 
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error(body?.message || '이미 존재하는 이메일입니다.');
+      throw new Error(body?.message || '이미 가입되어있는 이메일입니다.');
     }
     throw new Error(body?.message || '이메일 인증번호 발송 실패');
   }
@@ -431,6 +435,69 @@ export const postGoogleLogin = async (accessToken: string): Promise<GoogleLoginR
         ok: false,
         warningType: 'UNKNOWN_ERROR',
         message: json?.message ?? '구글 로그인 응답 형식이 올바르지 않습니다.',
+      };
+    }
+
+    return { ok: true, data };
+  } catch (error) {
+    if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
+      return {
+        ok: false,
+        warningType: 'NETWORK_ERROR',
+        message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
+      };
+    }
+
+    const isNetworkError = error instanceof TypeError;
+
+    return {
+      ok: false,
+      warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
+      message: isNetworkError ? '네트워크 연결을 확인해주세요.' : undefined,
+    };
+  }
+};
+
+const extractKakaoLoginData = (json: KakaoLoginResponse | null): KakaoLoginData | null => {
+  const data = json?.data;
+
+  if (data?.nextAction === 'login' || data?.nextAction === 'signup') {
+    return data;
+  }
+
+  return null;
+};
+
+export const postKakaoLogin = async (accessToken: string): Promise<KakaoLoginResult> => {
+  const requestUrl = buildAuthUrl('/api/v1/auth/kakao');
+
+  try {
+    const response = await fetchWithTimeout(requestUrl, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ accessToken }),
+    });
+
+    const json = await parseJsonSafely<KakaoLoginResponse>(response);
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        warningType: getKakaoLoginWarningType(response.status, json?.code ?? ''),
+        message: json?.message ?? getDefaultMessageByStatus(response.status),
+      };
+    }
+
+    const data = extractKakaoLoginData(json);
+
+    if (!json?.success || !data) {
+      return {
+        ok: false,
+        warningType: 'UNKNOWN_ERROR',
+        message: json?.message ?? '카카오 로그인 응답 형식이 올바르지 않습니다.',
       };
     }
 

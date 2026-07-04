@@ -68,14 +68,14 @@ const MainTripCardInProgress: React.FC<MainTripCardInProgressViewProps> = ({
                   </Text>
                 </View>
                 <View className="flex-1">
-                  <Text className="mb-[2px] font-pretendardSemiBold text-p1 text-black">
+                  <Text className="mb-[2px] font-pretendardSemiBold text-p1 text-black" numberOfLines={1} ellipsizeMode="tail">
                     {next.title}
                   </Text>
                   <View className="mb-1 flex-row items-center">
                     <MarkerGrayIcon width={12} height={12} />
-                    <Text className="ml-1 text-p text-gray">{resolveLocation(next)}</Text>
+                    <Text className="ml-1 flex-1 text-p text-gray" numberOfLines={1} ellipsizeMode="tail">{resolveLocation(next)}</Text>
                   </View>
-                  {!!next.memo?.trim() && <Text className="text-p text-gray">{next.memo}</Text>}
+                  {!!next.memo?.trim() && <Text className="text-p text-gray" numberOfLines={1} ellipsizeMode="tail">{next.memo}</Text>}
                 </View>
               </View>
             </View>
@@ -94,8 +94,7 @@ const MainTripCardInProgress: React.FC<MainTripCardInProgressViewProps> = ({
                   </Text>
                   <View className="mr-3 h-[6px] w-[6px] rounded-full bg-borderGray" />
                   <View className="flex-1">
-                    <Text className="text-p text-gray">{item.title}</Text>
-                    <Text className="mt-1 text-p text-gray">{resolveLocation(item)}</Text>
+                    <Text className="text-p text-gray" numberOfLines={1} ellipsizeMode="tail">{item.title}</Text>
                   </View>
                 </View>
               ))}
