@@ -13,8 +13,10 @@ export interface LoadingViewProps {
   className?: string;
 }
 
+const DEFAULT_EDGES: readonly Edge[] = ['top'];
+
 export const LoadingView = React.memo<LoadingViewProps>(
-  ({ message, size = 'large', color = COLORS.main, edges = ['top'], className }) => {
+  ({ message, size = 'large', color = COLORS.main, edges = DEFAULT_EDGES, className }) => {
     return (
       <SafeAreaView
         className={`flex-1 items-center justify-center bg-screenBackground ${className ?? ''}`}
@@ -27,5 +29,3 @@ export const LoadingView = React.memo<LoadingViewProps>(
 );
 
 LoadingView.displayName = 'LoadingView';
-
-export default LoadingView;
