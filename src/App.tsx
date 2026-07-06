@@ -11,7 +11,6 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useAuthStore } from '@/store';
 
 const App: React.FC = () => {
-  const isDarkMode = useColorScheme() === 'dark';
 
   useEffect(() => {
     try {
@@ -34,15 +33,10 @@ const App: React.FC = () => {
     void useAuthStore.getState().hydrateAuth();
   }, []);
 
-  const statusBarStyle = useMemo(
-    () => (isDarkMode ? 'light-content' : 'dark-content'),
-    [isDarkMode],
-  );
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <StatusBar barStyle={statusBarStyle} />
+      <StatusBar barStyle="dark-content" />
         <NavigationContainer linking={linking}>
           <RootStackNavigator />
         </NavigationContainer>
