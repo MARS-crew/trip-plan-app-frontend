@@ -9,9 +9,30 @@ import Config from 'react-native-config';
 import NaverLogin from '@react-native-seoul/naver-login';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useAuthStore } from '@/store';
+import {
+  setupPushNotifications,
+  listenForFcmTokenRefresh,
+  listenForForegroundMessages,
+} from '@/services/pushService';
 
 const App: React.FC = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    void setupPushNotifications();
+    const unsubscribeTokenRefresh = listenForFcmTokenRefresh();
+    const unsubscribeForegroundMessages = listenForForegroundMessages();
+
+    return () => {
+      unsubscribeTokenRefresh();
+      unsubscribeForegroundMessages();
+    };
+  }, [isAuthenticated]);
 
   useEffect(() => {
     try {
@@ -42,7 +63,7 @@ const App: React.FC = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <StatusBar barStyle={statusBarStyle} />
+      <StatusBar barStyle={statusBarStyle} />
         <NavigationContainer linking={linking}>
           <RootStackNavigator />
         </NavigationContainer>
