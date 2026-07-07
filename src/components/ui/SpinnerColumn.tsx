@@ -20,14 +20,20 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
   format = (n) => String(n),
 }) => {
   const scrollRef = useRef<ScrollView>(null);
+  const lastScrolledIndexRef = useRef<number>(-1);
   const normalizedSelectedIndex = Math.max(0, Math.min(selectedIndex, items.length - 1));
 
   useEffect(() => {
+    if (lastScrolledIndexRef.current === normalizedSelectedIndex) {
+      return;
+    }
+
     const timer = setTimeout(() => {
       scrollRef.current?.scrollTo({
         y: normalizedSelectedIndex * ITEM_HEIGHT,
         animated: false,
       });
+      lastScrolledIndexRef.current = normalizedSelectedIndex;
     }, 0);
 
     return () => clearTimeout(timer);
@@ -36,9 +42,12 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
   const handleScrollEnd = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (!items.length) return;
+
       const offsetY = e.nativeEvent.contentOffset.y;
       const index = Math.round(offsetY / ITEM_HEIGHT);
       const clamped = Math.max(0, Math.min(index, items.length - 1));
+
+      lastScrolledIndexRef.current = clamped;
       onSelect(clamped);
       scrollRef.current?.scrollTo({ y: clamped * ITEM_HEIGHT, animated: true });
     },
