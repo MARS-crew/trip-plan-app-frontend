@@ -27,3 +27,6 @@ export { default as TripDetailCard } from './TripDetailCard';
 export type { TripDetailCardProps } from './TripDetailCard';
 
 export { default as SpinnerColumn } from './SpinnerColumn';
+
+export { LoadingView } from './LoadingView';
+export type { LoadingViewProps } from './LoadingView';

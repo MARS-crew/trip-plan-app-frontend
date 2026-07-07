@@ -301,7 +301,7 @@ const MyPageScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-4 pb-[33px]">
-          <Text className="mt-3.5 font-pretendardBold text-h text-black">마이페이지</Text>
+          <Text className="mt-4 font-pretendardBold text-h text-black">마이페이지</Text>
 
           <MyPageProfileCard
             nickname={myPageData.nickname}

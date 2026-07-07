@@ -91,7 +91,7 @@ const BookmarkScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="pb-5 pt-1">
-          <View className="px-4 pb-4 pt-4">
+          <View className="px-4 pb-4 pt-3">
             <Text className="mb-1 font-pretendardBold text-h text-black">저장된 장소</Text>
             <Text className="font-pretendardMedium text-sm text-gray">
               {filteredCount}개의 장소를 표시 중이에요

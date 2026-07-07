@@ -154,7 +154,7 @@ const MyTripScreen: React.FC = () => {
   return (
     <SafeAreaView className="flex-1" edges={['top']}>
       <ScrollView className="flex-1 bg-screenBackground" showsVerticalScrollIndicator={false}>
-        <View className="flex-1 bg-screenBackground px-5 py-6">
+        <View className="flex-1 bg-screenBackground px-4 py-4">
           <View className="flex-row items-start justify-between">
             <View>
               <Text className="font-pretendardBold text-h text-black">내여행</Text>
