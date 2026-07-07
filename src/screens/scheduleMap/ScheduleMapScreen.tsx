@@ -98,6 +98,8 @@ const ScheduleMapScreen: React.FC = () => {
   const [mapPlaceCardPoint, setMapPlaceCardPoint] = useState<RoutePoint | null>(null);
   const [routePoints, setRoutePoints] = useState<RoutePoint[]>(EMPTY_ROUTE_POINTS);
   const [tripTitle, setTripTitle] = useState('일정 지도');
+  const [tripStartDate, setTripStartDate] = useState<string | undefined>();
+  const [tripEndDate, setTripEndDate] = useState<string | undefined>();
   const [visitRadiusMeters, setVisitRadiusMeters] = useState(DEFAULT_VISIT_RADIUS_METERS);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
   const [isSavingVisitedPlace, setIsSavingVisitedPlace] = useState(false);
@@ -226,6 +228,8 @@ const ScheduleMapScreen: React.FC = () => {
       });
 
       setTripTitle(result.data.tripTitle || '일정 지도');
+      setTripStartDate(result.data.startDate);
+      setTripEndDate(result.data.endDate);
       setVisitRadiusMeters(
         result.data.visitVerificationRadiusMeters || DEFAULT_VISIT_RADIUS_METERS,
       );
@@ -690,6 +694,8 @@ const ScheduleMapScreen: React.FC = () => {
                           tripId,
                           tripTitle,
                           date: mapPlaceCardPoint.scheduleDate ?? '',
+                          tripStartDate,
+                          tripEndDate,
                           placeId: mapPlaceCardPoint.placeId
                             ? Number(mapPlaceCardPoint.placeId)
                             : undefined,

@@ -26,6 +26,7 @@ export interface TripDetailCardItem {
 export interface TripDetailSection {
   dayNo: number;
   dayLabel: string;
+  scheduleDate?: string;
   cards: TripDetailCardItem[];
   showMapIcon: boolean;
 }
@@ -68,6 +69,9 @@ export interface DaySectionProps {
   tripId?: number;
   tripTitle?: string;
   tripImageUrl?: string;
+  scheduleDate?: string;
+  tripStartDate?: string;
+  tripEndDate?: string;
   onPressCard: (id: number, yOffset: number) => void;
   onPressAction: (id: number) => void;
   isReadOnly?: boolean;

@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, Text, View } from 'react-native';
 
 import { COLORS } from '@/constants/colors';
@@ -20,12 +20,34 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
   format = (n) => String(n),
 }) => {
   const scrollRef = useRef<ScrollView>(null);
+  const lastScrolledIndexRef = useRef<number>(-1);
+  const normalizedSelectedIndex = Math.max(0, Math.min(selectedIndex, items.length - 1));
+
+  useEffect(() => {
+    if (lastScrolledIndexRef.current === normalizedSelectedIndex) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      scrollRef.current?.scrollTo({
+        y: normalizedSelectedIndex * ITEM_HEIGHT,
+        animated: false,
+      });
+      lastScrolledIndexRef.current = normalizedSelectedIndex;
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [items.length, normalizedSelectedIndex]);
 
   const handleScrollEnd = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (!items.length) return;
+
       const offsetY = e.nativeEvent.contentOffset.y;
       const index = Math.round(offsetY / ITEM_HEIGHT);
       const clamped = Math.max(0, Math.min(index, items.length - 1));
+
+      lastScrolledIndexRef.current = clamped;
       onSelect(clamped);
       scrollRef.current?.scrollTo({ y: clamped * ITEM_HEIGHT, animated: true });
     },
@@ -60,10 +82,11 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
       />
       <ScrollView
         ref={scrollRef}
+        nestedScrollEnabled
         showsVerticalScrollIndicator={false}
         snapToInterval={ITEM_HEIGHT}
         decelerationRate="fast"
-        contentOffset={{ x: 0, y: selectedIndex * ITEM_HEIGHT }}
+        contentOffset={{ x: 0, y: normalizedSelectedIndex * ITEM_HEIGHT }}
         contentContainerStyle={{
           paddingTop: ITEM_HEIGHT * 2,
           paddingBottom: ITEM_HEIGHT * 2,
@@ -71,7 +94,7 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
         onMomentumScrollEnd={handleScrollEnd}
         onScrollEndDrag={handleScrollEnd}>
         {items.map((item, idx) => {
-          const isSelected = idx === selectedIndex;
+          const isSelected = idx === normalizedSelectedIndex;
 
           return (
             <View
