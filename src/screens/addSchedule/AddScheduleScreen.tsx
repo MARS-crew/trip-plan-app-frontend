@@ -19,7 +19,10 @@ import { TopBar } from '@/components';
 import { SpinnerColumn } from '@/components/ui';
 import { COLORS } from '@/constants/colors';
 import { createSchedule, updateTripSchedule } from '@/services/tripService';
-import { getTripScheduleUpdateErrorToastMessage } from '@/utils';
+import {
+  getTripScheduleCreateErrorToastMessage,
+  getTripScheduleUpdateErrorToastMessage,
+} from '@/utils';
 import {
   formatDateValue,
   getDateValueFromDate,
@@ -259,7 +262,14 @@ const AddScheduleScreen = () => {
     formValues.title.trim().length > 0 && formValues.date !== null && !isSubmitting;
 
   const handleSubmit = async (): Promise<void> => {
-    if (!formValues.date || !params?.tripId) return;
+    if (!formValues.date) {
+      ToastAndroid.show('일정 날짜를 선택해주세요.', ToastAndroid.SHORT);
+      return;
+    }
+    if (!params?.tripId) {
+      ToastAndroid.show('여행 정보를 불러오지 못했습니다. 다시 시도해주세요.', ToastAndroid.SHORT);
+      return;
+    }
     if (formValues.title.trim().length > SCHEDULE_TITLE_MAX_LENGTH) {
       ToastAndroid.show('일정명은 10자 이내로 입력해주세요.', ToastAndroid.SHORT);
       return;
@@ -274,7 +284,10 @@ const AddScheduleScreen = () => {
       }
     }
     const tripScheduleId = params.tripScheduleId;
-    if (isEditMode && !tripScheduleId) return;
+    if (isEditMode && !tripScheduleId) {
+      ToastAndroid.show('수정할 일정 정보를 찾을 수 없습니다.', ToastAndroid.SHORT);
+      return;
+    }
 
     const scheduleDate = formatDateValue(formValues.date);
     const startTime = formValues.startTime
@@ -327,7 +340,7 @@ const AddScheduleScreen = () => {
     if (error) {
       const errorMessage = isEditMode
         ? getTripScheduleUpdateErrorToastMessage(error)
-        : '일정 생성에 실패하였습니다.';
+        : getTripScheduleCreateErrorToastMessage(error);
       ToastAndroid.show(errorMessage, ToastAndroid.SHORT);
       return;
     }
