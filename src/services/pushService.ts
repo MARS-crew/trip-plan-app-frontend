@@ -15,7 +15,6 @@ const accessToken = (): string => {
   return token;
 };
 
-// Android 13+는 런타임 알림 권한이 별도로 필요하고, iOS는 messaging().requestPermission()으로 인증 상태를 확인한다.
 export const requestPushPermission = async (): Promise<boolean> => {
   if (Platform.OS === 'android' && Platform.Version >= 33) {
     const granted = await PermissionsAndroid.request(
@@ -47,7 +46,6 @@ export const registerFcmToken = async (token: string): Promise<void> => {
       throw new Error('FCM 토큰 저장 실패');
     }
   } catch (error) {
-    console.error('registerFcmToken Error:', error);
     throw error;
   }
 };
@@ -71,13 +69,13 @@ export const setupPushNotifications = async (): Promise<void> => {
   await registerFcmToken(token);
 };
 
-// 재설치, OS 백업 복원 등으로 토큰이 갱신되는 경우 서버에도 최신 토큰을 반영한다. 반환값으로 구독 해제한다.
 export const listenForFcmTokenRefresh = (): (() => void) =>
   messaging().onTokenRefresh((token) => {
-    void registerFcmToken(token);
+    registerFcmToken(token).catch((e) => {
+      console.warn('registerFcmToken (refresh) failed:', e);
+    });
   });
 
-// FCM은 앱이 포그라운드일 때 시스템 알림을 자동으로 띄워주지 않으므로, 수신 시 notifee로 직접 표시한다.
 export const listenForForegroundMessages = (): (() => void) =>
   messaging().onMessage(async (remoteMessage) => {
     if (!remoteMessage.notification) {

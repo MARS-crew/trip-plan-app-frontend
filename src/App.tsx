@@ -24,7 +24,8 @@ const App: React.FC = () => {
       return;
     }
 
-    void setupPushNotifications();
+    setupPushNotifications().catch((e) => {
+    });
     const unsubscribeTokenRefresh = listenForFcmTokenRefresh();
     const unsubscribeForegroundMessages = listenForForegroundMessages();
 
