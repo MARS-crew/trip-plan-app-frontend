@@ -67,8 +67,12 @@ export const getTripDateUpdateErrorToastMessage = (error: ServiceError | null): 
   }
 };
 
-export const getTripScheduleUpdateErrorToastMessage = (error: ServiceError | null): string => {
-  if (!error) return '일정 수정에 실패하였습니다.';
+const getTripScheduleWriteErrorToastMessage = (
+  error: ServiceError | null,
+  fallbackMessage: string,
+  permissionMessage: string,
+): string => {
+  if (!error) return fallbackMessage;
 
   switch (error.code) {
     case 'AUTH_TOKEN_MISSING':
@@ -76,10 +80,25 @@ export const getTripScheduleUpdateErrorToastMessage = (error: ServiceError | nul
     case 'HTTP_401':
       return '인증이 만료되었습니다. 다시 로그인해주세요.';
     case 'HTTP_403':
-      return '수정 권한이 없습니다.';
+      return permissionMessage;
     case 'INVALID_INPUT':
       return '입력한 일정 정보를 다시 확인해주세요.';
     default:
-      return '일정 수정에 실패하였습니다.';
+      return fallbackMessage;
   }
+};
+
+export const getTripScheduleCreateErrorToastMessage = (error: ServiceError | null): string =>
+  getTripScheduleWriteErrorToastMessage(
+    error,
+    '일정 추가에 실패하였습니다.',
+    '일정 추가 권한이 없습니다.',
+  );
+
+export const getTripScheduleUpdateErrorToastMessage = (error: ServiceError | null): string => {
+  return getTripScheduleWriteErrorToastMessage(
+    error,
+    '일정 수정에 실패하였습니다.',
+    '수정 권한이 없습니다.',
+  );
 };

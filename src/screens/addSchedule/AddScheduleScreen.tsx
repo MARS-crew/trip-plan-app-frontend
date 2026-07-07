@@ -19,7 +19,10 @@ import { TopBar } from '@/components';
 import { SpinnerColumn } from '@/components/ui';
 import { COLORS } from '@/constants/colors';
 import { createSchedule, updateTripSchedule } from '@/services/tripService';
-import { getTripScheduleUpdateErrorToastMessage } from '@/utils';
+import {
+  getTripScheduleCreateErrorToastMessage,
+  getTripScheduleUpdateErrorToastMessage,
+} from '@/utils';
 import {
   formatDateValue,
   getDateValueFromDate,
@@ -337,7 +340,7 @@ const AddScheduleScreen = () => {
     if (error) {
       const errorMessage = isEditMode
         ? getTripScheduleUpdateErrorToastMessage(error)
-        : '일정 생성에 실패하였습니다.';
+        : getTripScheduleCreateErrorToastMessage(error);
       ToastAndroid.show(errorMessage, ToastAndroid.SHORT);
       return;
     }
