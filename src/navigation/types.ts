@@ -58,6 +58,8 @@ export type RootStackParamList = {
         tripTitle: string;
         tripImageUrl?: string;
         date: string;
+        tripStartDate?: string;
+        tripEndDate?: string;
         tripScheduleId?: number;
         placeId?: number;
         placeName?: string;
@@ -76,6 +78,8 @@ export type RootStackParamList = {
         tripTitle?: string;
         tripImageUrl?: string;
         date?: string;
+        tripStartDate?: string;
+        tripEndDate?: string;
         tripScheduleId?: number;
         title?: string;
         startTime?: string;

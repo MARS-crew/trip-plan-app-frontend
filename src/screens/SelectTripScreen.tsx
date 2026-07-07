@@ -1,5 +1,13 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { ActivityIndicator, ScrollView, View, Animated, Easing, type NativeSyntheticEvent, type NativeScrollEvent } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  View,
+  Animated,
+  Easing,
+  type NativeSyntheticEvent,
+  type NativeScrollEvent,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -69,7 +77,10 @@ const SelectTripScreen: React.FC = () => {
     setIsLoading(true);
 
     const fetchTrips = async (): Promise<void> => {
-      const { data, error } = await getMyTrips({ filterStatus: 'UPCOMING', signal: controller.signal });
+      const { data, error } = await getMyTrips({
+        filterStatus: 'UPCOMING',
+        signal: controller.signal,
+      });
       if (controller.signal.aborted) return;
       if (!error) setTrips(data);
       setIsLoading(false);
@@ -99,45 +110,53 @@ const SelectTripScreen: React.FC = () => {
         }),
       ]).start();
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expandedCardIndex, trips]);
 
   const handleCardPress = useCallback((index: number): void => {
     setExpandedCardIndex((prev) => (prev === index ? null : index));
   }, []);
 
-  const handleScroll = useCallback((index: number, event: NativeSyntheticEvent<NativeScrollEvent>): void => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    setScrollPositions((prev) => ({ ...prev, [index]: offsetX }));
-  }, []);
+  const handleScroll = useCallback(
+    (index: number, event: NativeSyntheticEvent<NativeScrollEvent>): void => {
+      const offsetX = event.nativeEvent.contentOffset.x;
+      setScrollPositions((prev) => ({ ...prev, [index]: offsetX }));
+    },
+    [],
+  );
 
-  const handleDatePress = useCallback((cardIndex: number, dateIndex: number): void => {
-    setSelectedDates((prev) => ({
-      ...prev,
-      [cardIndex]: prev[cardIndex] === dateIndex ? null : dateIndex,
-    }));
+  const handleDatePress = useCallback(
+    (cardIndex: number, dateIndex: number): void => {
+      setSelectedDates((prev) => ({
+        ...prev,
+        [cardIndex]: prev[cardIndex] === dateIndex ? null : dateIndex,
+      }));
 
-    const trip = trips[cardIndex];
-    if (!trip) return;
+      const trip = trips[cardIndex];
+      if (!trip) return;
 
-    const [sy, sm, sd] = trip.startDate.split('-').map(Number);
-    const date = new Date(sy, sm - 1, sd);
-    date.setDate(date.getDate() + dateIndex);
-    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const [sy, sm, sd] = trip.startDate.split('-').map(Number);
+      const date = new Date(sy, sm - 1, sd);
+      date.setDate(date.getDate() + dateIndex);
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-    navigation.dispatch(
-      CommonActions.navigate('AddSchedule', {
-        tripId: trip.tripId,
-        tripTitle: trip.title,
-        date: dateStr,
-        placeId: placeParams?.placeId,
-        placeName: placeParams?.placeName,
-        address: placeParams?.address,
-        latitude: placeParams?.latitude,
-        longitude: placeParams?.longitude,
-      }),
-    );
-  }, [trips, navigation, placeParams]);
+      navigation.dispatch(
+        CommonActions.navigate('AddSchedule', {
+          tripId: trip.tripId,
+          tripTitle: trip.title,
+          date: dateStr,
+          tripStartDate: trip.startDate,
+          tripEndDate: trip.endDate,
+          placeId: placeParams?.placeId,
+          placeName: placeParams?.placeName,
+          address: placeParams?.address,
+          latitude: placeParams?.latitude,
+          longitude: placeParams?.longitude,
+        }),
+      );
+    },
+    [trips, navigation, placeParams],
+  );
 
   const handleGoBack = useCallback((): void => {
     navigation.goBack();
@@ -145,7 +164,9 @@ const SelectTripScreen: React.FC = () => {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-screenBackground" edges={['top']}>
+      <SafeAreaView
+        className="flex-1 items-center justify-center bg-screenBackground"
+        edges={['top']}>
         <ActivityIndicator size="large" />
       </SafeAreaView>
     );
@@ -183,7 +204,6 @@ const SelectTripScreen: React.FC = () => {
     </SafeAreaView>
   );
 };
-
 
 export default SelectTripScreen;
 export { SelectTripScreen };
