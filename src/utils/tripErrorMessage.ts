@@ -78,7 +78,7 @@ export const getTripScheduleUpdateErrorToastMessage = (error: ServiceError | nul
     case 'HTTP_403':
       return '수정 권한이 없습니다.';
     case 'INVALID_INPUT':
-      return '잘못된 요청입니다.';
+      return '입력한 일정 정보를 다시 확인해주세요.';
     default:
       return '일정 수정에 실패하였습니다.';
   }
