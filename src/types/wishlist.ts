@@ -55,9 +55,9 @@ export interface PlaceCardProps {
   place: WishPlace;
   isLiked: boolean;
   onToggleLike: (id: string) => void;
+  onPress?: () => void;
   isTrending?: boolean;
 }
-
 
 export interface WishTabSaveProps {
   places: WishPlace[];
@@ -118,6 +118,7 @@ export interface WishlistSearchBarProps {
   onFocusInput: () => void;
   onPressBack: () => void;
   onPressSearch: () => void;
+  onSubmitSearch: () => void;
 }
 
 export interface LikedIdsByTab {
