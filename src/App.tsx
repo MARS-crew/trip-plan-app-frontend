@@ -16,7 +16,6 @@ import {
 } from '@/services/pushService';
 
 const App: React.FC = () => {
-  const isDarkMode = useColorScheme() === 'dark';
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
