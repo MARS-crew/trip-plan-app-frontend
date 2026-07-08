@@ -33,20 +33,16 @@ export const requestPushPermission = async (): Promise<boolean> => {
 };
 
 export const registerFcmToken = async (token: string): Promise<void> => {
-  try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/notifications/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken()}`,
-      },
-      body: JSON.stringify({ token }),
-    });
-    if (!response.ok) {
-      throw new Error('FCM 토큰 저장 실패');
-    }
-  } catch (error) {
-    throw error;
+  const response = await fetch(`${Config.API_BASE_URL}/api/v1/notifications/token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken()}`,
+    },
+    body: JSON.stringify({ token }),
+  });
+  if (!response.ok) {
+    throw new Error('FCM 토큰 저장 실패');
   }
 };
 
@@ -76,19 +72,22 @@ export const listenForFcmTokenRefresh = (): (() => void) =>
     });
   });
 
-export const listenForForegroundMessages = (): (() => void) =>
-  messaging().onMessage(async (remoteMessage) => {
-    if (!remoteMessage.notification) {
-      return;
-    }
-
-    await notifee.displayNotification({
-      title: remoteMessage.notification.title,
-      body: remoteMessage.notification.body,
-      android: {
-        channelId: DEFAULT_ANDROID_CHANNEL_ID,
-        importance: AndroidImportance.HIGH,
-        pressAction: { id: 'default' },
-      },
+  export const listenForForegroundMessages = (): (() => void) =>
+    messaging().onMessage(async (remoteMessage) => {
+      if (!remoteMessage.notification) {
+        return;
+      }
+      try {
+        await notifee.displayNotification({
+          title: remoteMessage.notification.title,
+          body: remoteMessage.notification.body,
+          android: {
+            channelId: DEFAULT_ANDROID_CHANNEL_ID,
+            importance: AndroidImportance.HIGH,
+            pressAction: { id: 'default' },
+          },
+        });
+      } catch (error) {
+        console.error('Failed to display foreground notification:', error);
+      }
     });
-  });
