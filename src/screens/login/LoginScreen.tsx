@@ -68,7 +68,7 @@ const LoginScreen: React.FC = () => {
     const trimmedPassword = password.trim();
 
     if (trimmedUserId.length === 0 || trimmedPassword.length === 0) {
-      setLoginWarningMessage('아이디와 비밀번호를 입력해주세요.');
+      setLoginWarningMessage('아이디 및 비밀번호를 확인해 주세요');
       return;
     }
 
@@ -100,7 +100,7 @@ const LoginScreen: React.FC = () => {
       }
 
       setAuthFromLoginData(result.data);
-      navigation.replace('MainTabs', { screen: 'Home' });
+      navigation.reset({ index: 0, routes: [{ name: 'MainTabs', params: { screen: 'Home' } }] });
     } finally {
       setIsSubmitting(false);
     }

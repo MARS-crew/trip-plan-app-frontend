@@ -18,6 +18,7 @@ import {
   type PatchProfileRequest,
   type VisitedPlace,
 } from '@/types/mypage';
+import { authorizedFetch } from '@/utils/authorizedFetch';
 import { parseJsonSafely } from '@/utils/error';
 import { getCurrentPosition } from '@/utils/location';
 import { countryCodeToPapagoLang, normalizePapagoTargetLang } from '@/utils/papagoLang';
@@ -33,7 +34,7 @@ const accessToken = (): string => {
 
 export const getMyPageInfo = async (): Promise<GetMyPageData> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/mypage`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/mypage/mypage`, {
       headers: { Authorization: `Bearer ${accessToken()}` },
     });
     if (!response.ok) throw new Error('마이페이지 조회 실패');
@@ -46,7 +47,7 @@ export const getMyPageInfo = async (): Promise<GetMyPageData> => {
 
 export const getProfileDetail = async (): Promise<GetProfileData> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
       headers: { Authorization: `Bearer ${accessToken()}` },
     });
     if (!response.ok) {
@@ -62,7 +63,7 @@ export const getProfileDetail = async (): Promise<GetProfileData> => {
 
 export const getSetting = async (): Promise<GetSettingData> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/setting`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/mypage/setting`, {
       headers: { Authorization: `Bearer ${accessToken()}` },
     });
     if (!response.ok) {
@@ -78,7 +79,7 @@ export const getSetting = async (): Promise<GetSettingData> => {
 
 export const getVisitedPlaces = async (): Promise<VisitedPlace[]> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/visited`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/mypage/visited`, {
       headers: { Authorization: `Bearer ${accessToken()}` },
     });
     if (!response.ok) {
@@ -94,7 +95,7 @@ export const getVisitedPlaces = async (): Promise<VisitedPlace[]> => {
 
 export const requestMyPageEmailVerification = async (email: string): Promise<EmailRequestData> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/email-request`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/mypage/email-request`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -124,7 +125,7 @@ export const verifyMyPageEmailCode = async (
   code: string,
 ): Promise<EmailVerifyData> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/email-verify`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/mypage/email-verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -206,7 +207,7 @@ export const getPapagoPhrases = async (
   try {
     // 지원 목록(en, ja, zh-CN ...) 외 나라/언어가 들어오면 en으로 폴백한다.
     const normalizedTargetLang = normalizePapagoTargetLang(targetLang);
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/papago`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/mypage/papago`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -227,7 +228,7 @@ export const getPapagoPhrases = async (
 
 export const patchProfile = async (payload: PatchProfileRequest): Promise<PatchProfileData> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/mypage/me`, {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${accessToken()}`,
@@ -248,7 +249,7 @@ export const patchProfile = async (payload: PatchProfileRequest): Promise<PatchP
 
 export const postExchange = async (payload: GetExchangeRequest): Promise<GetExchangeData> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/exchange`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/mypage/exchange`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken()}`,
@@ -271,7 +272,7 @@ export const postExchange = async (payload: GetExchangeRequest): Promise<GetExch
 
 export const getAgree = async (): Promise<AgreeData> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/agree`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/mypage/agree`, {
       headers: { Authorization: `Bearer ${accessToken()}` },
     });
     if (!response.ok) {
@@ -287,7 +288,7 @@ export const getAgree = async (): Promise<AgreeData> => {
 
 export const patchAgree = async (payload: AgreeUpdateRequest): Promise<AgreeData> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/mypage/agree`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/mypage/agree`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

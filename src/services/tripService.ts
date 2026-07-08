@@ -1,7 +1,7 @@
 import type { BaseResponse } from '@/types';
 import { getEnvConfig } from '@/config/env';
 import { useAuthStore } from '@/store';
-import { postReissueToken } from './authService';
+import { authorizedFetch } from '@/utils/authorizedFetch';
 import type { ServiceError } from '@/types/trip';
 import type {
   CreateScheduleData,
@@ -122,7 +122,7 @@ export const getMyTrips = async ({
       filterStatus === 'ALL'
         ? `${requestConfig.apiBaseUrl}/api/v1/trips/filter`
         : `${requestConfig.apiBaseUrl}/api/v1/trips/filter?tripStatus=${encodeURIComponent(filterStatus)}`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       headers: requestConfig.headers,
       signal,
     });
@@ -152,7 +152,7 @@ export const createTrip = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/create`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       method: 'POST',
       headers: {
         ...requestConfig.headers,
@@ -188,7 +188,7 @@ export const createSchedule = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       method: 'POST',
       headers: {
         ...requestConfig.headers,
@@ -224,7 +224,7 @@ export const getTripSchedulesByDate = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/by-date?targetDate=${encodeURIComponent(targetDate)}`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       headers: requestConfig.headers,
       signal,
     });
@@ -254,7 +254,7 @@ export const getTripSchedules = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       headers: requestConfig.headers,
       signal,
     });
@@ -284,7 +284,7 @@ export const getTripScheduleLocations = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/locations`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       headers: requestConfig.headers,
       signal,
     });
@@ -315,7 +315,7 @@ export const createVisitedPlace = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/visited-places`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       method: 'POST',
       headers: {
         ...requestConfig.headers,
@@ -356,7 +356,7 @@ export const getTripShare = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/share`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       headers: requestConfig.headers,
       signal,
     });
@@ -386,7 +386,7 @@ export const generateTripSchedules = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/swagger-ui-ai/api/v1/trips/generate/${tripId}`;
-    let response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       method: 'POST',
       headers: {
         ...requestConfig.headers,
@@ -394,28 +394,6 @@ export const generateTripSchedules = async ({
       },
       signal,
     });
-
-    if (response.status === 401) {
-      const refreshToken = useAuthStore.getState().refreshToken?.trim();
-      if (refreshToken) {
-        const reissueResult = await postReissueToken({ refreshToken });
-        if (reissueResult.ok) {
-          useAuthStore
-            .getState()
-            .setTokens(reissueResult.data.accessToken, reissueResult.data.refreshToken);
-
-          response = await fetch(requestUrl, {
-            method: 'POST',
-            headers: {
-              ...requestConfig.headers,
-              Authorization: `Bearer ${reissueResult.data.accessToken}`,
-              'Content-Type': 'application/json',
-            },
-            signal,
-          });
-        }
-      }
-    }
 
     if (!response.ok) {
       const error = await getResponseError(response);
@@ -449,7 +427,7 @@ export const getTripRoute = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/${tripScheduleId}/route`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       headers: requestConfig.headers,
       signal,
     });
@@ -479,7 +457,7 @@ export const getNearbySchedule = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/nearby-schedule`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       method: 'POST',
       headers: {
         ...requestConfig.headers,
@@ -515,7 +493,7 @@ export const updateTripDate = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/date`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       method: 'PATCH',
       headers: {
         ...requestConfig.headers,
@@ -551,7 +529,7 @@ export const updateTripSchedule = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/${tripScheduleId}`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       method: 'PATCH',
       headers: {
         ...requestConfig.headers,
@@ -585,7 +563,7 @@ export const deleteTrip = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       method: 'DELETE',
       headers: requestConfig.headers,
       signal,
@@ -616,7 +594,7 @@ export const deleteTripSchedule = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/schedules/${tripScheduleId}`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       method: 'DELETE',
       headers: requestConfig.headers,
       signal,
@@ -647,7 +625,7 @@ export const updateTripTitle = async ({
 
   try {
     const requestUrl = `${requestConfig.apiBaseUrl}/api/v1/trips/${tripId}/title`;
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       method: 'PATCH',
       headers: {
         ...requestConfig.headers,

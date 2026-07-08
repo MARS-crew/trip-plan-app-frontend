@@ -190,7 +190,7 @@ const BottomTabNavigator: React.FC = () => {
   );
 
   return (
-    <Tab.Navigator screenOptions={getScreenOptions}>
+    <Tab.Navigator initialRouteName="Home" backBehavior="history" screenOptions={getScreenOptions}>
       <Tab.Screen
         name="Search"
         component={SearchStackNavigator}

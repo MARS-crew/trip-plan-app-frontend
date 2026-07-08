@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/store';
 import { imageUploadUrl, ReviewData, ReviewWriteBody } from '@/types/review';
+import { authorizedFetch } from '@/utils/authorizedFetch';
 import Config from 'react-native-config';
 
 type ImageDomain = 'TRIP' | 'REVIEW';
@@ -8,7 +9,7 @@ export const getReviewList = async (placeId: number): Promise<ReviewData> => {
   const { accessToken } = useAuthStore.getState();
 
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/reviews/place/${placeId}`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/reviews/place/${placeId}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
@@ -29,7 +30,7 @@ export const postReviewWrite = async (body: ReviewWriteBody) => {
   const { accessToken } = useAuthStore.getState();
 
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/reviews`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/reviews`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -58,7 +59,7 @@ export const getUpLoadImageUrl = async (
   const { accessToken } = useAuthStore.getState();
 
   try {
-    const response = await fetch(
+    const response = await authorizedFetch(
       `${Config.API_BASE_URL}/api/v1/image/${domain}/upload-url?fileName=${encodeURIComponent(fileName)}`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );

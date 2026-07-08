@@ -58,7 +58,7 @@ export const useSocialLogin = ({
 
       if (result.data.nextAction === 'login' && result.data.login) {
         setAuthFromLoginData(result.data.login);
-        navigation.replace('MainTabs', { screen: 'Home' });
+        navigation.reset({ index: 0, routes: [{ name: 'MainTabs', params: { screen: 'Home' } }] });
         return;
       }
 
@@ -111,7 +111,7 @@ export const useSocialLogin = ({
 
       if (result.data.nextAction === 'login' && result.data.login) {
         setAuthFromLoginData(result.data.login);
-        navigation.replace('MainTabs', { screen: 'Home' });
+        navigation.reset({ index: 0, routes: [{ name: 'MainTabs', params: { screen: 'Home' } }] });
         return;
       }
 

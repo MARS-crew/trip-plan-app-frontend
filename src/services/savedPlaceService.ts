@@ -2,6 +2,7 @@ import Config from 'react-native-config';
 
 import { useAuthStore } from '@/store';
 import type { BaseResponse } from '@/types';
+import { authorizedFetch } from '@/utils/authorizedFetch';
 import type {
   CreateSavedPlaceData,
   DeleteSavedPlaceData,
@@ -19,7 +20,7 @@ export const getSavedPlaces = async (
 ): Promise<GetSavedPlacesData> => {
   try {
     const query = encodeURIComponent(filterType);
-    const response = await fetch(
+    const response = await authorizedFetch(
       `${Config.API_BASE_URL}/api/v1/places/saved-places?filterType=${query}`,
       {
         headers: { Authorization: `Bearer ${getAccessToken()}` },
@@ -38,7 +39,7 @@ export const getSavedPlaces = async (
 
 export const getSavedPlaceCategories = async (): Promise<GetSavedPlaceCategoriesData> => {
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/places/saved-places/categories`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/places/saved-places/categories`, {
       headers: { Authorization: `Bearer ${getAccessToken()}` },
     });
     if (!response.ok) {
@@ -55,7 +56,7 @@ export const getSavedPlaceCategories = async (): Promise<GetSavedPlaceCategories
 export const createSavedPlace = async (placeId: number): Promise<CreateSavedPlaceData> => {
   try {
     const accessToken = useAuthStore.getState().accessToken ?? '';
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/places/${placeId}/saved-places`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/places/${placeId}/saved-places`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${accessToken}` },
     });
@@ -73,7 +74,7 @@ export const createSavedPlace = async (placeId: number): Promise<CreateSavedPlac
 export const deleteSavedPlace = async (placeId: number): Promise<DeleteSavedPlaceData> => {
   try {
     const accessToken = useAuthStore.getState().accessToken ?? '';
-    const response = await fetch(
+    const response = await authorizedFetch(
       `${Config.API_BASE_URL}/api/v1/places/${placeId}/saved-places`,
       {
         method: 'DELETE',
