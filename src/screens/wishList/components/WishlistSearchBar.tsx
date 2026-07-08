@@ -1,12 +1,22 @@
 import React from 'react';
-import { TextInput, TouchableOpacity, View } from 'react-native';
+import { TextInput, TouchableOpacity } from 'react-native';
 import { SearchArrowIcon, SearchingIcon } from '@/assets/icons';
 import { SearchContainer } from '@/components/ui';
 import { COLORS } from '@/constants';
 import type { WishlistSearchBarProps } from '@/types/wishlist';
 
 export const WishlistSearchBar = React.memo<WishlistSearchBarProps>(
-  ({ searchInputRef, searchQuery, onChangeText, onFocus, onBlur, onFocusInput, onPressBack, onPressSearch }) => {
+  ({
+    searchInputRef,
+    searchQuery,
+    onChangeText,
+    onFocus,
+    onBlur,
+    onFocusInput,
+    onPressBack,
+    onPressSearch,
+    onSubmitSearch,
+  }) => {
     return (
       <SearchContainer className="absolute left-4 right-4 top-[5px] z-50">
         <TouchableOpacity
@@ -26,6 +36,8 @@ export const WishlistSearchBar = React.memo<WishlistSearchBarProps>(
           onPressIn={onFocusInput}
           onFocus={onFocus}
           onBlur={onBlur}
+          returnKeyType="search"
+          onSubmitEditing={onSubmitSearch}
         />
         <TouchableOpacity className="absolute right-4" onPress={onPressSearch}>
           <SearchingIcon />

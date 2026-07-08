@@ -14,6 +14,11 @@ type AddTripNavigation = NativeStackNavigationProp<RootStackParamList, 'AddTripS
 const DEFAULT_TRIP_IMAGE_URL = 'https://cdn.lets-trip.com/trips/default.jpg';
 const TRIP_TITLE_MAX_LENGTH = 10;
 
+const getVisibleCharacters = (value: string): string[] => Array.from(value.normalize('NFC'));
+
+const limitVisibleCharacters = (value: string, maxLength: number): string =>
+  getVisibleCharacters(value).slice(0, maxLength).join('');
+
 const AddTripScreen: React.FC = () => {
   const navigation = useNavigation<AddTripNavigation>();
   const [tripName, setTripName] = useState('');
@@ -29,6 +34,10 @@ const AddTripScreen: React.FC = () => {
     setSelectedImageUri(result.assets?.[0]?.uri ?? null);
   };
 
+  const handleChangeTripName = (value: string): void => {
+    setTripName(limitVisibleCharacters(value, TRIP_TITLE_MAX_LENGTH));
+  };
+
   const handleNavigateToCalendar = (): void => {
     const trimmedTripName = tripName.trim();
 
@@ -37,7 +46,7 @@ const AddTripScreen: React.FC = () => {
       return;
     }
 
-    if (trimmedTripName.length > TRIP_TITLE_MAX_LENGTH) {
+    if (getVisibleCharacters(trimmedTripName).length > TRIP_TITLE_MAX_LENGTH) {
       ToastAndroid.show(`여행명은 10자 이내로 입력해주세요.`, ToastAndroid.SHORT);
       return;
     }
@@ -83,8 +92,7 @@ const AddTripScreen: React.FC = () => {
               placeholder="여행명을 입력하세요"
               placeholderTextColor={COLORS.gray}
               value={tripName}
-              onChangeText={setTripName}
-              maxLength={TRIP_TITLE_MAX_LENGTH}
+              onChangeText={handleChangeTripName}
               className="flex-1 pr-4 text-p1 text-black"
             />
             <TouchableOpacity

@@ -30,7 +30,13 @@ import {
   WishlistSearchOverlay,
 } from '@/screens/wishList/components';
 import type { WishlistBottomSheetTabId } from '@/types/wishlist';
-import type { LikedIdsByTab, LikeTabId, LocationCoords, WishlistTabConfig, WishPlace } from '@/types/wishlist';
+import type {
+  LikedIdsByTab,
+  LikeTabId,
+  LocationCoords,
+  WishlistTabConfig,
+  WishPlace,
+} from '@/types/wishlist';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -39,7 +45,13 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Shadow } from 'react-native-shadow-2';
-import { addWishlistPlace, createSchedule, deleteWishlistPlace, generateTripSchedules, getTripSchedules } from '@/services';
+import {
+  addWishlistPlace,
+  createSchedule,
+  deleteWishlistPlace,
+  generateTripSchedules,
+  getTripSchedules,
+} from '@/services';
 import { getPlaceSelection, getSearchResults } from '@/services/searchService';
 import { searchNearbyPlaces, type NearbyPlace } from '@/services/mapPlaceService';
 import type { PlaceSelectionPlace } from '@/types/wishlist';
@@ -50,6 +62,7 @@ import type { SearchWishPlace } from '@/screens/wishList/components/WishlistSear
 // ============ Types ============
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type TabId = WishlistBottomSheetTabId;
+const SCHEDULE_TITLE_MAX_LENGTH = 10;
 
 const convertPlaceDataToWishPlace = (place: PlaceSelectionPlace): PlaceCardProps['place'] => ({
   id: place.placeId.toString(),
@@ -74,6 +87,23 @@ const toNumberValue = (value: unknown): number | undefined => {
   if (typeof value !== 'string') return undefined;
   const parsed = Number(value.trim());
   return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const getVisibleCharacters = (value: string): string[] => Array.from(value.normalize('NFC'));
+
+const limitVisibleCharacters = (value: string, maxLength: number): string =>
+  getVisibleCharacters(value).slice(0, maxLength).join('');
+
+const getScheduleTitleFromPlace = (place: WishPlace): string =>
+  limitVisibleCharacters(place.title.trim(), SCHEDULE_TITLE_MAX_LENGTH) || '일정';
+
+const getManualScheduleTime = (index: number): { startTime: string; endTime: string } => {
+  const startHour = Math.min(9 + index * 2, 22);
+  const endHour = Math.min(startHour + 1, 23);
+  return {
+    startTime: `${String(startHour).padStart(2, '0')}:00`,
+    endTime: `${String(endHour).padStart(2, '0')}:00`,
+  };
 };
 
 const buildGeneratedSchedulePayloads = (
@@ -402,7 +432,15 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
         }
       })();
     },
-    [addWishlistPlaceById, isLikedInTab, savedPlaces, toggleLike, wishlistPlaceIdMap, wishlistPlaces, tripId],
+    [
+      addWishlistPlaceById,
+      isLikedInTab,
+      savedPlaces,
+      toggleLike,
+      wishlistPlaceIdMap,
+      wishlistPlaces,
+      tripId,
+    ],
   );
 
   const [selectedCategory, setSelectedCategory] = useState<TabId>(INITIAL_CATEGORY);
@@ -428,7 +466,6 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   const mapRef = useRef<MapView>(null);
   const currentLocationRef = useRef<LocationCoords | null>(null);
   const hasAutoCenteredOnLocationRef = useRef(false);
-  const [hasLocation, setHasLocation] = useState(false);
   useEffect(() => {
     showAddModalRef.current = showAddModal;
   }, [showAddModal]);
@@ -523,10 +560,6 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     // Intentionally keep search mode active; only hide keyboard on blur.
   }, []);
 
-  const handleCloseSearchDetail = useCallback((): void => {
-    setSelectedSearchPlace(null);
-  }, []);
-
   const handleSearchInRegion = useCallback(async (): Promise<void> => {
     const region = currentRegionRef.current;
     const minLat = region.latitude - region.latitudeDelta / 2;
@@ -566,7 +599,10 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
         // 검색 실패 시 마커 없음
       }
     } else {
-      const radiusMeters = Math.min(Math.max(Math.round((region.latitudeDelta / 2) * 111000), 500), 50000);
+      const radiusMeters = Math.min(
+        Math.max(Math.round((region.latitudeDelta / 2) * 111000), 500),
+        50000,
+      );
       const places = await searchNearbyPlaces(region.latitude, region.longitude, radiusMeters);
       setRegionMarkers(places);
     }
@@ -579,20 +615,10 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
 
   const handlePressSearchPlace = useCallback(
     (place: SearchWishPlace): void => {
-      setSelectedSearchPlace(place);
       handleSearchBlur();
-      animateSheetTo(SNAP_TRENDING);
-      mapRef.current?.animateToRegion(
-        {
-          latitude: place.latitude,
-          longitude: place.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        },
-        600,
-      );
+      navigation.navigate('DestinationDetail', { destinationId: place.id });
     },
-    [handleSearchBlur, animateSheetTo],
+    [handleSearchBlur, navigation],
   );
 
   // 뒤로가기 버튼 핸들러: 검색 중이면 검색 종료, 상세 카드면 닫기, 그 외에는 모달 열기
@@ -649,42 +675,50 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       return;
     }
 
-    ToastAndroid.show(`[debug] tripId:${tripId} places:${wishlistPlaces.length} day1:${tripDay1Date ?? 'null'}`, ToastAndroid.LONG);
-    console.log('[handleManualPlan] called, tripId:', tripId, 'wishlistPlaces:', wishlistPlaces.length, 'tripDay1Date:', tripDay1Date);
+    let scheduleDate = tripDay1Date;
+
+    if (!scheduleDate) {
+      const result = await getTripSchedules({ tripId });
+      const tripData = result.data as { startDate?: string } | null;
+      scheduleDate = tripData?.startDate ?? null;
+    }
+
+    if (!scheduleDate) {
+      ToastAndroid.show('여행 시작일을 불러오지 못했습니다.', ToastAndroid.SHORT);
+      return;
+    }
 
     if (wishlistPlaces.length > 0) {
-      let scheduleDate = tripDay1Date;
-      console.log('[handleManualPlan] entering schedule creation, scheduleDate:', scheduleDate);
+      const results = await Promise.all(
+        wishlistPlaces.map((place, index) => {
+          const { startTime, endTime } = getManualScheduleTime(index);
+          return createSchedule({
+            tripId,
+            payload: {
+              title: getScheduleTitleFromPlace(place),
+              scheduleDate,
+              startTime,
+              endTime,
+              placeId: Number.isInteger(Number(place.id)) ? Number(place.id) : undefined,
+              placeName: place.title,
+              address: place.description,
+            },
+          });
+        }),
+      );
 
-      if (!scheduleDate) {
-        const result = await getTripSchedules({ tripId });
-        const tripData = result.data as { startDate?: string } | null;
-        scheduleDate = tripData?.startDate ?? null;
-        console.log('[handleManualPlan] getTripSchedules result:', JSON.stringify(result.data), 'scheduleDate:', scheduleDate);
-      }
-
-      if (scheduleDate) {
-        const results = await Promise.all(
-          wishlistPlaces.map((place) =>
-            createSchedule({
-              tripId,
-              payload: {
-                title: place.title,
-                scheduleDate,
-                placeId: Number.isInteger(Number(place.id)) ? Number(place.id) : undefined,
-                placeName: place.title,
-                address: place.description,
-              },
-            }),
-          ),
+      const failedIndex = results.findIndex((result) => result.error);
+      if (failedIndex >= 0) {
+        const failedError = results[failedIndex].error;
+        ToastAndroid.show(
+          failedError?.message?.trim() || '위시리스트 일정을 생성하지 못했습니다.',
+          ToastAndroid.SHORT,
         );
-        console.log('[handleManualPlan] createSchedule results:', JSON.stringify(results));
-      } else {
-        console.log('[handleManualPlan] scheduleDate is null — schedules not created');
+        return;
       }
     }
 
-    navigation.navigate('TripDetail', { tripId });
+    navigation.replace('TripDetail', { tripId });
     setShowAddModal(false);
   }, [navigation, tripId, wishlistPlaces, tripDay1Date]);
 
@@ -777,7 +811,6 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     if (hasAutoCenteredOnLocationRef.current) return;
 
     hasAutoCenteredOnLocationRef.current = true;
-    setHasLocation(true);
     mapRef.current?.animateToRegion(
       {
         latitude: coords.latitude,
@@ -919,6 +952,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           onFocusInput={focusSearchInput}
           onPressBack={handleGoBack}
           onPressSearch={handlePressSearch}
+          onSubmitSearch={handlePressSearch}
         />
         <Animated.View
           style={[
@@ -972,9 +1006,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
             searchQuery={searchQuery}
             searchTrigger={searchTrigger}
             isLiked={(id) => isLikedInTab(selectedCategory, id)}
-            onToggleLike={(id, place) =>
-              handleToggleLikeWithApi(selectedCategory, id, place)
-            }
+            onToggleLike={(id, place) => handleToggleLikeWithApi(selectedCategory, id, place)}
             onPressPlace={handlePressSearchPlace}
           />
         )}

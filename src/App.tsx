@@ -9,9 +9,31 @@ import Config from 'react-native-config';
 import NaverLogin from '@react-native-seoul/naver-login';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useAuthStore } from '@/store';
+import {
+  setupPushNotifications,
+  listenForFcmTokenRefresh,
+  listenForForegroundMessages,
+} from '@/services/pushService';
 
 const App: React.FC = () => {
   const [isHydrated, setIsHydrated] = useState(false);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    setupPushNotifications().catch((e) => {
+    });
+    const unsubscribeTokenRefresh = listenForFcmTokenRefresh();
+    const unsubscribeForegroundMessages = listenForForegroundMessages();
+
+    return () => {
+      unsubscribeTokenRefresh();
+      unsubscribeForegroundMessages();
+    };
+  }, [isAuthenticated]);
 
   useEffect(() => {
     try {

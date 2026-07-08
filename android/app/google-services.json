@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "481677796989",
-    "project_id": "trip-plan-app",
-    "storage_bucket": "trip-plan-app.appspot.com"
+    "project_number": "144915691324",
+    "project_id": "project-3b29ab7b-97fb-4035-8d8",
+    "storage_bucket": "project-3b29ab7b-97fb-4035-8d8.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:481677796989:android:0000000000000000",
+        "mobilesdk_app_id": "1:144915691324:android:9ee44dfc87ec63297c9039",
         "android_client_info": {
           "package_name": "com.trip_plan"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "481677796989-f8sm9027ibblf12n2f93a6ic0k53n195.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "placeholder"
+          "current_key": "AIzaSyBaNB6Kkl8qsGzyeBN-WonOFJAYOlaq4oA"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "481677796989-f8sm9027ibblf12n2f93a6ic0k53n195.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

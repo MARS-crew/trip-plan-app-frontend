@@ -172,7 +172,13 @@ const AddTripCalendarScreen: React.FC = () => {
         return;
       }
 
-      navigation.navigate('WishlistScreen', { tripId: result.data.tripId });
+      navigation.reset({
+        index: 1,
+        routes: [
+          { name: 'MainTabs', params: { screen: 'MyTrip' } },
+          { name: 'WishlistScreen', params: { tripId: result.data.tripId } },
+        ],
+      });
     } finally {
       setIsCreatingTrip(false);
     }
@@ -180,6 +186,10 @@ const AddTripCalendarScreen: React.FC = () => {
 
   const handleDayPress = (day: { dateString: string }): void => {
     const { dateString } = day;
+    if (toDate(dateString) < toDate(todayString)) {
+      ToastAndroid.show('오늘 이후 날짜만 선택해주세요.', ToastAndroid.SHORT);
+      return;
+    }
 
     if (!range.startDate || (range.startDate && range.endDate)) {
       setRange({ startDate: dateString, endDate: null });
@@ -209,7 +219,7 @@ const AddTripCalendarScreen: React.FC = () => {
         <View className="flex-1 pt-4">
           <CalendarList
             current={range.startDate ?? todayString}
-            minDate={isEditDateMode ? undefined : todayString}
+            minDate={todayString}
             markingType="period"
             monthFormat="yyyy년 M월"
             markedDates={markedDates}
