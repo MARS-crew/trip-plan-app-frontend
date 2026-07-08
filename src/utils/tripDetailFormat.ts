@@ -51,16 +51,26 @@ const formatDayLabel = (dayNo: number, scheduleDate: string | null): string => {
   return `${dayNo}일차 / ${monthText}.${dayText}`;
 };
 
-const formatDateByOffset = (startDate: string, offset: number): string | null => {
+const getDateByOffset = (startDate: string, offset: number): Date | null => {
   const [yearString, monthString, dayString] = startDate.split('-');
   const year = Number(yearString);
   const month = Number(monthString);
   const day = Number(dayString);
   if (!year || !month || !day) return null;
-  const date = new Date(year, month - 1, day + offset);
+  return new Date(year, month - 1, day + offset);
+};
+
+const formatMonthDay = (date: Date): string => {
   const monthText = String(date.getMonth() + 1).padStart(2, '0');
   const dayText = String(date.getDate()).padStart(2, '0');
   return `${monthText}.${dayText}`;
+};
+
+const formatFullDate = (date: Date): string => {
+  const fullYear = date.getFullYear();
+  const monthText = String(date.getMonth() + 1).padStart(2, '0');
+  const dayText = String(date.getDate()).padStart(2, '0');
+  return `${fullYear}-${monthText}-${dayText}`;
 };
 
 export const buildEmptyDaySections = (
@@ -70,10 +80,11 @@ export const buildEmptyDaySections = (
   const safeDayCount = Math.max(1, tripDayCount || 1);
   return Array.from({ length: safeDayCount }, (_, index) => {
     const dayNo = index + 1;
-    const dateText = startDate ? formatDateByOffset(startDate, index) : null;
+    const date = startDate ? getDateByOffset(startDate, index) : null;
     return {
       dayNo,
-      dayLabel: dateText ? `${dayNo}일차 / ${dateText}` : `${dayNo}일차`,
+      dayLabel: date ? `${dayNo}일차 / ${formatMonthDay(date)}` : `${dayNo}일차`,
+      scheduleDate: date ? formatFullDate(date) : undefined,
       cards: [],
       showMapIcon: dayNo === 1,
     };
@@ -131,6 +142,7 @@ export const normalizeTripDetailData = (
           {
             dayNo: 1,
             dayLabel: '1일차',
+            scheduleDate: undefined,
             cards: flatSchedules.map((schedule, index) =>
               mapScheduleToCardItem(schedule, index + 1, index === 0),
             ),
@@ -189,6 +201,7 @@ export const normalizeTripDetailData = (
       return {
         dayNo,
         dayLabel: selectedDayLabel ?? formatDayLabel(dayNo, scheduleDate),
+        scheduleDate: scheduleDate ?? undefined,
         cards,
         showMapIcon: sectionIndex === 0,
       };
@@ -232,6 +245,7 @@ export const normalizeTripDetailData = (
     .map((group, sectionIndex) => ({
       dayNo: group.dayNo,
       dayLabel: formatDayLabel(group.dayNo, group.scheduleDate),
+      scheduleDate: group.scheduleDate ?? undefined,
       cards: group.items.map((schedule, cardIndex) => {
         const isCurrentSchedule = Boolean(schedule.current);
         return mapScheduleToCardItem(schedule, cardIndex + 1, isCurrentSchedule);

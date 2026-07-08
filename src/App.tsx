@@ -56,15 +56,10 @@ const App: React.FC = () => {
     void useAuthStore.getState().hydrateAuth();
   }, []);
 
-  const statusBarStyle = useMemo(
-    () => (isDarkMode ? 'light-content' : 'dark-content'),
-    [isDarkMode],
-  );
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-      <StatusBar barStyle={statusBarStyle} />
+      <StatusBar barStyle="dark-content" />
         <NavigationContainer linking={linking}>
           <RootStackNavigator />
         </NavigationContainer>

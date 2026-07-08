@@ -18,6 +18,9 @@ const DaySection = ({
   tripId,
   tripTitle,
   tripImageUrl,
+  scheduleDate,
+  tripStartDate,
+  tripEndDate,
   onPressCard,
   onPressAction,
   isReadOnly = false,
@@ -85,7 +88,10 @@ const DaySection = ({
                 mode: 'create',
                 tripId,
                 tripTitle: tripTitle ?? '',
-                date: '',
+                tripImageUrl,
+                date: scheduleDate ?? '',
+                tripStartDate,
+                tripEndDate,
               });
             }}
             className="h-[50px] w-full flex-row items-center justify-center rounded-[8px] border border-dashed border-borderGray">

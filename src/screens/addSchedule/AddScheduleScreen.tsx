@@ -19,19 +19,26 @@ import { TopBar } from '@/components';
 import { SpinnerColumn } from '@/components/ui';
 import { COLORS } from '@/constants/colors';
 import { createSchedule, updateTripSchedule } from '@/services/tripService';
-import { getTripScheduleUpdateErrorToastMessage } from '@/utils';
+import {
+  getTripScheduleCreateErrorToastMessage,
+  getTripScheduleUpdateErrorToastMessage,
+} from '@/utils';
+import {
+  formatDateValue,
+  getDateValueFromDate,
+  getScheduleDatePickerOptions,
+  padDatePart,
+  parseDateValue,
+  type DateValue,
+} from '@/utils/scheduleDatePicker';
 
 const ITEM_HEIGHT = 44;
 const VISIBLE_ITEMS = 5;
 const SCHEDULE_TITLE_MAX_LENGTH = 10;
 
-const YEARS = Array.from({ length: 10 }, (_, i) => 2024 + i);
-const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = Array.from({ length: 60 }, (_, i) => i);
 
-const pad = (n: number): string => String(n).padStart(2, '0');
-const getDaysInMonth = (year: number, month: number): number => new Date(year, month, 0).getDate();
 const parseTimeToValue = (time?: string): TimeValue | null => {
   if (!time) return null;
   const [hourString, minuteString] = time.split(':');
@@ -40,12 +47,6 @@ const parseTimeToValue = (time?: string): TimeValue | null => {
   if (!Number.isFinite(hour) || !Number.isFinite(minute)) return null;
   return { hour, minute };
 };
-
-interface DateValue {
-  year: number;
-  month: number;
-  day: number;
-}
 
 interface TimeValue {
   hour: number;
@@ -64,29 +65,15 @@ interface FormValues {
 type PickerMode = 'date' | 'startTime' | 'endTime' | null;
 type AddScheduleNavigation = NativeStackNavigationProp<RootStackParamList, 'AddSchedule'>;
 
-const getDatePickerOptions = (today: Date, year: number, month: number, day: number) => {
-  const years = YEARS;
-  const selectedYear = years.includes(year) ? year : years[0];
-
-  const months = MONTHS;
-  const selectedMonth = months.includes(month) ? month : months[0];
-
-  const daysInMonth = Array.from(
-    { length: getDaysInMonth(selectedYear, selectedMonth) },
-    (_, i) => i + 1,
-  );
-  const days = daysInMonth;
-  const selectedDay = days.includes(day) ? day : days[0];
-
-  return { years, months, days, selectedYear, selectedMonth, selectedDay };
-};
-
 const AddScheduleScreen = () => {
   const navigation = useNavigation<AddScheduleNavigation>();
   const route = useRoute<RouteProp<RootStackParamList, 'AddSchedule'>>();
   const params = route.params;
   const isEditMode = params?.mode === 'edit';
   const today = new Date();
+  const tripStartDate = parseDateValue(params?.tripStartDate);
+  const tripEndDate = parseDateValue(params?.tripEndDate);
+  const fallbackDate = tripStartDate ?? getDateValueFromDate(today);
 
   const handleNavigateToTripDetail = (): void => {
     if (isEditMode) {
@@ -109,23 +96,21 @@ const AddScheduleScreen = () => {
       tripTitle: params?.tripTitle,
       tripImageUrl: params?.tripImageUrl,
       date: dateLabel !== '날짜' ? dateLabel : params?.date,
+      tripStartDate: params?.tripStartDate,
+      tripEndDate: params?.tripEndDate,
       tripScheduleId: params?.tripScheduleId,
       title: formValues.title,
       startTime: formValues.startTime
-        ? `${pad(formValues.startTime.hour)}:${pad(formValues.startTime.minute)}`
+        ? `${padDatePart(formValues.startTime.hour)}:${padDatePart(formValues.startTime.minute)}`
         : undefined,
       endTime: formValues.endTime
-        ? `${pad(formValues.endTime.hour)}:${pad(formValues.endTime.minute)}`
+        ? `${padDatePart(formValues.endTime.hour)}:${padDatePart(formValues.endTime.minute)}`
         : undefined,
       memo: formValues.memo,
     });
   };
 
-  const initialDate: DateValue | null = (() => {
-    if (!params?.date) return null;
-    const [y, m, d] = params.date.split('-').map(Number);
-    return { year: y, month: m, day: d };
-  })();
+  const initialDate = parseDateValue(params?.date);
 
   const [formValues, setFormValues] = useState<FormValues>({
     title: params?.title ?? params?.placeName ?? '',
@@ -148,9 +133,9 @@ const AddScheduleScreen = () => {
   const [pickerMode, setPickerMode] = useState<PickerMode>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [tempYear, setTempYear] = useState(today.getFullYear());
-  const [tempMonth, setTempMonth] = useState(today.getMonth() + 1);
-  const [tempDay, setTempDay] = useState(today.getDate());
+  const [tempYear, setTempYear] = useState(fallbackDate.year);
+  const [tempMonth, setTempMonth] = useState(fallbackDate.month);
+  const [tempDay, setTempDay] = useState(fallbackDate.day);
   const [tempHour, setTempHour] = useState(9);
   const [tempMinute, setTempMinute] = useState(0);
 
@@ -163,9 +148,9 @@ const AddScheduleScreen = () => {
 
   const openDatePicker = (): void => {
     const safeDate = formValues.date ?? {
-      year: today.getFullYear(),
-      month: today.getMonth() + 1,
-      day: today.getDate(),
+      year: fallbackDate.year,
+      month: fallbackDate.month,
+      day: fallbackDate.day,
     };
     setTempYear(safeDate.year);
     setTempMonth(safeDate.month);
@@ -204,7 +189,11 @@ const AddScheduleScreen = () => {
     selectedYear,
     selectedMonth,
     selectedDay,
-  } = getDatePickerOptions(today, tempYear, tempMonth, tempDay);
+  } = getScheduleDatePickerOptions(
+    { year: tempYear, month: tempMonth, day: tempDay },
+    tripStartDate,
+    tripEndDate,
+  );
 
   const availableHours = (() => {
     if (pickerMode === 'endTime' && formValues.startTime) {
@@ -262,18 +251,25 @@ const AddScheduleScreen = () => {
     setPickerMode(null);
   };
 
-  const dateLabel = formValues.date
-    ? `${formValues.date.year}-${pad(formValues.date.month)}-${pad(formValues.date.day)}`
-    : '날짜';
+  const dateLabel = formValues.date ? formatDateValue(formValues.date) : '날짜';
 
   const timeLabel = (timeValue: TimeValue | null, placeholder: string): string => {
-    return timeValue ? `${pad(timeValue.hour)}:${pad(timeValue.minute)}` : placeholder;
+    return timeValue
+      ? `${padDatePart(timeValue.hour)}:${padDatePart(timeValue.minute)}`
+      : placeholder;
   };
   const isSubmitEnabled =
     formValues.title.trim().length > 0 && formValues.date !== null && !isSubmitting;
 
   const handleSubmit = async (): Promise<void> => {
-    if (!formValues.date || !params?.tripId) return;
+    if (!formValues.date) {
+      ToastAndroid.show('일정 날짜를 선택해주세요.', ToastAndroid.SHORT);
+      return;
+    }
+    if (!params?.tripId) {
+      ToastAndroid.show('여행 정보를 불러오지 못했습니다. 다시 시도해주세요.', ToastAndroid.SHORT);
+      return;
+    }
     if (formValues.title.trim().length > SCHEDULE_TITLE_MAX_LENGTH) {
       ToastAndroid.show('일정명은 10자 이내로 입력해주세요.', ToastAndroid.SHORT);
       return;
@@ -288,14 +284,17 @@ const AddScheduleScreen = () => {
       }
     }
     const tripScheduleId = params.tripScheduleId;
-    if (isEditMode && !tripScheduleId) return;
+    if (isEditMode && !tripScheduleId) {
+      ToastAndroid.show('수정할 일정 정보를 찾을 수 없습니다.', ToastAndroid.SHORT);
+      return;
+    }
 
-    const scheduleDate = `${formValues.date.year}-${pad(formValues.date.month)}-${pad(formValues.date.day)}`;
+    const scheduleDate = formatDateValue(formValues.date);
     const startTime = formValues.startTime
-      ? `${pad(formValues.startTime.hour)}:${pad(formValues.startTime.minute)}`
+      ? `${padDatePart(formValues.startTime.hour)}:${padDatePart(formValues.startTime.minute)}`
       : undefined;
     const endTime = formValues.endTime
-      ? `${pad(formValues.endTime.hour)}:${pad(formValues.endTime.minute)}`
+      ? `${padDatePart(formValues.endTime.hour)}:${padDatePart(formValues.endTime.minute)}`
       : undefined;
 
     setIsSubmitting(true);
@@ -341,7 +340,7 @@ const AddScheduleScreen = () => {
     if (error) {
       const errorMessage = isEditMode
         ? getTripScheduleUpdateErrorToastMessage(error)
-        : '일정 생성에 실패하였습니다.';
+        : getTripScheduleCreateErrorToastMessage(error);
       ToastAndroid.show(errorMessage, ToastAndroid.SHORT);
       return;
     }
@@ -499,7 +498,7 @@ const AddScheduleScreen = () => {
                   items={availableMonths}
                   selectedIndex={availableMonths.indexOf(selectedMonth)}
                   onSelect={(index) => setTempMonth(availableMonths[index])}
-                  format={(n) => `${pad(n)}월`}
+                  format={(n) => `${padDatePart(n)}월`}
                 />
                 <SpinnerColumn
                   items={availableDays}
@@ -510,7 +509,7 @@ const AddScheduleScreen = () => {
                     availableDays.length - 1,
                   )}
                   onSelect={(index) => setTempDay(availableDays[index])}
-                  format={(n) => `${pad(n)}일`}
+                  format={(n) => `${padDatePart(n)}일`}
                 />
               </View>
             ) : null}
@@ -541,13 +540,13 @@ const AddScheduleScreen = () => {
                       }
                     }
                   }}
-                  format={(n) => `${pad(n)}시`}
+                  format={(n) => `${padDatePart(n)}시`}
                 />
                 <SpinnerColumn
                   items={availableMinutes}
                   selectedIndex={Math.max(0, availableMinutes.indexOf(tempMinute))}
                   onSelect={(index) => setTempMinute(availableMinutes[index])}
-                  format={(n) => `${pad(n)}분`}
+                  format={(n) => `${padDatePart(n)}분`}
                 />
               </View>
             ) : null}

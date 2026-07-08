@@ -24,12 +24,14 @@ const PlaceImageThumbnail: React.FC<PlaceImageThumbnailProps> = ({ hasImage, ima
 );
 
 export const PlaceCard = React.memo<PlaceCardProps>(
-  ({ place, isLiked, onToggleLike, isTrending = false }) => {
+  ({ place, isLiked, onToggleLike, onPress, isTrending = false }) => {
     const hasImage = Boolean(place.image);
+    const Container = onPress ? TouchableOpacity : View;
+    const containerProps = onPress ? { activeOpacity: 0.85, onPress } : {};
 
     if (isTrending) {
       return (
-        <View className="mx-[1px] mb-3">
+        <Container {...containerProps} className="mx-[1px] mb-3">
           <WishContentContainer>
             <View className="flex-row items-center">
               <PlaceImageThumbnail hasImage={hasImage} image={place.image} />
@@ -58,11 +60,11 @@ export const PlaceCard = React.memo<PlaceCardProps>(
               </TouchableOpacity>
             </View>
           </WishContentContainer>
-        </View>
+        </Container>
       );
     }
     return (
-      <View className="mx-[1px] pb-3">
+      <Container {...containerProps} className="mx-[1px] pb-3">
         <WishContentContainer>
           <View className="flex-row items-center">
             <PlaceImageThumbnail hasImage={hasImage} image={place.image} />
@@ -87,7 +89,7 @@ export const PlaceCard = React.memo<PlaceCardProps>(
             </TouchableOpacity>
           </View>
         </WishContentContainer>
-      </View>
+      </Container>
     );
   },
 );

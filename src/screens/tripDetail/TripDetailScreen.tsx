@@ -6,7 +6,6 @@ import { useSharedValue, withTiming } from 'react-native-reanimated';
 import Config from 'react-native-config';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-
 import {
   deleteTrip,
   deleteTripSchedule,
@@ -58,7 +57,6 @@ const getChottuTripShareUrl = (tripId: number): string | null => {
 
   return `${normalizedBaseUrl}/trip-share/${tripId}`;
 };
-
 
 const TripDetailScreen: React.FC = () => {
   const navigation = useNavigation<TripDetailNavigation>();
@@ -125,7 +123,8 @@ const TripDetailScreen: React.FC = () => {
 
       const abortController = new AbortController();
       const fetchTripDetailSchedules = async (): Promise<void> => {
-        const shouldFetchMyTrips = !initialHeaderImageUrlRef.current && !route.params?.initialImageUrl;
+        const shouldFetchMyTrips =
+          !initialHeaderImageUrlRef.current && !route.params?.initialImageUrl;
         const [scheduleResult, myTripsResult] = await Promise.all([
           getTripSchedules({ tripId, signal: abortController.signal }),
           shouldFetchMyTrips
@@ -365,6 +364,8 @@ const TripDetailScreen: React.FC = () => {
         tripImageUrl: headerData.imageUrl,
         tripScheduleId: card.tripScheduleId,
         date: scheduleDate,
+        tripStartDate: headerData.startDate,
+        tripEndDate: headerData.endDate,
         placeId: card.placeId,
         placeName: card.location,
         address: card.address,
@@ -376,6 +377,7 @@ const TripDetailScreen: React.FC = () => {
     },
     [
       handleCloseCardMenu,
+      headerData.endDate,
       headerData.imageUrl,
       headerData.startDate,
       headerData.title,
@@ -479,17 +481,20 @@ const TripDetailScreen: React.FC = () => {
           imageUrl={headerData.imageUrl}
         />
 
-        {renderedSections.map(({ dayNo, dayLabel, cards, showMapIcon }) => (
+        {renderedSections.map(({ dayNo, dayLabel, scheduleDate, cards, showMapIcon }) => (
           <DaySection
             key={`${dayNo}-${dayLabel}`}
             dayNo={dayNo}
             dayLabel={dayLabel}
+            scheduleDate={scheduleDate}
             cards={cards}
             showMapIcon={showMapIcon}
             onPressCard={handleOpenCardMenu}
             tripId={tripId}
             tripTitle={headerData.title}
             tripImageUrl={headerData.imageUrl}
+            tripStartDate={headerData.startDate}
+            tripEndDate={headerData.endDate}
             onPressAction={() => {}}
           />
         ))}
