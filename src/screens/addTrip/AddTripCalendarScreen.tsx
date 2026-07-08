@@ -172,7 +172,13 @@ const AddTripCalendarScreen: React.FC = () => {
         return;
       }
 
-      navigation.navigate('WishlistScreen', { tripId: result.data.tripId });
+      navigation.reset({
+        index: 1,
+        routes: [
+          { name: 'MainTabs', params: { screen: 'MyTrip' } },
+          { name: 'WishlistScreen', params: { tripId: result.data.tripId } },
+        ],
+      });
     } finally {
       setIsCreatingTrip(false);
     }

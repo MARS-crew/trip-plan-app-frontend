@@ -1,5 +1,13 @@
 import React from 'react';
-import { ActivityIndicator, Keyboard, KeyboardAvoidingView, Platform, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import PlaceCard from './PlaceCard';
 import { getSearchResultsPaginated } from '@/services/searchService';
@@ -22,7 +30,15 @@ interface WishlistSearchOverlayProps {
 const PAGE_SIZE = 20;
 
 export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
-  ({ isVisible, selectedCategory, searchQuery, searchTrigger, isLiked, onToggleLike, onPressPlace }) => {
+  ({
+    isVisible,
+    selectedCategory,
+    searchQuery,
+    searchTrigger,
+    isLiked,
+    onToggleLike,
+    onPressPlace,
+  }) => {
     const animatedOpacity = useSharedValue(isVisible ? 1 : 0);
     const [keyboardHeight, setKeyboardHeight] = React.useState(0);
     const [searchResults, setSearchResults] = React.useState<SearchWishPlace[]>([]);
@@ -91,7 +107,9 @@ export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
         }
       })();
 
-      return () => { isActive = false; };
+      return () => {
+        isActive = false;
+      };
       // searchTrigger 변화 시에만 실행 — searchQuery·normalizePlace는 클로저에서 최신값 참조
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchTrigger]);
@@ -174,16 +192,13 @@ export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
               ) : searchResults.length > 0 ? (
                 <>
                   {searchResults.map((place) => (
-                    <TouchableOpacity
+                    <PlaceCard
                       key={`${selectedCategory}-${place.id}`}
-                      activeOpacity={0.85}
-                      onPress={() => onPressPlace(place)}>
-                      <PlaceCard
-                        place={place}
-                        isLiked={isLiked(place.id)}
-                        onToggleLike={() => onToggleLike(place.id, place)}
-                      />
-                    </TouchableOpacity>
+                      place={place}
+                      isLiked={isLiked(place.id)}
+                      onPress={() => onPressPlace(place)}
+                      onToggleLike={() => onToggleLike(place.id, place)}
+                    />
                   ))}
                   {hasMore && (
                     <TouchableOpacity
@@ -206,7 +221,6 @@ export const WishlistSearchOverlay = React.memo<WishlistSearchOverlayProps>(
               ) : null}
             </View>
           </ScrollView>
-
         </KeyboardAvoidingView>
       </Animated.View>
     );
