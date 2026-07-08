@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { RootStackNavigator, navigationRef } from '@/navigation';
+import { LoadingView } from '@/components/ui/LoadingView';
 import { linking } from '@/navigation/linking';
 import Config from 'react-native-config';
 import NaverLogin from '@react-native-seoul/naver-login';
@@ -61,7 +62,7 @@ const App: React.FC = () => {
   }, []);
 
   if (!isHydrated) {
-    return null;
+    return <LoadingView />;
   }
 
   return (

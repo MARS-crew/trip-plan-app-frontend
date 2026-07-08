@@ -37,11 +37,13 @@ const reissueTokenOnce = (): Promise<boolean> => {
 
 const withAuthHeader = (headers?: HeadersInit_): HeadersInit_ => {
   const accessToken = useAuthStore.getState().accessToken?.trim();
+  const merged = new Headers(headers);
 
-  return {
-    ...(headers as Record<string, string> | undefined),
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-  };
+  if (accessToken) {
+    merged.set('Authorization', `Bearer ${accessToken}`);
+  }
+
+  return merged;
 };
 
 // fetch wrapper that transparently reissues the access token on a 401 and retries once.
