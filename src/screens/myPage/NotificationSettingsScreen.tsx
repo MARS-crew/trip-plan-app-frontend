@@ -85,7 +85,10 @@ const NotificationSettingsScreen: React.FC = () => {
   }, []);
 
   const updateAgree = React.useCallback(
-    async (next: { isPushEnabled: boolean; isNightPushEnabled: boolean }): Promise<void> => {
+    async (
+      next: { isPushEnabled: boolean; isNightPushEnabled: boolean },
+      prev: { isPushEnabled: boolean; isNightPushEnabled: boolean },
+    ): Promise<void> => {
       try {
         const data = await patchAgree({
           marketingAgreed: toFlag(next.isPushEnabled),
@@ -95,24 +98,27 @@ const NotificationSettingsScreen: React.FC = () => {
         setIsPushEnabled(data.marketingAgreed === 'Y');
         setIsNightPushEnabled(data.nightMarketingAgreed === 'Y');
       } catch {
-        // 실패 시 토글 원복
-        setIsPushEnabled(!next.isPushEnabled);
-        setIsNightPushEnabled(!next.isNightPushEnabled);
+        // 실패 시 이 작업 이전 상태로 정확히 원복한다.
+        // (건드리지 않은 토글까지 뒤집지 않도록 prev 스냅샷을 그대로 복원)
+        setIsPushEnabled(prev.isPushEnabled);
+        setIsNightPushEnabled(prev.isNightPushEnabled);
       }
     },
     [],
   );
 
   const handleTogglePush = React.useCallback((): void => {
-    const nextValue = !isPushEnabled;
-    setIsPushEnabled(nextValue);
-    void updateAgree({ isPushEnabled: nextValue, isNightPushEnabled });
+    const prev = { isPushEnabled, isNightPushEnabled };
+    const next = { isPushEnabled: !isPushEnabled, isNightPushEnabled };
+    setIsPushEnabled(next.isPushEnabled);
+    void updateAgree(next, prev);
   }, [isPushEnabled, isNightPushEnabled, updateAgree]);
 
   const handleToggleNightPush = React.useCallback((): void => {
-    const nextValue = !isNightPushEnabled;
-    setIsNightPushEnabled(nextValue);
-    void updateAgree({ isPushEnabled, isNightPushEnabled: nextValue });
+    const prev = { isPushEnabled, isNightPushEnabled };
+    const next = { isPushEnabled, isNightPushEnabled: !isNightPushEnabled };
+    setIsNightPushEnabled(next.isNightPushEnabled);
+    void updateAgree(next, prev);
   }, [isPushEnabled, isNightPushEnabled, updateAgree]);
 
   return (

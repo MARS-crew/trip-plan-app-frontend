@@ -299,8 +299,14 @@ export const patchAgree = async (payload: AgreeUpdateRequest): Promise<AgreeData
     if (!response.ok) {
       throw new Error('알림 설정 수정 실패');
     }
-    const json: BaseResponse<AgreeData> = await response.json();
-    return json.data;
+    // 조회는 { data: {...} } 로 감싸 오지만, 수정 응답은 평문 {...} 로 내려온다.
+    // 두 형태를 모두 허용해 최신 플래그를 추출한다.
+    const json = (await response.json()) as Partial<BaseResponse<AgreeData>> & Partial<AgreeData>;
+    const result = json.data ?? (json as AgreeData);
+    return {
+      marketingAgreed: result.marketingAgreed,
+      nightMarketingAgreed: result.nightMarketingAgreed,
+    };
   } catch (error) {
     console.error('patchAgree Error:', error);
     throw error;
