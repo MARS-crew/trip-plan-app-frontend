@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { RootStackNavigator } from '@/navigation';
+import { RootStackNavigator, navigationRef } from '@/navigation';
+import { LoadingView } from '@/components/ui/LoadingView';
 import { linking } from '@/navigation/linking';
 import Config from 'react-native-config';
 import NaverLogin from '@react-native-seoul/naver-login';
@@ -16,6 +17,7 @@ import {
 } from '@/services/pushService';
 
 const App: React.FC = () => {
+  const [isHydrated, setIsHydrated] = useState(false);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
@@ -52,14 +54,22 @@ const App: React.FC = () => {
     } catch (e) {
       console.warn('GoogleSignin configure failed:', e);
     }
-    void useAuthStore.getState().hydrateAuth();
+
+    void useAuthStore
+      .getState()
+      .hydrateAuth()
+      .finally(() => setIsHydrated(true));
   }, []);
+
+  if (!isHydrated) {
+    return <LoadingView />;
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
       <StatusBar barStyle="dark-content" />
-        <NavigationContainer linking={linking}>
+        <NavigationContainer ref={navigationRef} linking={linking}>
           <RootStackNavigator />
         </NavigationContainer>
       </SafeAreaProvider>

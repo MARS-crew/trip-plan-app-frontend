@@ -31,6 +31,7 @@ const memoryStorage = (() => {
 interface AuthTokens {
   accessToken: string;
   refreshToken: string;
+  user?: LoginUserDetails | null;
 }
 
 const saveTokensSecurely = async (tokens: AuthTokens): Promise<void> => {
@@ -57,6 +58,7 @@ const readTokensSecurely = async (): Promise<AuthTokens | null> => {
     return {
       accessToken: parsed.accessToken,
       refreshToken: parsed.refreshToken,
+      user: parsed.user ?? null,
     };
   } catch {
     return null;
@@ -80,15 +82,15 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       accessToken: null,
       refreshToken: null,
       user: null,
       isAuthenticated: false,
 
       setTokens: (accessToken, refreshToken) => {
-        set({ accessToken, refreshToken, user: null, isAuthenticated: true });
-        void saveTokensSecurely({ accessToken, refreshToken });
+        set({ accessToken, refreshToken, isAuthenticated: true });
+        void saveTokensSecurely({ accessToken, refreshToken, user: get().user });
       },
 
       setAuthFromLoginData: (loginData) => {
@@ -101,6 +103,7 @@ export const useAuthStore = create<AuthState>()(
         void saveTokensSecurely({
           accessToken: loginData.accessToken,
           refreshToken: loginData.refreshToken,
+          user: loginData.userDetails,
         });
       },
 
@@ -120,6 +123,7 @@ export const useAuthStore = create<AuthState>()(
         set({
           accessToken: tokens.accessToken,
           refreshToken: tokens.refreshToken,
+          user: tokens.user ?? null,
           isAuthenticated: true,
         });
       },

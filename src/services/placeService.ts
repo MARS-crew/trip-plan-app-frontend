@@ -1,6 +1,7 @@
 import type { BaseResponse } from '@/types';
 import { getEnvConfig } from '@/config/env';
 import { useAuthStore } from '@/store/authStore';
+import { authorizedFetch } from '@/utils/authorizedFetch';
 import type {
   GetNearbyRecommendedPlacesData,
   GetNearbyRecommendedPlacesOptions,
@@ -88,7 +89,7 @@ const performPlaceRequest = async <TResponse, TSelected>({
   }
 
   try {
-    const response = await fetch(requestUrl, {
+    const response = await authorizedFetch(requestUrl, {
       headers: requestConfig.headers,
       signal,
     });

@@ -2,6 +2,7 @@ import Config from 'react-native-config';
 
 import { useAuthStore } from '@/store';
 import type { BaseResponse } from '@/types';
+import { authorizedFetch } from '@/utils/authorizedFetch';
 
 interface AddWishlistPlacePayload {
 	placeId: number;
@@ -30,7 +31,7 @@ export const addWishlistPlace = async (
 	payload: AddWishlistPlacePayload,
 ): Promise<AddWishlistPlaceData> => {
 	try {
-		const response = await fetch(`${Config.API_BASE_URL}/api/v1/trips/${tripId}/wishlist-places`, {
+		const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/trips/${tripId}/wishlist-places`, {
 			method: 'POST',
 			headers: {
 				Accept: '*/*',
@@ -80,7 +81,7 @@ export const deleteWishlistPlace = async (
 	wishlistPlaceId: number,
 ): Promise<void> => {
 	try {
-		const response = await fetch(
+		const response = await authorizedFetch(
 			`${Config.API_BASE_URL}/api/v1/trips/${tripId}/wishlist-places/${wishlistPlaceId}`,
 			{
 				method: 'DELETE',

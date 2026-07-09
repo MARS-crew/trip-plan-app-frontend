@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import BottomTabNavigator from './BottomTabNavigator';
 import { FindIdScreen, LoginScreen, SignUpScreen, WishlistScreen } from '@/screens';
+import { useAuthStore } from '@/store';
 
 import type { RootStackParamList } from './types';
 import { FindPasswordScreen } from '@/screens';
@@ -31,8 +32,12 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 // ============ Component ============
 export const RootStackNavigator: React.FC = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
   return (
-    <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      initialRouteName={isAuthenticated ? 'MainTabs' : 'Login'}
+      screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="SignUp" component={SignUpScreen} />
       <Stack.Screen name="MainTabs" component={BottomTabNavigator} />

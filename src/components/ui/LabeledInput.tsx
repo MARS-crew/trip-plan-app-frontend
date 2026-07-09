@@ -31,7 +31,7 @@ export const LabeledInput: React.FC<LabeledInputProps> = ({
         {required && <Text className="text-p1 text-statusError">*</Text>}
       </View>
       <TextInput
-        className={`w-full h-[46px] rounded-xl px-3 text-p1 textstyle-Regular border border-borderGray bg-inputBackground ${inputClassName ?? ''}`}
+        className={`w-full h-[46px] rounded-xl px-3 text-p1 text-black textstyle-Regular border border-borderGray bg-inputBackground ${inputClassName ?? ''}`}
         placeholder={placeholder}
         placeholderTextColor={COLORS.gray}
         value={value}

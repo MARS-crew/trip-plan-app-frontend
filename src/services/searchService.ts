@@ -10,10 +10,11 @@ import type {
 } from '@/types/search';
 
 import { useAuthStore } from '@/store';
+import { authorizedFetch } from '@/utils/authorizedFetch';
 
 export const deleteRecentSearch = async (recentSearchId: number): Promise<void> => {
   const { accessToken } = useAuthStore.getState();
-  const response = await fetch(
+  const response = await authorizedFetch(
     `${Config.API_BASE_URL}/api/v1/search/recent-searches/${recentSearchId}`,
     {
       method: 'DELETE',
@@ -28,7 +29,7 @@ export const deleteRecentSearch = async (recentSearchId: number): Promise<void> 
 export const getRecentSearches = async (): Promise<GetRecentSearch[]> => {
   const { accessToken } = useAuthStore.getState();
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/search/recent-searches`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/search/recent-searches`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     if (!response.ok) {
@@ -45,7 +46,7 @@ export const getRecentSearches = async (): Promise<GetRecentSearch[]> => {
 export const getPlaceSelection = async (tripId: number): Promise<PlaceSelectionResponse> => {
   const { accessToken } = useAuthStore.getState();
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/trips/${tripId}/place-selection`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/trips/${tripId}/place-selection`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
@@ -73,7 +74,7 @@ export const getPlaceSelection = async (tripId: number): Promise<PlaceSelectionR
 export const getPopularSearches = async (): Promise<string[]> => {
   const { accessToken } = useAuthStore.getState();
   try {
-    const response = await fetch(`${Config.API_BASE_URL}/api/v1/search/popular-searches`, {
+    const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/search/popular-searches`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     if (!response.ok) {
@@ -89,7 +90,7 @@ export const getPopularSearches = async (): Promise<string[]> => {
 
 export const deleteAllRecentSearch = async (): Promise<void> => {
   const { accessToken } = useAuthStore.getState();
-  const response = await fetch(`${Config.API_BASE_URL}/api/v1/search/recent-searches`, {
+  const response = await authorizedFetch(`${Config.API_BASE_URL}/api/v1/search/recent-searches`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${accessToken}` },
   });
@@ -113,7 +114,7 @@ export const getSearchResults = async (keyword: string): Promise<SearchResult[]>
   }
 
   try {
-    const response = await fetch(
+    const response = await authorizedFetch(
       `${apiBase}/api/v1/search/results?keyword=${encodeURIComponent(keyword)}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -147,7 +148,7 @@ export const getSearchResultsPaginated = async (
   if (!accessToken) throw new Error('인증 토큰이 없습니다.');
 
   const url = `${apiBase}/api/v1/search/results?keyword=${encodeURIComponent(keyword)}&page=${page}&size=${size}`;
-  const response = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+  const response = await authorizedFetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
 
   if (!response.ok) {
     let body = '';

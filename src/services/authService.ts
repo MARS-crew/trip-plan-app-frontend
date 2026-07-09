@@ -1,4 +1,5 @@
 import { getEnvConfig } from '@/config/env';
+import { useAuthStore } from '@/store';
 
 import type {
   FindIdRequest,
