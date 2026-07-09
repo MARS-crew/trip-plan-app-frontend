@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextInput, View, Text } from 'react-native';
+import { TextInput, TouchableOpacity, View, Text } from 'react-native';
 
 import ExchangeIcon from '@/assets/icons/exchange.svg';
 import Exchange2Icon from '@/assets/icons/exchange2.svg';
@@ -19,6 +19,7 @@ const MyPageExchangeSection: React.FC<MyPageExchangeSectionProps> = ({
   bottomAmount,
   onChangeTopAmount,
   onChangeBottomAmount,
+  onSwap,
 }) => {
   return (
     <>
@@ -49,9 +50,13 @@ const MyPageExchangeSection: React.FC<MyPageExchangeSectionProps> = ({
         </View>
 
         <View className="items-center">
-          <View className="mb-1 mt-1 h-8 w-8 items-center justify-center rounded-full bg-main">
+          <TouchableOpacity
+            onPress={onSwap}
+            activeOpacity={0.7}
+            accessibilityLabel="통화 전환"
+            className="mb-1 mt-1 h-8 w-8 items-center justify-center rounded-full bg-main">
             <Exchange2Icon width={14} height={14} />
-          </View>
+          </TouchableOpacity>
         </View>
 
         <View className="rounded-xl bg-chip px-4 py-3.5">

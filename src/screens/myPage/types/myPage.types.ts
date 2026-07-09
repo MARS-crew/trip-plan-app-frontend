@@ -34,6 +34,8 @@ export interface MyPageProfileCardProps {
 
 export interface MyPageStatsSectionProps {
   stats: MyPageStatItem[];
+  onPressTripCount: () => void;
+  onPressSavedPlace: () => void;
   onPressVisitedPlaceList: () => void;
 }
 
@@ -64,6 +66,7 @@ export interface MyPageExchangeSectionProps {
   bottomAmount: string;
   onChangeTopAmount: (text: string) => void;
   onChangeBottomAmount: (text: string) => void;
+  onSwap: () => void;
 }
 
 export type ProfileItemType = 'nickname' | 'email' | 'birthday' | 'gender' | 'country';

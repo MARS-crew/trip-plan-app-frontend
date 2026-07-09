@@ -19,15 +19,29 @@ const StatIcon: React.FC<{ type: MyPageStatItem['type'] }> = ({ type }) => {
   return <LocationOrangeIcon width={20} height={20} />;
 };
 
-const MyPageStatsSection: React.FC<MyPageStatsSectionProps> = ({ stats, onPressVisitedPlaceList }) => {
+const MyPageStatsSection: React.FC<MyPageStatsSectionProps> = ({
+  stats,
+  onPressTripCount,
+  onPressSavedPlace,
+  onPressVisitedPlaceList,
+}) => {
+  const getPressHandler = (type: MyPageStatItem['type']): (() => void) => {
+    if (type === 'map') {
+      return onPressTripCount;
+    }
+    if (type === 'bookmark') {
+      return onPressSavedPlace;
+    }
+    return onPressVisitedPlaceList;
+  };
+
   return (
     <View className="mt-4 flex-row justify-between">
       {stats.map((item) => (
         <TouchableOpacity
           key={item.id}
-          activeOpacity={item.type === 'marker' ? 0.8 : 1}
-          disabled={item.type !== 'marker'}
-          onPress={item.type === 'marker' ? onPressVisitedPlaceList : undefined}
+          activeOpacity={0.8}
+          onPress={getPressHandler(item.type)}
           className="w-[31.5%] rounded-lg border border-white bg-white py-4"
           style={CARD_SHADOW}>
           <View className="items-center">
