@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -67,6 +67,7 @@ const DestinationDetailScreen: React.FC = () => {
   const [imageLoadError, setImageLoadError] = useState(false);
   const [reviewData, setReviewData] = useState<ReviewData | null>(null);
   const [isSharing, setIsSharing] = useState(false);
+  const hasLoadedRef = useRef(false);
 
   const handleGoBack = useCallback((): void => {
     if (origin === 'bookmark') {
@@ -86,23 +87,28 @@ const DestinationDetailScreen: React.FC = () => {
     navigation.navigate('SearchMain');
   }, [navigation, origin]);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    setIsDetailLoading(true);
+  // 화면 포커스 시마다 저장 상태를 서버 기준으로 재동기화한다.
+  // (다른 화면에서 북마크를 취소/추가한 뒤 재진입해도 버튼 상태가 어긋나지 않도록)
+  useFocusEffect(
+    useCallback(() => {
+      const controller = new AbortController();
+      if (!hasLoadedRef.current) setIsDetailLoading(true);
 
-    const fetchDetail = async (): Promise<void> => {
-      const { data, error } = await getPlaceDetail({ placeId, signal: controller.signal });
-      if (controller.signal.aborted) return;
-      if (!error && data) {
-        setPlaceDetail(data);
-        setIsBookmarked(data.saved);
-      }
-      setIsDetailLoading(false);
-    };
+      const fetchDetail = async (): Promise<void> => {
+        const { data, error } = await getPlaceDetail({ placeId, signal: controller.signal });
+        if (controller.signal.aborted) return;
+        if (!error && data) {
+          setPlaceDetail(data);
+          setIsBookmarked(data.saved);
+        }
+        hasLoadedRef.current = true;
+        setIsDetailLoading(false);
+      };
 
-    void fetchDetail();
-    return () => controller.abort();
-  }, [placeId]);
+      void fetchDetail();
+      return () => controller.abort();
+    }, [placeId]),
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -136,7 +142,10 @@ const DestinationDetailScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('handleSave Error:', error);
-      setIsBookmarked(!nextSaved);
+      // 중복 요청 등으로 실패하면 로컬 값을 단순 롤백하지 않고
+      // 서버의 실제 저장 상태를 다시 조회해 동기화한다. (버튼 고착 방지)
+      const { data, error: detailError } = await getPlaceDetail({ placeId });
+      setIsBookmarked(!detailError && data ? data.saved : !nextSaved);
     } finally {
       setIsSaving(false);
     }
