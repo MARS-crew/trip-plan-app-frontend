@@ -35,7 +35,11 @@ const FindIdScreen: React.FC = () => {
       setErrorMessage(null);
     } else {
       setFoundId(null);
-      setErrorMessage('닉네임 , 이메일을 확인해 주세요');
+      const message =
+        result.warningType === 'USER_NOT_FOUND'
+          ? '닉네임과 이메일을 확인해 주세요.'
+          : result.message || '아이디를 찾는 중 오류가 발생했습니다.';
+      setErrorMessage(message);
     }
   };
   const handleChangeNickname = (value: string): void => {
