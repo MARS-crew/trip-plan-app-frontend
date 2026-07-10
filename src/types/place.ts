@@ -5,6 +5,7 @@ export interface RecommendedPlace {
   placeType: string;
   cityName: string;
   countryName: string;
+  description: string;
   ratingAvg: number;
   reviewCount: number;
   tags: string[];
