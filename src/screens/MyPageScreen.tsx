@@ -115,13 +115,26 @@ const MyPageScreen: React.FC = () => {
   }, []);
 
   const requestExchange = React.useCallback((amountText: string, fromKrw: boolean): void => {
-    const amount = parseAmount(amountText);
+    const digits = amountText.replace(/\D/g, '');
 
-    if (!amount) {
+    // 입력이 완전히 비면 반대편도 비운다.
+    if (!digits) {
       if (fromKrw) {
         setJpyAmount('');
       } else {
         setKrwAmount('');
+      }
+      return;
+    }
+
+    const amount = parseAmount(amountText);
+
+    // 0을 입력하면 환산값도 0으로 표시한다. (API 호출 불필요)
+    if (amount === 0) {
+      if (fromKrw) {
+        setJpyAmount('0');
+      } else {
+        setKrwAmount('0');
       }
       return;
     }
@@ -175,6 +188,11 @@ const MyPageScreen: React.FC = () => {
     };
 
     fetchExchange();
+  }, []);
+
+  // 가운데 스왑 버튼: 통화 방향만 토글하면 top/bottom 표시가 서로 뒤바뀐다.
+  const handleSwapCurrency = React.useCallback((): void => {
+    setIsKrwToJpy((prev) => !prev);
   }, []);
 
   const handleKrwChange = React.useCallback(
@@ -286,6 +304,15 @@ const MyPageScreen: React.FC = () => {
     }
   }, [navigation]);
 
+  // 통계 카드는 바텀탭 형제 탭으로 이동한다. (navigation = 탭 네비게이터)
+  const handleNavigateToTripCount = (): void => {
+    navigation.navigate('MyTrip' as never);
+  };
+
+  const handleNavigateToSavedPlace = (): void => {
+    navigation.navigate('Bookmark' as never);
+  };
+
   const handleNavigateToVisitedPlaceList = (): void => {
     const parentNavigation = navigation.getParent() as
       | { navigate: (...args: unknown[]) => void }
@@ -312,6 +339,8 @@ const MyPageScreen: React.FC = () => {
 
           <MyPageStatsSection
             stats={stats}
+            onPressTripCount={handleNavigateToTripCount}
+            onPressSavedPlace={handleNavigateToSavedPlace}
             onPressVisitedPlaceList={handleNavigateToVisitedPlaceList}
           />
 
@@ -330,6 +359,7 @@ const MyPageScreen: React.FC = () => {
             bottomAmount={bottomAmount}
             onChangeTopAmount={handleTopAmountChange}
             onChangeBottomAmount={handleBottomAmountChange}
+            onSwap={handleSwapCurrency}
           />
 
           <MyPageAccountSection
