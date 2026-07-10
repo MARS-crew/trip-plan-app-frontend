@@ -576,7 +576,7 @@ export const postFindId = async (payload: FindIdRequest): Promise<FindIdResult> 
 export const postFindPasswordEmailRequest = async (payload: {
   usersId: string;
   email: string;
-}): Promise<{ ok: boolean; message?: string }> => {
+}): Promise<{ ok: boolean; message?: string; code?: string }> => {
   const requestUrl = buildAuthUrl('/api/v1/auth/password/email-request');
 
   try {
@@ -595,6 +595,7 @@ export const postFindPasswordEmailRequest = async (payload: {
       return {
         ok: false,
         message: json?.message ?? getDefaultMessageByStatus(response.status),
+        code: json?.code,
       };
     }
 
@@ -602,6 +603,7 @@ export const postFindPasswordEmailRequest = async (payload: {
       return {
         ok: false,
         message: json?.message ?? '응답 형식이 올바르지 않습니다.',
+        code: json?.code,
       };
     }
 

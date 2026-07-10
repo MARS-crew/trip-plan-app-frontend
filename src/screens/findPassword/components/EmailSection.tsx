@@ -66,7 +66,7 @@ export const EmailSection: React.FC<FindPasswordEmailSectionProps> = ({
 
       {isEmailError ? (
         <Text className="mt-2 font-pretendardRegular text-p text-statusError">
-          {emailErrorMessage || '가입된 이메일이 없습니다.'}
+          {emailErrorMessage || '아이디 또는 이메일을 확인해주세요.'}
         </Text>
       ) : null}
     </View>
