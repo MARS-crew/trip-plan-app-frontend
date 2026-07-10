@@ -6,7 +6,6 @@ import { useNavigation } from '@react-navigation/native';
 import { ContentContainer, LabeledInput, TopBar } from '@/components';
 import { postFindId } from '@/services';
 import type { FindIdScreenNavigationProp } from '@/types/findId';
-import { showToastMessage } from '@/utils';
 
 // ============ Component ============
 const FindIdScreen: React.FC = () => {
@@ -16,6 +15,7 @@ const FindIdScreen: React.FC = () => {
   const [nickname, setNickname] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [foundId, setFoundId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const maskUserId = (id: string | null): string => {
     if (!id) return '';
@@ -32,13 +32,10 @@ const FindIdScreen: React.FC = () => {
     });
     if (result.ok) {
       setFoundId(result.data.usersId);
+      setErrorMessage(null);
     } else {
       setFoundId(null);
-      const message =
-        result.warningType === 'USER_NOT_FOUND'
-          ? '닉네임과 이메일을 확인해 주세요.'
-          : result.message || '아이디를 찾는 중 오류가 발생했습니다.';
-      showToastMessage(message);
+      setErrorMessage('닉네임 , 이메일을 확인해 주세요');
     }
   };
   const handleChangeNickname = (value: string): void => {
@@ -46,12 +43,18 @@ const FindIdScreen: React.FC = () => {
     if (foundId !== null) {
       setFoundId(null);
     }
+    if (errorMessage !== null) {
+      setErrorMessage(null);
+    }
   };
 
   const handleChangeEmail = (value: string): void => {
     setEmail(value);
     if (foundId !== null) {
       setFoundId(null);
+    }
+    if (errorMessage !== null) {
+      setErrorMessage(null);
     }
   };
 
@@ -83,6 +86,10 @@ const FindIdScreen: React.FC = () => {
             keyboardType="email-address"
             autoCapitalize="none"
           />
+
+          {errorMessage !== null && (
+            <Text className="mb-4 text-p text-statusError">{errorMessage}</Text>
+          )}
 
           <TouchableOpacity
             className={`h-11 w-full items-center justify-center rounded-lg ${isSubmitDisabled ? 'bg-main/50' : 'bg-main'}`}
