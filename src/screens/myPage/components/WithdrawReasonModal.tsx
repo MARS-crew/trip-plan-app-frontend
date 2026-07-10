@@ -18,6 +18,8 @@ const WITHDRAW_REASONS: WithdrawReasonItem[] = [
   { id: 'other', label: '기타' },
 ];
 
+const MAX_OTHER_REASON_LENGTH = 50;
+
 const REASON_TYPE_MAP: Record<WithdrawReason, WithdrawReasonType> = {
   access: 'NOT_ENOUGH_ACCESS',
   review: 'LOW_REVIEW_TRUST',
@@ -129,9 +131,13 @@ const WithdrawReasonModal: React.FC<WithdrawReasonModalProps> = ({
                 placeholder="탈퇴 사유를 입력해주세요"
                 placeholderTextColor={COLORS.gray}
                 multiline
+                maxLength={MAX_OTHER_REASON_LENGTH}
                 textAlignVertical="top"
                 className="h-32 w-[308px] rounded-xl border border-borderGray bg-inputBackground px-3 py-3 text-sm text-black"
               />
+              <Text className="mt-1 mr-1 font-pretendardMedium text-xs text-gray">
+                {otherReason.length}/{MAX_OTHER_REASON_LENGTH}
+              </Text>
             </View>
           ) : null}
 
