@@ -16,6 +16,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MyLocation, WishStar } from '@/assets/icons';
 import { WishModal } from '@/screens/wishList/components/WishModal';
 import type { RootStackParamList } from '@/navigation/types';
+import { LoadingView } from '@/components/ui';
 import MapView, { PROVIDER_GOOGLE, Marker, type Region } from 'react-native-maps';
 import { RouteIcon, AlertIcon } from '@/assets/icons';
 import { BackHandler } from 'react-native';
@@ -51,10 +52,12 @@ import {
   deleteWishlistPlace,
   generateTripSchedules,
   getTripSchedules,
+  getWishlistRecommendations,
 } from '@/services';
 import { getPlaceSelection, getSearchResults } from '@/services/searchService';
 import { searchNearbyPlaces, type NearbyPlace } from '@/services/mapPlaceService';
 import type { PlaceSelectionPlace } from '@/types/wishlist';
+import type { WishlistRecommendationPlace } from '@/services/wishList';
 import type { GenerateTripSchedulesData } from '@/types/tripDetail.types';
 import type { CreateScheduleRequest } from '@/types/myTrip.types';
 import type { SearchWishPlace } from '@/screens/wishList/components/WishlistSearchOverlay';
@@ -71,6 +74,17 @@ const convertPlaceDataToWishPlace = (place: PlaceSelectionPlace): PlaceCardProps
   description: place.address,
   categories: [place.placeType],
   image: { uri: place.imageUrl },
+});
+
+const convertRecommendationToWishPlace = (
+  place: WishlistRecommendationPlace,
+): PlaceCardProps['place'] => ({
+  id: place.placeId.toString(),
+  title: place.name,
+  location: [place.cityName, place.countryName].filter(Boolean).join(', '),
+  description: place.address || place.description || '',
+  categories: place.tags?.length ? place.tags : place.placeType ? [place.placeType] : undefined,
+  image: place.imageUrl ? { uri: place.imageUrl } : undefined,
 });
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -154,6 +168,7 @@ const saveGeneratedSchedules = async (
 };
 //더미 데이터 - 실제 API 연동 시 제거 예정
 const TABS: WishlistTabConfig[] = [
+  { id: 'realtime', label: '실시간 추천' },
   { id: 'saved', label: '저장된 장소' },
   { id: 'wishlist', label: '위시 리스트' },
 ];
@@ -174,6 +189,20 @@ const SNAP_LOW = SHEET_HEIGHT - 28;
 const SNAP_FULL = 35;
 const SNAP_TRENDING = SHEET_HEIGHT - SECOND_SNAP_VISIBLE_HEIGHT;
 const SEARCH_BUTTON_BOTTOM = BOTTOM_SHEET_MIN_HEIGHT + 10;
+const RECOMMENDATION_LIMIT = 10;
+
+const getRegionRadiusMeters = (region: Region): number =>
+  Math.min(Math.max(Math.round((region.latitudeDelta / 2) * 111000), 500), 50000);
+
+const hasRegionChanged = (a: Region, b: Region): boolean => {
+  const threshold = 0.000001;
+  return (
+    Math.abs(a.latitude - b.latitude) > threshold ||
+    Math.abs(a.longitude - b.longitude) > threshold ||
+    Math.abs(a.latitudeDelta - b.latitudeDelta) > threshold ||
+    Math.abs(a.longitudeDelta - b.longitudeDelta) > threshold
+  );
+};
 
 const WishlistScreen: React.FC = (): React.JSX.Element => {
   const route = useRoute();
@@ -183,10 +212,15 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
 
   const [savedPlaces, setSavedPlaces] = useState<PlaceCardProps['place'][]>([]);
   const [wishlistPlaces, setWishlistPlaces] = useState<PlaceCardProps['place'][]>([]);
+  const [recommendedPlaces, setRecommendedPlaces] = useState<PlaceCardProps['place'][]>([]);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
+  const [recommendationEmptyMessage, setRecommendationEmptyMessage] =
+    useState('추천 장소가 없습니다.');
   const [wishlistPlaceIdMap, setWishlistPlaceIdMap] = useState<Record<string, number>>({});
   const [tripDay1Date, setTripDay1Date] = useState<string | null>(null);
 
   const [likedIdsByTab, setLikedIdsByTab] = useState<LikedIdsByTab>(() => ({
+    realtime: new Set<string>(),
     saved: new Set<string>(),
     wishlist: new Set<string>(),
   }));
@@ -195,9 +229,11 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       if (typeof tripId !== 'number') {
         setSavedPlaces([]);
         setWishlistPlaces([]);
+        setRecommendedPlaces([]);
         setWishlistPlaceIdMap({});
         setTripDay1Date(null);
         setLikedIdsByTab({
+          realtime: new Set<string>(),
           saved: new Set<string>(),
           wishlist: new Set<string>(),
         });
@@ -227,15 +263,18 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
         setWishlistPlaces(convertedWishlistPlaces);
         setWishlistPlaceIdMap(idMap);
         setLikedIdsByTab({
+          realtime: new Set<string>(),
           saved: new Set<string>(),
           wishlist: new Set(convertedWishlistPlaces.map((place) => place.id)),
         });
       } catch {
         setSavedPlaces([]);
         setWishlistPlaces([]);
+        setRecommendedPlaces([]);
         setWishlistPlaceIdMap({});
         setTripDay1Date(null);
         setLikedIdsByTab({
+          realtime: new Set<string>(),
           saved: new Set<string>(),
           wishlist: new Set<string>(),
         });
@@ -290,19 +329,22 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       const wasWishlistLiked = isLikedInTab('wishlist', id);
 
       if (currentlyLiked) {
-        if (tab === 'saved') {
+        if (tab === 'saved' || tab === 'realtime') {
           const removedPlace = wishlistPlaces.find((place) => place.id === id);
           const wishlistPlaceId = wishlistPlaceIdMap[id];
 
           setLikedIdsByTab((prev) => {
+            const nextRealtime = new Set(prev.realtime);
             const nextSaved = new Set(prev.saved);
             const nextWishlist = new Set(prev.wishlist);
 
+            nextRealtime.delete(id);
             nextSaved.delete(id);
             nextWishlist.delete(id);
 
             return {
               ...prev,
+              realtime: nextRealtime,
               saved: nextSaved,
               wishlist: nextWishlist,
             };
@@ -313,7 +355,8 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
             void deleteWishlistPlace(tripId, wishlistPlaceId).catch(() => {
               setLikedIdsByTab((prev) => ({
                 ...prev,
-                saved: new Set([...prev.saved, id]),
+                realtime: tab === 'realtime' ? new Set([...prev.realtime, id]) : prev.realtime,
+                saved: tab === 'saved' ? new Set([...prev.saved, id]) : prev.saved,
                 wishlist: new Set([...prev.wishlist, id]),
               }));
               if (removedPlace) {
@@ -331,14 +374,17 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           setLikedIdsByTab((prev) => {
             const nextWishlist = new Set(prev.wishlist);
             const nextSaved = new Set(prev.saved);
+            const nextRealtime = new Set(prev.realtime);
 
             nextWishlist.delete(id);
             nextSaved.delete(id);
+            nextRealtime.delete(id);
 
             return {
               ...prev,
               wishlist: nextWishlist,
               saved: nextSaved,
+              realtime: nextRealtime,
             };
           });
           setWishlistPlaces((prev) => prev.filter((place) => place.id !== id));
@@ -349,6 +395,9 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
                 ...prev,
                 wishlist: new Set([...prev.wishlist, id]),
                 saved: new Set([...prev.saved, id]),
+                realtime: recommendedPlaces.some((place) => place.id === id)
+                  ? new Set([...prev.realtime, id])
+                  : prev.realtime,
               }));
               if (removedPlace) {
                 setWishlistPlaces((prev) => [removedPlace, ...prev]);
@@ -371,7 +420,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
       // 낙관적 업데이트: 클릭 즉시 UI 반영
       toggleLike(tab, id);
 
-      if ((tab === 'saved' || tab === 'wishlist') && !wasWishlistLiked) {
+      if ((tab === 'saved' || tab === 'wishlist' || tab === 'realtime') && !wasWishlistLiked) {
         setLikedIdsByTab((prev) => {
           if (prev.wishlist.has(id)) {
             return prev;
@@ -387,7 +436,10 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
             return prev;
           }
 
-          const matchedPlace = savedPlaces.find((place) => place.id === id) ?? placeData;
+          const matchedPlace =
+            savedPlaces.find((place) => place.id === id) ??
+            recommendedPlaces.find((place) => place.id === id) ??
+            placeData;
           if (!matchedPlace) {
             return prev;
           }
@@ -402,7 +454,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           // 서버 반영 실패 시 원상복구
           toggleLike(tab, id);
 
-          if ((tab === 'saved' || tab === 'wishlist') && !wasWishlistLiked) {
+          if ((tab === 'saved' || tab === 'wishlist' || tab === 'realtime') && !wasWishlistLiked) {
             setLikedIdsByTab((prev) => {
               if (!prev.wishlist.has(id)) {
                 return prev;
@@ -419,7 +471,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           return;
         }
 
-        if (tab === 'saved' || tab === 'wishlist') {
+        if (tab === 'saved' || tab === 'wishlist' || tab === 'realtime') {
           setLikedIdsByTab((prev) => {
             if (prev.wishlist.has(id)) {
               return prev;
@@ -435,6 +487,7 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     [
       addWishlistPlaceById,
       isLikedInTab,
+      recommendedPlaces,
       savedPlaces,
       toggleLike,
       wishlistPlaceIdMap,
@@ -454,7 +507,10 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
   const [searchMarkers, setSearchMarkers] = useState<SearchWishPlace[]>([]);
   const [regionMarkers, setRegionMarkers] = useState<NearbyPlace[]>([]);
   const [searchTrigger, setSearchTrigger] = useState(0);
+  const [recommendationRefreshKey, setRecommendationRefreshKey] = useState(0);
+  const [isRegionSearchEnabled, setIsRegionSearchEnabled] = useState(false);
   const currentRegionRef = useRef<Region>(GOOGLE_HQ_REGION);
+  const lastRegionSearchRef = useRef<Region>(GOOGLE_HQ_REGION);
   const searchInputRef = useRef<TextInput>(null);
   const refocusRafRef = useRef<number | null>(null);
   const isSearchFocusedRef = useRef(false);
@@ -562,6 +618,11 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
 
   const handleSearchInRegion = useCallback(async (): Promise<void> => {
     const region = currentRegionRef.current;
+    if (!isRegionSearchEnabled) return;
+
+    lastRegionSearchRef.current = region;
+    setIsRegionSearchEnabled(false);
+
     const minLat = region.latitude - region.latitudeDelta / 2;
     const maxLat = region.latitude + region.latitudeDelta / 2;
     const minLng = region.longitude - region.longitudeDelta / 2;
@@ -599,14 +660,11 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
         // 검색 실패 시 마커 없음
       }
     } else {
-      const radiusMeters = Math.min(
-        Math.max(Math.round((region.latitudeDelta / 2) * 111000), 500),
-        50000,
-      );
+      const radiusMeters = getRegionRadiusMeters(region);
       const places = await searchNearbyPlaces(region.latitude, region.longitude, radiusMeters);
       setRegionMarkers(places);
     }
-  }, [searchQuery]);
+  }, [isRegionSearchEnabled, searchQuery]);
 
   const handlePressSearch = useCallback((): void => {
     if (!searchQuery.trim()) return;
@@ -736,6 +794,17 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     (id: string): void => handleToggleLikeWithApi('wishlist', id),
     [handleToggleLikeWithApi],
   );
+  const handleToggleRealtime = useCallback(
+    (id: string): void => {
+      const place = recommendedPlaces.find((item) => item.id === id);
+      handleToggleLikeWithApi('realtime', id, place);
+    },
+    [handleToggleLikeWithApi, recommendedPlaces],
+  );
+  const isRealtimeLiked = useCallback(
+    (id: string): boolean => isLikedInTab('realtime', id) || isLikedInTab('wishlist', id),
+    [isLikedInTab],
+  );
   const isSavedLiked = useCallback(
     (id: string): boolean => isLikedInTab('saved', id),
     [isLikedInTab],
@@ -764,6 +833,60 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (selectedCategory !== 'realtime') return;
+    if (typeof tripId !== 'number') {
+      setRecommendedPlaces([]);
+      return;
+    }
+
+    let isActive = true;
+    const region = currentRegionRef.current;
+
+    const timer = setTimeout(() => {
+      if (!isActive) return;
+
+      setIsLoadingRecommendations(true);
+      getWishlistRecommendations(tripId, {
+        latitude: region.latitude,
+        longitude: region.longitude,
+        radiusMeters: getRegionRadiusMeters(region),
+        limit: RECOMMENDATION_LIMIT,
+      })
+        .then((data) => {
+          if (!isActive) return;
+
+          const places = (data?.recommendedPlaces || []).map(convertRecommendationToWishPlace);
+          setRecommendedPlaces(places);
+          setRecommendationEmptyMessage(
+            data?.recommendedPlaceEmptyMessage || '추천 장소가 없습니다.',
+          );
+          setLikedIdsByTab((prev) => {
+            const nextRealtime = new Set(prev.realtime);
+            places.forEach((place) => {
+              if (prev.wishlist.has(place.id)) {
+                nextRealtime.add(place.id);
+              }
+            });
+            return { ...prev, realtime: nextRealtime };
+          });
+        })
+        .catch(() => {
+          if (!isActive) return;
+          setRecommendedPlaces([]);
+          setRecommendationEmptyMessage('실시간 추천 장소를 불러오지 못했습니다.');
+        })
+        .finally(() => {
+          if (isActive) setIsLoadingRecommendations(false);
+        });
+    }, 500);
+
+    return () => {
+      isActive = false;
+      clearTimeout(timer);
+    };
+  }, [selectedCategory, tripId, recommendationRefreshKey]);
 
   const requestLocationPermission = async (): Promise<boolean> => {
     if (Platform.OS === 'android') {
@@ -864,6 +987,40 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     }
 
     switch (selectedCategory) {
+      case 'realtime':
+        if (isLoadingRecommendations) {
+          return (
+            <LoadingView
+              message="추천 장소를 불러오는 중입니다."
+              size="small"
+              edges={[]}
+              className="bg-transparent py-10"
+            />
+          );
+        }
+
+        if (recommendedPlaces.length === 0) {
+          return (
+            <View className="mx-[1px] items-center py-4">
+              <Text className="mt-20 font-pretendardSemiBold text-h2">
+                {recommendationEmptyMessage}
+              </Text>
+            </View>
+          );
+        }
+
+        return (
+          <View className="mx-[1px] py-4">
+            {recommendedPlaces.map((place) => (
+              <PlaceCard
+                key={`realtime-${place.id}`}
+                place={place}
+                isLiked={isRealtimeLiked(place.id)}
+                onToggleLike={handleToggleRealtime}
+              />
+            ))}
+          </View>
+        );
       case 'saved':
         return (
           <WishTabSave
@@ -898,6 +1055,10 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           initialRegion={GOOGLE_HQ_REGION}
           onRegionChangeComplete={(region) => {
             currentRegionRef.current = region;
+            setIsRegionSearchEnabled(hasRegionChanged(region, lastRegionSearchRef.current));
+            if (selectedCategory === 'realtime') {
+              setRecommendationRefreshKey((prev) => prev + 1);
+            }
           }}>
           {searchMarkers.map((place) => (
             <Marker
@@ -962,8 +1123,8 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
           <View className="items-center">
             <CategoryChip
               label="현 지도에서 검색"
-              isSelected={true}
-              onPress={handleSearchInRegion}
+              isSelected={isRegionSearchEnabled}
+              onPress={isRegionSearchEnabled ? handleSearchInRegion : undefined}
               textClassName="text-p1"
               className="rounded-full px-[29px] py-[10px]"
             />

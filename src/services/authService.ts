@@ -9,6 +9,7 @@ import type {
   FindPasswordResetRequest,
   FindPasswordResetResult,
   FindPasswordResetResponse,
+  FindPasswordEmailRequestResult,
   EmailRequestData,
   EmailVerifyData,
   GoogleLoginData,
@@ -46,6 +47,7 @@ import {
   getSignUpWarningType,
   getFindIdWarningType,
   getFindPasswordResetWarningType,
+  getFindPasswordEmailRequestWarningType,
 } from '@/utils/error';
 
 interface CheckIdErrorBody {
@@ -576,7 +578,7 @@ export const postFindId = async (payload: FindIdRequest): Promise<FindIdResult> 
 export const postFindPasswordEmailRequest = async (payload: {
   usersId: string;
   email: string;
-}): Promise<{ ok: boolean; message?: string; code?: string }> => {
+}): Promise<FindPasswordEmailRequestResult> => {
   const requestUrl = buildAuthUrl('/api/v1/auth/password/email-request');
 
   try {
@@ -594,16 +596,16 @@ export const postFindPasswordEmailRequest = async (payload: {
     if (!response.ok) {
       return {
         ok: false,
+        warningType: getFindPasswordEmailRequestWarningType(response.status, json?.code ?? ''),
         message: json?.message ?? getDefaultMessageByStatus(response.status),
-        code: json?.code,
       };
     }
 
     if (!json?.success || !json.data) {
       return {
         ok: false,
+        warningType: 'UNKNOWN_ERROR',
         message: json?.message ?? '응답 형식이 올바르지 않습니다.',
-        code: json?.code,
       };
     }
 
@@ -612,6 +614,7 @@ export const postFindPasswordEmailRequest = async (payload: {
     if (error instanceof Error && error.message === REQUEST_TIMEOUT_ERROR_MESSAGE) {
       return {
         ok: false,
+        warningType: 'NETWORK_ERROR',
         message: '요청 시간이 초과되었습니다. 다시 시도해주세요.',
       };
     }
@@ -619,6 +622,7 @@ export const postFindPasswordEmailRequest = async (payload: {
     const isNetworkError = error instanceof TypeError;
     return {
       ok: false,
+      warningType: isNetworkError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
       message: isNetworkError ? '네트워크 연결을 확인해주세요.' : '인증번호 발송에 실패했습니다.',
     };
   }

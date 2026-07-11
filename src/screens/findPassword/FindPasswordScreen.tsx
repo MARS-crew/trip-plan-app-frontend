@@ -116,9 +116,9 @@ const FindPasswordScreen: React.FC = () => {
       setTempPwStatus('none');
     } else {
       const errorMessage =
-        result.code === 'USER_NOT_FOUND'
+        result.warningType === 'USER_NOT_FOUND'
           ? '아이디 또는 이메일을 확인해주세요.'
-          : result.code === 'INVALID_INPUT'
+          : result.warningType === 'INVALID_INPUT'
             ? '소셜 로그인 계정은 비밀번호 찾기를 이용하실 수 없습니다.'
             : result.message || '인증번호 발송에 실패했습니다.';
       setEmailStatus('error');

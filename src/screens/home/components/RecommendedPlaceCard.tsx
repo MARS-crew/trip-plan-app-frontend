@@ -42,8 +42,8 @@ export const RecommendedPlaceCard = React.memo<RecommendedPlaceCardProps>(({ pla
         </View>
 
         <View className="p-4">
-          <Text className="mb-4 text-p text-gray" numberOfLines={2}>
-            {`지금 ${place.cityName}에서 인기 있는 추천 장소예요`}
+          <Text className="mb-4 h-8 text-p text-gray" numberOfLines={2}>
+            {place.description}
           </Text>
           <View className="flex-row" style={{ minHeight: 28 }}>
             {(place.tags ?? []).slice(0, MAX_TAGS).map((tag, index) => (
