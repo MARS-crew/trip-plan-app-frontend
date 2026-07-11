@@ -844,40 +844,47 @@ const WishlistScreen: React.FC = (): React.JSX.Element => {
     let isActive = true;
     const region = currentRegionRef.current;
 
-    setIsLoadingRecommendations(true);
-    getWishlistRecommendations(tripId, {
-      latitude: region.latitude,
-      longitude: region.longitude,
-      radiusMeters: getRegionRadiusMeters(region),
-      limit: RECOMMENDATION_LIMIT,
-    })
-      .then((data) => {
-        if (!isActive) return;
+    const timer = setTimeout(() => {
+      if (!isActive) return;
 
-        const places = data.recommendedPlaces.map(convertRecommendationToWishPlace);
-        setRecommendedPlaces(places);
-        setRecommendationEmptyMessage(data.recommendedPlaceEmptyMessage || '추천 장소가 없습니다.');
-        setLikedIdsByTab((prev) => {
-          const nextRealtime = new Set(prev.realtime);
-          places.forEach((place) => {
-            if (prev.wishlist.has(place.id)) {
-              nextRealtime.add(place.id);
-            }
+      setIsLoadingRecommendations(true);
+      getWishlistRecommendations(tripId, {
+        latitude: region.latitude,
+        longitude: region.longitude,
+        radiusMeters: getRegionRadiusMeters(region),
+        limit: RECOMMENDATION_LIMIT,
+      })
+        .then((data) => {
+          if (!isActive) return;
+
+          const places = (data?.recommendedPlaces || []).map(convertRecommendationToWishPlace);
+          setRecommendedPlaces(places);
+          setRecommendationEmptyMessage(
+            data?.recommendedPlaceEmptyMessage || '추천 장소가 없습니다.',
+          );
+          setLikedIdsByTab((prev) => {
+            const nextRealtime = new Set(prev.realtime);
+            places.forEach((place) => {
+              if (prev.wishlist.has(place.id)) {
+                nextRealtime.add(place.id);
+              }
+            });
+            return { ...prev, realtime: nextRealtime };
           });
-          return { ...prev, realtime: nextRealtime };
+        })
+        .catch(() => {
+          if (!isActive) return;
+          setRecommendedPlaces([]);
+          setRecommendationEmptyMessage('실시간 추천 장소를 불러오지 못했습니다.');
+        })
+        .finally(() => {
+          if (isActive) setIsLoadingRecommendations(false);
         });
-      })
-      .catch(() => {
-        if (!isActive) return;
-        setRecommendedPlaces([]);
-        setRecommendationEmptyMessage('실시간 추천 장소를 불러오지 못했습니다.');
-      })
-      .finally(() => {
-        if (isActive) setIsLoadingRecommendations(false);
-      });
+    }, 500);
 
     return () => {
       isActive = false;
+      clearTimeout(timer);
     };
   }, [selectedCategory, tripId, recommendationRefreshKey]);
 
