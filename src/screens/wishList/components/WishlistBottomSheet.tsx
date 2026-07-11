@@ -13,26 +13,23 @@ const WishlistBottomSheetComponent: React.FC<WishlistBottomSheetProps> = ({
   onSelectCategory,
   onPressComplete,
   renderTabContent,
-
 }) => {
   const insets = useSafeAreaInsets();
   return (
     <CustomBottomSheet
       translateY={translateY}
       onStateChange={onStateChange}
-      maxTopSnap={maxTopSnap}
-    >
+      maxTopSnap={maxTopSnap}>
       <View className="mt-5 flex-row items-center justify-between px-4">
-        <View className="flex-row">
+        <View className="flex-1 flex-row">
           {tabs.map((tab) => (
             <CategoryChip
               key={tab.id}
               label={tab.label}
               onPress={() => onSelectCategory(tab.id)}
               isSelected={selectedCategory === tab.id}
-              className={`mr-2 rounded-2xl px-4 py-2 ${selectedCategory === tab.id ? 'bg-main' : 'bg-chip'}`}
+              className={`mr-2 rounded-2xl px-3 py-2 ${selectedCategory === tab.id ? 'bg-main' : 'bg-chip'}`}
             />
-
           ))}
         </View>
         <CategoryChip
@@ -43,7 +40,7 @@ const WishlistBottomSheetComponent: React.FC<WishlistBottomSheetProps> = ({
         />
       </View>
 
-      <View className="mx-4 mt-3 flex-1" style={{ paddingBottom: insets.bottom }}>
+      <View className="mx-4 mt-3 mb-5 flex-1" style={{ paddingBottom: insets.bottom }}>
         <ScrollView
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
