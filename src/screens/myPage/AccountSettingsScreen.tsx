@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, InteractionManager, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -100,9 +100,14 @@ const AccountSettingsScreen: React.FC = () => {
         return;
       }
 
+      // 모달을 먼저 닫고, 모달 dismiss 애니메이션이 끝난 뒤에 토큰 정리 + 로그인 화면 리셋을 수행한다.
+      // 모달이 떠 있는 상태에서 navigation.reset을 호출하면 네이티브 모달이 화면 위에 남아
+      // 로그인 화면 전환이 사용자에게 보이지 않기 때문이다.
       handleCloseWithdrawModal();
-      useAuthStore.getState().clearTokens();
-      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+      InteractionManager.runAfterInteractions(() => {
+        useAuthStore.getState().clearTokens();
+        navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+      });
     },
     [handleCloseWithdrawModal, navigation],
   );
