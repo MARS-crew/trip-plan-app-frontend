@@ -34,6 +34,7 @@ export const useSocialLogin = ({
     setIsSubmitting(true);
 
     try {
+      await NaverLogin.deleteToken().catch(() => {});
       const naverAuthResult = await NaverLogin.login();
       const accessToken = naverAuthResult.isSuccess
         ? naverAuthResult.successResponse?.accessToken?.trim()

@@ -42,8 +42,13 @@ const FindPasswordScreen: React.FC = () => {
   const isCodeVerified = useMemo(() => codeStatus === 'success', [codeStatus]);
   const isTempPwSent = useMemo(() => tempPwStatus === 'sent', [tempPwStatus]);
   const sendCodeButtonText = useMemo(
-    () => (isCodeFieldVisible || isCodeVerified || isEmailError ? '재전송' : '인증번호 발송'),
-    [isCodeFieldVisible, isCodeVerified, isEmailError],
+    () =>
+      isSendingVerification
+        ? '발송 중...'
+        : isCodeFieldVisible || isCodeVerified || isEmailError
+          ? '재전송'
+          : '인증번호 발송',
+    [isSendingVerification, isCodeFieldVisible, isCodeVerified, isEmailError],
   );
   const isSubmitEnabled = useMemo(
     () => userId.trim().length > 0 && email.trim().length > 0 && isCodeVerified,
