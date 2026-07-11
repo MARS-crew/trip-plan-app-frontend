@@ -27,7 +27,7 @@ export interface PlaceSelectionResponse {
   success: boolean;
 }
 
-export type WishlistBottomSheetTabId = 'saved' | 'wishlist';
+export type WishlistBottomSheetTabId = 'realtime' | 'saved' | 'wishlist';
 
 export interface WishPlace {
   id: string;
@@ -122,6 +122,7 @@ export interface WishlistSearchBarProps {
 }
 
 export interface LikedIdsByTab {
+  realtime: Set<string>;
   saved: Set<string>;
   wishlist: Set<string>;
 }
