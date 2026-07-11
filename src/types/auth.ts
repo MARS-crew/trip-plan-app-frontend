@@ -435,3 +435,30 @@ export interface FindPasswordResetFailureResult {
 export type FindPasswordResetResult =
   | FindPasswordResetSuccessResult
   | FindPasswordResetFailureResult;
+
+export interface FindPasswordEmailRequestData {
+  usersId: string;
+  email: string;
+}
+
+export type FindPasswordEmailRequestWarningType =
+  | 'INVALID_INPUT'
+  | 'USER_NOT_FOUND'
+  | 'EMAIL_SEND_FAIL'
+  | 'SERVER_ERROR'
+  | 'NETWORK_ERROR'
+  | 'UNKNOWN_ERROR';
+
+export interface FindPasswordEmailRequestSuccessResult {
+  ok: true;
+}
+
+export interface FindPasswordEmailRequestFailureResult {
+  ok: false;
+  warningType: FindPasswordEmailRequestWarningType;
+  message?: string;
+}
+
+export type FindPasswordEmailRequestResult =
+  | FindPasswordEmailRequestSuccessResult
+  | FindPasswordEmailRequestFailureResult;
