@@ -11,6 +11,7 @@ export const useEmailVerification = () => {
   const [isCodeFieldVisible, setIsCodeFieldVisible] = useState<boolean>(false);
   const [isVerifyingCode, setIsVerifyingCode] = useState<boolean>(false);
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false);
+  const [isSendingVerification, setIsSendingVerification] = useState<boolean>(false);
 
   const handleChangeEmail = useCallback(() => {
     setEmailStatus('none');
@@ -21,6 +22,10 @@ export const useEmailVerification = () => {
   }, []);
 
   const handleSendVerification = useCallback(async (email: string) => {
+    if (isSendingVerification) {
+      return;
+    }
+
     const trimmedEmail = email.trim();
 
     // 이메일 유효성 검사
@@ -33,6 +38,8 @@ export const useEmailVerification = () => {
       showToastMessage('유효한 이메일을 입력해주세요');
       return;
     }
+
+    setIsSendingVerification(true);
 
     try {
       await requestEmailVerification(trimmedEmail);
@@ -53,8 +60,10 @@ export const useEmailVerification = () => {
       setCodeStatus('none');
       setIsEmailVerified(false);
       showToastMessage(errMessage);
+    } finally {
+      setIsSendingVerification(false);
     }
-  }, []);
+  }, [isSendingVerification]);
 
   const handleVerifyEmailCode = useCallback(
     async (email: string, code: string): Promise<boolean> => {
@@ -107,6 +116,7 @@ export const useEmailVerification = () => {
     isCodeFieldVisible,
     isVerifyingCode,
     isEmailVerified,
+    isSendingVerification,
     handleChangeEmail,
     handleSendVerification,
     handleVerifyEmailCode,

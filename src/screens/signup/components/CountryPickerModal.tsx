@@ -32,8 +32,11 @@ export const CountryPickerModal: React.FC<CountryPickerModalProps> = ({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onDismiss}>
-      <View className="flex-1">
-        <Pressable className="absolute inset-0" onPress={onDismiss} />
+      <View style={{ flex: 1 }}>
+        <Pressable
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+          onPress={onDismiss}
+        />
 
         <View pointerEvents="box-none" className="absolute inset-0">
           <View

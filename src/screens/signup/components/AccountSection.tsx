@@ -70,6 +70,7 @@ export const AccountSection: React.FC<AccountSectionProps> = ({
             placeholder="닉네임을 입력하세요"
             value={formData.nickname}
             onChangeText={onChangeNickname}
+            maxLength={20}
             inputClassName={
               showFieldErrors && formData.nickname.trim().length === 0 ? 'border-statusError' : ''
             }
