@@ -6,19 +6,38 @@ import SettingIcon from '@/assets/icons/setting.svg';
 import VectorIcon from '@/assets/icons/vector.svg';
 import { CARD_SHADOW } from '@/constants';
 import type { MyPageAccountSectionProps, MyPageSettingItem } from '@/screens/myPage/types';
+import { SecurityLock } from '@/assets/icons';
 
 const SettingItemIcon: React.FC<{ type: MyPageSettingItem['type'] }> = ({ type }) => {
   if (type === 'account') {
     return <SettingIcon width={16} height={16} />;
   }
 
+  if (type === 'privacy-policy') {
+    return <SecurityLock width={16} height={16} />;
+  }
+
   return <BellIcon width={16} height={16} />;
+};
+
+const getOnPress = (
+  type: MyPageSettingItem['type'],
+  handlers: {
+    onPressAccountSettings: () => void;
+    onPressNotificationSettings: () => void;
+    onPressPrivacyPolicy: () => void;
+  },
+): (() => void) => {
+  if (type === 'account') return handlers.onPressAccountSettings;
+  if (type === 'privacy-policy') return handlers.onPressPrivacyPolicy;
+  return handlers.onPressNotificationSettings;
 };
 
 const MyPageAccountSection: React.FC<MyPageAccountSectionProps> = ({
   items,
   onPressAccountSettings,
   onPressNotificationSettings,
+  onPressPrivacyPolicy,
 }) => {
   return (
     <>
@@ -28,9 +47,11 @@ const MyPageAccountSection: React.FC<MyPageAccountSectionProps> = ({
         {items.map((item, index) => (
           <TouchableOpacity
             key={item.id}
-            onPress={
-              item.type === 'account' ? onPressAccountSettings : onPressNotificationSettings
-            }
+            onPress={getOnPress(item.type, {
+              onPressAccountSettings,
+              onPressNotificationSettings,
+              onPressPrivacyPolicy,
+            })}
             activeOpacity={0.8}
             className={`flex-row items-center justify-between px-4 py-4 ${index !== items.length - 1 ? 'border-b border-borderGray' : ''}`}>
             <View className="flex-row items-center">
