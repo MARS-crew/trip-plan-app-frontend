@@ -1,5 +1,6 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Keyboard,
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -8,6 +9,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -145,6 +147,22 @@ const ProfileEditDetailScreen: React.FC = () => {
   const [tempDay, setTempDay] = useState<number>(1);
   const [country, setCountry] = useState<string>('');
   const [showCountryPicker, setShowCountryPicker] = useState<boolean>(false);
+  const [countryDropdownLayout, setCountryDropdownLayout] = useState({
+    left: 16,
+    top: 0,
+    width: 0,
+  });
+  const countryTriggerRef = useRef<View | null>(null);
+  const countryPickerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { width: windowWidth } = useWindowDimensions();
+
+  useEffect(() => {
+    return () => {
+      if (countryPickerTimerRef.current) {
+        clearTimeout(countryPickerTimerRef.current);
+      }
+    };
+  }, []);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -167,9 +185,32 @@ const ProfileEditDetailScreen: React.FC = () => {
 
   const isPasswordMismatch = passwordConfirm.length > 0 && password !== passwordConfirm;
 
+  const measureAndOpenCountryPicker = useCallback((): void => {
+    countryTriggerRef.current?.measureInWindow((x, y, width, height) => {
+      const horizontalMargin = 16;
+      const left = Math.max(horizontalMargin, Math.min(x, windowWidth - horizontalMargin - width));
+      setCountryDropdownLayout({ left, top: y + height + 7, width });
+      setShowCountryPicker(true);
+    });
+  }, [windowWidth]);
+
   const handleToggleCountryPicker = useCallback((): void => {
-    setShowCountryPicker((prev) => !prev);
-  }, []);
+    if (showCountryPicker) {
+      setShowCountryPicker(false);
+      return;
+    }
+
+    if (Keyboard.isVisible()) {
+      Keyboard.dismiss();
+      if (countryPickerTimerRef.current) {
+        clearTimeout(countryPickerTimerRef.current);
+      }
+      countryPickerTimerRef.current = setTimeout(measureAndOpenCountryPicker, 250);
+      return;
+    }
+
+    measureAndOpenCountryPicker();
+  }, [measureAndOpenCountryPicker, showCountryPicker]);
 
   const handleSelectCountry = useCallback((selectedCountry: string): void => {
     setCountry(selectedCountry);
@@ -351,7 +392,7 @@ const ProfileEditDetailScreen: React.FC = () => {
             </View>
           </View>
 
-          <View className={`relative mt-4 ${showCountryPicker ? 'z-20 mb-60' : ''}`}>
+          <View className="relative mt-4" ref={countryTriggerRef}>
             <View className="flex-row items-center">
               <Text className="font-pretendardSemiBold text-h3 text-black">국가</Text>
               <Text className="ml-0.5 font-pretendardMedium text-p1 text-statusError">*</Text>
@@ -367,29 +408,48 @@ const ProfileEditDetailScreen: React.FC = () => {
                 <DownDropdownIcon width={16} height={16} />
               )}
             </Pressable>
-
-            {showCountryPicker && (
-              <View className="h-46 absolute left-0 right-0 top-full z-50 mt-2 rounded-xl border border-borderGray bg-white">
-                {COUNTRIES.map((option, index) => {
-                  const isSelectedCountry = country === option;
-                  const isLastItem = index === COUNTRIES.length - 1;
-
-                  return (
-                    <Pressable
-                      key={option}
-                      onPress={() => handleSelectCountry(option)}
-                      className={`mx-[6px] rounded-lg px-3 py-2 ${index === 0 ? 'mt-1' : ''} ${isLastItem ? '' : 'mb-1'} ${
-                        isSelectedCountry ? 'bg-statusSuccess' : 'bg-white'
-                      }`}>
-                      <Text className={`text-p ${isSelectedCountry ? 'text-white' : 'text-black'}`}>
-                        {option}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            )}
           </View>
+
+          <Modal
+            visible={showCountryPicker}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setShowCountryPicker(false)}>
+            <View style={{ flex: 1 }}>
+              <Pressable
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                onPress={() => setShowCountryPicker(false)}
+              />
+
+              <View pointerEvents="box-none" className="absolute inset-0">
+                <View
+                  className="absolute rounded-xl border border-borderGray bg-white"
+                  style={{
+                    left: countryDropdownLayout.left,
+                    top: countryDropdownLayout.top,
+                    width: countryDropdownLayout.width,
+                  }}>
+                  {COUNTRIES.map((option, index) => {
+                    const isSelectedCountry = country === option;
+                    const isLastItem = index === COUNTRIES.length - 1;
+
+                    return (
+                      <Pressable
+                        key={option}
+                        onPress={() => handleSelectCountry(option)}
+                        className={`mx-[6px] rounded-lg px-3 py-2 ${index === 0 ? 'mt-1' : ''} ${isLastItem ? '' : 'mb-1'} ${
+                          isSelectedCountry ? 'bg-statusSuccess' : 'bg-white'
+                        }`}>
+                        <Text className={`text-p ${isSelectedCountry ? 'text-white' : 'text-black'}`}>
+                          {option}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+          </Modal>
         </View>
 
         <TouchableOpacity

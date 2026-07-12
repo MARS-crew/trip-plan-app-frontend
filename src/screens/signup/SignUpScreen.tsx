@@ -88,9 +88,11 @@ const SignUpScreen: React.FC = () => {
   );
   const isEmailSent = emailVerification.emailStatus === 'sent';
   const isCodeError = emailVerification.codeStatus === 'error';
-  const canSendCode = signUpForm.formData.email.trim().length > 0;
-  const sendCodeButtonText =
-    emailVerification.isCodeFieldVisible || emailVerification.isEmailVerified
+  const canSendCode =
+    signUpForm.formData.email.trim().length > 0 && !emailVerification.isSendingVerification;
+  const sendCodeButtonText = emailVerification.isSendingVerification
+    ? '발송 중...'
+    : emailVerification.isCodeFieldVisible || emailVerification.isEmailVerified
       ? '재전송'
       : '인증번호 발송';
 
@@ -138,6 +140,14 @@ const SignUpScreen: React.FC = () => {
   const handleCheckId = useCallback(async () => {
     await idVerification.handleCheckId(signUpForm.formData.accountId);
   }, [idVerification, signUpForm.formData.accountId]);
+
+  const handleChangeId = useCallback(
+    (text: string) => {
+      idVerification.resetIdCheckStatus();
+      signUpForm.handleChangeId(text);
+    },
+    [idVerification, signUpForm],
+  );
 
   const handleSendVerification = useCallback(async () => {
     await emailVerification.handleSendVerification(signUpForm.formData.email);
@@ -275,7 +285,8 @@ const SignUpScreen: React.FC = () => {
         <ScrollView
           ref={scrollViewRef}
           scrollEnabled={!countryPicker.showCountryPicker}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled">
           <View className="px-4 pb-10">
             <View onLayout={formValidation.registerSectionY('account')}>
               <AccountSection
@@ -292,7 +303,7 @@ const SignUpScreen: React.FC = () => {
                 hasPasswordError={hasPasswordError}
                 passwordInputClassName={passwordInputClassName}
                 onCheckId={handleCheckId}
-                onChangeId={signUpForm.handleChangeId}
+                onChangeId={handleChangeId}
                 onChangeNickname={signUpForm.handleChangeNickname}
                 onChangePassword={signUpForm.handleChangePassword}
                 onChangePasswordConfirm={signUpForm.handleChangePasswordConfirm}
@@ -317,6 +328,7 @@ const SignUpScreen: React.FC = () => {
                     placeholder="이름을 입력하세요"
                     value={signUpForm.formData.name}
                     onChangeText={signUpForm.handleChangeName}
+                    maxLength={10}
                     inputClassName={
                       formValidation.showFieldErrors && signUpForm.formData.name.trim().length === 0
                         ? 'border-statusError'
