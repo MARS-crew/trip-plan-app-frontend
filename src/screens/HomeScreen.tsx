@@ -135,13 +135,14 @@ const HomeScreen: React.FC = () => {
     useCallback(() => {
       return () => {
         translateY.value = SNAP_MIN;
+        inputFocusGap.value = 0;
         setIsChatOpen(false);
         setChatMessages([]);
         setChatInputText('');
         setIsChatLoading(false);
         chatSessionId.current = `${Math.random().toString(36).substring(2)}${Date.now().toString(36)}`;
       };
-    }, [translateY, SNAP_MIN]),
+    }, [translateY, SNAP_MIN, inputFocusGap]),
   );
 
   const handleNavigateToDetail = useCallback(() => {

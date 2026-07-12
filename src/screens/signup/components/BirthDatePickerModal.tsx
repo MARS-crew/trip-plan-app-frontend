@@ -107,7 +107,7 @@ export const BirthDatePickerModal: React.FC<BirthDatePickerModalProps> = ({
     <Modal
       visible={visible}
       transparent
-      animationType="none"
+      animationType="fade"
       onRequestClose={onCancel}
       statusBarTranslucent>
       <View className="flex-1 justify-end">
