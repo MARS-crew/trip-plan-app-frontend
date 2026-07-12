@@ -10,8 +10,12 @@ const PRIVACY_POLICY_URL =
 export const PrivacyPolicyScreen: React.FC = () => {
     const navigation = useNavigation();
 
-    const handleOpenPrivacyPolicySite = () => {
-        Linking.openURL(PRIVACY_POLICY_URL);
+    const handleOpenPrivacyPolicySite = async () => {
+        try {
+            await Linking.openURL(PRIVACY_POLICY_URL);
+        } catch (error) {
+            console.error('Failed to open privacy policy URL:', error);
+        }
     };
 
     const requiredSignUpItems = ['아이디', '닉네임', '비밀번호', '이름', '생년월일', '성별', '국가', '이메일 주소'];

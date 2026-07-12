@@ -50,7 +50,7 @@ const TermsScreen: React.FC = () => {
       <TopBar title="이용약관" onPress={navigation.goBack} />
       <View className="px-4">
         <Text className="ml-1.5 mt-4 font-pretendardSemiBold text-xs text-black">
-          개인정보 수집 및 이용 동의
+          약관 및 동의
         </Text>
 
         <View className="mt-3 overflow-hidden rounded-lg border border-borderGray bg-white">

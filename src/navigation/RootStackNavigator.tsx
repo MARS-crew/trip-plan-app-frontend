@@ -17,7 +17,7 @@ import { AddTripCalendarScreen } from '@/screens/addTrip/AddTripCalendarScreen';
 import { VisitedPlaceListScreen } from '@/screens';
 import NotificationSettingsScreen from '@/screens/myPage/NotificationSettingsScreen';
 import AccountSettingsScreen from '@/screens/myPage/AccountSettingsScreen';
-import TermsScreen from '@/screens/myPage/PrivacyPolicyScreen';
+import TermsScreen from '@/screens/myPage/TermsScreen';
 import { AddCalendarMapScreen } from '@/screens/AddCalendarMapScreen';
 import TripDetailScreen from '@/screens/tripDetail/TripDetailScreen';
 import TripShareScreen from '@/screens/tripDetail/components/TripShareScreen';
