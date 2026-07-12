@@ -74,6 +74,11 @@ const settingItems: MyPageSettingItem[] = [
     title: '알림 설정',
     description: '푸시 알림, 야간 푸시 알림',
     type: 'notification',
+  },{
+    id: 'privacy-policy',
+    title: '이용약관',
+    description: '개인정보처리방침, 마케팅 정보 수신 동의',
+    type: 'privacy-policy',
   },
 ];
 
@@ -289,6 +294,17 @@ const MyPageScreen: React.FC = () => {
     navigation.navigate('NotificationSettings');
   };
 
+  const handleNavigateToPrivacyPolicy = (): void => {
+    const parentNavigation = navigation.getParent() as
+      | { navigate: (...args: unknown[]) => void }
+      | undefined;
+    if (parentNavigation) {
+      parentNavigation.navigate('TermsScreen');
+      return;
+    }
+    navigation.navigate('TermsScreen');
+  };
+
   const handleLogout = React.useCallback(async (): Promise<void> => {
     const { accessToken, refreshToken, clearTokens } = useAuthStore.getState();
 
@@ -366,6 +382,7 @@ const MyPageScreen: React.FC = () => {
             items={settingItems}
             onPressAccountSettings={handleNavigateToAccountSettings}
             onPressNotificationSettings={handleNavigateToNotificationSettings}
+            onPressPrivacyPolicy={handleNavigateToPrivacyPolicy}
           />
 
           <TouchableOpacity

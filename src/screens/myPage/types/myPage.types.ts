@@ -15,7 +15,7 @@ export interface MyPageStatItem {
   type: MyPageStatType;
 }
 
-export type MyPageSettingType = 'account' | 'notification';
+export type MyPageSettingType = 'account' | 'notification' | 'privacy-policy';
 
 export interface MyPageSettingItem {
   id: string;
@@ -43,6 +43,7 @@ export interface MyPageAccountSectionProps {
   items: MyPageSettingItem[];
   onPressAccountSettings: () => void;
   onPressNotificationSettings: () => void;
+  onPressPrivacyPolicy: () => void;
 }
 
 export interface MyPagePhraseSectionProps {
