@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Keyboard,
   Modal,
@@ -153,7 +153,16 @@ const ProfileEditDetailScreen: React.FC = () => {
     width: 0,
   });
   const countryTriggerRef = useRef<View | null>(null);
+  const countryPickerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { width: windowWidth } = useWindowDimensions();
+
+  useEffect(() => {
+    return () => {
+      if (countryPickerTimerRef.current) {
+        clearTimeout(countryPickerTimerRef.current);
+      }
+    };
+  }, []);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -193,7 +202,10 @@ const ProfileEditDetailScreen: React.FC = () => {
 
     if (Keyboard.isVisible()) {
       Keyboard.dismiss();
-      setTimeout(measureAndOpenCountryPicker, 250);
+      if (countryPickerTimerRef.current) {
+        clearTimeout(countryPickerTimerRef.current);
+      }
+      countryPickerTimerRef.current = setTimeout(measureAndOpenCountryPicker, 250);
       return;
     }
 
@@ -411,7 +423,7 @@ const ProfileEditDetailScreen: React.FC = () => {
 
               <View pointerEvents="box-none" className="absolute inset-0">
                 <View
-                  className="h-46 absolute rounded-xl border border-borderGray bg-white"
+                  className="absolute rounded-xl border border-borderGray bg-white"
                   style={{
                     left: countryDropdownLayout.left,
                     top: countryDropdownLayout.top,
