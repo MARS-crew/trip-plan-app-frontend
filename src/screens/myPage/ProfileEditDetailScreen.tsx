@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Keyboard,
   Modal,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
   Pressable,
   ScrollView,
   Text,
@@ -19,14 +17,11 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 import BackArrow from '@/assets/icons/backArrow.svg';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
+import { SpinnerColumn } from '@/components/ui';
 import { getProfileDetail, patchProfile } from '@/services';
 import { useAuthStore } from '@/store';
 import { CARD_SHADOW_DARK, COLORS } from '@/constants';
-import type {
-  ProfileEditDatePickerOptions,
-  ProfileEditGenderLabel,
-  ProfileEditSpinnerColumnProps,
-} from '@/screens/myPage/types';
+import type { ProfileEditDatePickerOptions, ProfileEditGenderLabel } from '@/screens/myPage/types';
 import type { Gender } from '@/types/mypage';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -44,7 +39,6 @@ const GENDER_LABEL_TO_API: Record<ProfileEditGenderLabel, Gender> = {
 };
 
 const COUNTRIES = ['대한민국', '미국', '일본', '중국', '영국', '프랑스', '독일'] as const;
-const ITEM_HEIGHT = 44;
 const NICKNAME_MAX_LENGTH = 20;
 // 소셜 로그인(카카오/네이버/구글) 계정은 비밀번호가 없으므로 비밀번호 변경 영역을 숨긴다.
 const SOCIAL_LOGIN_TYPES = ['KAKAO', 'NAVER', 'GOOGLE'];
@@ -68,66 +62,6 @@ const getDatePickerOptions = (
   const selectedDay = days.includes(day) ? day : days[0];
 
   return { years, months, days, selectedYear, selectedMonth, selectedDay };
-};
-
-const SpinnerColumn: React.FC<ProfileEditSpinnerColumnProps> = ({
-  items,
-  selectedIndex,
-  onSelect,
-  format = (n) => String(n),
-}) => {
-  const scrollRef = useRef<ScrollView>(null);
-
-  const handleScrollEnd = useCallback(
-    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const offsetY = e.nativeEvent.contentOffset.y;
-      const index = Math.round(offsetY / ITEM_HEIGHT);
-      const clamped = Math.max(0, Math.min(index, items.length - 1));
-      onSelect(clamped);
-      scrollRef.current?.scrollTo({ y: clamped * ITEM_HEIGHT, animated: true });
-    },
-    [items.length, onSelect],
-  );
-
-  return (
-    <View className="h-[220px] flex-1">
-      <View
-        pointerEvents="none"
-        className="absolute left-2 right-2 top-[88px] h-px bg-main"
-      />
-      <View
-        pointerEvents="none"
-        className="absolute left-2 right-2 top-[132px] h-px bg-inputBackground"
-      />
-      <ScrollView
-        ref={scrollRef}
-        showsVerticalScrollIndicator={false}
-        snapToInterval={ITEM_HEIGHT}
-        decelerationRate="fast"
-        contentOffset={{ x: 0, y: selectedIndex * ITEM_HEIGHT }}
-        contentContainerStyle={{
-          paddingTop: ITEM_HEIGHT * 2,
-          paddingBottom: ITEM_HEIGHT * 2,
-        }}
-        onMomentumScrollEnd={handleScrollEnd}
-        onScrollEndDrag={handleScrollEnd}>
-        {items.map((item, idx) => {
-          const isSelected = idx === selectedIndex;
-
-          return (
-            <View key={item} className="h-[44px] items-center justify-center">
-              <Text
-                className={`text-[15px] ${
-                  isSelected ? 'font-pretendardSemiBold text-black' : 'text-gray'
-                }`}>
-                {format(item)}
-              </Text>
-            </View>
-          );
-        })}
-      </ScrollView>
-    </View>
-  );
 };
 
 const ProfileEditDetailScreen: React.FC = () => {

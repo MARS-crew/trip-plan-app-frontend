@@ -33,6 +33,7 @@ import type { ChatMessage } from '@/types/chat';
 import {
   CHAT_HEADER_HEIGHT,
   CHAT_INPUT_BOTTOM_SPACING,
+  CHAT_INPUT_KEYBOARD_GAP,
   CHAT_INPUT_RADIUS,
   CHAT_SEND_BUTTON_SIZE,
   CHAT_SHEET_HEIGHT,
@@ -42,6 +43,7 @@ const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const translateY = useSharedValue(CHAT_SHEET_HEIGHT);
   const SNAP_MIN = CHAT_SHEET_HEIGHT;
+  const inputFocusGap = useSharedValue(0);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [hasPlannedTrip, setHasPlannedTrip] = useState(false);
   const [isInTripScheduleView, setIsInTripScheduleView] = useState(false);
@@ -129,6 +131,19 @@ const HomeScreen: React.FC = () => {
     }, []),
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        translateY.value = SNAP_MIN;
+        setIsChatOpen(false);
+        setChatMessages([]);
+        setChatInputText('');
+        setIsChatLoading(false);
+        chatSessionId.current = `${Math.random().toString(36).substring(2)}${Date.now().toString(36)}`;
+      };
+    }, [translateY, SNAP_MIN]),
+  );
+
   const handleNavigateToDetail = useCallback(() => {
     navigation.navigate('Alert');
   }, [navigation]);
@@ -187,6 +202,18 @@ const HomeScreen: React.FC = () => {
     const opacity = interpolate(translateY.value, [0, SNAP_MIN], [0.3, 0]);
     return { opacity };
   }, [translateY, SNAP_MIN]);
+
+  const handleInputFocus = useCallback(() => {
+    inputFocusGap.value = withTiming(CHAT_INPUT_KEYBOARD_GAP, { duration: 200 });
+  }, [inputFocusGap]);
+
+  const handleInputBlur = useCallback(() => {
+    inputFocusGap.value = withTiming(0, { duration: 200 });
+  }, [inputFocusGap]);
+
+  const inputRowAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: -inputFocusGap.value }],
+  }));
 
   return (
     <SafeAreaView className="flex-1 bg-screenBackground" edges={['top']}>
@@ -320,13 +347,15 @@ const HomeScreen: React.FC = () => {
             )}
           </ScrollView>
 
-          <View
+          <Animated.View
             className="absolute left-0 right-0 flex-row items-center px-4"
-            style={{ bottom: CHAT_INPUT_BOTTOM_SPACING }}>
+            style={[{ bottom: CHAT_INPUT_BOTTOM_SPACING }, inputRowAnimatedStyle]}>
             <TextInput
               value={chatInputText}
               onChangeText={setChatInputText}
               onSubmitEditing={() => { void handleSendChat(); }}
+              onFocus={handleInputFocus}
+              onBlur={handleInputBlur}
               placeholder="AI에게 질문해보세요"
               placeholderTextColor={COLORS.gray}
               returnKeyType="send"
@@ -345,7 +374,7 @@ const HomeScreen: React.FC = () => {
               }}>
               <SendIcon width={24} height={24} />
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         </View>
       </CustomBottomSheet>
     </SafeAreaView>
