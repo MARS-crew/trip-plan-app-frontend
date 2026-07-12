@@ -18,6 +18,7 @@ import type { RootStackParamList } from '@/navigation/types';
 import BackArrow from '@/assets/icons/backArrow.svg';
 import { DownDropdownIcon, UpDropdownIcon } from '@/assets';
 import { getProfileDetail, patchProfile } from '@/services';
+import { useAuthStore } from '@/store';
 import { CARD_SHADOW_DARK, COLORS } from '@/constants';
 import type {
   ProfileEditDatePickerOptions,
@@ -42,6 +43,9 @@ const GENDER_LABEL_TO_API: Record<ProfileEditGenderLabel, Gender> = {
 
 const COUNTRIES = ['대한민국', '미국', '일본', '중국', '영국', '프랑스', '독일'] as const;
 const ITEM_HEIGHT = 44;
+const NICKNAME_MAX_LENGTH = 20;
+// 소셜 로그인(카카오/네이버/구글) 계정은 비밀번호가 없으므로 비밀번호 변경 영역을 숨긴다.
+const SOCIAL_LOGIN_TYPES = ['KAKAO', 'NAVER', 'GOOGLE'];
 
 const pad = (n: number): string => String(n).padStart(2, '0');
 const getDaysInMonth = (year: number, month: number): number => new Date(year, month, 0).getDate();
@@ -127,6 +131,8 @@ const SpinnerColumn: React.FC<ProfileEditSpinnerColumnProps> = ({
 const ProfileEditDetailScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const currentYear = useMemo(() => new Date().getFullYear(), []);
+  const loginType = useAuthStore((state) => state.user?.loginType);
+  const isSocialLogin = SOCIAL_LOGIN_TYPES.includes((loginType ?? '').toUpperCase());
   const [name, setName] = useState('');
   const [gender, setGender] = useState<ProfileEditGenderLabel>('여성');
   const [nickname, setNickname] = useState('');
@@ -249,42 +255,51 @@ const ProfileEditDetailScreen: React.FC = () => {
             <TextInput
               value={nickname}
               onChangeText={setNickname}
+              maxLength={NICKNAME_MAX_LENGTH}
               className="mt-2 h-[46px] rounded-xl border border-borderGray bg-inputBackground px-3 text-p1 text-gray"
             />
           </View>
 
-          <View className="mt-4">
-            <View className="flex-row items-center">
-              <Text className="font-pretendardSemiBold text-h3 text-black">비밀번호</Text>
-              <Text className="ml-0.5 font-pretendardMedium text-p1 text-statusError">*</Text>
-            </View>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              placeholder="8~20자, 영문/숫자/특수문자 포함"
-              placeholderTextColor={COLORS.gray}
-              secureTextEntry
-              className="mt-2 h-[46px] rounded-xl border border-borderGray bg-inputBackground px-3 text-p1 text-black"
-            />
-          </View>
+          {!isSocialLogin && (
+            <>
+              <View className="mt-4">
+                <View className="flex-row items-center">
+                  <Text className="font-pretendardSemiBold text-h3 text-black">비밀번호</Text>
+                  <Text className="ml-0.5 font-pretendardMedium text-p1 text-statusError">*</Text>
+                </View>
+                <TextInput
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder="8~20자, 영문/숫자/특수문자 포함"
+                  placeholderTextColor={COLORS.gray}
+                  secureTextEntry
+                  // 마스킹 문자(•/*)를 순수 검정으로 표시 (테마 black은 #251D18이라 별도 지정)
+                  style={{ color: '#000000' }}
+                  className="mt-2 h-[46px] rounded-xl border border-borderGray bg-inputBackground px-3 text-p1 text-black"
+                />
+              </View>
 
-          <View className="mt-4">
-            <View className="flex-row items-center">
-              <Text className="font-pretendardSemiBold text-h3 text-black">비밀번호 확인</Text>
-              <Text className="ml-0.5 font-pretendardMedium text-p1 text-statusError">*</Text>
-            </View>
-            <TextInput
-              value={passwordConfirm}
-              onChangeText={setPasswordConfirm}
-              placeholder="비밀번호를 다시 입력하세요"
-              placeholderTextColor={COLORS.gray}
-              secureTextEntry
-              className="mt-2 h-[46px] rounded-xl border border-borderGray bg-inputBackground px-3 text-p1 text-black"
-            />
-            {isPasswordMismatch && (
-              <Text className="mt-1 text-p text-statusError">비밀번호가 일치하지 않습니다.</Text>
-            )}
-          </View>
+              <View className="mt-4">
+                <View className="flex-row items-center">
+                  <Text className="font-pretendardSemiBold text-h3 text-black">비밀번호 확인</Text>
+                  <Text className="ml-0.5 font-pretendardMedium text-p1 text-statusError">*</Text>
+                </View>
+                <TextInput
+                  value={passwordConfirm}
+                  onChangeText={setPasswordConfirm}
+                  placeholder="비밀번호를 다시 입력하세요"
+                  placeholderTextColor={COLORS.gray}
+                  secureTextEntry
+                  // 마스킹 문자(•/*)를 순수 검정으로 표시 (테마 black은 #251D18이라 별도 지정)
+                  style={{ color: '#000000' }}
+                  className="mt-2 h-[46px] rounded-xl border border-borderGray bg-inputBackground px-3 text-p1 text-black"
+                />
+                {isPasswordMismatch && (
+                  <Text className="mt-1 text-p text-statusError">비밀번호가 일치하지 않습니다.</Text>
+                )}
+              </View>
+            </>
+          )}
         </View>
 
         <View className="mt-5 rounded-lg bg-white px-6 pb-6 pt-6" style={CARD_SHADOW_DARK}>
