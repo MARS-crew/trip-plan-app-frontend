@@ -95,6 +95,7 @@ export { default as BellIcon } from './bell.svg';
 export { default as CloudyIcon } from './cloudy.svg';
 export { default as RainyIcon } from './rainy.svg';
 export { default as SnowIcon } from './snow.svg';
+export { default as SecurityLock } from './securityLock.svg';
 
 // 타입 정의
 export interface IconProps {

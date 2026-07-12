@@ -17,6 +17,7 @@ import { AddTripCalendarScreen } from '@/screens/addTrip/AddTripCalendarScreen';
 import { VisitedPlaceListScreen } from '@/screens';
 import NotificationSettingsScreen from '@/screens/myPage/NotificationSettingsScreen';
 import AccountSettingsScreen from '@/screens/myPage/AccountSettingsScreen';
+import TermsScreen from '@/screens/myPage/TermsScreen';
 import { AddCalendarMapScreen } from '@/screens/AddCalendarMapScreen';
 import TripDetailScreen from '@/screens/tripDetail/TripDetailScreen';
 import TripShareScreen from '@/screens/tripDetail/components/TripShareScreen';
@@ -55,6 +56,7 @@ export const RootStackNavigator: React.FC = () => {
       <Stack.Screen name="VisitedPlaceListScreen" component={VisitedPlaceListScreen} />
       <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
       <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
+      <Stack.Screen name="TermsScreen" component={TermsScreen} />
 
       <Stack.Screen name="TripDetail" component={TripDetailScreen} />
       <Stack.Screen name="TripShare" component={TripShareScreen} />
