@@ -1,5 +1,6 @@
 export const CHAT_SHEET_HEIGHT = 678;
 export const CHAT_INPUT_BOTTOM_SPACING = 12;
+export const CHAT_INPUT_KEYBOARD_GAP = 12;
 export const CHAT_HEADER_HEIGHT = 60;
 export const CHAT_CASE_DEFAULT_TOP_SPACING = 87;
 export const CHAT_USER_BUBBLE_TOP_SPACING = 27;

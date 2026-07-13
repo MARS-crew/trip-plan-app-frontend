@@ -91,8 +91,7 @@ const SpinnerColumn: React.FC<SpinnerColumnProps> = ({
           paddingTop: ITEM_HEIGHT * 2,
           paddingBottom: ITEM_HEIGHT * 2,
         }}
-        onMomentumScrollEnd={handleScrollEnd}
-        onScrollEndDrag={handleScrollEnd}>
+        onMomentumScrollEnd={handleScrollEnd}>
         {items.map((item, idx) => {
           const isSelected = idx === normalizedSelectedIndex;
 

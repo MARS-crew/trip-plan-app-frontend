@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -133,6 +134,30 @@ const AddScheduleScreen = () => {
   const [pickerMode, setPickerMode] = useState<PickerMode>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const pickerBackdropOpacity = useSharedValue(0);
+  const pickerSheetTranslateY = useSharedValue(300);
+
+  useEffect(() => {
+    if (pickerMode !== null) {
+      pickerBackdropOpacity.value = withTiming(1, { duration: 250 });
+      pickerSheetTranslateY.value = withTiming(0, { duration: 250 });
+    }
+  }, [pickerMode]);
+
+  const closePicker = useCallback(() => {
+    pickerBackdropOpacity.value = withTiming(0, { duration: 200 });
+    pickerSheetTranslateY.value = withTiming(300, { duration: 200 }, (finished) => {
+      if (finished) {
+        runOnJS(setPickerMode)(null);
+      }
+    });
+  }, [pickerBackdropOpacity, pickerSheetTranslateY]);
+
+  const pickerBackdropStyle = useAnimatedStyle(() => ({ opacity: pickerBackdropOpacity.value }));
+  const pickerSheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: pickerSheetTranslateY.value }],
+  }));
+
   const [tempYear, setTempYear] = useState(fallbackDate.year);
   const [tempMonth, setTempMonth] = useState(fallbackDate.month);
   const [tempDay, setTempDay] = useState(fallbackDate.day);
@@ -234,7 +259,7 @@ const AddScheduleScreen = () => {
         date: nextDate,
       }));
 
-      setPickerMode(null);
+      closePicker();
       return;
     }
 
@@ -248,7 +273,7 @@ const AddScheduleScreen = () => {
       }));
     }
 
-    setPickerMode(null);
+    closePicker();
   };
 
   const dateLabel = formValues.date ? formatDateValue(formValues.date) : '날짜';
@@ -462,18 +487,19 @@ const AddScheduleScreen = () => {
       <Modal
         visible={pickerMode !== null}
         transparent
-        animationType="slide"
-        onRequestClose={() => setPickerMode(null)}
+        animationType="none"
+        onRequestClose={closePicker}
         statusBarTranslucent>
         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-          <Pressable
-            style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}
-            onPress={() => setPickerMode(null)}
-          />
+          <Animated.View style={[{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }, pickerBackdropStyle]}>
+            <Pressable style={{ flex: 1 }} onPress={closePicker} />
+          </Animated.View>
 
-          <View className="rounded-t-[16px] bg-white px-6 pb-10 pt-4">
+          <Animated.View
+            className="rounded-t-[16px] bg-white px-6 pb-10 pt-4"
+            style={pickerSheetStyle}>
             <View className="mb-4 flex-row items-center justify-between">
-              <TouchableOpacity onPress={() => setPickerMode(null)}>
+              <TouchableOpacity onPress={closePicker}>
                 <Text className="text-p1 text-gray">취소</Text>
               </TouchableOpacity>
 
@@ -550,7 +576,7 @@ const AddScheduleScreen = () => {
                 />
               </View>
             ) : null}
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </SafeAreaView>

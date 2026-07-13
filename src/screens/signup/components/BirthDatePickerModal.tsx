@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import SpinnerColumn from '@/components/ui/SpinnerColumn';
 import {
@@ -86,17 +87,37 @@ export const BirthDatePickerModal: React.FC<BirthDatePickerModalProps> = ({
     [onChangeDay, days],
   );
 
+  const backdropOpacity = useSharedValue(0);
+  const sheetTranslateY = useSharedValue(300);
+
+  useEffect(() => {
+    if (visible) {
+      backdropOpacity.value = withTiming(1, { duration: 250 });
+      sheetTranslateY.value = withTiming(0, { duration: 250 });
+    } else {
+      backdropOpacity.value = withTiming(0, { duration: 200 });
+      sheetTranslateY.value = withTiming(300, { duration: 200 });
+    }
+  }, [visible]);
+
+  const backdropStyle = useAnimatedStyle(() => ({ opacity: backdropOpacity.value }));
+  const sheetStyle = useAnimatedStyle(() => ({ transform: [{ translateY: sheetTranslateY.value }] }));
+
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType="fade"
       onRequestClose={onCancel}
       statusBarTranslucent>
       <View className="flex-1 justify-end">
-        <Pressable className="flex-1 bg-black/30" onPress={onCancel} />
+        <Animated.View style={[{ flex: 1 }, backdropStyle]}>
+          <Pressable className="flex-1 bg-black/30" onPress={onCancel} />
+        </Animated.View>
 
-        <View className="rounded-t-[16px] bg-white px-6 pb-10 pt-4">
+        <Animated.View
+          className="rounded-t-[16px] bg-white px-6 pb-10 pt-4"
+          style={sheetStyle}>
           <View className="mb-4 flex-row items-center justify-between">
             <TouchableOpacity onPress={onCancel}>
               <Text className="text-p1 text-gray">취소</Text>
@@ -132,7 +153,7 @@ export const BirthDatePickerModal: React.FC<BirthDatePickerModalProps> = ({
               format={(n) => `${pad(n)}일`}
             />
           </View>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
