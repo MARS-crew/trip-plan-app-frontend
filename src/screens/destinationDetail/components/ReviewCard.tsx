@@ -4,7 +4,7 @@ import { ReviewCardProps, StarRatingProps } from '@/types/review';
 import React, { useState } from 'react';
 import { Image, ScrollView, Text, View } from 'react-native';
 
-const CDN_BASE_URL = 'https://minio.mars-pli.kro.kr:26443/';
+const CDN_BASE_URL = 'https://minio.mars-pli.kro.kr:26443/mars-pli/';
 const DEFAULT_REVIEW_IMAGE = require('@/assets/images/place_default.png');
 
 const getValidImageUrl = (rawPath?: string): string | null => {
